@@ -4,6 +4,8 @@ from psycopg2.extras import DictCursor
 from fastapi import APIRouter
 from geojson_pydantic import FeatureCollection
 
+from .. import config
+
 router = APIRouter(prefix="/countries")
 
 @router.get("/", response_model=FeatureCollection)
