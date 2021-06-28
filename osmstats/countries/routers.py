@@ -1,15 +1,12 @@
 import psycopg2
-from fastapi import FastAPI
-from configparser import ConfigParser
+
 from psycopg2.extras import DictCursor
+from fastapi import APIRouter
 from geojson_pydantic import FeatureCollection
 
-app = FastAPI()
-config = ConfigParser()
-config.read("config.txt")
+router = APIRouter(prefix="/countries")
 
-
-@app.get("/countries", response_model=FeatureCollection)
+@router.get("/", response_model=FeatureCollection)
 def get_countries():
     db_params = dict(config.items("PG"))
     conn = psycopg2.connect(**db_params)
