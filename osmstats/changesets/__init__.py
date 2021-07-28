@@ -8,6 +8,18 @@ class PolygonFilter(Enum):
     geojson = "geojson"
 
 
+class ChangesetResult(BaseModel):
+    name: str
+    total_changesets: int
+    contributors: int
+    added_highway: int
+    modified_highway: int
+    deleted_highway: int
+    added_highway_km: float
+    modified_highway_km: float
+    deleted_highway_km: float
+
+
 class FilterParams(BaseModel):
     type: PolygonFilter
     value: Union[str, Polygon]

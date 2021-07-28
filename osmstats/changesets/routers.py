@@ -1,11 +1,15 @@
+import psycopg2
+
+from psycopg2.extras import DictCursor
+
 from .. import config
-from . import FilterParams
+from . import FilterParams, ChangesetResult
 from .utils import geom_filter_subquery
 from fastapi import APIRouter
 
 router = APIRouter(prefix="/changesets")
 
-@router.post("/")
+@router.post("/", response_model=ChangesetResult)
 def get_changesets(params: FilterParams):
     geom_filter_sq = geom_filter_subquery(params.dict())
 
@@ -77,7 +81,17 @@ def get_changesets(params: FilterParams):
         ON deleted_filter_highway_km.name = t4.name;
         """
 
-    return query
+    db_params = dict(config.items("PG"))
+    conn = psycopg2.connect(**db_params)
+
+    cur = conn.cursor(cursor_factory=DictCursor)
+    cur.execute(query)
+
+    result = cur.fetchall()
+
+    result_dto = ChangesetResult(**dict(result[0]))
+
+    return result_dto
 
 
 
