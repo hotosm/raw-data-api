@@ -13,31 +13,44 @@ router = APIRouter(prefix="/changesets")
 def get_changesets(params: FilterParams):
     geom_filter_sq = geom_filter_subquery(params.dict())
 
+    t3 = """
+        SELECT 
+            name,
+            id,
+            user_id,
+            (EACH(added)).key AS added_key,
+            (EACH(added)).value::numeric as added_value,
+            (EACH(modified)).key AS modified_key,
+            (EACH(modified)).value::numeric as modified_value,
+            (EACH(deleted)).key AS deleted_key,
+            (EACH(deleted)).value::numeric as deleted_value
+        from t2
+    """
+
+    t3_filters = []
+    if params.start_datetime is not None:
+        t3_filters.append(f"created_at > '{params.start_datetime.isoformat()}'")
+    if params.end_datetime is not None:
+        t3_filters.append(f"created_at <= '{params.end_datetime.isoformat()}'")
+
+    if len(t3_filters) > 0:
+        filter_sql = " AND ".join(t3_filters)
+        t3 += f"WHERE {filter_sql}"
+
     query = f"""WITH t1 AS ({geom_filter_sq}),
         t2 AS (
         select 
             t1.name,
             cs.id,
             cs.user_id,
+            cs.created_at,
             coalesce(cs.added, hstore('none', '0')) AS added,
             coalesce(cs.modified, hstore('none', '0')) AS modified,
             coalesce(cs.deleted, hstore('none', '0')) AS deleted
         FROM changesets AS cs, t1 where
             ST_INTERSECTS(cs.bbox, t1.boundary)
         ),
-        t3 AS (
-            SELECT 
-                name,
-                id,
-                user_id,
-                (EACH(added)).key AS added_key,
-                (EACH(added)).value::numeric as added_value,
-                (EACH(modified)).key AS modified_key,
-                (EACH(modified)).value::numeric as modified_value,
-                (EACH(deleted)).key AS deleted_key,
-                (EACH(deleted)).value::numeric as deleted_value
-            from t2
-        ),
+        t3 AS ({t3}),
         t4 AS (
         SELECT 
             name,

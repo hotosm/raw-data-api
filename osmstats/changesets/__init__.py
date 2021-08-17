@@ -1,7 +1,8 @@
 from enum import Enum
 from geojson_pydantic.geometries import Polygon
 from pydantic import BaseModel, ValidationError, validator
-from typing import Union
+from typing import Union, Optional
+from datetime import datetime, date
 
 class PolygonFilter(Enum):
     iso3 = "iso3"
@@ -23,6 +24,8 @@ class ChangesetResult(BaseModel):
 class FilterParams(BaseModel):
     type: PolygonFilter
     value: Union[str, Polygon]
+    start_datetime: Optional[Union[datetime, date]]
+    end_datetime: Optional[Union[datetime, date]]
 
     @validator("type", "value")
     def matching_types(cls, v, values, **kwargs):
@@ -41,7 +44,7 @@ class FilterParams(BaseModel):
 
 '''
 {
-    "type": "custom",
+    "type": "geojson",
     "value": {
         "type": "Polygon",
         "coordinates": [
