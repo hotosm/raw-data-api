@@ -32,6 +32,8 @@ def get_changesets(params: FilterParams):
         t3_filters.append(f"created_at > '{params.start_datetime.isoformat()}'")
     if params.end_datetime is not None:
         t3_filters.append(f"created_at <= '{params.end_datetime.isoformat()}'")
+    if params.hashtag is not None:
+        t3_filters.append(f"'{params.hashtag}' = ANY(hashtags)")
 
     if len(t3_filters) > 0:
         filter_sql = " AND ".join(t3_filters)
@@ -44,6 +46,7 @@ def get_changesets(params: FilterParams):
             cs.id,
             cs.user_id,
             cs.created_at,
+            cs.hashtags,
             coalesce(cs.added, hstore('none', '0')) AS added,
             coalesce(cs.modified, hstore('none', '0')) AS modified,
             coalesce(cs.deleted, hstore('none', '0')) AS deleted

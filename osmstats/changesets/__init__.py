@@ -24,6 +24,7 @@ class ChangesetResult(BaseModel):
 class FilterParams(BaseModel):
     type: PolygonFilter
     value: Union[str, Polygon]
+    hashtag: Optional[str]
     start_datetime: Optional[Union[datetime, date]]
     end_datetime: Optional[Union[datetime, date]]
 
