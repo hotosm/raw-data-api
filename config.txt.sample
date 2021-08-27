@@ -4,3 +4,16 @@ user=
 password=
 name=
 port=
+
+
+[OAUTH]
+client_id=
+client_secret=
+redirect_uri=http://127.0.0.1:8000/callback
+url=https://www.openstreetmap.org
+scope=read_prefs
+
+[DUMP]
+path=/Users/jorge/data/
+underpass=underpass.sql
+osmstats=osmstats.sql
