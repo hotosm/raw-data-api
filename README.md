@@ -8,4 +8,4 @@ Install requirements.
 
 Run server
 
-```uvicorn app:app --reload```
+```uvicorn osmstats.main:app --reload```

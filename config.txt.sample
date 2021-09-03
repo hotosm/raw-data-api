@@ -2,9 +2,8 @@
 host=localhost
 user=
 password=
-name=
+dbname=
 port=
-
 
 [OAUTH]
 client_id=
@@ -14,6 +13,6 @@ url=https://www.openstreetmap.org
 scope=read_prefs
 
 [DUMP]
-path=/Users/jorge/data/
+path=
 underpass=underpass.sql
 osmstats=osmstats.sql
