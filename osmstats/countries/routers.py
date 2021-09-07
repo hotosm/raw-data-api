@@ -8,6 +8,7 @@ from .. import config
 
 router = APIRouter(prefix="/countries")
 
+
 @router.get("/", response_model=FeatureCollection)
 def get_countries():
     db_params = dict(config.items("PG"))

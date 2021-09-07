@@ -4,6 +4,7 @@ from pydantic import BaseModel, ValidationError, validator
 from typing import Union, Optional
 from datetime import datetime, date
 
+
 class PolygonFilter(Enum):
     iso3 = "iso3"
     geojson = "geojson"
@@ -31,19 +32,31 @@ class FilterParams(BaseModel):
     @validator("type", "value")
     def matching_types(cls, v, values, **kwargs):
         type_val = values.get("type")
-        if "type" in values and values["type"].value == PolygonFilter.iso3.value and type(v) is not str:
+        if (
+            "type" in values
+            and values["type"].value == PolygonFilter.iso3.value
+            and type(v) is not str
+        ):
             raise ValueError("Value must be ISO3 code")
 
-        if "type" in values and values["type"].value == PolygonFilter.iso3.value and len(v) != 3:
+        if (
+            "type" in values
+            and values["type"].value == PolygonFilter.iso3.value
+            and len(v) != 3
+        ):
             raise ValueError("Invalid ISO3 code")
 
-        if "type" in values and values["type"].value == PolygonFilter.geojson.value and type(v) is not Polygon:
+        if (
+            "type" in values
+            and values["type"].value == PolygonFilter.geojson.value
+            and type(v) is not Polygon
+        ):
             raise ValueError("Value must be geojson polygon")
 
         return v
 
 
-'''
+"""
 {
     "type": "geojson",
     "value": {
@@ -60,4 +73,4 @@ class FilterParams(BaseModel):
     }
 }
 
-'''
+"""

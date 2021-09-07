@@ -9,6 +9,7 @@ from fastapi import APIRouter
 
 router = APIRouter(prefix="/changesets")
 
+
 @router.post("/", response_model=ChangesetResult)
 def get_changesets(params: FilterParams):
     geom_filter_sq = geom_filter_subquery(params.dict())
@@ -29,7 +30,9 @@ def get_changesets(params: FilterParams):
 
     t3_filters = []
     if params.start_datetime is not None:
-        t3_filters.append(f"created_at > '{params.start_datetime.isoformat()}'")
+        t3_filters.append(
+            f"created_at > '{params.start_datetime.isoformat()}'"
+        )
     if params.end_datetime is not None:
         t3_filters.append(f"created_at <= '{params.end_datetime.isoformat()}'")
     if params.hashtag is not None:
@@ -108,6 +111,3 @@ def get_changesets(params: FilterParams):
     result_dto = ChangesetResult(**dict(result[0]))
 
     return result_dto
-
-
-

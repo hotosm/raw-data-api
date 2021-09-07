@@ -1,5 +1,6 @@
 from json import dumps
 
+
 def geom_filter_subquery(params):
     filter_type = params.get("type").value
     value = params.get("value")
