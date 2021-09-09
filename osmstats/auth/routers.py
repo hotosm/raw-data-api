@@ -81,7 +81,7 @@ def login_required(access_token: str = Header(...)):
 
     try:
         decoded_token = base64.b64decode(access_token)
-    except UnicodeDecodeError:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not decode token",
