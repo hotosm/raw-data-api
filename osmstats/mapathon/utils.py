@@ -116,7 +116,7 @@ def create_users_contributions_query(params, changeset_query):
             username,
             SUM(count) AS total_buildings
         FROM T2
-        WHERE feature ILIKE 'building%'
+        WHERE feature = 'building'
         GROUP BY user_id, username
     )
     SELECT user_id,
