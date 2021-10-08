@@ -1,17 +1,11 @@
 import base64
-from fastapi import Request, APIRouter, Depends, Header, HTTPException, status
+from fastapi import Request, APIRouter, Depends
 
-from os.path import join
-from requests_oauthlib import OAuth2Session
-from fastapi.responses import RedirectResponse, FileResponse
-from fastapi.security import OAuth2PasswordBearer
 from itsdangerous.url_safe import URLSafeSerializer
-from itsdangerous import BadSignature, SignatureExpired
-
-from typing import Optional
+from requests_oauthlib import OAuth2Session
 
 from .. import config
-from . import AuthUser, Login, Token
+from . import AuthUser, Login, Token, login_required
 
 router = APIRouter(prefix="/auth")
 
@@ -76,27 +70,6 @@ def callback(request: Request):
     return token
 
 
-def login_required(access_token: str = Header(...)):
-    deserializer = URLSafeSerializer(config.get("OAUTH", "secret_key"))
-
-    try:
-        decoded_token = base64.b64decode(access_token)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not decode token",
-        )
-
-    try:
-        user_data = deserializer.loads(decoded_token)
-    except (SignatureExpired, BadSignature) as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
-        )
-
-    return user_data
-
-
 @router.get("/me", response_model=AuthUser)
-def callback(user_data: AuthUser = Depends(login_required)):
+def my_data(user_data: AuthUser = Depends(login_required)):
     return user_data
