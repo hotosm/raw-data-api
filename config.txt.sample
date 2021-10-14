@@ -18,3 +18,11 @@ secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 path=
 underpass=underpass.sql
 osmstats=osmstats.sql
+
+[INSIGHTS_PG]
+host=localhost
+user=postgres
+password=changeme
+database=postgres
+port=5433
+

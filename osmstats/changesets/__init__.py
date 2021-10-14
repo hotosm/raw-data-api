@@ -1,8 +1,11 @@
 from enum import Enum
 from geojson_pydantic.geometries import Polygon
-from pydantic import BaseModel, ValidationError, validator
-from typing import Union, Optional
-from datetime import datetime, date
+from pydantic import ValidationError, validator
+from pydantic.dataclasses import dataclass
+from typing import Union, Optional, List
+from datetime import datetime, date, timedelta
+
+from .. import BaseModel
 
 
 class PolygonFilter(Enum):
