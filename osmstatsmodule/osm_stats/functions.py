@@ -9,23 +9,32 @@ config = ConfigParser()
 config.read("config.txt")
 print(dict(config.items("PG")))
 
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class DatabaseError(Error):
+    """Exception raised for errors in the psycopg.
+    Attributes:
+        message -- input expression in which the error occurred
+    """
+    def __init__(self,  message):
+        self.message = message
 
 # function that handles and parses psycopg2 exceptions
 def print_psycopg2_exception(err):
     # details_exception
     err_type, err_obj, traceback = sys.exc_info()
     line_num = traceback.tb_lineno
-
     # the connect() error
     print("\npsycopg2 ERROR:", err, "on line number:", line_num)
     print("psycopg2 traceback:", traceback, "-- type:", err_type)
-
     # psycopg2 extensions.Diagnostics object attribute
     print("\nextensions.Diagnostics:", err.diag)
-
     # pgcode and pgerror exceptions
     print("pgerror:", err.pgerror)
     print("pgcode:", err.pgcode, "\n")
+    # raise DatabaseError("Error")
 
 
 class Database:
