@@ -7,19 +7,7 @@ from psycopg2 import OperationalError, errorcodes, errors
 # Reading database credentials from config.txt
 config = ConfigParser()
 config.read("config.txt")
-print(dict(config.items("PG")))
-
-class Error(Exception):
-    """Base class for exceptions in this module."""
-    pass
-
-class DatabaseError(Error):
-    """Exception raised for errors in the psycopg.
-    Attributes:
-        message -- input expression in which the error occurred
-    """
-    def __init__(self,  message):
-        self.message = message
+# print(dict(config.items("PG")))
 
 # function that handles and parses psycopg2 exceptions
 def print_psycopg2_exception(err):
@@ -34,16 +22,13 @@ def print_psycopg2_exception(err):
     # pgcode and pgerror exceptions
     print("pgerror:", err.pgerror)
     print("pgcode:", err.pgcode, "\n")
-    # raise DatabaseError("Error")
-
-
+    raise err
 class Database:
 
     # Database class constructor
     def __init__(self, db_params):
         self.db_params = db_params
         print('Database class object created...')
-
     # Database class instance method
 
     def connect(self):
@@ -54,7 +39,6 @@ class Database:
         except OperationalError as err:
             # pass exception to function
             print_psycopg2_exception(err)
-
             # set the connection to 'None' in case of error
             self.conn = None
 
@@ -63,7 +47,6 @@ class Database:
         if self.conn != None: 
             cursor = self.conn.cursor()
             print("cursor object:", cursor, "\n")
-
             # catch exception for invalid SQL statement
             try:
                 cursor.execute(query)
@@ -71,15 +54,12 @@ class Database:
                 print(result)
                 return result
             except Exception as err:
-  
                 print_psycopg2_exception(err)
-
                 # rollback the previous transaction before starting another
                 self.conn.rollback()
             # closing  cursor object to avoid memory leaks
             cursor.close()
             self.conn.close()
-
 
 class Mapathon:
     #constructor
