@@ -22,4 +22,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Test with pytest
-        run: pytest  test_query.py -v
+        run: |
+          cd osmstatsmodule
+          pytest  test_query.py -v
