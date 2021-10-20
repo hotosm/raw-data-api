@@ -28,7 +28,9 @@ router = APIRouter(prefix="/mapathon")
 
 @router.post("/detail", response_model=MapathonDetail)
 def get_mapathon_detailed_report(
-    params: MapathonRequestParams, user_data=Depends(login_required)
+    # params: MapathonRequestParams, user_data=Depends(login_required)
+    params: MapathonRequestParams
+
 ):
     db_params = dict(config.items("INSIGHTS_PG"))
     conn = psycopg2.connect(**db_params)
