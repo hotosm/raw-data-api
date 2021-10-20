@@ -1,4 +1,4 @@
-name: osm-stats-api
+name: Osm Stats Module Test
 on:
   push:
     branches:
