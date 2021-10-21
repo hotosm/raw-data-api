@@ -3,6 +3,9 @@ from psycopg2 import connect
 from configparser import ConfigParser
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
+from pydantic import validator
+from validation import *
+from query_builder import *
 
 # Reading database credentials from config.txt
 config = ConfigParser()
@@ -97,3 +100,7 @@ class Mapathon:
         # calling executequery() method of Database class
         self.obj1.executequery(query)
         print('Mapathon class getall_validation() method executed...')
+    def get_summary(self,params: MapathonRequestParams):
+        pass
+
+
