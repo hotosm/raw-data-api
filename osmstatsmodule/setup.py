@@ -13,7 +13,8 @@ setuptools.setup(
         "dev": [
             "pytest >= 3.7",
             "psycopg2",
-            "twine"
+            "twine",
+            "testing.postgresql==1.3.0",
         ]
     },
     classifiers=[

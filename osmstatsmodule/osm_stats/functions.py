@@ -3,6 +3,9 @@ from psycopg2 import connect
 from configparser import ConfigParser
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
+from pydantic import validator
+from .validation import *
+from .query_builder import *
 
 # Reading database credentials from config.txt
 config = ConfigParser()
@@ -44,23 +47,43 @@ class Database:
 
     def executequery(self, query):
         # Check if the connection was successful
-        if self.conn != None: 
-            cursor = self.conn.cursor()
-            print("cursor object:", cursor, "\n")
-            # catch exception for invalid SQL statement
-            try:
-                cursor.execute(query)
-                result = cursor.fetchall()
-                print(result)
-                return result
-            except Exception as err:
-                print_psycopg2_exception(err)
-                # rollback the previous transaction before starting another
-                self.conn.rollback()
-            # closing  cursor object to avoid memory leaks
-            cursor.close()
-            self.conn.close()
-
+        try:
+            if self.conn != None: 
+                self.cursor = self.conn.cursor()
+                print("cursor object:", self.cursor, "\n")
+                # catch exception for invalid SQL statement
+                try:
+                    self.cursor.execute(query)
+                    try:
+                        result = self.cursor.fetchall()
+                        # print(result)
+                        return result
+                    except:
+                        return self.cursor.statusmessage
+                except Exception as err:
+                    print_psycopg2_exception(err)
+                    # rollback the previous transaction before starting another
+                    self.conn.rollback()
+                # closing  cursor object to avoid memory leaks
+                # cursor.close()
+                # self.conn.close()
+            else:
+                print("Database is not connected")
+        except Exception as err :
+            print("Oops ! You forget to have connection first")
+            raise err
+        
+        #function for clossing connection to avoid memory leaks
+    def close_conn(self):
+        # Check if the connection was successful
+        try:
+            if self.conn != None: 
+                if self.cursor:
+                    self.cursor.close()
+                    self.conn.close()
+                    print("Connection closed")
+        except Exception as err :
+            raise err
 class Mapathon:
     #constructor
     def __init__(self):
@@ -77,3 +100,7 @@ class Mapathon:
         # calling executequery() method of Database class
         self.obj1.executequery(query)
         print('Mapathon class getall_validation() method executed...')
+    def get_summary(self,params: MapathonRequestParams):
+        pass
+
+
