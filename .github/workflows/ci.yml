@@ -9,8 +9,9 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-        # Service containers to run with `runner-job`
+    runs-on:
+      ubuntu-latest
+      # Service containers to run with `runner-job`
     services:
       # Label used to access the service container
       postgres:
