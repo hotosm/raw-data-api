@@ -5,23 +5,29 @@ HSTORE_COLUMN = "tags"
 
 
 def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
-    hstore_keys = ["hashtags", "comment"]
-    hashtag_filter_values = [
-        *[f"%hotosm-project-{i}%" for i in project_ids],
-        *[f"%{h}%" for h in hashtags],
-    ]
+    merged_items = [*project_ids, *hashtags]
 
-    hashtag_filter_query = "({hstore_column} -> %s) ~~ %s"
-    hashtag_filter = [
-        [
-            cur.mogrify(hashtag_filter_query, (h, i)).decode()
-            for h in hstore_keys
-        ]
+    filter_query = "({hstore_column} -> %s) ~~ %s"
+
+    hashtag_filter_values = [
+        *[f"%hotosm-project-{i} %" for i in project_ids],
+        *[f"%{i} %" for i in hashtags],
+    ]
+    hashtag_tags_filters = [
+        cur.mogrify(filter_query, ("hashtags", i)).decode()
         for i in hashtag_filter_values
     ]
 
-    # Flatten.
-    hashtag_filter = [item for sublist in hashtag_filter for item in sublist]
+    comment_filter_values = [
+        *[f"%hotosm-project-{i};%" for i in project_ids],
+        *[f"%{i};%" for i in hashtags],
+    ]
+    comment_tags_filters = [
+        cur.mogrify(filter_query, ("comment", i)).decode()
+        for i in comment_filter_values
+    ]
+
+    hashtag_filter = [*hashtag_tags_filters, *comment_tags_filters]
 
     hashtag_filter = [
         sql.SQL(f).format(hstore_column=sql.Identifier(HSTORE_COLUMN))
