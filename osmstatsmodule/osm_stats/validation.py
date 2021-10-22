@@ -3,26 +3,30 @@ from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
 
+
 def to_camel(string: str) -> str:
     split_string = string.split("_")
 
     return "".join(
-        [split_string[0], *[w.capitalize() for w in split_string[1:]]]
-    )
+        [split_string[0], *[w.capitalize() for w in split_string[1:]]])
+
 
 class BaseModel(PydanticModel):
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True
 
+
 class MappedFeature(BaseModel):
     feature: str
     action: str
     count: int
 
+
 class MapathonSummary(BaseModel):
     total_contributors: int
     mapped_features: List[MappedFeature]
+
 
 class MapathonRequestParams(BaseModel):
     project_ids: List[int]
@@ -36,8 +40,7 @@ class MapathonRequestParams(BaseModel):
         timestamp_diff = value - from_timestamp
         if timestamp_diff > timedelta(hours=24):
             raise ValueError(
-                "Timestamp difference must be lower than 24 hours"
-            )
+                "Timestamp difference must be lower than 24 hours")
 
         return value
 
@@ -46,7 +49,6 @@ class MapathonRequestParams(BaseModel):
         project_ids = values.get("project_ids")
         if len(project_ids) == 0 and len(value) == 0:
             raise ValueError(
-                "Empty lists found for both hashtags and project_ids params"
-            )
+                "Empty lists found for both hashtags and project_ids params")
 
         return value
