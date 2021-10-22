@@ -42,15 +42,15 @@ def teardown_module(module):
     # clear cached database at end of tests
     Postgresql.clear_cache()
 
-def test_create(): 
+def test_db_create(): 
     createtable=f""" CREATE TABLE test_table (id int, value varchar(256))"""
     print(database.executequery(createtable))
 
-def test_insert():
+def test_db_insert():
     insertvalue=f""" INSERT INTO test_table values(1, 'hello'), (2, 'namaste')"""
     print(database.executequery(insertvalue))
 
-def test_query():
+def test_db_query():
     query=f""" SELECT * from test_table;"""
     result=database.executequery(query)
     print(result)
