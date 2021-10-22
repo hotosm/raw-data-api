@@ -39,6 +39,7 @@ class Database:
             self.conn = connect(**self.db_params)
             self.cur = self.conn.cursor(cursor_factory=DictCursor)
             print('Database connection has been Successful...')
+            return self.conn,self.cur
         except OperationalError as err:
             # pass exception to function
             print_psycopg2_exception(err)
@@ -49,7 +50,7 @@ class Database:
         # Check if the connection was successful
         try:
             if self.conn != None: 
-                self.cursor = self.conn.cursor()
+                self.cursor = self.cur
                 print("cursor object:", self.cursor, "\n")
                 # catch exception for invalid SQL statement
                 try:
@@ -86,21 +87,28 @@ class Database:
             raise err
 class Mapathon:
     #constructor
-    def __init__(self):
-        self.obj1 = Database(dict(config.items("PG")))
-        self.obj1.connect()
-        print('Mapathon class object also created...')
+    def __init__(self,parameters):
+        self.database = Database(dict(config.items("INSIGHTS_PG")))
+        self.con,self.cur=self.database.connect()
+        #parameter validation using pydantic model
+        self.params=MapathonRequestParams(**parameters)
 
     # Mapathon class instance method
-    def getall_validation(self):
-        query = f"""
-            SELECT *
-            FROM validation           
+    def get_summary(self):
+        changeset_query, hashtag_filter, timestamp_filter = create_changeset_query(self.params, self.con, self.cur )
+        osm_history_query = create_osm_history_query(changeset_query, with_username=False)
+        result=self.database.executequery(osm_history_query)
+        mapped_features = [MappedFeature(**r) for r in result]
+        total_contributor_query=f"""
+                SELECT COUNT(distinct user_id) as contributors_count
+                FROM osm_changeset
+                WHERE {timestamp_filter} AND ({hashtag_filter})
             """
-        # calling executequery() method of Database class
-        self.obj1.executequery(query)
-        print('Mapathon class getall_validation() method executed...')
-    def get_summary(self,params: MapathonRequestParams):
-        pass
+        print(total_contributor_query)
+        print(osm_history_query)
+
+        total_contributors=self.database.executequery(total_contributor_query)
+        report = MapathonSummary(total_contributors=total_contributors[0][0], mapped_features=mapped_features)
+        return report.json()
 
 

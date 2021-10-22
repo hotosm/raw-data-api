@@ -53,4 +53,4 @@ def test_query():
     result=database.executequery(query)
     print(result)
     # validating the query result either it is right or not 
-    assert result == [(1, 'hello'), (2, 'namaste')]
+    assert result == [[1, 'hello'], [2, 'namaste']]
