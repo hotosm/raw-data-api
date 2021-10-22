@@ -4,8 +4,8 @@ from configparser import ConfigParser
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
 from pydantic import validator
-from validation import *
-from query_builder import *
+from .validation import *
+from .query_builder import *
 
 # Reading database credentials from config.txt
 config = ConfigParser()
