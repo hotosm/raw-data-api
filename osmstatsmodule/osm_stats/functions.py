@@ -104,8 +104,8 @@ class Mapathon:
                 FROM osm_changeset
                 WHERE {timestamp_filter} AND ({hashtag_filter})
             """
-        print(total_contributor_query)
-        print(osm_history_query)
+        # print(total_contributor_query.encode('utf-8'))
+        # print(str(osm_history_query))
 
         total_contributors=self.database.executequery(total_contributor_query)
         report = MapathonSummary(total_contributors=total_contributors[0][0], mapped_features=mapped_features)
