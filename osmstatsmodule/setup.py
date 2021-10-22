@@ -1,4 +1,4 @@
-import setuptools 
+import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name='osm_stats',
     version='0.0.1',
-    description='The osm_stats module makes it simple for you to get osm data stats provided by api in your own project',
-    
+    description=
+    'The osm_stats module makes it simple for you to get osm data stats provided by api in your own project',
     packages=setuptools.find_packages(),
     extras_require={
         "dev": [
@@ -30,5 +30,4 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     author="Hot Tech Team",
     author_email="sysadmin@hotosm.org",
-    url="https://github.com/hotosm/osm-stats-api"
-)
+    url="https://github.com/hotosm/osm-stats-api")
