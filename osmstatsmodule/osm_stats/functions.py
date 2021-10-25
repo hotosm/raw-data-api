@@ -113,11 +113,28 @@ class Mapathon:
                 FROM osm_changeset
                 WHERE {timestamp_filter} AND ({hashtag_filter})
             """
-        # print(total_contributor_query.encode('utf-8'))
-        # print(str(osm_history_query))
+        # print(osm_history_query.encode('utf-8'))
 
         total_contributors = self.database.executequery(
             total_contributor_query)
         report = MapathonSummary(total_contributors=total_contributors[0][0],
                                  mapped_features=mapped_features)
+        return report.json()
+
+    def get_detailed_report(self):
+        changeset_query, _, _ = create_changeset_query(self.params, self.con,
+                                                       self.cur)
+        # History Query
+        osm_history_query = create_osm_history_query(changeset_query,
+                                                     with_username=True)
+        result = self.database.executequery(osm_history_query)
+        mapped_features = [MappedFeatureWithUser(**r) for r in result]
+        # Contribution Query
+        contributors_query = create_users_contributions_query(
+            self.params, changeset_query)
+        # print(contributors_query.encode('utf-8'))
+        result = self.database.executequery(contributors_query)
+        contributors = [MapathonContributor(**r) for r in result]
+        report = MapathonDetail(contributors=contributors,
+                                mapped_features=mapped_features)
         return report.json()

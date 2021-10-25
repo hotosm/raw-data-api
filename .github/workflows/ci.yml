@@ -43,4 +43,4 @@ jobs:
       - name: Test with pytest
         run: |
           cd osmstatsmodule
-          py.test -v
+          py.test -v -s

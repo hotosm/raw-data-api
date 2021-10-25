@@ -23,9 +23,25 @@ class MappedFeature(BaseModel):
     count: int
 
 
+class MapathonContributor(BaseModel):
+    user_id: int
+    username: str
+    total_buildings: int
+    mapped_tasks: int
+    validated_tasks: int
+    editors: str
+
+
+class MappedFeatureWithUser(MappedFeature):
+    username: str
+
 class MapathonSummary(BaseModel):
     total_contributors: int
     mapped_features: List[MappedFeature]
+
+class MapathonDetail(BaseModel):
+    mapped_features: List[MappedFeatureWithUser]
+    contributors: List[MapathonContributor]
 
 
 class MapathonRequestParams(BaseModel):
