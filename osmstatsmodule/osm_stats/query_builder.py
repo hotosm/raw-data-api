@@ -98,3 +98,47 @@ def create_osm_history_query(changeset_query, with_username):
     """
 
     return query
+
+def create_users_contributions_query(params, changeset_query):
+    project_ids = ",".join([str(p) for p in params.project_ids])
+    from_timestamp = params.from_timestamp.isoformat()
+    to_timestamp = params.to_timestamp.isoformat()
+
+    query = f"""
+    WITH T1 AS({changeset_query}),
+    T2 AS (
+        SELECT (each(tags)).key AS feature,
+            user_id,
+            username,
+            count(distinct id) AS count
+        FROM osm_element_history AS t2, t1
+        WHERE t1.changeset_id    = t2.changeset
+        GROUP BY feature, user_id, username
+    ),
+    T3 AS (
+        SELECT user_id,
+            username,
+            SUM(count) AS total_buildings
+        FROM T2
+        WHERE feature = 'building'
+        GROUP BY user_id, username
+    )
+    SELECT user_id,
+        username,
+        total_buildings,
+        public.tasks_per_user(user_id,
+            '{project_ids}',
+            '{from_timestamp}',
+            '{to_timestamp}',
+            'MAPPED') AS mapped_tasks,
+        public.tasks_per_user(user_id,
+            '{project_ids}',
+            '{from_timestamp}',
+            '{to_timestamp}',
+            'VALIDATED') AS validated_tasks,
+        public.editors_per_user(user_id,
+            '{from_timestamp}',
+            '{to_timestamp}') AS editors
+    FROM T3;
+    """
+    return query
