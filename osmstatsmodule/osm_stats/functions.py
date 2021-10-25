@@ -114,6 +114,8 @@ class Mapathon:
                 WHERE {timestamp_filter} AND ({hashtag_filter})
             """
         # print(total_contributor_query.encode('utf-8'))
+        # print(total_contributor_query)
+
         # print(str(osm_history_query))
 
         total_contributors = self.database.executequery(
