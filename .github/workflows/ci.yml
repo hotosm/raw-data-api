@@ -47,7 +47,7 @@ jobs:
         uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '12'
-      - name: Install Postgis
+      - name: Install Postgis 3 for Psql 12
         run: |
           sudo apt install postgis postgresql-12-postgis-3
           
