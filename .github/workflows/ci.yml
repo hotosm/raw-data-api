@@ -16,7 +16,7 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgres:14
+        image: postgres:12.0
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: postgres
@@ -37,8 +37,8 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt upgrade
-          sudo apt install postgis postgresql-14-postgis-3
+          psql -V
+          sudo apt install postgis postgresql-12-postgis-3
           cd osmstatsmodule
           python -m pip install --upgrade pip
           pip install -r requirements.txt
