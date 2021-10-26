@@ -35,10 +35,6 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Set up postgresql 
-        - uses: harmon758/postgresql-action@v1
-        with:
-          postgresql version: '12'
       - name: Install Postgis
         run: |
           psql -V
@@ -49,6 +45,9 @@ jobs:
           cd osmstatsmodule
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+        - uses: harmon758/postgresql-action@v1
+          with:
+            postgresql version: '12'
       - name: Run Tests
         run: |
           cd osmstatsmodule
