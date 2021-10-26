@@ -35,7 +35,19 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Set up postgresql 
+      - name: Check postgresql version 
+        run: |
+          psql -V
+      - name: Remove postgresql version  14
+        run: |
+          sudo apt-get --purge remove postgresql
+          sudo apt-get purge postgresql*
+          sudo apt-get --purge remove postgresql postgresql-doc postgresql-common
+      - name: Check Psql after removal
+        run: |
+          psql -V
+
+      - name: Set up postgresql 12
         uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '12'
