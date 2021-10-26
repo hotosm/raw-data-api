@@ -43,10 +43,6 @@ jobs:
           sudo apt-get --purge remove postgresql
           sudo apt-get purge postgresql*
           sudo apt-get --purge remove postgresql postgresql-doc postgresql-common
-      - name: Check Psql after removal
-        run: |
-          psql -V
-
       - name: Set up postgresql 12
         uses: harmon758/postgresql-action@v1
         with:
