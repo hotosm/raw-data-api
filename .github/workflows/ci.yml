@@ -37,7 +37,7 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          sudo apt install postgresql-14-postgis-3-scripts_3.1.4+dfsg-1.pgdg18.04+1_all.deb
+          sudo apt install postgis postgresql-14-postgis-3-scripts
           cd osmstatsmodule
           python -m pip install --upgrade pip
           pip install -r requirements.txt
