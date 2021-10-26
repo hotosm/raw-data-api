@@ -37,11 +37,7 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt -y install gnupg2
-          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-          echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" |sudo tee  /etc/apt/sources.list.d/pgdg.list
-          sudo apt install postgis
+          sudo apt install postgresql-14-postgis-3-scripts_3.1.4+dfsg-1.pgdg18.04+1_all.deb
           cd osmstatsmodule
           python -m pip install --upgrade pip
           pip install -r requirements.txt
