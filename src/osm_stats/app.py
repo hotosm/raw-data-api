@@ -1,17 +1,10 @@
 import sys
 from psycopg2 import connect
-from configparser import ConfigParser
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
 from pydantic import validator
 from .validation import *
 from .query_builder import *
-
-# Reading database credentials from config.txt
-config = ConfigParser()
-config.read("config.txt")
-
-# print(dict(config.items("PG")))
 
 
 # function that handles and parses psycopg2 exceptions
@@ -94,8 +87,8 @@ class Database:
 
 class Mapathon:
     #constructor
-    def __init__(self, parameters):
-        self.database = Database(dict(config.items("INSIGHTS_PG")))
+    def __init__(self,db_dict, parameters):
+        self.database = Database(db_dict)
         self.con, self.cur = self.database.connect()
         #parameter validation using pydantic model
         self.params = MapathonRequestParams(**parameters)
@@ -106,6 +99,7 @@ class Mapathon:
             self.params, self.con, self.cur)
         osm_history_query = create_osm_history_query(changeset_query,
                                                      with_username=False)
+        # print(osm_history_query)
         result = self.database.executequery(osm_history_query)
         mapped_features = [MappedFeature(**r) for r in result]
         total_contributor_query = f"""

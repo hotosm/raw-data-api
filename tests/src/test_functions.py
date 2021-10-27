@@ -1,8 +1,10 @@
-from osm_stats import functions
+from osm_stats import app
 import testing.postgresql
 import pytest
 from osm_stats import validation
 from osm_stats import query_builder
+from osm_stats import Mapathon
+
 
 # Reference to testing.postgresql db instance
 postgresql = None
@@ -27,20 +29,26 @@ test_param = {
         "hashtags": ["mapandchathour2021"]
     }
 
+def slurp(path):
+    """ Reads and returns the entire contents of a file """
+    with open(path, 'r') as f:
+        return f.read()
+
 def setup_module(module):
     """ Module level set-up called once before any tests in this file are
     executed.  shares a temporary database created in Postgresql and sets it up """
 
     print('*****SETUP*****')
-    global postgresql, database, con, cur
+    global postgresql, database, con, cur , db_dict
 
     postgresql = Postgresql()
     # passing test credentials to our osm_stat database class for connection
     """ Default credentials : {'port': **dynamic everytime **, 'host': '127.0.0.1', 'user': 'postgres', 'database': 'test'}"""
-    database = functions.Database(postgresql.dsn())
+    db_dict=postgresql.dsn()
+    database = app.Database(db_dict)
     # To Ensure the database is in a known state before calling the function we're testing
     con, cur = database.connect()
-    # Map of database connection parameters passed to the functions we're testing
+    # Map of database connection parameters passed to the app we're testing
     print(postgresql.dsn())
 
 
@@ -55,6 +63,7 @@ def teardown_module(module):
     Postgresql.clear_cache()
 
 
+
 def test_db_create():
     createtable = f""" CREATE TABLE test_table (id int, value varchar(256))"""
     print(database.executequery(createtable))
@@ -64,13 +73,8 @@ def test_db_insert():
     insertvalue = f""" INSERT INTO test_table values(1, 'hello'), (2, 'namaste')"""
     print(database.executequery(insertvalue))
 
-
-def test_db_query():
-    query = f""" SELECT * from test_table;"""
-    result = database.executequery(query)
-    print(result)
-    # validating the query result either it is right or not
-    assert result == [[1, 'hello'], [2, 'namaste']]
+def test_populate_data():
+    database.executequery(slurp('tests/src/fixtures/mapathon_summary.sql'))
 
 
 def test_mapathon_osm_history_query_builder():
@@ -107,3 +111,19 @@ def test_mapathon_users_contributors_query_builder():
             params, changeset_query)
     print(result_users_contributors_query)
     assert result_users_contributors_query == default_users_contributors_query
+
+
+def test_mapathon_summary():
+    query = f""" WITH T1 AS(
+    SELECT user_id, id as changeset_id, user_name as username
+    FROM osm_changeset
+    WHERE "created_at" between '2021-08-27T09:00:00'::timestamp AND '2021-08-27T11:00:00'::timestamp AND (("tags" -> 'hashtags') ~~ '%hotosm-project-11224 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10042 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-9906 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-1381 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-11203 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10681 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-8055 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-8732 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-11193 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-7305 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-11210 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10985 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10988 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-11190 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-6658 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-5644 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10913 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-6495 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-4229 %' OR ("tags" -> 'hashtags') ~~ '%mapandchathour2021 %' OR ("tags" -> 'comment') ~~ '%hotosm-project-11224;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10042;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-9906;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-1381;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-11203;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10681;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-8055;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-8732;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-11193;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-7305;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-11210;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10985;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10988;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-11190;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-6658;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-5644;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10913;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-6495;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-4229;%' OR ("tags" -> 'comment') ~~ '%mapandchathour2021;%')
+    )
+    SELECT (each(tags)).key AS feature, action, count(distinct id) AS count FROM osm_element_history AS t2, t1
+    WHERE t1.changeset_id = t2.changeset
+    GROUP BY feature, action ORDER BY count DESC;"""
+    result = database.executequery(query)
+    expected_report=[['building', 'create', 78], ['highway', 'modify', 6], ['natural', 'create', 5], ['water', 'create', 4], ['highway', 'create', 4], ['name:en', 'modify', 1], ['name:ne', 'modify', 1], ['name', 'modify', 1], ['ref', 'modify', 1], ['source', 'modify', 1], ['int_ref', 'modify', 1]]
+    assert result == expected_report
+
+
