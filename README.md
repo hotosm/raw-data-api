@@ -28,4 +28,4 @@ For database :
 For Mapathon : 
 
 ```from osm_stats import Mapathon```
-##### You can see sample for mapathon in tests/terminal.py
+##### You can see sample for mapathon in tests/src/terminal.py

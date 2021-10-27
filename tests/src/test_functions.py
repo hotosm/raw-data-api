@@ -74,7 +74,7 @@ def test_db_insert():
     print(database.executequery(insertvalue))
 
 def test_populate_data():
-    database.executequery(slurp('tests/fixtures/mapathon_summary.sql'))
+    database.executequery(slurp('tests/src/fixtures/mapathon_summary.sql'))
 
 
 def test_mapathon_osm_history_query_builder():

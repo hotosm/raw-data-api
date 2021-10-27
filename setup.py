@@ -9,6 +9,7 @@ setuptools.setup(
     description=
     'The osm_stats module makes it simple for you to get osm data stats provided by api in your own project',
     packages=["osm_stats"],
+    package_dir={'osm_stats': 'src/osm_stats'},
     extras_require={
         "dev": [
             "pytest == 3.7",
@@ -22,7 +23,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent"
     ],
-    python_requires='>=3',
+    python_requires='>=3.6',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Hot Tech Team",

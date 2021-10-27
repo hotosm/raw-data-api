@@ -3,7 +3,7 @@ from configparser import ConfigParser
 
 # Reading database credentials from config.txt
 config = ConfigParser()
-config.read("../data/config.txt")
+config.read("../../data/config.txt")
 
 my_mapathon = Mapathon(dict(config.items("INSIGHTS_PG")),{
     "project_ids": [
