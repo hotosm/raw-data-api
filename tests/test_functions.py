@@ -1,4 +1,4 @@
-from osm_stats import functions
+from osm_stats import app
 import testing.postgresql
 import pytest
 from osm_stats import validation
@@ -45,10 +45,10 @@ def setup_module(module):
     # passing test credentials to our osm_stat database class for connection
     """ Default credentials : {'port': **dynamic everytime **, 'host': '127.0.0.1', 'user': 'postgres', 'database': 'test'}"""
     db_dict=postgresql.dsn()
-    database = functions.Database(db_dict)
+    database = app.Database(db_dict)
     # To Ensure the database is in a known state before calling the function we're testing
     con, cur = database.connect()
-    # Map of database connection parameters passed to the functions we're testing
+    # Map of database connection parameters passed to the app we're testing
     print(postgresql.dsn())
 
 
