@@ -31,7 +31,6 @@ class Database:
         print('Database class object created...')
 
     # Database class instance method
-
     def connect(self):
         try:
             self.conn = connect(**self.db_params)
