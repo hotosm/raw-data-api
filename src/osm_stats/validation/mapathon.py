@@ -50,7 +50,7 @@ class MapathonRequestParams(BaseModel):
     to_timestamp: Union[datetime, date]
     hashtags: List[str]
 
-    @validator("to_timestamp")
+    @validator("to_timestamp",allow_reuse=True)
     def check_timestamp_diffs(cls, value, values, **kwargs):
         from_timestamp = values.get("from_timestamp")
         timestamp_diff = value - from_timestamp
@@ -60,7 +60,7 @@ class MapathonRequestParams(BaseModel):
 
         return value
 
-    @validator("hashtags")
+    @validator("hashtags",allow_reuse=True)
     def check_hashtag_filter(cls, value, values, **kwargs):
         project_ids = values.get("project_ids")
         if len(project_ids) == 0 and len(value) == 0:
