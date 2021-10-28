@@ -16,6 +16,6 @@ itsdangerous==2.0.1
 pytest == 3.7
 testing.postgresql==1.3.0
 
-'''required for generating documentations '''
+# '''required for generating documentations '''
 # sphinx_rtd_theme==1.0.0
 # sphinx==4.2.0
