@@ -4,4 +4,4 @@ API
 .. autosummary::
    :toctree: generated
 
-OSM Stats
+   osm_stats

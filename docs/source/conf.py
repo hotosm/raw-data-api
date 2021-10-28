@@ -12,14 +12,17 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src/osm_stats'))
+sys.path.insert(0, os.path.abspath('../../src/osm_stats'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'OSM Stats'
-copyright = '2021, Hot_Tech_Team'
-author = 'Hot_Tech_Team'
+copyright = '2021, HOT_Tech_Team'
+author = 'HOT_Tech_Team'
+
+# The full version, including alpha/beta/rc tags
+release = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -28,13 +31,11 @@ author = 'Hot_Tech_Team'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx_rtd_theme',
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.napoleon',
-    'sphinx_rtd_theme',
-
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -43,7 +44,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = []
 
 
 # -- Options for HTML output -------------------------------------------------
