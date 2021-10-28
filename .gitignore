@@ -2,7 +2,6 @@ __pycache__
 config.txt
 env
 .vscode
-build
 dist
 osm_stats.egg-info
 test.py
