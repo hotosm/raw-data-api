@@ -12,9 +12,9 @@ Welcome to OSM Stats's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   modules
    usage
-   api
+   
 
 
 Indices and tables
