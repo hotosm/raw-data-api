@@ -8,7 +8,7 @@ setuptools.setup(
     version='0.0.1',
     description=
     'The osm_stats module makes it simple for you to get osm data stats provided by api in your own project',
-    packages=["osm_stats"],
+    packages=["osm_stats","osm_stats.query_builder","osm_stats.validation"],
     package_dir={'osm_stats': 'src/osm_stats'},
     extras_require={
         "dev": [

@@ -3,8 +3,8 @@ from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
 from pydantic import validator
-from .validation import *
-from .query_builder import *
+from .validation.mapathon import *
+from .query_builder.mapathon import *
 
 
 # function that handles and parses psycopg2 exceptions
