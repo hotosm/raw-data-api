@@ -1,7 +1,7 @@
 Welcome to OSM Stats's documentation!
 =====================================
 
-**osm_stats** (/lu'make/) is a Python library for developers developed by Humanitarian OpenStreetMap as part of OSM Galaxy and offers a *simple* and
+**osm_stats** (src/osm_stats) is a Python library for developers developed by Humanitarian OpenStreetMap as part of OSM Galaxy and offers a *simple* and
 *intuitive* API.
 
 .. note::
