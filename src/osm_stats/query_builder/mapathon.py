@@ -4,6 +4,8 @@ HSTORE_COLUMN = "tags"
 
 
 def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
+    '''returns hastag filter query '''
+
     merged_items = [*project_ids, *hashtags]
 
     filter_query = "({hstore_column} -> %s) ~~ %s"
@@ -37,8 +39,9 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     return hashtag_filter
 
-
 def create_timestamp_filter_query(from_timestamp, to_timestamp, cur):
+    '''returns timestamp filter query '''
+
     timestamp_column = "created_at"
     # Subquery to filter changesets matching hashtag and dates.
     timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
@@ -50,8 +53,9 @@ def create_timestamp_filter_query(from_timestamp, to_timestamp, cur):
 
     return timestamp_filter
 
-
 def create_changeset_query(params, conn, cur):
+    '''returns the changeset query'''
+
     hashtag_filter = create_hashtag_filter_query(
         params.project_ids, params.hashtags, cur, conn
     )
@@ -67,8 +71,9 @@ def create_changeset_query(params, conn, cur):
 
     return changeset_query, hashtag_filter, timestamp_filter
 
-
 def create_osm_history_query(changeset_query, with_username):
+    '''returns osm history query''' 
+
     column_names = [
         f"(each({HSTORE_COLUMN})).key AS feature",
         "action",
@@ -100,6 +105,8 @@ def create_osm_history_query(changeset_query, with_username):
     return query
 
 def create_users_contributions_query(params, changeset_query):
+    '''returns user contribution query'''
+
     project_ids = ",".join([str(p) for p in params.project_ids])
     from_timestamp = params.from_timestamp.isoformat()
     to_timestamp = params.to_timestamp.isoformat()

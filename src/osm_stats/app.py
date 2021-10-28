@@ -1,3 +1,5 @@
+'''Main page contains class for database mapathon and funtion for error printing  '''
+
 import sys
 from psycopg2 import connect
 from psycopg2.extras import DictCursor
@@ -7,9 +9,11 @@ from .validation.mapathon import *
 from .query_builder.mapathon import *
 
 
-# function that handles and parses psycopg2 exceptions
 def print_psycopg2_exception(err):
-    # details_exception
+    """ 
+    function that handles and parses psycopg2 exceptions
+    """
+    '''details_exception'''
     err_type, err_obj, traceback = sys.exc_info()
     line_num = traceback.tb_lineno
     # the connect() error
@@ -24,26 +28,28 @@ def print_psycopg2_exception(err):
 
 
 class Database:
-
-    # Database class constructor
+    """ Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class """
     def __init__(self, db_params):
+        """Database class constructor"""
+
         self.db_params = db_params
         print('Database class object created...')
 
-    # Database class instance method
     def connect(self):
+        """Database class instance method used to connect to database parameters with error printing"""
+
         try:
             self.conn = connect(**self.db_params)
             self.cur = self.conn.cursor(cursor_factory=DictCursor)
             print('Database connection has been Successful...')
             return self.conn, self.cur
         except OperationalError as err:
-            # pass exception to function
+            """pass exception to function"""
             print_psycopg2_exception(err)
             # set the connection to 'None' in case of error
             self.conn = None
-
     def executequery(self, query):
+        """ Function to execute query after connection """
         # Check if the connection was successful
         try:
             if self.conn != None:
@@ -71,8 +77,9 @@ class Database:
             print("Oops ! You forget to have connection first")
             raise err
 
-        #function for clossing connection to avoid memory leaks
     def close_conn(self):
+        """function for clossing connection to avoid memory leaks"""
+
         # Check if the connection was successful
         try:
             if self.conn != None:
@@ -83,8 +90,9 @@ class Database:
         except Exception as err:
             raise err
 
-
 class Mapathon:
+    """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
+
     #constructor
     def __init__(self,db_dict, parameters):
         self.database = Database(db_dict)
@@ -94,6 +102,8 @@ class Mapathon:
 
     # Mapathon class instance method
     def get_summary(self):
+        """Function to get summary of your mapathon event """
+
         changeset_query, hashtag_filter, timestamp_filter = create_changeset_query(
             self.params, self.con, self.cur)
         osm_history_query = create_osm_history_query(changeset_query,
@@ -115,6 +125,8 @@ class Mapathon:
         return report.json()
 
     def get_detailed_report(self):
+        """Function to get detail report of your mapathon event. It includes individual user contribution"""
+
         changeset_query, _, _ = create_changeset_query(self.params, self.con,
                                                        self.cur)
         # History Query

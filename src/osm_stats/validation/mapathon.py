@@ -43,8 +43,9 @@ class MapathonDetail(BaseModel):
     mapped_features: List[MappedFeatureWithUser]
     contributors: List[MapathonContributor]
 
-
 class MapathonRequestParams(BaseModel):
+    '''validation class for mapathon request parameter provided by user '''
+
     project_ids: List[int]
     from_timestamp: Union[datetime, date]
     to_timestamp: Union[datetime, date]
@@ -52,6 +53,8 @@ class MapathonRequestParams(BaseModel):
 
     @validator("to_timestamp",allow_reuse=True)
     def check_timestamp_diffs(cls, value, values, **kwargs):
+        '''checks the timestap difference '''
+
         from_timestamp = values.get("from_timestamp")
         timestamp_diff = value - from_timestamp
         if timestamp_diff > timedelta(hours=24):
@@ -62,6 +65,8 @@ class MapathonRequestParams(BaseModel):
 
     @validator("hashtags",allow_reuse=True)
     def check_hashtag_filter(cls, value, values, **kwargs):
+        '''check the hashtag existence''' 
+
         project_ids = values.get("project_ids")
         if len(project_ids) == 0 and len(value) == 0:
             raise ValueError(
