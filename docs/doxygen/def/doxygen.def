@@ -1,0 +1,4852 @@
+AutoGen Definitions dummy;
+class = {
+  cp-id     = 'classAPI_1_1auth_1_1AuthUser';
+  cp-name   = 'API::auth::AuthUser';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classpydantic_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/auth/__init__.py';
+  cp-fileline  = '11';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.auth.AuthUser';
+        node-link = {
+          node-link-id = 'classAPI_1_1auth_1_1AuthUser';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.auth.AuthUser';
+        node-link = {
+          node-link-id = 'classAPI_1_1auth_1_1AuthUser';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+  cp-name   = 'osm_stats::validation::mapathon::BaseModel';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classPydanticModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonContributor';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonDetail';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonSummary';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '14';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 3;
+        node-label = 'osm_stats.validation.mapathon.MapathonContributor';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonContributor';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 4;
+        node-label = 'osm_stats.validation.mapathon.MapathonDetail';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonDetail';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 8;
+        node-label = 'osm_stats.validation.mapathon.MappedFeatureWithUser';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeatureWithUser';
+        };
+        node-child = {
+          child-id = '7';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 5;
+        node-label = 'osm_stats.validation.mapathon.MapathonRequestParams';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 6;
+        node-label = 'osm_stats.validation.mapathon.MapathonSummary';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonSummary';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 7;
+        node-label = 'osm_stats.validation.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'PydanticModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1BaseModel';
+  cp-name   = 'API::BaseModel';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classPydanticModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/__init__.py';
+  cp-fileline  = '16';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'API.BaseModel';
+        node-link = {
+          node-link-id = 'classAPI_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'API.BaseModel';
+        node-link = {
+          node-link-id = 'classAPI_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1changesets_1_1ChangesetResult';
+  cp-name   = 'API::changesets::ChangesetResult';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classdatetime_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/changesets/__init__.py';
+  cp-fileline  = '16';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.changesets.ChangesetResult';
+        node-link = {
+          node-link-id = 'classAPI_1_1changesets_1_1ChangesetResult';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.changesets.ChangesetResult';
+        node-link = {
+          node-link-id = 'classAPI_1_1changesets_1_1ChangesetResult';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1BaseModel_1_1Config';
+  cp-name   = 'API::BaseModel::Config';
+  cp-section = {
+    sec-kind = 'public-static-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classAPI_1_1BaseModel_1_1Config_1a33c7c8cbcca06e9ee0ca6b784e39a901';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'alias_generator';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  to_camel
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/__init__.py';
+      sec-mem-desc-line = '18';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classAPI_1_1BaseModel_1_1Config_1abf714da89262b79befc5cace859efe39';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'allow_population_by_field_name';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  True
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/__init__.py';
+      sec-mem-desc-line = '19';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/__init__.py';
+  cp-fileline  = '17';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel_1_1Config';
+  cp-name   = 'osm_stats::validation::mapathon::BaseModel::Config';
+  cp-section = {
+    sec-kind = 'public-static-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel_1_1Config_1ad129e702975abb7a86d07c51fcb304e1';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'alias_generator';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  to_camel
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+      sec-mem-desc-line = '16';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel_1_1Config_1a06c7260fcfe2732bd0949f71154c447d';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'allow_population_by_field_name';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  True
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+      sec-mem-desc-line = '17';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '15';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1app_1_1Database';
+  cp-name   = 'osm_stats::app::Database';
+  cp-section = {
+    sec-kind = 'public-func';
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Database_1ac4d8bc2ba2c25209ab0f0dfbbf91354f';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = '__init__';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+self
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'self';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+db_params
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'db_params';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '32';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Database class constructor\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Database_1abfba6fa0f1f28a2fc82d4ab7ecc76afa';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'connect';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+self
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'self';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '38';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Database class instance method used to connect to database parameters with error printing\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Database_1a612aa5ab02c82377ac72232f4186601a';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'executequery';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+self
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'self';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+query
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'query';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '51';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Function to execute query after connection \endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Database_1aa5bd06244e42615f351022bd524e4466';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'close_conn';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+self
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'self';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '80';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim function for clossing connection to avoid memory leaks\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'public-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Database_1ad26764bcaafebb03b704d8dab19d2111';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'db_params';
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '35';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Database_1a855438b7c7cf22f1be4846b5fa6fba8b';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'conn';
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '42';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Database_1ad21fb8b950d2fb6be97830d6ec57d83c';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'cur';
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '43';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Database_1a6ee5186718378870497c2d6351f1d875';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'cursor';
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '56';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+  cp-fileline  = '30';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class \endverbatim 
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1changesets_1_1FilterParams';
+  cp-name   = 'API::changesets::FilterParams';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classdatetime_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-section = {
+    sec-kind = 'public-func';
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classAPI_1_1changesets_1_1FilterParams_1a3c6f0e662c75856d62c206715050573c';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'matching_types';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cls
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'cls';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+v
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'v';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+values
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'values';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+**
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'kwargs';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/changesets/__init__.py';
+      sec-mem-desc-line = '36';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/changesets/__init__.py';
+  cp-fileline  = '28';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'API.changesets.FilterParams';
+        node-link = {
+          node-link-id = 'classAPI_1_1changesets_1_1FilterParams';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'API.changesets.FilterParams';
+        node-link = {
+          node-link-id = 'classAPI_1_1changesets_1_1FilterParams';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1auth_1_1Login';
+  cp-name   = 'API::auth::Login';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classpydantic_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/auth/__init__.py';
+  cp-fileline  = '17';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.auth.Login';
+        node-link = {
+          node-link-id = 'classAPI_1_1auth_1_1Login';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.auth.Login';
+        node-link = {
+          node-link-id = 'classAPI_1_1auth_1_1Login';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1app_1_1Mapathon';
+  cp-name   = 'osm_stats::app::Mapathon';
+  cp-section = {
+    sec-kind = 'public-func';
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Mapathon_1a5c5442dfd5c4f1e3e1ab6d165260a15c';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = '__init__';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+self
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'self';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+db_dict
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'db_dict';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+parameters
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'parameters';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '97';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Mapathon_1ad9ba8e401ce4e052b9f43ac503f6744b';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'get_summary';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+self
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'self';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '104';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Function to get summary of your mapathon event \endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Mapathon_1ac2fc04875a432a6c752f23070dfed0d2';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'get_detailed_report';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+self
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'self';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '127';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Function to get detail report of your mapathon event. It includes individual user contribution\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'public-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Mapathon_1a1e06766aa7475ca967b11048087930b4';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'database';
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '98';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Mapathon_1a5f87cf4a01583b0b73228c58b95c8ba4';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'cur';
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '99';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1app_1_1Mapathon_1ac7e368442d2ea6c4383c0ae43bbb151c';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'params';
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      sec-mem-desc-line = '101';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+  cp-fileline  = '93';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report.\endverbatim 
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1mapathon_1_1MapathonContributor';
+  cp-name   = 'API::mapathon::MapathonContributor';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classpydantic_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+  cp-fileline  = '13';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MapathonContributor';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MapathonContributor';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MapathonContributor';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MapathonContributor';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonContributor';
+  cp-name   = 'osm_stats::validation::mapathon::MapathonContributor';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '26';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MapathonContributor';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonContributor';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MapathonContributor';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonContributor';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonDetail';
+  cp-name   = 'osm_stats::validation::mapathon::MapathonDetail';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '42';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MapathonDetail';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonDetail';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MapathonDetail';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonDetail';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1mapathon_1_1MapathonDetail';
+  cp-name   = 'API::mapathon::MapathonDetail';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classpydantic_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+  cp-fileline  = '31';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MapathonDetail';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MapathonDetail';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MapathonDetail';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MapathonDetail';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams';
+  cp-name   = 'osm_stats::validation::mapathon::MapathonRequestParams';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-section = {
+    sec-kind = 'public-func';
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams_1ac1abbd79b3913bdcbe5d7ae80447bc0f';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'check_timestamp_diffs';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cls
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'cls';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+value
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'value';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+values
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'values';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+**
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'kwargs';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+      sec-mem-desc-line = '55';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim checks the timestap difference \endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams_1a37d49eabb8d61a591547d31e3cf11aeb';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'check_hashtag_filter';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cls
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'cls';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+value
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'value';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+values
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'values';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+**
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'kwargs';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+      sec-mem-desc-line = '67';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim check the hashtag existence\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'public-static-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams_1ad2950205c9f69a18d1a8e2262a45f522';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'allow_reuse';
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+      sec-mem-desc-line = '54';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '46';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim validation class for mapathon request parameter provided by user \endverbatim 
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MapathonRequestParams';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MapathonRequestParams';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1mapathon_1_1MapathonRequestParams';
+  cp-name   = 'API::mapathon::MapathonRequestParams';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classpydantic_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-section = {
+    sec-kind = 'public-func';
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classAPI_1_1mapathon_1_1MapathonRequestParams_1ad11d209682ead48e776053af469af990';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'check_timestamp_diffs';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cls
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'cls';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+value
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'value';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+values
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'values';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+**
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'kwargs';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+      sec-mem-desc-line = '43';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'classAPI_1_1mapathon_1_1MapathonRequestParams_1a1743b034811975505abaedd94196e4f6';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'check_hashtag_filter';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cls
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'cls';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+value
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'value';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+values
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'values';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+**
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'kwargs';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+      sec-mem-desc-line = '54';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+  cp-fileline  = '36';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MapathonRequestParams';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MapathonRequestParams';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MapathonRequestParams';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MapathonRequestParams';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonSummary';
+  cp-name   = 'osm_stats::validation::mapathon::MapathonSummary';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '38';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MapathonSummary';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonSummary';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MapathonSummary';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonSummary';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1mapathon_1_1MapathonSummary';
+  cp-name   = 'API::mapathon::MapathonSummary';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classpydantic_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+  cp-fileline  = '26';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MapathonSummary';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MapathonSummary';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MapathonSummary';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MapathonSummary';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+  cp-name   = 'osm_stats::validation::mapathon::MappedFeature';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeatureWithUser';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '20';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 4;
+        node-label = 'osm_stats.validation.mapathon.MappedFeatureWithUser';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeatureWithUser';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1mapathon_1_1MappedFeature';
+  cp-name   = 'API::mapathon::MappedFeature';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classpydantic_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classAPI_1_1mapathon_1_1MappedFeatureWithUser';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+  cp-fileline  = '7';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 3;
+        node-label = 'API.mapathon.MappedFeatureWithUser';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MappedFeatureWithUser';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeatureWithUser';
+  cp-name   = 'osm_stats::validation::mapathon::MappedFeatureWithUser';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '35';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MappedFeatureWithUser';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeatureWithUser';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '4';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 4;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'osm_stats.validation.mapathon.MappedFeatureWithUser';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeatureWithUser';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '4';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 4;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'osm_stats.validation.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1mapathon_1_1MappedFeatureWithUser';
+  cp-name   = 'API::mapathon::MappedFeatureWithUser';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classAPI_1_1mapathon_1_1MappedFeature';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+  cp-fileline  = '22';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MappedFeatureWithUser';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MappedFeatureWithUser';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'BaseModel';
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'API.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.mapathon.MappedFeatureWithUser';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MappedFeatureWithUser';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'BaseModel';
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'API.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classAPI_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1changesets_1_1PolygonFilter';
+  cp-name   = 'API::changesets::PolygonFilter';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classenum_1_1Enum';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-section = {
+    sec-kind = 'public-static-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classAPI_1_1changesets_1_1PolygonFilter_1a27f677639150ef9bf5189c5959f2c40e';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'iso3';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  "iso3"
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/changesets/__init__.py';
+      sec-mem-desc-line = '12';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'classAPI_1_1changesets_1_1PolygonFilter_1aab82c8c7882e0fa5454c022076eaca38';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'geojson';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  "geojson"
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/changesets/__init__.py';
+      sec-mem-desc-line = '13';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/changesets/__init__.py';
+  cp-fileline  = '11';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.changesets.PolygonFilter';
+        node-link = {
+          node-link-id = 'classAPI_1_1changesets_1_1PolygonFilter';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'Enum';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.changesets.PolygonFilter';
+        node-link = {
+          node-link-id = 'classAPI_1_1changesets_1_1PolygonFilter';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'Enum';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classPydanticModel';
+  cp-name   = 'PydanticModel';
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classAPI_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  cp-fileline  = '14';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 4;
+        node-label = 'osm_stats.validation.mapathon.MapathonContributor';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonContributor';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 5;
+        node-label = 'osm_stats.validation.mapathon.MapathonDetail';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonDetail';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 9;
+        node-label = 'osm_stats.validation.mapathon.MappedFeatureWithUser';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeatureWithUser';
+        };
+        node-child = {
+          child-id = '8';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 3;
+        node-label = 'osm_stats.validation.mapathon.BaseModel';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 1;
+        node-label = 'PydanticModel';
+      }; /* node */
+      node = {
+        node-id    = 6;
+        node-label = 'osm_stats.validation.mapathon.MapathonRequestParams';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 7;
+        node-label = 'osm_stats.validation.mapathon.MapathonSummary';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MapathonSummary';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'API.BaseModel';
+        node-link = {
+          node-link-id = 'classAPI_1_1BaseModel';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 8;
+        node-label = 'osm_stats.validation.mapathon.MappedFeature';
+        node-link = {
+          node-link-id = 'classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'classAPI_1_1auth_1_1Token';
+  cp-name   = 'API::auth::Token';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'classpydantic_1_1BaseModel';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/home/kshitij/hot/osm-stats-api/API/auth/__init__.py';
+  cp-fileline  = '21';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.auth.Token';
+        node-link = {
+          node-link-id = 'classAPI_1_1auth_1_1Token';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'API.auth.Token';
+        node-link = {
+          node-link-id = 'classAPI_1_1auth_1_1Token';
+        };
+        node-child = {
+          child-id = '2';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'BaseModel';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+file = {
+  file-id   = 'API_2____init_____8py';
+  file-name = '__init__.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'API_2____init_____8py_1a53c89c08ce017fb3d5d6cc887c437587';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+str
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'to_camel';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+str
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'string';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/__init__.py';
+      func-mem-desc-line = '8';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'API_2____init_____8py_1aff8b8d4f9048e92e80864c4686559733';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'config';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  ConfigParser()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/__init__.py';
+      var-mem-desc-line = '4';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'API_2auth_2____init_____8py';
+  file-name = '__init__.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'API_2auth_2____init_____8py_1a968883c782b48383bd79fd8ea24fda1e';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'login_required';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+str
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'access_token';
+        func-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Header(...)
+_EnD_oF_dEf_TeXt_;
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/auth/__init__.py';
+      func-mem-desc-line = '25';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/auth/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'API_2changesets_2____init_____8py';
+  file-name = '__init__.py';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/changesets/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'API_2countries_2____init_____8py';
+  file-name = '__init__.py';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/countries/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'API_2data_2____init_____8py';
+  file-name = '__init__.py';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/data/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'API_2mapathon_2____init_____8py';
+  file-name = '__init__.py';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/mapathon/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'src_2osm__stats_2____init_____8py';
+  file-name = '__init__.py';
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'src_2osm__stats_2____init_____8py_1a216115e379a5ef07bf2287b03a028724';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'logger';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  logging.getLogger(__name__)
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/__init__.py';
+      var-mem-desc-line = '4';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'src_2osm__stats_2query__builder_2____init_____8py';
+  file-name = '__init__.py';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/query_builder/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'src_2osm__stats_2validation_2____init_____8py';
+  file-name = '__init__.py';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/__init__.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'auth_2routers_8py';
+  file-name = 'routers.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'auth_2routers_8py_1a35c4e5e1a7d16ebf0322095199003547';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'login_url';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Request
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'request';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/auth/routers.py';
+      func-mem-desc-line = '14';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'auth_2routers_8py_1ac812b5ab8e67ca545571be2b908cf80f';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'callback';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Request
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'request';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/auth/routers.py';
+      func-mem-desc-line = '31';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'auth_2routers_8py_1acc26ea7500b5390d8124e4430292b013';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'my_data';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+AuthUser
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'user_data';
+        func-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Depends(login_required)
+_EnD_oF_dEf_TeXt_;
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/auth/routers.py';
+      func-mem-desc-line = '74';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'auth_2routers_8py_1a3f03865eec67316001b0bbe24678f590';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'router';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  APIRouter(prefix="/auth")
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/auth/routers.py';
+      var-mem-desc-line = '10';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'auth_2routers_8py_1aa1450f5dbfaf99e062ef2da05bb7dcde';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'response_model';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/auth/routers.py';
+      var-mem-desc-line = '13';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/auth/routers.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'changesets_2routers_8py';
+  file-name = 'routers.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'changesets_2routers_8py_1af5a8d010ace054f845207a2aba626a58';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'get_changesets';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+FilterParams
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'params';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/changesets/routers.py';
+      func-mem-desc-line = '15';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'changesets_2routers_8py_1a87377aa4c58829c6ba03d9f0f4a50725';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'router';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  APIRouter(prefix="/changesets")
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/changesets/routers.py';
+      var-mem-desc-line = '11';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'changesets_2routers_8py_1a5222bd35b9c816ecb0c7a3e204b451db';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'response_model';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/changesets/routers.py';
+      var-mem-desc-line = '14';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/changesets/routers.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'countries_2routers_8py';
+  file-name = 'routers.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'countries_2routers_8py_1a28a3b4bafc194281d012d229b6e413bc';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'get_countries';
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/countries/routers.py';
+      func-mem-desc-line = '13';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'countries_2routers_8py_1a92cdb407004361ca98fa742cd279fa13';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'router';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  APIRouter(prefix="/countries")
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/countries/routers.py';
+      var-mem-desc-line = '9';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'countries_2routers_8py_1ad0a1d13af468fe85caca1a700f9b7ed2';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'response_model';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/countries/routers.py';
+      var-mem-desc-line = '12';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/countries/routers.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'data_2routers_8py';
+  file-name = 'routers.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'data_2routers_8py_1a076819732deeb0b368e3e5ee7ffdeaf0';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'login_url';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+str
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'db_name';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Request
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'request';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/data/routers.py';
+      func-mem-desc-line = '13';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'data_2routers_8py_1a712e3fe3fab8b9c2c29aa365606756cb';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'callback';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+str
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'db_name';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Request
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'request';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/data/routers.py';
+      func-mem-desc-line = '33';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'data_2routers_8py_1a17e53a257a980015b4dc1a18fbcc2a68';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'router';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  APIRouter(prefix="/data")
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/data/routers.py';
+      var-mem-desc-line = '9';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/data/routers.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'mapathon_2routers_8py';
+  file-name = 'routers.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'mapathon_2routers_8py_1a67c70a3ee5f934a4e7b64bc01056d41c';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'get_mapathon_detailed_report';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+MapathonRequestParams
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'params';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+user_data
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'user_data';
+        func-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Depends(login_required)
+_EnD_oF_dEf_TeXt_;
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/routers.py';
+      func-mem-desc-line = '30';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'mapathon_2routers_8py_1a1c56239dbffcca0580f0898ac5060260';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'get_mapathon_summary';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+MapathonRequestParams
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'params';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/routers.py';
+      func-mem-desc-line = '66';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'mapathon_2routers_8py_1a514f0182694c12806fc8158646bad645';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'router';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  APIRouter(prefix="/mapathon")
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/routers.py';
+      var-mem-desc-line = '26';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'mapathon_2routers_8py_1a32b2d7810427e47dc1fc3b173948b885';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'response_model';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/routers.py';
+      var-mem-desc-line = '29';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/mapathon/routers.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'changesets_2utils_8py';
+  file-name = 'utils.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'changesets_2utils_8py_1aad3253e62414444c46827b071f1467c7';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'geom_filter_subquery';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+params
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'params';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/changesets/utils.py';
+      func-mem-desc-line = '4';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/changesets/utils.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'mapathon_2utils_8py';
+  file-name = 'utils.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'mapathon_2utils_8py_1a217eb943226a73b8e045c63d0e26d69b';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_hashtag_filter_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+project_ids
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'project_ids';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+hashtags
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'hashtags';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cur
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'cur';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+conn
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'conn';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/utils.py';
+      func-mem-desc-line = '7';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'mapathon_2utils_8py_1a6197a910fbb54c239f355e76b4f5eaa3';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_timestamp_filter_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+from_timestamp
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'from_timestamp';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+to_timestamp
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'to_timestamp';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cur
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'cur';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/utils.py';
+      func-mem-desc-line = '42';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'mapathon_2utils_8py_1aa17d147e1d6a5c31a30f727b1f7f8fc8';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_changeset_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+params
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'params';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+conn
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'conn';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cur
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'cur';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/utils.py';
+      func-mem-desc-line = '55';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'mapathon_2utils_8py_1a752070baea41337bdced1ed61573f97b';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_osm_history_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+changeset_query
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'changeset_query';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+with_username
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'with_username';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/utils.py';
+      func-mem-desc-line = '72';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'mapathon_2utils_8py_1af2085057259a004df62d086b1ed586aa';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_users_contributions_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+params
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'params';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+changeset_query
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'changeset_query';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/utils.py';
+      func-mem-desc-line = '104';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'mapathon_2utils_8py_1ad7eacd17980d7fc06efec950ed776d69';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'HSTORE_COLUMN';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  "tags"
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/mapathon/utils.py';
+      var-mem-desc-line = '4';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/mapathon/utils.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'main_8py';
+  file-name = 'main.py';
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'main_8py_1a53d555cb53c13a39e58cffb27b17f038';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'app';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  FastAPI()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/main.py';
+      var-mem-desc-line = '11';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'main_8py_1ac78edc9627a6d7fe3a6e560c9782c666';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+list
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'origins';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  [
+    "*"
+]
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/main.py';
+      var-mem-desc-line = '14';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'main_8py_1ad0d85b593a0af5b19b3a15df08d3b8d5';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'allow_origins';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/main.py';
+      var-mem-desc-line = '20';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'main_8py_1a17abb980a3d476a7427d33d79ed42078';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'allow_credentials';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/main.py';
+      var-mem-desc-line = '21';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'main_8py_1acb80bfceca56e5fb15489d6ec6cb627f';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'allow_methods';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/main.py';
+      var-mem-desc-line = '22';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'main_8py_1af17246c1da653d88e2c06a92bf9e61e5';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'allow_headers';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/API/main.py';
+      var-mem-desc-line = '23';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/API/main.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'config_8txt';
+  file-name = 'config.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/data/config.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'api_8rst_8txt';
+  file-name = 'api.rst.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/api.rst.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'generated_2osm__stats_8rst_8txt';
+  file-name = 'osm_stats.rst.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/generated/osm_stats.rst.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'osm__stats_8rst_8txt';
+  file-name = 'osm_stats.rst.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/osm_stats.rst.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'index_8rst_8txt';
+  file-name = 'index.rst.txt';
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'index_8rst_8txt_1aed4aa598ebed7354c7d0064d69b9cdc8';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+Welcome to OSM Stats s
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'documentation';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=====================================
+
+**osm_stats** (src/osm_stats) is a Python library for developers developed by Humanitarian OpenStreetMap as part of OSM Galaxy and offers a *simple* and
+*intuitive* API.
+
+.. note::
+
+   This project is under active development.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   modules
+   usage
+   
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+
+Check out the :doc:`usage` section for further information
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/index.rst.txt';
+      var-mem-desc-line = '1';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/index.rst.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'modules_8rst_8txt';
+  file-name = 'modules.rst.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/modules.rst.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'osm__stats_8query__builder_8rst_8txt';
+  file-name = 'osm_stats.query_builder.rst.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/osm_stats.query_builder.rst.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'osm__stats_8validation_8rst_8txt';
+  file-name = 'osm_stats.validation.rst.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/osm_stats.validation.rst.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'usage_8rst_8txt';
+  file-name = 'usage.rst.txt';
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'usage_8rst_8txt_1a25fc5084eef40185be1491e806c96baa';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'Usage';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=====
+
+.. _installation:
+
+Installation
+------------
+
+To use osm_stats
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/usage.rst.txt';
+      var-mem-desc-line = '1';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/build/html/_sources/usage.rst.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'conf_8py';
+  file-name = 'conf.py';
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'conf_8py_1a45653c983098153b78e33600e39230eb';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'project';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  'OSM Stats'
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+      var-mem-desc-line = '20';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'conf_8py_1a33fa97cf51dcb25970fbf53f10159589';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'copyright';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  '2021, HOT_Tech_Team'
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+      var-mem-desc-line = '21';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'conf_8py_1a637c239d256432248aa8d9f3ab0b8c52';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'author';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  'HOT_Tech_Team'
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+      var-mem-desc-line = '22';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'conf_8py_1a325dc746d8bf05c54d26351c35a21d90';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'release';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  '0.0.1'
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+      var-mem-desc-line = '25';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'conf_8py_1ae475e080536acb271a0a0efe56c3ba42';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+list
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'extensions';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  [
+    'sphinx_rtd_theme',
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+]
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+      var-mem-desc-line = '33';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'conf_8py_1ae850ae634911b713e036b43894fdd525';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+list
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'templates_path';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  ['_templates']
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+      var-mem-desc-line = '42';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'conf_8py_1a7ad48fb6f3e9b129c02346ea0d3527c1';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+list
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'exclude_patterns';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  []
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+      var-mem-desc-line = '47';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'conf_8py_1a6c3bfcc1a44546c1c75ce20f55bd0fd6';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'html_theme';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  'sphinx_rtd_theme'
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+      var-mem-desc-line = '55';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/docs/source/conf.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'dependency__links_8txt';
+  file-name = 'dependency_links.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/osm_stats.egg-info/dependency_links.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'requires_8txt';
+  file-name = 'requires.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/osm_stats.egg-info/requires.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'SOURCES_8txt';
+  file-name = 'SOURCES.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/osm_stats.egg-info/SOURCES.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'top__level_8txt';
+  file-name = 'top_level.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/osm_stats.egg-info/top_level.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'README_8md';
+  file-name = 'README.md';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/README.md';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'requirements_8txt';
+  file-name = 'requirements.txt';
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/requirements.txt';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'setup_8py';
+  file-name = 'setup.py';
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1a4cda9dbfb952875376a0749fe08a5bde';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'long_description';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  fh.read()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '4';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1ab3a7a0638d76a01367c5bc3cc699447f';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'name';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '7';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1a2aa722b36a933088812b50ea79b97a5c';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'version';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '8';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1aedf461ec52a946bda975938ba0b93ec0';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'description';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '9';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1aff2375a361fd5865c77bd9aa093be747';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'packages';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '11';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1afd7273d426fd6e1796ec17175f6521c3';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'package_dir';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '12';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1a5081a5a3f9d0dee597ab99a7fdc362df';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'extras_require';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '13';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1abe96a9c38c1c61f9f0fdb002c482f785';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'classifiers';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '20';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1aa7ca7bc9391b217e81efeb03689d8dbf';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'python_requires';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '26';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1a3796ea10c998699d07d391414ff5d720';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'long_description_content_type';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '28';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1a3a57a4772d418a06835249cbade0d86a';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'author';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '29';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1a5b08034343aa2be607722a8b315f3625';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'author_email';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '30';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'setup_8py_1afc13124aa5c0124e84e1d965e3f4b0fb';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'url';
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/setup.py';
+      var-mem-desc-line = '31';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/setup.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'app_8py';
+  file-name = 'app.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'namespaceosm__stats_1_1app_1a7fe10990bd5a51c95fdb529eed00632b';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'print_psycopg2_exception';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+err
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'err';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+      func-mem-desc-line = '12';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim 
+function that handles and parses psycopg2 exceptions
+\endverbatim 
+<br>@verbatim details_exception\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/app.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'query__builder_2mapathon_8py';
+  file-name = 'mapathon.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'query__builder_2mapathon_8py_1a8f6e2640272c761831b75c22d0a28f20';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_hashtag_filter_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+project_ids
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'project_ids';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+hashtags
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'hashtags';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cur
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'cur';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+conn
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'conn';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/query_builder/mapathon.py';
+      func-mem-desc-line = '6';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim returns hastag filter query \endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'query__builder_2mapathon_8py_1a00be6c922624ab67871dd8a98478c185';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_timestamp_filter_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+from_timestamp
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'from_timestamp';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+to_timestamp
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'to_timestamp';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cur
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'cur';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/query_builder/mapathon.py';
+      func-mem-desc-line = '42';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim returns timestamp filter query \endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'query__builder_2mapathon_8py_1a20b2d5e8d437b7eec0cf22dce3afa045';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_changeset_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+params
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'params';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+conn
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'conn';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+cur
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'cur';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/query_builder/mapathon.py';
+      func-mem-desc-line = '56';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim returns the changeset query\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'query__builder_2mapathon_8py_1ad221a9c070b57fc2638da88413fa5bbf';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_osm_history_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+changeset_query
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'changeset_query';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+with_username
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'with_username';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/query_builder/mapathon.py';
+      func-mem-desc-line = '74';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim returns osm history query\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'query__builder_2mapathon_8py_1a52651be5e9b996d4ccfd6c4e1e10b664';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'create_users_contributions_query';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+params
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'params';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+changeset_query
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'changeset_query';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/query_builder/mapathon.py';
+      func-mem-desc-line = '107';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim returns user contribution query\endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'query__builder_2mapathon_8py_1acbcffec47f3a9047144741b61d104227';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+string
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'HSTORE_COLUMN';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  "tags"
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/query_builder/mapathon.py';
+      var-mem-desc-line = '3';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/query_builder/mapathon.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'validation_2mapathon_8py';
+  file-name = 'mapathon.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'validation_2mapathon_8py_1ae695f177d779a16246b63fe93421463a';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+str
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'to_camel';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+str
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'string';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+      func-mem-desc-line = '7';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/src/osm_stats/validation/mapathon.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'test_8py';
+  file-name = 'test.py';
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'test_8py_1a2a610fb2aba5b30a6c73e22855dda4f2';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'config';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  ConfigParser()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/test.py';
+      var-mem-desc-line = '5';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'test_8py_1a290f71dc9ac86f129d6c1022c25ff264';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'my_mapathon';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  Mapathon(dict(config.items("INSIGHTS_PG")),{
+    "project_ids": [
+        11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305, 11210,
+        10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229
+    ],
+    "fromTimestamp":
+    "2021-08-27T9:00:00",
+    "toTimestamp":
+    "2021-08-27T11:00:00",
+    "hashtags": ["mapandchathour2021"]
+})
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/test.py';
+      var-mem-desc-line = '8';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'test_8py_1a75c0f1a68101aa4fac9e2aa8223415f6';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'summary_report';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  my_mapathon.get_summary()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/test.py';
+      var-mem-desc-line = '19';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'test_8py_1a26a9fcb26596457c3eb899a1716cd939';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'detailed_report';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  my_mapathon.get_detailed_report()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/src/test.py';
+      var-mem-desc-line = '20';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/src/test.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'terminal_8py';
+  file-name = 'terminal.py';
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'terminal_8py_1a41dffdbde07ac8b1d50875e38c5d29f0';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'config';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  ConfigParser()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/terminal.py';
+      var-mem-desc-line = '5';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'terminal_8py_1a44385eb3b73788e511879f2105073022';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'my_mapathon';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  Mapathon(dict(config.items("INSIGHTS_PG")),{
+    "project_ids": [
+        11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305, 11210,
+        10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229
+    ],
+    "fromTimestamp":
+    "2021-08-27T9:00:00",
+    "toTimestamp":
+    "2021-08-27T11:00:00",
+    "hashtags": ["mapandchathour2021"]
+})
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/terminal.py';
+      var-mem-desc-line = '8';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'terminal_8py_1a527953d2e274884bddc2b2102e5049e2';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'summary_report';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  my_mapathon.get_summary()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/terminal.py';
+      var-mem-desc-line = '19';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'terminal_8py_1abe781f76e73449fd13d17c015d690d97';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'detailed_report';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  my_mapathon.get_detailed_report()
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/terminal.py';
+      var-mem-desc-line = '20';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/tests/src/terminal.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'test__functions_8py';
+  file-name = 'test_functions.py';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1ab5b8579125e700629b610d27b8814bbd';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'slurp';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+path
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'path';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '32';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Reads and returns the entire contents of a file \endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1a075db72126753ee9281feb91262f5bcf';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'setup_module';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+module
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'module';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '37';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Module level set-up called once before any tests in this file are
+executed.  shares a temporary database created in Postgresql and sets it up \endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1a9c5b6be80459b225a85f6dee610a6678';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'teardown_module';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+module
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-defname = 'module';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '55';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@verbatim Called after all of the tests in this file have been executed to close
+the database connection and destroy the temporary database \endverbatim 
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1a32ead59c5c82dbaa0a6df3fe41e7815a';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'test_db_create';
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '67';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1a98d2e408752e558fb728e6c19cdf4a01';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'test_db_insert';
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '72';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1a2e3da73680df35c19c0cff2ebdf3ee36';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'test_populate_data';
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '76';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1a4f27595c995a2715580c66b583392958';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'test_mapathon_osm_history_mapathon_query_builder';
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '80';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1a256a10b6a83877f5be2e3711d59e084e';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'test_mapathon_total_contributor_mapathon_query_builder';
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '91';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1a5555e8cf52763c298d809eecc3751c40';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'test_mapathon_users_contributors_mapathon_query_builder';
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '105';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'test__functions_8py_1ab2ba0a05d4e670c83880f4a41fb8a345';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+def
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'test_mapathon_summary';
+      func-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      func-mem-desc-line = '116';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+    var = {
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'test__functions_8py_1a79a87c067777404fa3f236a39a522787';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'postgresql';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  None
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      var-mem-desc-line = '10';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'test__functions_8py_1a5abda025595e28f3bbdcfa02dcc889c8';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'database';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  None
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      var-mem-desc-line = '14';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'test__functions_8py_1a50fedf1857b31efe47f2bc77b73df9ad';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'Postgresql';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      var-mem-desc-line = '17';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    var-member = {
+      var-mem-kind = 'variable';
+      var-mem-id   = 'test__functions_8py_1a25f52039ddef2a3c3194ed35434ce629';
+      var-mem-virt = normal;
+      var-mem-prot = public;
+      var-mem-type = <<_EnD_oF_dEf_TeXt_
+dictionary
+_EnD_oF_dEf_TeXt_;
+      var-mem-name = 'test_param';
+      var-mem-initializer = <<_EnD_oF_dEf_TeXt_
+=  {
+        "project_ids": [
+            11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,
+            11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229
+        ],
+        "fromTimestamp":
+        "2021-08-27T9:00:00",
+        "toTimestamp":
+        "2021-08-27T11:00:00",
+        "hashtags": ["mapandchathour2021"]
+    }
+_EnD_oF_dEf_TeXt_;
+      var-mem-desc-file = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+      var-mem-desc-line = '20';
+      var-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      var-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* var-member */
+    };
+  file-full-name  = '/home/kshitij/hot/osm-stats-api/tests/src/test_functions.py';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
