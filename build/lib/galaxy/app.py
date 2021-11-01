@@ -7,7 +7,8 @@ from psycopg2 import OperationalError, errorcodes, errors
 from pydantic import validator
 from .validation.mapathon import *
 from .query_builder.mapathon import *
-
+import json 
+import pandas
 
 def print_psycopg2_exception(err):
     """ 
@@ -54,7 +55,6 @@ class Database:
         try:
             if self.conn != None:
                 self.cursor = self.cur
-                print("cursor object:", self.cursor, "\n")
                 # catch exception for invalid SQL statement
                 try:
                     self.cursor.execute(query)
@@ -143,3 +143,31 @@ class Mapathon:
         report = MapathonDetail(contributors=contributors,
                                 mapped_features=mapped_features)
         return report.json()
+
+
+class Output: 
+    """Class to convert sql query result to specific output format"""
+    def __init__(self,sql_query,connection):
+        """Class takes query and connection as parameter"""
+        try:
+            self.dataframe= pandas.read_sql(sql_query,connection)
+        except Exception as err:
+            print_psycopg2_exception(err)
+    
+    def to_JSON(self):
+        """Function to convert query result to JSON, Returns JSON"""
+        js = self.dataframe.to_json(orient = 'records')
+        return js
+    
+    def to_CSV(self,output_location):
+        """Function to return CSV data , takes output location string as input"""
+        self.dataframe.to_csv(output_location,encoding='utf-8')
+        print("CSV Generated at : "+ output_location)
+
+    def dataframe(self):
+        """Function to return panda's dataframe for advanced users"""
+        return self.dataframe
+
+
+
+    

@@ -3,8 +3,8 @@ import testing.postgresql
 import pytest
 from galaxy.validation import mapathon as mapathon_validation
 from galaxy.query_builder import mapathon as mapathon_query_builder
-from galaxy import Mapathon
-
+from galaxy import Output
+import os.path
 
 # Reference to testing.postgresql db instance
 postgresql = None
@@ -61,6 +61,9 @@ def teardown_module(module):
     database.close_conn()
     # clear cached database at end of tests
     Postgresql.clear_cache()
+    filepath='tests/src/fixtures/csv_output.csv'
+    if os.path.isfile(filepath) is True:
+        os.remove(filepath)
 
 
 
@@ -114,7 +117,8 @@ def test_mapathon_users_contributors_mapathon_query_builder():
 
 
 def test_mapathon_summary():
-    query = f""" WITH T1 AS(
+    global summary_query
+    summary_query = f""" WITH T1 AS(
     SELECT user_id, id as changeset_id, user_name as username
     FROM osm_changeset
     WHERE "created_at" between '2021-08-27T09:00:00'::timestamp AND '2021-08-27T11:00:00'::timestamp AND (("tags" -> 'hashtags') ~~ '%hotosm-project-11224 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10042 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-9906 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-1381 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-11203 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10681 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-8055 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-8732 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-11193 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-7305 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-11210 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10985 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10988 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-11190 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-6658 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-5644 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-10913 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-6495 %' OR ("tags" -> 'hashtags') ~~ '%hotosm-project-4229 %' OR ("tags" -> 'hashtags') ~~ '%mapandchathour2021 %' OR ("tags" -> 'comment') ~~ '%hotosm-project-11224;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10042;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-9906;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-1381;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-11203;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10681;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-8055;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-8732;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-11193;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-7305;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-11210;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10985;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10988;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-11190;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-6658;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-5644;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-10913;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-6495;%' OR ("tags" -> 'comment') ~~ '%hotosm-project-4229;%' OR ("tags" -> 'comment') ~~ '%mapandchathour2021;%')
@@ -122,8 +126,22 @@ def test_mapathon_summary():
     SELECT (each(tags)).key AS feature, action, count(distinct id) AS count FROM osm_element_history AS t2, t1
     WHERE t1.changeset_id = t2.changeset
     GROUP BY feature, action ORDER BY count DESC;"""
-    result = database.executequery(query)
+    result = database.executequery(summary_query)
     expected_report=[['building', 'create', 78], ['highway', 'modify', 6], ['natural', 'create', 5], ['water', 'create', 4], ['highway', 'create', 4], ['name:en', 'modify', 1], ['name:ne', 'modify', 1], ['name', 'modify', 1], ['ref', 'modify', 1], ['source', 'modify', 1], ['int_ref', 'modify', 1]]
     assert result == expected_report
+
+def test_output_JSON():
+    """Function to test to_json functionality of Output Class """
+    exp_result='[{"feature":"building","action":"create","count":78},{"feature":"highway","action":"modify","count":6},{"feature":"natural","action":"create","count":5},{"feature":"water","action":"create","count":4},{"feature":"highway","action":"create","count":4},{"feature":"name:en","action":"modify","count":1},{"feature":"name:ne","action":"modify","count":1},{"feature":"name","action":"modify","count":1},{"feature":"ref","action":"modify","count":1},{"feature":"source","action":"modify","count":1},{"feature":"int_ref","action":"modify","count":1}]'
+    jsonresult= Output(summary_query,con).to_JSON()
+    print(jsonresult)
+    assert jsonresult == exp_result
+
+def test_output_CSV():
+    """Function to test to_CSV functionality of Output Class """
+    filepath='tests/src/fixtures/csv_output.csv'
+    csv_out=Output(summary_query,con).to_CSV(filepath)
+    print(csv_out)
+    assert os.path.isfile(filepath) == True
 
 
