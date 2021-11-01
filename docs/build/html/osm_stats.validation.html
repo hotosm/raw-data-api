@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>osm_stats.validation package &mdash; OSM Stats 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="osm_stats.query_builder package" href="osm_stats.query_builder.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> OSM Stats
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">osm_stats</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="osm_stats.html">osm_stats package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="osm_stats.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="osm_stats.query_builder.html">osm_stats.query_builder package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">osm_stats.validation package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="osm_stats.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="osm_stats.html#module-osm_stats.app">osm_stats.app module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="osm_stats.html#module-osm_stats">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OSM Stats</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">osm_stats</a> &raquo;</li>
+          <li><a href="osm_stats.html">osm_stats package</a> &raquo;</li>
+      <li>osm_stats.validation package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/osm_stats.validation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="osm-stats-validation-package">
+<h1>osm_stats.validation package<a class="headerlink" href="#osm-stats-validation-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-osm_stats.validation.mapathon">
+<span id="osm-stats-validation-mapathon-module"></span><h2>osm_stats.validation.mapathon module<a class="headerlink" href="#module-osm_stats.validation.mapathon" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.BaseModel">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">osm_stats.validation.mapathon.</span></span><span class="sig-name descname"><span class="pre">BaseModel</span></span><a class="headerlink" href="#osm_stats.validation.mapathon.BaseModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pydantic.main.BaseModel</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.BaseModel.Config">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#osm_stats.validation.mapathon.BaseModel.Config" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.BaseModel.Config.alias_generator">
+<span class="sig-name descname"><span class="pre">alias_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#osm_stats.validation.mapathon.BaseModel.Config.alias_generator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.BaseModel.Config.allow_population_by_field_name">
+<span class="sig-name descname"><span class="pre">allow_population_by_field_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.BaseModel.Config.allow_population_by_field_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonContributor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">osm_stats.validation.mapathon.</span></span><span class="sig-name descname"><span class="pre">MapathonContributor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">userId</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">totalBuildings</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mappedTasks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validatedTasks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editors</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonContributor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#osm_stats.validation.mapathon.BaseModel" title="osm_stats.validation.mapathon.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">osm_stats.validation.mapathon.BaseModel</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonContributor.editors">
+<span class="sig-name descname"><span class="pre">editors</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonContributor.editors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonContributor.mapped_tasks">
+<span class="sig-name descname"><span class="pre">mapped_tasks</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonContributor.mapped_tasks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonContributor.total_buildings">
+<span class="sig-name descname"><span class="pre">total_buildings</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonContributor.total_buildings" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonContributor.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonContributor.user_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonContributor.username">
+<span class="sig-name descname"><span class="pre">username</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonContributor.username" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonContributor.validated_tasks">
+<span class="sig-name descname"><span class="pre">validated_tasks</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonContributor.validated_tasks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonDetail">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">osm_stats.validation.mapathon.</span></span><span class="sig-name descname"><span class="pre">MapathonDetail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mappedFeatures</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osm_stats.validation.mapathon.MappedFeatureWithUser" title="osm_stats.validation.mapathon.MappedFeatureWithUser"><span class="pre">osm_stats.validation.mapathon.MappedFeatureWithUser</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contributors</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osm_stats.validation.mapathon.MapathonContributor" title="osm_stats.validation.mapathon.MapathonContributor"><span class="pre">osm_stats.validation.mapathon.MapathonContributor</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonDetail" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#osm_stats.validation.mapathon.BaseModel" title="osm_stats.validation.mapathon.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">osm_stats.validation.mapathon.BaseModel</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonDetail.contributors">
+<span class="sig-name descname"><span class="pre">contributors</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osm_stats.validation.mapathon.MapathonContributor" title="osm_stats.validation.mapathon.MapathonContributor"><span class="pre">osm_stats.validation.mapathon.MapathonContributor</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonDetail.contributors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonDetail.mapped_features">
+<span class="sig-name descname"><span class="pre">mapped_features</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osm_stats.validation.mapathon.MappedFeatureWithUser" title="osm_stats.validation.mapathon.MappedFeatureWithUser"><span class="pre">osm_stats.validation.mapathon.MappedFeatureWithUser</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonDetail.mapped_features" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonRequestParams">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">osm_stats.validation.mapathon.</span></span><span class="sig-name descname"><span class="pre">MapathonRequestParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projectIds</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fromTimestamp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">,</span> </span><span class="pre">datetime.date</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toTimestamp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">,</span> </span><span class="pre">datetime.date</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hashtags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonRequestParams" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#osm_stats.validation.mapathon.BaseModel" title="osm_stats.validation.mapathon.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">osm_stats.validation.mapathon.BaseModel</span></code></a></p>
+<p>validation class for mapathon request parameter provided by user</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonRequestParams.check_hashtag_filter">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">check_hashtag_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonRequestParams.check_hashtag_filter" title="Permalink to this definition"></a></dt>
+<dd><p>check the hashtag existence</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonRequestParams.check_timestamp_diffs">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">check_timestamp_diffs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonRequestParams.check_timestamp_diffs" title="Permalink to this definition"></a></dt>
+<dd><p>checks the timestap difference</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonRequestParams.from_timestamp">
+<span class="sig-name descname"><span class="pre">from_timestamp</span></span><em class="property"><span class="pre">:</span> <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">,</span> </span><span class="pre">datetime.date</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonRequestParams.from_timestamp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonRequestParams.hashtags">
+<span class="sig-name descname"><span class="pre">hashtags</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonRequestParams.hashtags" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonRequestParams.project_ids">
+<span class="sig-name descname"><span class="pre">project_ids</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonRequestParams.project_ids" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonRequestParams.to_timestamp">
+<span class="sig-name descname"><span class="pre">to_timestamp</span></span><em class="property"><span class="pre">:</span> <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">,</span> </span><span class="pre">datetime.date</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonRequestParams.to_timestamp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonSummary">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">osm_stats.validation.mapathon.</span></span><span class="sig-name descname"><span class="pre">MapathonSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">totalContributors</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mappedFeatures</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osm_stats.validation.mapathon.MappedFeature" title="osm_stats.validation.mapathon.MappedFeature"><span class="pre">osm_stats.validation.mapathon.MappedFeature</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonSummary" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#osm_stats.validation.mapathon.BaseModel" title="osm_stats.validation.mapathon.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">osm_stats.validation.mapathon.BaseModel</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonSummary.mapped_features">
+<span class="sig-name descname"><span class="pre">mapped_features</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osm_stats.validation.mapathon.MappedFeature" title="osm_stats.validation.mapathon.MappedFeature"><span class="pre">osm_stats.validation.mapathon.MappedFeature</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonSummary.mapped_features" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MapathonSummary.total_contributors">
+<span class="sig-name descname"><span class="pre">total_contributors</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MapathonSummary.total_contributors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MappedFeature">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">osm_stats.validation.mapathon.</span></span><span class="sig-name descname"><span class="pre">MappedFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osm_stats.validation.mapathon.MappedFeature" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#osm_stats.validation.mapathon.BaseModel" title="osm_stats.validation.mapathon.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">osm_stats.validation.mapathon.BaseModel</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MappedFeature.action">
+<span class="sig-name descname"><span class="pre">action</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MappedFeature.action" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MappedFeature.count">
+<span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MappedFeature.count" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MappedFeature.feature">
+<span class="sig-name descname"><span class="pre">feature</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MappedFeature.feature" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MappedFeatureWithUser">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">osm_stats.validation.mapathon.</span></span><span class="sig-name descname"><span class="pre">MappedFeatureWithUser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osm_stats.validation.mapathon.MappedFeatureWithUser" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#osm_stats.validation.mapathon.MappedFeature" title="osm_stats.validation.mapathon.MappedFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">osm_stats.validation.mapathon.MappedFeature</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.MappedFeatureWithUser.username">
+<span class="sig-name descname"><span class="pre">username</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osm_stats.validation.mapathon.MappedFeatureWithUser.username" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="osm_stats.validation.mapathon.to_camel">
+<span class="sig-prename descclassname"><span class="pre">osm_stats.validation.mapathon.</span></span><span class="sig-name descname"><span class="pre">to_camel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#osm_stats.validation.mapathon.to_camel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-osm_stats.validation">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-osm_stats.validation" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="osm_stats.query_builder.html" class="btn btn-neutral float-left" title="osm_stats.query_builder package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="usage.html" class="btn btn-neutral float-right" title="Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, HOT_Tech_Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
