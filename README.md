@@ -1,4 +1,4 @@
-# OSM Stats API
+# GALAXY API
 
 ## Install
 
@@ -10,7 +10,7 @@ Run server
 
 ```uvicorn API.main:app --reload```
 
-# OSM Stats Package
+# Galaxy Package
 
 ## Local Install
 
@@ -19,13 +19,13 @@ Run server
 
 Now import as : 
 
-```import osm_stats```
+```import galaxy```
 
 For database : 
 
-```from osm_stats import Database```
+```from galaxy import Database```
 
 For Mapathon : 
 
-```from osm_stats import Mapathon```
+```from galaxy import Mapathon```
 ##### You can see sample for mapathon in tests/src/terminal.py

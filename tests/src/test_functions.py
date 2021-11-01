@@ -1,15 +1,15 @@
-from osm_stats import app
+from galaxy import app
 import testing.postgresql
 import pytest
-from osm_stats.validation import mapathon as mapathon_validation
-from osm_stats.query_builder import mapathon as mapathon_query_builder
-from osm_stats import Mapathon
+from galaxy.validation import mapathon as mapathon_validation
+from galaxy.query_builder import mapathon as mapathon_query_builder
+from galaxy import Mapathon
 
 
 # Reference to testing.postgresql db instance
 postgresql = None
 
-# Connection to database and query running class from our osm_stats module
+# Connection to database and query running class from our galaxy module
 
 database = None
 

@@ -1,4 +1,4 @@
-from osm_stats import Mapathon
+from galaxy import Mapathon
 from configparser import ConfigParser
 
 # Reading database credentials from config.txt

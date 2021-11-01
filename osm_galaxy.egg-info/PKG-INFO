@@ -1,0 +1,47 @@
+Metadata-Version: 2.1
+Name: osm-galaxy
+Version: 0.0.1
+Summary: The osm_galaxy module makes it simple for you to get osm data stats provided by api in your own project
+Home-page: https://github.com/hotosm/osm-stats-api
+Author: Hot Tech Team
+Author-email: sysadmin@hotosm.org
+License: UNKNOWN
+Description: # GALAXY API
+        
+        ## Install
+        
+        Install requirements.
+        
+        ```pip install -r requirements.txt```
+        
+        Run server
+        
+        ```uvicorn API.main:app --reload```
+        
+        # Galaxy Package
+        
+        ## Local Install
+        
+        
+        ```python setup.py install```
+        
+        Now import as : 
+        
+        ```import galaxy```
+        
+        For database : 
+        
+        ```from galaxy import Database```
+        
+        For Mapathon : 
+        
+        ```from galaxy import Mapathon```
+        ##### You can see sample for mapathon in tests/src/terminal.py
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Provides-Extra: dev
