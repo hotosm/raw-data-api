@@ -3,5 +3,5 @@ config.txt
 env
 .vscode
 dist
-osm_stats.egg-info
+osm_galaxy.egg-info
 test.py
