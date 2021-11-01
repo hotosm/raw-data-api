@@ -61,7 +61,6 @@ def teardown_module(module):
     database.close_conn()
     # clear cached database at end of tests
     Postgresql.clear_cache()
-    filepath='tests/src/fixtures/csv_output.csv'
     if os.path.isfile(filepath) is True:
         os.remove(filepath)
 
@@ -139,6 +138,7 @@ def test_output_JSON():
 
 def test_output_CSV():
     """Function to test to_CSV functionality of Output Class """
+    global filepath
     filepath='tests/src/fixtures/csv_output.csv'
     csv_out=Output(summary_query,con).to_CSV(filepath)
     print(csv_out)

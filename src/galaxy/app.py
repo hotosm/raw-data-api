@@ -147,7 +147,7 @@ class Mapathon:
 
 
 class Output: 
-    """Class to convert sql query result to specific output format"""
+    """Class to convert sql query result to specific output format. It uses Pandas Dataframe"""
     def __init__(self,sql_query,connection):
         """Class takes query and connection as parameter"""
         try:
