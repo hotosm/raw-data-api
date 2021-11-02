@@ -172,7 +172,7 @@ class Output:
     '''
     Class to convert sql query result to specific output format. It uses Pandas Dataframe
     Parameters:
-        list, dict , json and sql query string along with connection
+        supports : list, dict , json and sql query string along with connection
     Returns:
         json,csv,dict,list,dataframe   
     '''
