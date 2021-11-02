@@ -4,12 +4,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='osm_stats',
+    name='osm_galaxy',
     version='0.0.1',
     description=
-    'The osm_stats module makes it simple for you to get osm data stats provided by api in your own project',
-    packages=["osm_stats","osm_stats.query_builder","osm_stats.validation"],
-    package_dir={'osm_stats': 'src/osm_stats'},
+    'The osm_galaxy module makes it simple for you to get osm data stats provided by api in your own project',
+    packages=["galaxy","galaxy.query_builder","galaxy.validation"],
+    package_dir={'galaxy': 'src/galaxy'},
     extras_require={
         "dev": [
             "pytest == 3.7",

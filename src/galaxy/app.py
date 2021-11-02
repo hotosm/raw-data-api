@@ -5,9 +5,14 @@ from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
 from pydantic import validator
+from pydantic.types import Json
+from pydantic import parse_obj_as
 from .validation.mapathon import *
 from .query_builder.mapathon import *
-
+import json
+import pandas
+import os
+from json import loads as json_loads
 
 def print_psycopg2_exception(err):
     """ 
@@ -26,6 +31,17 @@ def print_psycopg2_exception(err):
     print("pgcode:", err.pgcode, "\n")
     raise err
 
+def check_for_json(result_str):
+        """Check if the Payload is a JSON document
+
+        Return: bool:
+            True in case of success, False otherwise
+        """
+        try:
+            r_json = json_loads(result_str)
+            return True,r_json
+        except Exception as e:
+            return False,None
 
 class Database:
     """ Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class """
@@ -48,14 +64,15 @@ class Database:
             print_psycopg2_exception(err)
             # set the connection to 'None' in case of error
             self.conn = None
+
     def executequery(self, query):
         """ Function to execute query after connection """
         # Check if the connection was successful
         try:
             if self.conn != None:
                 self.cursor = self.cur
-                print("cursor object:", self.cursor, "\n")
                 # catch exception for invalid SQL statement
+               
                 try:
                     self.cursor.execute(query)
                     try:
@@ -66,6 +83,7 @@ class Database:
                         return self.cursor.statusmessage
                 except Exception as err:
                     print_psycopg2_exception(err)
+
                     # rollback the previous transaction before starting another
                     self.conn.rollback()
                 # closing  cursor object to avoid memory leaks
@@ -92,9 +110,8 @@ class Database:
 
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
-
     #constructor
-    def __init__(self,db_dict, parameters):
+    def __init__(self, db_dict, parameters):
         self.database = Database(db_dict)
         self.con, self.cur = self.database.connect()
         #parameter validation using pydantic model
@@ -110,6 +127,9 @@ class Mapathon:
                                                      with_username=False)
         # print(osm_history_query)
         result = self.database.executequery(osm_history_query)
+        for r in result : 
+            print(r)
+            print(type(r))
         mapped_features = [MappedFeature(**r) for r in result]
         total_contributor_query = f"""
                 SELECT COUNT(distinct user_id) as contributors_count
@@ -120,7 +140,7 @@ class Mapathon:
 
         total_contributors = self.database.executequery(
             total_contributor_query)
-        report = MapathonSummary(total_contributors=total_contributors[0][0],
+        report = MapathonSummary(total_contributors=total_contributors[0].get("contributors_count","None"),
                                  mapped_features=mapped_features)
         return report.json()
 
@@ -133,13 +153,85 @@ class Mapathon:
         osm_history_query = create_osm_history_query(changeset_query,
                                                      with_username=True)
         result = self.database.executequery(osm_history_query)
+
         mapped_features = [MappedFeatureWithUser(**r) for r in result]
         # Contribution Query
         contributors_query = create_users_contributions_query(
             self.params, changeset_query)
         # print(contributors_query.encode('utf-8'))
         result = self.database.executequery(contributors_query)
+        # contributors = parse_obj_as(List[MapathonContributor], result)
         contributors = [MapathonContributor(**r) for r in result]
         report = MapathonDetail(contributors=contributors,
                                 mapped_features=mapped_features)
+        # print(Output(osm_history_query,self.con).to_list())
         return report.json()
+
+
+class Output:
+    '''
+    Class to convert sql query result to specific output format. It uses Pandas Dataframe
+    Parameters:
+        supports : list, dict , json and sql query string along with connection
+    Returns:
+        json,csv,dict,list,dataframe   
+    '''
+    def __init__(self, result, connection=None):
+        """Constructor"""
+        if isinstance(result, (list, dict)):
+            print(type(result))
+            try:
+                self.dataframe = pandas.DataFrame(result)
+            except Exception as err:
+                raise err
+        elif isinstance(result, str):
+            check,r_json=check_for_json(result)
+            if check is True : 
+                print("i am json")
+                try:
+                    self.dataframe = pandas.json_normalize(r_json)
+                except Exception as err:
+                    raise err
+            else: 
+                if connection is not None:
+                    try:
+                        self.dataframe = pandas.read_sql_query(result, connection)
+                    except Exception as err:
+                        raise err
+                else:
+                    raise ValueError("Connection is required for SQL Query")           
+        else:
+            raise ValueError("Input type " + str(type(result)) +
+                             " is not supported")
+
+    def to_JSON(self):
+        """Function to convert query result to JSON, Returns JSON"""
+        js = self.dataframe.to_json(orient='records')
+        return js
+
+    def to_list(self):
+        """Function to convert query result to list, Returns list"""
+
+        result_list = self.dataframe.values.tolist()
+        return result_list
+    def to_dict(self):
+        """Function to convert query result to dict, Returns dict"""
+        dic = self.dataframe.to_dict(orient='records')
+        return dic
+
+    def to_CSV(self, output_file_path):
+        """Function to return CSV data , takes output location string as input"""
+        if os.path.isfile(output_file_path) is True:
+            os.remove(output_file_path)
+        try:
+            self.dataframe.to_csv(output_file_path, encoding='utf-8')
+            return "CSV: Generated"
+        except Exception as err:
+            raise err
+
+    def dataframe(self):
+        """Function to return panda's dataframe for advanced users"""
+        return self.dataframe
+
+
+
