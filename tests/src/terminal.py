@@ -19,9 +19,9 @@ my_mapathon = Mapathon(dict(config.items("INSIGHTS_PG")),{
 summary_report = my_mapathon.get_summary()
 detailed_report = my_mapathon.get_detailed_report()
 
-# print("Summary report \n")
+print("Summary report \n")
 
-# print(summary_report)
-# print("\n Detailed report \n")
-# print(detailed_report)
+print(summary_report)
+print("\n Detailed report \n")
+print(detailed_report)
 

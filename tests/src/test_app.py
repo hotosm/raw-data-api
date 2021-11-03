@@ -1,8 +1,8 @@
 from galaxy import app
 import testing.postgresql
 import pytest
-from galaxy.validation import mapathon as mapathon_validation
-from galaxy.query_builder import mapathon as mapathon_query_builder
+from galaxy.validation import models as mapathon_validation
+from galaxy.query_builder import builder as mapathon_query_builder
 from galaxy import Output
 import os.path
 

@@ -7,8 +7,8 @@ from psycopg2 import OperationalError, errorcodes, errors
 from pydantic import validator
 from pydantic.types import Json
 from pydantic import parse_obj_as
-from .validation.mapathon import *
-from .query_builder.mapathon import *
+from .validation.models import *
+from .query_builder.builder import *
 import json
 import pandas
 import os
@@ -127,9 +127,6 @@ class Mapathon:
                                                      with_username=False)
         # print(osm_history_query)
         result = self.database.executequery(osm_history_query)
-        for r in result : 
-            print(r)
-            print(type(r))
         mapped_features = [MappedFeature(**r) for r in result]
         total_contributor_query = f"""
                 SELECT COUNT(distinct user_id) as contributors_count
