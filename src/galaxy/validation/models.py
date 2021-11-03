@@ -2,6 +2,10 @@ from typing import List, Union
 from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
+from pydantic import conlist
+from geojson_pydantic import Feature,FeatureCollection, Point
+
+supported_issue_types=["bad_geometry", "bad_value", "incomplete_tags", "all"]
 
 
 def to_camel(string: str) -> str:
@@ -73,3 +77,39 @@ class MapathonRequestParams(BaseModel):
                 "Empty lists found for both hashtags and project_ids params")
 
         return value
+
+class DataQualityRequestParams(BaseModel):
+    '''Request Parameteres validation for DataQuality Class
+    Parameters:
+            “project_ids”:[int],
+            “issue_type”: ["bad_geometry", "bad_value", "incomplete_tags", "all"]
+    Acceptance Criteria : 
+            project_ids: Required, Array can contain integer value only , Array can not be empty
+            issue_type: Required, Only accepted value under supported issues ,Array can not be empty
+
+    '''
+    #using conlist of pydantic to refuse empty list 
+
+    project_ids: conlist(int, min_items=1)
+    issue_type: conlist(str, min_items=1)
+
+    @validator("issue_type",allow_reuse=True)
+    def match_value(cls, value,**kwargs):
+        '''checks the either passed value is valid or not '''
+        if not value in supported_issue_types:
+            raise ValueError('Issue type  must be in : '+ str(supported_issue_types))
+        return value
+
+class DataQualityProp(BaseModel):
+    Osm_id: int
+    Changeset_id: int
+    Changeset_timestamp: Union[datetime, date]
+    Issue_type: str
+
+class DataQualityPointFeature(Feature):
+    geometry: Point
+    properties: DataQualityProp
+
+class DataQualityPointCollection(FeatureCollection):
+   features: List[DataQualityPointFeature]
+

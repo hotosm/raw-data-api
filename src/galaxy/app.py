@@ -1,18 +1,15 @@
 '''Main page contains class for database mapathon and funtion for error printing  '''
 
-import sys
+import sys, os
 from psycopg2 import connect
 from psycopg2.extras import DictCursor
-from psycopg2 import OperationalError, errorcodes, errors
-from pydantic import validator
-from pydantic.types import Json
-from pydantic import parse_obj_as
+from psycopg2 import OperationalError
 from .validation.models import *
 from .query_builder.builder import *
-import json
 import pandas
-import os
 from json import loads as json_loads
+from geojson_pydantic import Point, features
+
 
 def print_psycopg2_exception(err):
     """ 
@@ -31,17 +28,19 @@ def print_psycopg2_exception(err):
     print("pgcode:", err.pgcode, "\n")
     raise err
 
+
 def check_for_json(result_str):
-        """Check if the Payload is a JSON document
+    """Check if the Payload is a JSON document
 
         Return: bool:
             True in case of success, False otherwise
         """
-        try:
-            r_json = json_loads(result_str)
-            return True,r_json
-        except Exception as e:
-            return False,None
+    try:
+        r_json = json_loads(result_str)
+        return True, r_json
+    except Exception as e:
+        return False, None
+
 
 class Database:
     """ Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class """
@@ -72,12 +71,14 @@ class Database:
             if self.conn != None:
                 self.cursor = self.cur
                 # catch exception for invalid SQL statement
-               
+
                 try:
                     self.cursor.execute(query)
                     try:
                         result = self.cursor.fetchall()
                         # print(result)
+                        # result1=Output(query,self.conn).to_dict()
+                        # print(result1)
                         return result
                     except:
                         return self.cursor.statusmessage
@@ -108,8 +109,10 @@ class Database:
         except Exception as err:
             raise err
 
+
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
+
     #constructor
     def __init__(self, db_dict, parameters):
         self.database = Database(db_dict)
@@ -137,7 +140,8 @@ class Mapathon:
 
         total_contributors = self.database.executequery(
             total_contributor_query)
-        report = MapathonSummary(total_contributors=total_contributors[0].get("contributors_count","None"),
+        report = MapathonSummary(total_contributors=total_contributors[0].get(
+            "contributors_count", "None"),
                                  mapped_features=mapped_features)
         return report.json()
 
@@ -182,21 +186,22 @@ class Output:
             except Exception as err:
                 raise err
         elif isinstance(result, str):
-            check,r_json=check_for_json(result)
-            if check is True : 
+            check, r_json = check_for_json(result)
+            if check is True:
                 print("i am json")
                 try:
                     self.dataframe = pandas.json_normalize(r_json)
                 except Exception as err:
                     raise err
-            else: 
+            else:
                 if connection is not None:
                     try:
-                        self.dataframe = pandas.read_sql_query(result, connection)
+                        self.dataframe = pandas.read_sql_query(
+                            result, connection)
                     except Exception as err:
                         raise err
                 else:
-                    raise ValueError("Connection is required for SQL Query")           
+                    raise ValueError("Connection is required for SQL Query")
         else:
             raise ValueError("Input type " + str(type(result)) +
                              " is not supported")
@@ -211,6 +216,7 @@ class Output:
 
         result_list = self.dataframe.values.tolist()
         return result_list
+
     def to_dict(self):
         """Function to convert query result to dict, Returns dict"""
         dic = self.dataframe.to_dict(orient='records')
@@ -231,4 +237,66 @@ class Output:
         return self.dataframe
 
 
+class DataQuality:
+    '''
+    Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
+    Parameters:
+            “project_ids”:[],
+            “issue_type”: ["bad_geometry", "bad_value", "incomplete_tags", "all"] 
+    Returns:
+            JSON    
+    '''
 
+    # def __init__(self, db_dict, parameters):
+    #     self.database = Database(db_dict)
+    #     self.con, self.cur = self.database.connect()
+    #     #parameter validation using pydantic model
+    #     self.params = DataQualityRequestParams(**parameters)
+
+    def __init__(self, db_dict):
+        self.db = Database(db_dict)
+        self.con, self.cur = self.db.connect()
+
+    def get_report(self):
+        query = f"""
+                SELECT 
+                    ST_AsGeoJSON(location) as geometry,
+                    osm_id as Osm_id,
+                    change_id as Changeset_id,
+                    timestamp as Changeset_timestamp,
+                    status as Issue_type
+                FROM validation
+                LIMIT 1
+            """
+        result=self.db.executequery(query)
+        print(result)
+        query_result = [{
+            "properties": {
+                "Osm_id": 1100,
+                "Changeset_id": 1500,
+                "Changeset_timestamp": "2021-08-27T9:00:00",
+                "Issue_type": "bad_geometry",
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [83.81469726562499, 28.24]
+            }
+        }, {
+            "properties": {
+                "Osm_id": 1100,
+                "Changeset_id": 1500,
+                "Changeset_timestamp": "2021-08-27T9:00:00",
+                "Issue_type": "bad_geometry",
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [83.81469726562499, 28.34]
+            }
+        }]
+
+        dataquality_point = [
+            DataQualityPointFeature(**p) for p in query_result
+        ]
+        dataquality_coll = DataQualityPointCollection(
+            features=dataquality_point)
+        print(dataquality_coll.json())
