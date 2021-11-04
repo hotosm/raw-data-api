@@ -9,6 +9,7 @@ from .query_builder.builder import *
 import pandas
 from json import loads as json_loads
 from geojson_pydantic import Point, features
+import json
 
 
 def print_psycopg2_exception(err):
@@ -257,45 +258,20 @@ class DataQuality:
         self.db = Database(db_dict)
         self.con, self.cur = self.db.connect()
 
-    def get_report(self):
-        query = f"""
-                SELECT 
-                    ST_AsGeoJSON(location) as geometry,
-                    osm_id as Osm_id,
-                    change_id as Changeset_id,
-                    timestamp as Changeset_timestamp,
-                    status as Issue_type
+    def get_report(self):                    
+        query = """
+                select '{ "type": "Feature","properties": {   "Osm_id": ' || osm_id ||',"Changeset_id":  ' || change_id ||',"Changeset_timestamp": "' || timestamp ||'","Issue_type": "[' || cast(status as text) ||']"},"geometry": ' || ST_AsGeoJSON(location)||'}'
                 FROM validation
-                LIMIT 1
+                WHERE status IN ('{badvalue}')
+                LIMIT 5
             """
         result=self.db.executequery(query)
-        print(result)
-        query_result = [{
-            "properties": {
-                "Osm_id": 1100,
-                "Changeset_id": 1500,
-                "Changeset_timestamp": "2021-08-27T9:00:00",
-                "Issue_type": "bad_geometry",
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [83.81469726562499, 28.24]
-            }
-        }, {
-            "properties": {
-                "Osm_id": 1100,
-                "Changeset_id": 1500,
-                "Changeset_timestamp": "2021-08-27T9:00:00",
-                "Issue_type": "bad_geometry",
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [83.81469726562499, 28.34]
-            }
-        }]
+        # print(result)
+        for r in result:
+            print(r[0])
 
         dataquality_point = [
-            DataQualityPointFeature(**p) for p in query_result
+            DataQualityPointFeature(**json.loads(p[0])) for p in result
         ]
         dataquality_coll = DataQualityPointCollection(
             features=dataquality_point)
