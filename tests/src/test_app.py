@@ -1,3 +1,9 @@
+#for Relative import let's define our package directory
+import sys
+print(sys.path)
+sys.path.insert(0, './src')
+
+#import libraries 
 from galaxy import app
 import testing.postgresql
 import pytest
@@ -143,5 +149,4 @@ def test_output_CSV():
     csv_out=Output(summary_query,con).to_CSV(filepath)
     print(csv_out)
     assert os.path.isfile(filepath) == True
-
 
