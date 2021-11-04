@@ -1,9 +1,3 @@
-#for Relative import let's define our package directory
-import sys
-print(sys.path)
-sys.path.insert(0, './src')
-
-#import libraries 
 from galaxy import app
 import testing.postgresql
 import pytest
