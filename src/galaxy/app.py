@@ -243,36 +243,28 @@ class DataQuality:
     Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
     Parameters:
             “project_ids”:[],
-            “issue_type”: ["bad_geometry", "bad_value", "incomplete_tags", "all"] 
+            “issue_types”: ["bad_geometry", "bad_value", "incomplete_tags", "all"] 
     Returns:
             JSON    
     '''
-
-    # def __init__(self, db_dict, parameters):
-    #     self.database = Database(db_dict)
-    #     self.con, self.cur = self.database.connect()
-    #     #parameter validation using pydantic model
-    #     self.params = DataQualityRequestParams(**parameters)
-
-    def __init__(self, db_dict):
+    def __init__(self, db_dict, parameters):
         self.db = Database(db_dict)
         self.con, self.cur = self.db.connect()
+        #parameter validation using pydantic model
+        print(parameters)
+        self.params = DataQualityRequestParams(**parameters)
 
-    def get_report(self):                    
-        query = """
-                select '{ "type": "Feature","properties": {   "Osm_id": ' || osm_id ||',"Changeset_id":  ' || change_id ||',"Changeset_timestamp": "' || timestamp ||'","Issue_type": "[' || cast(status as text) ||']"},"geometry": ' || ST_AsGeoJSON(location)||'}'
-                FROM validation
-                WHERE status IN ('{badvalue}')
-                LIMIT 5
-            """
-        result=self.db.executequery(query)
-        # print(result)
-        for r in result:
-            print(r[0])
+    def get_report(self):
+        """Functions that returns data_quality Report"""
+        query = data_quality_query(self.params)
+        print(query)
 
+        result = self.db.executequery(query)
+        print(result)
         dataquality_point = [
             DataQualityPointFeature(**json.loads(p[0])) for p in result
         ]
         dataquality_coll = DataQualityPointCollection(
             features=dataquality_point)
         print(dataquality_coll.json())
+        return dataquality_coll.json()

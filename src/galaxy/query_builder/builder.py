@@ -39,29 +39,27 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     return hashtag_filter
 
+
 def create_timestamp_filter_query(from_timestamp, to_timestamp, cur):
     '''returns timestamp filter query '''
 
     timestamp_column = "created_at"
     # Subquery to filter changesets matching hashtag and dates.
     timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
-        timestamp_column=sql.Identifier(timestamp_column)
-    )
-    timestamp_filter = cur.mogrify(
-        timestamp_filter, (from_timestamp, to_timestamp)
-    ).decode()
+        timestamp_column=sql.Identifier(timestamp_column))
+    timestamp_filter = cur.mogrify(timestamp_filter,
+                                   (from_timestamp, to_timestamp)).decode()
 
     return timestamp_filter
+
 
 def create_changeset_query(params, conn, cur):
     '''returns the changeset query'''
 
-    hashtag_filter = create_hashtag_filter_query(
-        params.project_ids, params.hashtags, cur, conn
-    )
-    timestamp_filter = create_timestamp_filter_query(
-        params.from_timestamp, params.to_timestamp, cur
-    )
+    hashtag_filter = create_hashtag_filter_query(params.project_ids,
+                                                 params.hashtags, cur, conn)
+    timestamp_filter = create_timestamp_filter_query(params.from_timestamp,
+                                                     params.to_timestamp, cur)
 
     changeset_query = f"""
     SELECT user_id, id as changeset_id, user_name as username
@@ -71,8 +69,9 @@ def create_changeset_query(params, conn, cur):
 
     return changeset_query, hashtag_filter, timestamp_filter
 
+
 def create_osm_history_query(changeset_query, with_username):
-    '''returns osm history query''' 
+    '''returns osm history query'''
 
     column_names = [
         f"(each({HSTORE_COLUMN})).key AS feature",
@@ -85,11 +84,8 @@ def create_osm_history_query(changeset_query, with_username):
         column_names.append("username")
         group_by_names.extend(["user_id", "username"])
 
-    order_by = (
-        ["count DESC"]
-        if with_username is False
-        else ["user_id", "action", "count"]
-    )
+    order_by = (["count DESC"]
+                if with_username is False else ["user_id", "action", "count"])
     order_by = ", ".join(order_by)
 
     columns = ", ".join(column_names)
@@ -103,6 +99,7 @@ def create_osm_history_query(changeset_query, with_username):
     """
 
     return query
+
 
 def create_users_contributions_query(params, changeset_query):
     '''returns user contribution query'''
@@ -148,4 +145,22 @@ def create_users_contributions_query(params, changeset_query):
             '{to_timestamp}') AS editors
     FROM T3;
     """
+    return query
+
+
+def data_quality_query(params):
+    '''returns data quality query with filters and parameteres provided'''
+    if "all" in params.issue_types:
+        issue_types = "'{badvalue}','{badgeom}'"
+    else:
+        issue_types = ",".join(
+            ["'" + str(p) + "'" for p in params.issue_types])
+    change_ids = ",".join([str(p) for p in params.project_ids])
+
+    query = """
+        select '{ "type": "Feature","properties": {   "Osm_id": ' || osm_id ||',"Changeset_id":  ' || change_id ||',"Changeset_timestamp": "' || timestamp ||'","Issue_type": "' || cast(status as text) ||'"},"geometry": ' || ST_AsGeoJSON(location)||'}'
+        FROM validation
+        WHERE   status IN (%s) AND
+                change_id IN (%s)
+    """ % (issue_types, change_ids)
     return query

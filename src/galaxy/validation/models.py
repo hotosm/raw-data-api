@@ -5,7 +5,7 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import conlist
 from geojson_pydantic import Feature,FeatureCollection, Point
 
-supported_issue_types=["bad_geometry", "bad_value", "incomplete_tags", "all"]
+supported_issue_types=["{badgeom}", "{badvalue}", "all"]
 
 
 def to_camel(string: str) -> str:
@@ -82,7 +82,7 @@ class DataQualityRequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class
     Parameters:
             “project_ids”:[int],
-            “issue_type”: ["bad_geometry", "bad_value", "incomplete_tags", "all"]
+            “issue_type”: ["{badgeom}", "{badvalue}", "all"]
     Acceptance Criteria : 
             project_ids: Required, Array can contain integer value only , Array can not be empty
             issue_type: Required, Only accepted value under supported issues ,Array can not be empty
@@ -91,13 +91,14 @@ class DataQualityRequestParams(BaseModel):
     #using conlist of pydantic to refuse empty list 
 
     project_ids: conlist(int, min_items=1)
-    issue_type: conlist(str, min_items=1)
+    issue_types: conlist(str, min_items=1)
 
-    @validator("issue_type",allow_reuse=True)
+    @validator("issue_types",allow_reuse=True)
     def match_value(cls, value,**kwargs):
         '''checks the either passed value is valid or not '''
-        if not value in supported_issue_types:
-            raise ValueError('Issue type  must be in : '+ str(supported_issue_types))
+        for v in value : 
+            if not v in supported_issue_types:       
+                raise ValueError('Issue type  must be in : '+ str(supported_issue_types))
         return value
 
 class DataQualityProp(BaseModel):
