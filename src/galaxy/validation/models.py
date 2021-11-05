@@ -3,9 +3,9 @@ from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
 from pydantic import conlist
-from geojson_pydantic import Feature,FeatureCollection, Point
+from geojson_pydantic import Feature, FeatureCollection, Point
 
-supported_issue_types=["{badgeom}", "{badvalue}", "all"]
+supported_issue_types = ["{badgeom}", "{badvalue}", "all"]
 
 
 def to_camel(string: str) -> str:
@@ -39,13 +39,16 @@ class MapathonContributor(BaseModel):
 class MappedFeatureWithUser(MappedFeature):
     username: str
 
+
 class MapathonSummary(BaseModel):
     total_contributors: int
     mapped_features: List[MappedFeature]
 
+
 class MapathonDetail(BaseModel):
     mapped_features: List[MappedFeatureWithUser]
     contributors: List[MapathonContributor]
+
 
 class MapathonRequestParams(BaseModel):
     '''validation class for mapathon request parameter provided by user '''
@@ -55,7 +58,7 @@ class MapathonRequestParams(BaseModel):
     to_timestamp: Union[datetime, date]
     hashtags: List[str]
 
-    @validator("to_timestamp",allow_reuse=True)
+    @validator("to_timestamp", allow_reuse=True)
     def check_timestamp_diffs(cls, value, values, **kwargs):
         '''checks the timestap difference '''
 
@@ -67,9 +70,9 @@ class MapathonRequestParams(BaseModel):
 
         return value
 
-    @validator("hashtags",allow_reuse=True)
+    @validator("hashtags", allow_reuse=True)
     def check_hashtag_filter(cls, value, values, **kwargs):
-        '''check the hashtag existence''' 
+        '''check the hashtag existence'''
 
         project_ids = values.get("project_ids")
         if len(project_ids) == 0 and len(value) == 0:
@@ -77,6 +80,7 @@ class MapathonRequestParams(BaseModel):
                 "Empty lists found for both hashtags and project_ids params")
 
         return value
+
 
 class DataQualityRequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class
@@ -88,18 +92,20 @@ class DataQualityRequestParams(BaseModel):
             issue_type: Required, Only accepted value under supported issues ,Array can not be empty
 
     '''
-    #using conlist of pydantic to refuse empty list 
+    #using conlist of pydantic to refuse empty list
 
     project_ids: conlist(int, min_items=1)
     issue_types: conlist(str, min_items=1)
 
-    @validator("issue_types",allow_reuse=True)
-    def match_value(cls, value,**kwargs):
+    @validator("issue_types", allow_reuse=True)
+    def match_value(cls, value, **kwargs):
         '''checks the either passed value is valid or not '''
-        for v in value : 
-            if not v in supported_issue_types:       
-                raise ValueError('Issue type  must be in : '+ str(supported_issue_types))
+        for v in value:
+            if not v in supported_issue_types:
+                raise ValueError('Issue type  must be in : ' +
+                                 str(supported_issue_types))
         return value
+
 
 class DataQualityProp(BaseModel):
     Osm_id: int
@@ -107,10 +113,12 @@ class DataQualityProp(BaseModel):
     Changeset_timestamp: Union[datetime, date]
     Issue_type: str
 
+
 class DataQualityPointFeature(Feature):
     geometry: Point
     properties: DataQualityProp
 
-class DataQualityPointCollection(FeatureCollection):
-   features: List[DataQualityPointFeature]
 
+class DataQualityPointCollection(FeatureCollection):
+    ''' geojson pydantic models for data quality (**** Note : Not required if we will be using OUTPUT Class'''
+    features: List[DataQualityPointFeature]

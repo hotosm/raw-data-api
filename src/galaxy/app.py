@@ -8,7 +8,8 @@ from .validation.models import *
 from .query_builder.builder import *
 import pandas
 from json import loads as json_loads
-from geojson_pydantic import Point, features
+from geojson import Feature, FeatureCollection, Point
+
 import json
 
 
@@ -209,6 +210,7 @@ class Output:
 
     def to_JSON(self):
         """Function to convert query result to JSON, Returns JSON"""
+        print(self.dataframe)
         js = self.dataframe.to_json(orient='records')
         return js
 
@@ -233,9 +235,25 @@ class Output:
         except Exception as err:
             raise err
 
-    def dataframe(self):
-        """Function to return panda's dataframe for advanced users"""
-        return self.dataframe
+    def to_GeoJSON(self, lat_column, lng_column):
+        '''to_Geojson converts pandas dataframe to geojson , Currently supports only Point Geometry and hence takes parameter of lat and lng ( You need to specify lat lng column )'''
+        print(self.dataframe)
+        # columns used for constructing geojson object
+        properties = self.dataframe.drop([lat_column, lng_column],
+                                         axis=1).to_dict('records')
+
+        features = self.dataframe.apply(
+            lambda row: Feature(geometry=Point(
+                (float(row[lng_column]), float(row[lat_column]))),
+                                properties=properties[row.name]),
+            axis=1).tolist()
+
+        # all the other columns used as properties
+        print("1")
+        print(properties)
+        # whole geojson object
+        feature_collection = FeatureCollection(features=features)
+        return feature_collection
 
 
 class DataQuality:
@@ -254,17 +272,26 @@ class DataQuality:
         print(parameters)
         self.params = DataQualityRequestParams(**parameters)
 
+    '''Using pydantic model'''
+    # def get_report(self):
+    #     """Functions that returns data_quality Report"""
+    #     query = data_quality_query(self.params)
+    #     print(query)
+
+    #     result = self.db.executequery(query)
+    #     print(result)
+    #     dataquality_point = [
+    #         DataQualityPointFeature(**json.loads(p[0])) for p in result
+    #     ]
+    #     dataquality_coll = DataQualityPointCollection(
+    #         features=dataquality_point)
+    #     print(dataquality_coll.json())
+    #     return dataquality_coll.json()
+    ''' Using our Output class '''
+
     def get_report(self):
         """Functions that returns data_quality Report"""
         query = data_quality_query(self.params)
-        print(query)
-
-        result = self.db.executequery(query)
+        result = Output(query, self.con).to_GeoJSON('lat', 'lng')
         print(result)
-        dataquality_point = [
-            DataQualityPointFeature(**json.loads(p[0])) for p in result
-        ]
-        dataquality_coll = DataQualityPointCollection(
-            features=dataquality_point)
-        print(dataquality_coll.json())
-        return dataquality_coll.json()
+        return result

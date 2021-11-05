@@ -156,9 +156,22 @@ def data_quality_query(params):
         issue_types = ",".join(
             ["'" + str(p) + "'" for p in params.issue_types])
     change_ids = ",".join([str(p) for p in params.project_ids])
+    '''Geojson output query for pydantic model'''
+    # query1 = """
+    #     select '{ "type": "Feature","properties": {   "Osm_id": ' || osm_id ||',"Changeset_id":  ' || change_id ||',"Changeset_timestamp": "' || timestamp ||'","Issue_type": "' || cast(status as text) ||'"},"geometry": ' || ST_AsGeoJSON(location)||'}'
+    #     FROM validation
+    #     WHERE   status IN (%s) AND
+    #             change_id IN (%s)
+    # """ % (issue_types, change_ids)
+    '''Normal Query to feed our OUTPUT Class '''
 
     query = """
-        select '{ "type": "Feature","properties": {   "Osm_id": ' || osm_id ||',"Changeset_id":  ' || change_id ||',"Changeset_timestamp": "' || timestamp ||'","Issue_type": "' || cast(status as text) ||'"},"geometry": ' || ST_AsGeoJSON(location)||'}'
+        SELECT osm_id as Osm_id,
+                change_id as Changeset_id,
+                timestamp::text as Changeset_timestamp,
+                status::text as Issue_type,
+                ST_X(location::geometry) as lng,
+                ST_Y(location::geometry) as lat
         FROM validation
         WHERE   status IN (%s) AND
                 change_id IN (%s)
