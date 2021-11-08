@@ -25,6 +25,10 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import conlist
 from geojson_pydantic import Feature, FeatureCollection, Point
 
+
+supported_issue_types = ["{badgeom}", "{badvalue}", "all"]
+
+
 def to_camel(string: str) -> str:
     split_string = string.split("_")
 

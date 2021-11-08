@@ -32,6 +32,8 @@ import json
 import pandas
 import os
 from json import loads as json_loads
+from geojson import Feature, FeatureCollection, Point
+
 
 def print_psycopg2_exception(err):
     """ 
@@ -220,7 +222,7 @@ class Output:
         else:
             raise ValueError("Input type " + str(type(result)) +
                              " is not supported")
-        print(self.dataframe)
+        # print(self.dataframe)
         if self.dataframe.empty : 
             raise ValueError("Dataframe is Null")
 
@@ -253,7 +255,7 @@ class Output:
 
     def to_GeoJSON(self, lat_column, lng_column):
         '''to_Geojson converts pandas dataframe to geojson , Currently supports only Point Geometry and hence takes parameter of lat and lng ( You need to specify lat lng column )'''
-        print(self.dataframe)
+        # print(self.dataframe)
         # columns used for constructing geojson object
         properties = self.dataframe.drop([lat_column, lng_column],
                                          axis=1).to_dict('records')
@@ -264,9 +266,6 @@ class Output:
                                 properties=properties[row.name]),
             axis=1).tolist()
 
-        # all the other columns used as properties
-        print("1")
-        print(properties)
         # whole geojson object
         feature_collection = FeatureCollection(features=features)
         return feature_collection
