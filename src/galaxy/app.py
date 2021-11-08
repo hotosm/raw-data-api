@@ -1,7 +1,8 @@
 '''Main page contains class for database mapathon and funtion for error printing  '''
 
 import sys
-from psycopg2 import connect
+from API import config
+from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
 from pydantic import validator
@@ -229,6 +230,77 @@ class Output:
     def dataframe(self):
         """Function to return panda's dataframe for advanced users"""
         return self.dataframe
+
+
+class UserStats:
+    def __init__(self):
+        self.db = Database(dict(config.items("INSIGHTS_PG")))
+        self.con, self.cur = self.db.connect()
+
+    def list_users(self, params):
+        user_names_str = ",".join(["%s" for n in range(len(params.user_names))])
+
+        query = sql.SQL(f"""SELECT DISTINCT user_id, user_name from osm_changeset
+        WHERE created_at between %s AND %s AND user_name IN ({user_names_str})
+        """)
+
+        items = (params.from_timestamp, params.to_timestamp, *params.user_names)
+        list_users_query = self.cur.mogrify(query, items)
+
+        result = self.db.executequery(list_users_query)
+
+        users_list = [User(**r) for r in result]
+
+        return users_list
+
+    def get_statistics(self, params):
+        query = """
+            SELECT (each(tags)).key as feature, action, count(distinct id)
+            FROM osm_element_history
+            WHERE timestamp BETWEEN %s AND %s
+            AND uid = %s
+            AND type in ('way','relation')
+            GROUP BY feature, action
+        """
+
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        query = self.cur.mogrify(query, items)
+
+        result = self.db.executequery(query)
+        summary = [MappedFeature(**r) for r in result]
+
+        return summary
+
+    def get_statistics_with_hashtags(self, params):
+        changeset_query, _, _ = create_changeset_query(params, self.con, self.cur)
+
+        # Include user_id filter.
+        changeset_query = f"{changeset_query} AND user_id = {params.user_id}"
+
+        base_query = """
+            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)
+            FROM osm_element_history AS osh, T1
+            WHERE osh.timestamp BETWEEN %s AND %s
+            AND osh.uid = %s
+            AND osh.type in ('way','relation')
+            AND T1.changeset_id = osh.changeset
+            GROUP BY feature, action
+        """
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        base_query = self.cur.mogrify(base_query, items).decode()
+
+        query = f"""
+            WITH T1 AS (
+                {changeset_query}
+            )
+            {base_query}
+        """
+
+        result = self.db.executequery(query)
+
+        summary = [MappedFeature(**r) for r in result]
+
+        return summary
 
 
 

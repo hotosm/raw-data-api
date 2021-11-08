@@ -73,3 +73,22 @@ class MapathonRequestParams(BaseModel):
                 "Empty lists found for both hashtags and project_ids params")
 
         return value
+
+
+class UsersListParams(BaseModel):
+    user_names: List[str]
+    from_timestamp: Union[datetime, date]
+    to_timestamp: Union[datetime, date]
+
+
+class UserStatsParams(BaseModel):
+    user_id: int
+    from_timestamp: Union[datetime, date]
+    to_timestamp: Union[datetime, date]
+    hashtags: List[str]
+    project_ids: List[int] = []
+
+
+class User(BaseModel):
+    user_id: int
+    user_name: str
