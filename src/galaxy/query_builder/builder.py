@@ -167,7 +167,7 @@ def create_users_contributions_query(params, changeset_query):
     return query
 
 def create_hashtagfilter_underpass(hashtags):
-    """Generates hashtag filter query on the basis of list of hastags provided"""
+    """Generates hashtag filter query on the basis of list of hastags."""
     print(hashtags)
     hashtag_filters = []
     for i in hashtags:
