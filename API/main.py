@@ -6,14 +6,12 @@ from .changesets.routers import router as changesets_router
 from .data.routers import router as data_router
 from .auth.routers import router as auth_router
 from .mapathon.routers import router as mapathon_router
+from .osm_users import router as osm_users_router
 
 
 app = FastAPI()
 
-
-origins = [
-    "*"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,3 +26,4 @@ app.include_router(changesets_router)
 app.include_router(auth_router)
 app.include_router(mapathon_router)
 app.include_router(data_router)
+app.include_router(osm_users_router)
