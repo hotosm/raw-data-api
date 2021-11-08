@@ -1,7 +1,25 @@
+# Copyright (C) 2021 Humanitarian OpenStreetmap Team
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Humanitarian OpenStreetmap Team
+# 1100 13th Street NW Suite 800 Washington, D.C. 20005
+# <info@hotosm.org>
+
 '''Main page contains class for database mapathon and funtion for error printing  '''
 
 import sys
-from API import config
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
@@ -183,27 +201,32 @@ class Output:
             except Exception as err:
                 raise err
         elif isinstance(result, str):
-            check,r_json=check_for_json(result)
-            if check is True : 
+            check, r_json = check_for_json(result)
+            if check is True:
                 print("i am json")
                 try:
                     self.dataframe = pandas.json_normalize(r_json)
                 except Exception as err:
                     raise err
-            else: 
+            else:
                 if connection is not None:
                     try:
-                        self.dataframe = pandas.read_sql_query(result, connection)
+                        self.dataframe = pandas.read_sql_query(
+                            result, connection)
                     except Exception as err:
                         raise err
                 else:
-                    raise ValueError("Connection is required for SQL Query")           
+                    raise ValueError("Connection is required for SQL Query")
         else:
             raise ValueError("Input type " + str(type(result)) +
                              " is not supported")
+        print(self.dataframe)
+        if self.dataframe.empty : 
+            raise ValueError("Dataframe is Null")
 
     def to_JSON(self):
         """Function to convert query result to JSON, Returns JSON"""
+        # print(self.dataframe)
         js = self.dataframe.to_json(orient='records')
         return js
 
@@ -212,6 +235,7 @@ class Output:
 
         result_list = self.dataframe.values.tolist()
         return result_list
+
     def to_dict(self):
         """Function to convert query result to dict, Returns dict"""
         dic = self.dataframe.to_dict(orient='records')
@@ -227,14 +251,31 @@ class Output:
         except Exception as err:
             raise err
 
-    def dataframe(self):
-        """Function to return panda's dataframe for advanced users"""
-        return self.dataframe
+    def to_GeoJSON(self, lat_column, lng_column):
+        '''to_Geojson converts pandas dataframe to geojson , Currently supports only Point Geometry and hence takes parameter of lat and lng ( You need to specify lat lng column )'''
+        print(self.dataframe)
+        # columns used for constructing geojson object
+        properties = self.dataframe.drop([lat_column, lng_column],
+                                         axis=1).to_dict('records')
+
+        features = self.dataframe.apply(
+            lambda row: Feature(geometry=Point(
+                (float(row[lng_column]), float(row[lat_column]))),
+                                properties=properties[row.name]),
+            axis=1).tolist()
+
+        # all the other columns used as properties
+        print("1")
+        print(properties)
+        # whole geojson object
+        feature_collection = FeatureCollection(features=features)
+        return feature_collection
+
 
 
 class UserStats:
-    def __init__(self):
-        self.db = Database(dict(config.items("INSIGHTS_PG")))
+    def __init__(self,db_dict):
+        self.db = Database(db_dict)
         self.con, self.cur = self.db.connect()
 
     def list_users(self, params):
@@ -303,4 +344,44 @@ class UserStats:
         return summary
 
 
+class DataQuality:
+    '''
+    Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
+    Parameters:
+            “project_ids”:[],
+            “issue_types”: ["bad_geometry", "bad_value", "incomplete_tags", "all"] 
+    Returns:
+            JSON    
+    '''
+    def __init__(self, db_dict, parameters):
+        self.db = Database(db_dict)
+        self.con, self.cur = self.db.connect()
+        #parameter validation using pydantic model
+        print(parameters)
+        self.params = DataQualityRequestParams(**parameters)
+
+    '''Using pydantic model'''
+    # def get_report(self):
+    #     """Functions that returns data_quality Report"""
+    #     query = data_quality_query(self.params)
+    #     print(query)
+
+    #     result = self.db.executequery(query)
+    #     print(result)
+    #     dataquality_point = [
+    #         DataQualityPointFeature(**json.loads(p[0])) for p in result
+    #     ]
+    #     dataquality_coll = DataQualityPointCollection(
+    #         features=dataquality_point)
+    #     print(dataquality_coll.json())
+    #     return dataquality_coll.json()
+    ''' Using our Output class '''
+
+    def get_report(self):
+        """Functions that returns data_quality Report"""
+      
+        query = data_quality_query(self.params)
+        result = Output(query, self.con).to_GeoJSON('lat', 'lng')
+        print(result)
+        return result
 

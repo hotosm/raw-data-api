@@ -17,19 +17,21 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-'''app contains class for database mapathon and funtion for error printing  '''
-import sys, os
-from psycopg2 import connect
+'''Main page contains class for database mapathon and funtion for error printing  '''
+
+import sys
+from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
-from psycopg2 import OperationalError
+from psycopg2 import OperationalError, errorcodes, errors
+from pydantic import validator
+from pydantic.types import Json
+from pydantic import parse_obj_as
 from .validation.models import *
 from .query_builder.builder import *
-import pandas
-from json import loads as json_loads
-from geojson import Feature, FeatureCollection, Point
-
 import json
-
+import pandas
+import os
+from json import loads as json_loads
 
 def print_psycopg2_exception(err):
     """ 
@@ -48,19 +50,17 @@ def print_psycopg2_exception(err):
     print("pgcode:", err.pgcode, "\n")
     raise err
 
-
 def check_for_json(result_str):
-    """Check if the Payload is a JSON document
+        """Check if the Payload is a JSON document
 
         Return: bool:
             True in case of success, False otherwise
         """
-    try:
-        r_json = json_loads(result_str)
-        return True, r_json
-    except Exception as e:
-        return False, None
-
+        try:
+            r_json = json_loads(result_str)
+            return True,r_json
+        except Exception as e:
+            return False,None
 
 class Database:
     """ Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class """
@@ -91,14 +91,12 @@ class Database:
             if self.conn != None:
                 self.cursor = self.cur
                 # catch exception for invalid SQL statement
-
+               
                 try:
                     self.cursor.execute(query)
                     try:
                         result = self.cursor.fetchall()
                         # print(result)
-                        # result1=Output(query,self.conn).to_dict()
-                        # print(result1)
                         return result
                     except:
                         return self.cursor.statusmessage
@@ -129,10 +127,8 @@ class Database:
         except Exception as err:
             raise err
 
-
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
-
     #constructor
     def __init__(self, db_dict, parameters):
         self.database = Database(db_dict)
@@ -160,8 +156,7 @@ class Mapathon:
 
         total_contributors = self.database.executequery(
             total_contributor_query)
-        report = MapathonSummary(total_contributors=total_contributors[0].get(
-            "contributors_count", "None"),
+        report = MapathonSummary(total_contributors=total_contributors[0].get("contributors_count","None"),
                                  mapped_features=mapped_features)
         return report.json()
 
@@ -225,10 +220,13 @@ class Output:
         else:
             raise ValueError("Input type " + str(type(result)) +
                              " is not supported")
+        print(self.dataframe)
+        if self.dataframe.empty : 
+            raise ValueError("Dataframe is Null")
 
     def to_JSON(self):
         """Function to convert query result to JSON, Returns JSON"""
-        print(self.dataframe)
+        # print(self.dataframe)
         js = self.dataframe.to_json(orient='records')
         return js
 
@@ -274,6 +272,78 @@ class Output:
         return feature_collection
 
 
+
+class UserStats:
+    def __init__(self,db_dict):
+        self.db = Database(db_dict)
+        self.con, self.cur = self.db.connect()
+
+    def list_users(self, params):
+        user_names_str = ",".join(["%s" for n in range(len(params.user_names))])
+
+        query = sql.SQL(f"""SELECT DISTINCT user_id, user_name from osm_changeset
+        WHERE created_at between %s AND %s AND user_name IN ({user_names_str})
+        """)
+
+        items = (params.from_timestamp, params.to_timestamp, *params.user_names)
+        list_users_query = self.cur.mogrify(query, items)
+
+        result = self.db.executequery(list_users_query)
+
+        users_list = [User(**r) for r in result]
+
+        return users_list
+
+    def get_statistics(self, params):
+        query = """
+            SELECT (each(tags)).key as feature, action, count(distinct id)
+            FROM osm_element_history
+            WHERE timestamp BETWEEN %s AND %s
+            AND uid = %s
+            AND type in ('way','relation')
+            GROUP BY feature, action
+        """
+
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        query = self.cur.mogrify(query, items)
+
+        result = self.db.executequery(query)
+        summary = [MappedFeature(**r) for r in result]
+
+        return summary
+
+    def get_statistics_with_hashtags(self, params):
+        changeset_query, _, _ = create_changeset_query(params, self.con, self.cur)
+
+        # Include user_id filter.
+        changeset_query = f"{changeset_query} AND user_id = {params.user_id}"
+
+        base_query = """
+            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)
+            FROM osm_element_history AS osh, T1
+            WHERE osh.timestamp BETWEEN %s AND %s
+            AND osh.uid = %s
+            AND osh.type in ('way','relation')
+            AND T1.changeset_id = osh.changeset
+            GROUP BY feature, action
+        """
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        base_query = self.cur.mogrify(base_query, items).decode()
+
+        query = f"""
+            WITH T1 AS (
+                {changeset_query}
+            )
+            {base_query}
+        """
+
+        result = self.db.executequery(query)
+
+        summary = [MappedFeature(**r) for r in result]
+
+        return summary
+
+
 class DataQuality:
     '''
     Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
@@ -309,7 +379,9 @@ class DataQuality:
 
     def get_report(self):
         """Functions that returns data_quality Report"""
+      
         query = data_quality_query(self.params)
         result = Output(query, self.con).to_GeoJSON('lat', 'lng')
         print(result)
         return result
+
