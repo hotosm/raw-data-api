@@ -167,7 +167,6 @@ def create_users_contributions_query(params, changeset_query):
     return query
 
 def create_hashtagfilter_underpass(hashtags):
-    """Generates hashtag filter query on the basis of list of hastags provided"""
     print(hashtags)
     hashtag_filters = []
     for i in hashtags:
@@ -204,7 +203,8 @@ def data_quality_query(params):
     query = """   with t1 as (
         select id
                 From changesets 
-                  %s
+                where 
+                    %s
    
             ),
         t2 AS (
@@ -217,10 +217,33 @@ def data_quality_query(params):
 
         FROM validation ,t1
         WHERE   status IN (%s) AND
-                change_id = t1.id
+                osm_id = t1.id
                 )
         select *
         from t2
         """ % ( hashtagfilter,issue_types)
     return query
 
+"""  with t1 as (
+        select id
+                From changesets 
+                where 
+                    '(%s)' = ANY(hashtags)
+        
+   
+            ),
+        t2 AS (
+             SELECT osm_id as Osm_id,
+                change_id as Changeset_id,
+                timestamp::text as Changeset_timestamp,
+                status::text as Issue_type,
+                ST_X(location::geometry) as lng,
+                ST_Y(location::geometry) as lat
+
+        FROM validation ,t1
+        WHERE   status IN (%s) AND
+                osm_id = t1.id
+                )
+        select Osm_id
+        from t1
+        """

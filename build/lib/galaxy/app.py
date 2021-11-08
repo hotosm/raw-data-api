@@ -225,13 +225,10 @@ class Output:
         else:
             raise ValueError("Input type " + str(type(result)) +
                              " is not supported")
-        print(self.dataframe)
-        if self.dataframe.empty : 
-            raise ValueError("Dataframe is Null")
 
     def to_JSON(self):
         """Function to convert query result to JSON, Returns JSON"""
-        # print(self.dataframe)
+        print(self.dataframe)
         js = self.dataframe.to_json(orient='records')
         return js
 
@@ -312,7 +309,6 @@ class DataQuality:
 
     def get_report(self):
         """Functions that returns data_quality Report"""
-      
         query = data_quality_query(self.params)
         result = Output(query, self.con).to_GeoJSON('lat', 'lng')
         print(result)
