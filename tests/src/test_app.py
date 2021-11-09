@@ -17,18 +17,18 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-from galaxy import app
+from src.galaxy import app
 import testing.postgresql
 import pytest
-from galaxy.validation import models as mapathon_validation
-from galaxy.query_builder import builder as mapathon_query_builder
-from galaxy import Output
+from src.galaxy.validation import models as mapathon_validation
+from src.galaxy.query_builder import builder as mapathon_query_builder
+from src.galaxy import Output
 import os.path
 
 # Reference to testing.postgresql db instance
 postgresql = None
 
-# Connection to database and query running class from our galaxy module
+# Connection to database and query running class from our src.galaxy module
 
 database = None
 
