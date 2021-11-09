@@ -244,12 +244,12 @@ class Output:
         return dic
 
     def to_CSV(self, output_file_path):
-        """Function to return CSV data , takes output location string as input"""
+        """Function to return CSV data , takes output location string as input , if output location is present already it overwrites"""
         if os.path.isfile(output_file_path) is True:
             os.remove(output_file_path)
         try:
             self.dataframe.to_csv(output_file_path, encoding='utf-8')
-            return "CSV: Generated"
+            return "CSV: Generated at : "+ str(output_file_path)
         except Exception as err:
             raise err
 
@@ -356,7 +356,6 @@ class DataQuality:
         self.db = Database(db_dict)
         self.con, self.cur = self.db.connect()
         #parameter validation using pydantic model
-        print(parameters)
         if  type(parameters) is DataQualityRequestParams:
             self.params= parameters
         else:
@@ -382,9 +381,17 @@ class DataQuality:
 
     def get_report(self):
         """Functions that returns data_quality Report"""
-      
+
         query = generate_data_quality_query(self.params)
         result = Output(query, self.con).to_GeoJSON('lat', 'lng')
+        print(result)
+        return result
+    
+    def get_report_as_csv(self,filelocation):
+        """Functions that returns data_quality Report as CSV Format , requires file path where csv is meant to be generated"""
+        
+        query = generate_data_quality_query(self.params)
+        result=Output(query, self.con).to_CSV(filelocation)
         print(result)
         return result
 

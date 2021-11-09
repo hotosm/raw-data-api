@@ -5,3 +5,4 @@ env
 dist
 osm_galaxy.egg-info
 test.py
+test.csv
