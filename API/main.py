@@ -26,6 +26,8 @@ from .data.routers import router as data_router
 from .auth.routers import router as auth_router
 from .mapathon.routers import router as mapathon_router
 from .osm_users import router as osm_users_router
+from .data_quality import router as data_quality_router
+
 
 
 app = FastAPI()
@@ -46,3 +48,5 @@ app.include_router(auth_router)
 app.include_router(mapathon_router)
 app.include_router(data_router)
 app.include_router(osm_users_router)
+app.include_router(data_quality_router)
+

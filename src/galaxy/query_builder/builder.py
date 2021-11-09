@@ -179,7 +179,7 @@ def create_hashtagfilter_underpass(hashtags):
     print(returnquery)
     return returnquery
 
-def data_quality_query(params):
+def generate_data_quality_query(params):
     '''returns data quality query with filters and parameteres provided'''
     hashtag_add_on="hotosm-project-"
     if "all" in params.issue_types:
@@ -191,7 +191,6 @@ def data_quality_query(params):
     for p in params.project_ids:
         change_ids.append(hashtag_add_on+str(p)) 
 
-    print(change_ids)
     hashtagfilter=create_hashtagfilter_underpass(change_ids)
     '''Geojson output query for pydantic model'''
     # query1 = """
@@ -222,5 +221,7 @@ def data_quality_query(params):
         select *
         from t2
         """ % ( hashtagfilter,issue_types)
+    
+    print(query)
     return query
 

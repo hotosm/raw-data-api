@@ -4,10 +4,7 @@ from configparser import ConfigParser
 
 from src.galaxy.validation.models import UsersListParams, User, UserStatsParams, MappedFeature
 from src.galaxy.app import UserStats
-
-config = ConfigParser()
-config.read("../data/config.txt")
-
+from src.galaxy import config
 
 router = APIRouter(prefix="/osm-users")
 

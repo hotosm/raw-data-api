@@ -357,7 +357,11 @@ class DataQuality:
         self.con, self.cur = self.db.connect()
         #parameter validation using pydantic model
         print(parameters)
-        self.params = DataQualityRequestParams(**parameters)
+        if  type(parameters) is DataQualityRequestParams:
+            self.params= parameters
+        else:
+            self.params = DataQualityRequestParams(**parameters)
+        
 
     '''Using pydantic model'''
     # def get_report(self):
@@ -379,7 +383,7 @@ class DataQuality:
     def get_report(self):
         """Functions that returns data_quality Report"""
       
-        query = data_quality_query(self.params)
+        query = generate_data_quality_query(self.params)
         result = Output(query, self.con).to_GeoJSON('lat', 'lng')
         print(result)
         return result
