@@ -139,7 +139,7 @@ class Mapathon:
         if  type(parameters) is MapathonRequestParams:
             self.params= parameters
         else:
-            self.params = DataQualityRequestParams(**parameters)
+            self.params = MapathonRequestParams(**parameters)
 
     # Mapathon class instance method
     def get_summary(self):
