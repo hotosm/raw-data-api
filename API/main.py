@@ -24,7 +24,7 @@ from .countries.routers import router as countries_router
 from .changesets.routers import router as changesets_router
 from .data.routers import router as data_router
 from .auth.routers import router as auth_router
-from .mapathon.routers import router as mapathon_router
+from .mapathon import router as mapathon_router
 from .osm_users import router as osm_users_router
 from .data_quality import router as data_quality_router
 

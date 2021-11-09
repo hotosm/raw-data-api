@@ -136,7 +136,10 @@ class Mapathon:
         self.database = Database(db_dict)
         self.con, self.cur = self.database.connect()
         #parameter validation using pydantic model
-        self.params = MapathonRequestParams(**parameters)
+        if  type(parameters) is MapathonRequestParams:
+            self.params= parameters
+        else:
+            self.params = DataQualityRequestParams(**parameters)
 
     # Mapathon class instance method
     def get_summary(self):
@@ -160,7 +163,7 @@ class Mapathon:
             total_contributor_query)
         report = MapathonSummary(total_contributors=total_contributors[0].get("contributors_count","None"),
                                  mapped_features=mapped_features)
-        return report.json()
+        return report
 
     def get_detailed_report(self):
         """Function to get detail report of your mapathon event. It includes individual user contribution"""
@@ -183,7 +186,7 @@ class Mapathon:
         report = MapathonDetail(contributors=contributors,
                                 mapped_features=mapped_features)
         # print(Output(osm_history_query,self.con).to_list())
-        return report.json()
+        return report
 
 
 class Output:

@@ -8,6 +8,7 @@ from src.galaxy import config
 
 router = APIRouter(prefix="/osm-users")
 
+
 @router.post("/ids", response_model=List[User])
 def list_users(params: UsersListParams):
     return UserStats().list_users(params)
@@ -20,4 +21,4 @@ def user_statistics(params: UserStatsParams):
     if len(params.hashtags) > 0:
         return user_stats.get_statistics_with_hashtags(params)
 
-    return user_stats.get_statistics(params) 
+    return user_stats.get_statistics(params)

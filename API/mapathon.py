@@ -1,0 +1,53 @@
+# Copyright (C) 2021 Humanitarian OpenStreetmap Team
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Humanitarian OpenStreetmap Team
+# 1100 13th Street NW Suite 800 Washington, D.C. 20005
+# <info@hotosm.org>
+
+from fastapi import APIRouter, Depends
+
+from src.galaxy import config
+from src.galaxy.app import Mapathon
+
+from src.galaxy.validation.models import (
+    MapathonSummary,
+    MapathonRequestParams,
+    MapathonDetail,
+)
+
+from src.galaxy.query_builder.builder import (
+    create_changeset_query,
+    create_osm_history_query,
+    create_users_contributions_query,
+)
+
+from .auth import login_required
+
+router = APIRouter(prefix="/mapathon")
+
+
+@router.post("/detail", response_model=MapathonDetail)
+def get_mapathon_detailed_report(params: MapathonRequestParams,
+                                 user_data=Depends(login_required)):
+    mapathon = Mapathon(dict(config.items("INSIGHTS_PG")), params)
+    return mapathon.get_detailed_report()
+
+
+@router.post("/summary", response_model=MapathonSummary)
+def get_mapathon_summary(params: MapathonRequestParams):
+    db_params = dict(config.items("INSIGHTS_PG"))
+    mapathon = Mapathon(db_params, params)
+    return mapathon.get_summary()
