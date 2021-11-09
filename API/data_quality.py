@@ -25,7 +25,7 @@ from src.galaxy import config
 router = APIRouter(prefix="/data-quality")
 
 
-@router.post("/report")
+@router.post("/reports")
 def data_quality_reports(params: DataQualityRequestParams):
     data_quality = DataQuality(dict(config.items("local")), params)
     return data_quality.get_report()
