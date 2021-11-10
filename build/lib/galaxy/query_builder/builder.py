@@ -166,36 +166,33 @@ def create_users_contributions_query(params, changeset_query):
     """
     return query
 
-def create_hashtagfilter_underpass(hashtags,columnname):
+def create_hashtagfilter_underpass(hashtags):
     """Generates hashtag filter query on the basis of list of hastags."""
-    
+    print(hashtags)
     hashtag_filters = []
     for i in hashtags:
-        
-        hashtag_filters.append(f"'{i}'=ANY({columnname})")
+        print(i)
+        hashtag_filters.append(f"'{i}'=ANY(hashtags)")
    
     join_query = " OR ".join(hashtag_filters)
     returnquery = f"WHERE {join_query}"
-    
+    print(returnquery)
     return returnquery
 
-def generate_data_quality_query(params):
+def data_quality_query(params):
     '''returns data quality query with filters and parameteres provided'''
-    print(params)
     hashtag_add_on="hotosm-project-"
     if "all" in params.issue_types:
-        issue_types = ['badvalue','badgeom']
+        issue_types = "'{badvalue}','{badgeom}'"
     else:
-        issue_types=[]
-        for p in params.issue_types:
-            issue_types.append(str(p))
-    
+        issue_types = ",".join(
+            ["'" + str(p) + "'" for p in params.issue_types])
     change_ids=[]
     for p in params.project_ids:
         change_ids.append(hashtag_add_on+str(p)) 
 
-    hashtagfilter=create_hashtagfilter_underpass(change_ids,"hashtags")
-    status_filter=create_hashtagfilter_underpass(issue_types,"status")
+    print(change_ids)
+    hashtagfilter=create_hashtagfilter_underpass(change_ids)
     '''Geojson output query for pydantic model'''
     # query1 = """
     #     select '{ "type": "Feature","properties": {   "Osm_id": ' || osm_id ||',"Changeset_id":  ' || change_id ||',"Changeset_timestamp": "' || timestamp ||'","Issue_type": "' || cast(status as text) ||'"},"geometry": ' || ST_AsGeoJSON(location)||'}'
@@ -204,10 +201,11 @@ def generate_data_quality_query(params):
     #             change_id IN (%s)
     # """ % (issue_types, change_ids)
     '''Normal Query to feed our OUTPUT Class '''
-    query =f"""   with t1 as (
+    query = """   with t1 as (
         select id
                 From changesets 
-                  {hashtagfilter}
+                  %s
+   
             ),
         t2 AS (
              SELECT osm_id as Osm_id,
@@ -217,13 +215,12 @@ def generate_data_quality_query(params):
                 ST_X(location::geometry) as lng,
                 ST_Y(location::geometry) as lat
 
-        FROM validation join t1 on change_id = t1.id
-        {status_filter}
+        FROM validation ,t1
+        WHERE   status IN (%s) AND
+                change_id = t1.id
                 )
         select *
         from t2
-        """
-    
-   
+        """ % ( hashtagfilter,issue_types)
     return query
 

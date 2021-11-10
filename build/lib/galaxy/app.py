@@ -32,11 +32,6 @@ import json
 import pandas
 import os
 from json import loads as json_loads
-from geojson import Feature, FeatureCollection, Point
-
-from configparser import ConfigParser
-config = ConfigParser()
-config.read("src/config.txt")
 
 def print_psycopg2_exception(err):
     """ 
@@ -135,14 +130,11 @@ class Database:
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
     #constructor
-    def __init__(self, parameters):
-        self.database = Database(dict(config.items("INSIGHTS_PG")))
+    def __init__(self, db_dict, parameters):
+        self.database = Database(db_dict)
         self.con, self.cur = self.database.connect()
         #parameter validation using pydantic model
-        if  type(parameters) is MapathonRequestParams:
-            self.params= parameters
-        else:
-            self.params = MapathonRequestParams(**parameters)
+        self.params = MapathonRequestParams(**parameters)
 
     # Mapathon class instance method
     def get_summary(self):
@@ -166,7 +158,7 @@ class Mapathon:
             total_contributor_query)
         report = MapathonSummary(total_contributors=total_contributors[0].get("contributors_count","None"),
                                  mapped_features=mapped_features)
-        return report
+        return report.json()
 
     def get_detailed_report(self):
         """Function to get detail report of your mapathon event. It includes individual user contribution"""
@@ -189,7 +181,7 @@ class Mapathon:
         report = MapathonDetail(contributors=contributors,
                                 mapped_features=mapped_features)
         # print(Output(osm_history_query,self.con).to_list())
-        return report
+        return report.json()
 
 
 class Output:
@@ -228,7 +220,7 @@ class Output:
         else:
             raise ValueError("Input type " + str(type(result)) +
                              " is not supported")
-        # print(self.dataframe)
+        print(self.dataframe)
         if self.dataframe.empty : 
             raise ValueError("Dataframe is Null")
 
@@ -250,18 +242,18 @@ class Output:
         return dic
 
     def to_CSV(self, output_file_path):
-        """Function to return CSV data , takes output location string as input , if output location is present already it overwrites"""
+        """Function to return CSV data , takes output location string as input"""
         if os.path.isfile(output_file_path) is True:
             os.remove(output_file_path)
         try:
             self.dataframe.to_csv(output_file_path, encoding='utf-8')
-            return "CSV: Generated at : "+ str(output_file_path)
+            return "CSV: Generated"
         except Exception as err:
             raise err
 
     def to_GeoJSON(self, lat_column, lng_column):
         '''to_Geojson converts pandas dataframe to geojson , Currently supports only Point Geometry and hence takes parameter of lat and lng ( You need to specify lat lng column )'''
-        # print(self.dataframe)
+        print(self.dataframe)
         # columns used for constructing geojson object
         properties = self.dataframe.drop([lat_column, lng_column],
                                          axis=1).to_dict('records')
@@ -272,6 +264,9 @@ class Output:
                                 properties=properties[row.name]),
             axis=1).tolist()
 
+        # all the other columns used as properties
+        print("1")
+        print(properties)
         # whole geojson object
         feature_collection = FeatureCollection(features=features)
         return feature_collection
@@ -279,8 +274,8 @@ class Output:
 
 
 class UserStats:
-    def __init__(self):
-        self.db = Database(dict(config.items("INSIGHTS_PG")))
+    def __init__(self,db_dict):
+        self.db = Database(db_dict)
         self.con, self.cur = self.db.connect()
 
     def list_users(self, params):
@@ -358,30 +353,35 @@ class DataQuality:
     Returns:
             JSON    
     '''
-    def __init__(self, parameters):
-        self.db = Database(dict(config.items("UNDERPASS")))
+    def __init__(self, db_dict, parameters):
+        self.db = Database(db_dict)
         self.con, self.cur = self.db.connect()
         #parameter validation using pydantic model
-        if  type(parameters) is DataQualityRequestParams:
-            self.params= parameters
-        else:
-            self.params = DataQualityRequestParams(**parameters)
+        print(parameters)
+        self.params = DataQualityRequestParams(**parameters)
 
+    '''Using pydantic model'''
+    # def get_report(self):
+    #     """Functions that returns data_quality Report"""
+    #     query = data_quality_query(self.params)
+    #     print(query)
+
+    #     result = self.db.executequery(query)
+    #     print(result)
+    #     dataquality_point = [
+    #         DataQualityPointFeature(**json.loads(p[0])) for p in result
+    #     ]
+    #     dataquality_coll = DataQualityPointCollection(
+    #         features=dataquality_point)
+    #     print(dataquality_coll.json())
+    #     return dataquality_coll.json()
     ''' Using our Output class '''
 
     def get_report(self):
         """Functions that returns data_quality Report"""
-
-        query = generate_data_quality_query(self.params)
+      
+        query = data_quality_query(self.params)
         result = Output(query, self.con).to_GeoJSON('lat', 'lng')
-        print(result)
-        return result
-    
-    def get_report_as_csv(self,filelocation):
-        """Functions that returns data_quality Report as CSV Format , requires file path where csv is meant to be generated"""
-        
-        query = generate_data_quality_query(self.params)
-        result=Output(query, self.con).to_CSV(filelocation)
         print(result)
         return result
 

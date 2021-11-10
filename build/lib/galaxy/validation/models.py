@@ -25,10 +25,6 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import conlist
 from geojson_pydantic import Feature, FeatureCollection, Point
 
-
-supported_issue_types = ["badgeom", "badvalue", "all"]
-
-
 def to_camel(string: str) -> str:
     split_string = string.split("_")
 
@@ -122,7 +118,7 @@ class DataQualityRequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class
     Parameters:
             “project_ids”:[int],
-            “issue_type”: ["badgeom", "badvalue", "all"]
+            “issue_type”: ["{badgeom}", "{badvalue}", "all"]
     Acceptance Criteria : 
             project_ids: Required, Array can contain integer value only , Array can not be empty
             issue_type: Required, Only accepted value under supported issues ,Array can not be empty

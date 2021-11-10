@@ -17,27 +17,29 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-from fastapi import APIRouter
-from typing import List
-from configparser import ConfigParser
-
-from src.galaxy.validation.models import UsersListParams, User, UserStatsParams, MappedFeature
-from src.galaxy.app import UserStats
-
-
-router = APIRouter(prefix="/osm-users")
+from fastapi import APIRouter, Depends
+from src.galaxy.app import Mapathon
+from src.galaxy.validation.models import (
+    MapathonSummary,
+    MapathonRequestParams,
+    MapathonDetail,
+)
 
 
-@router.post("/ids", response_model=List[User])
-def list_users(params: UsersListParams):
-    return UserStats().list_users(params)
+from .auth import login_required
+
+router = APIRouter(prefix="/mapathon")
 
 
-@router.post("/statistics/", response_model=List[MappedFeature])
-def user_statistics(params: UserStatsParams):
-    user_stats = UserStats()
+@router.post("/detail", response_model=MapathonDetail)
+def get_mapathon_detailed_report(params: MapathonRequestParams,
+                                 user_data=Depends(login_required)):
+    mapathon = Mapathon(params)
+    return mapathon.get_detailed_report()
 
-    if len(params.hashtags) > 0:
-        return user_stats.get_statistics_with_hashtags(params)
 
-    return user_stats.get_statistics(params)
+@router.post("/summary", response_model=MapathonSummary)
+def get_mapathon_summary(params: MapathonRequestParams):
+   
+    mapathon = Mapathon(params)
+    return mapathon.get_summary()
