@@ -34,6 +34,9 @@ import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 
+from configparser import ConfigParser
+config = ConfigParser()
+config.read("src/config.txt")
 
 def print_psycopg2_exception(err):
     """ 
@@ -132,8 +135,8 @@ class Database:
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
     #constructor
-    def __init__(self, db_dict, parameters):
-        self.database = Database(db_dict)
+    def __init__(self, parameters):
+        self.database = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.database.connect()
         #parameter validation using pydantic model
         if  type(parameters) is MapathonRequestParams:
@@ -276,8 +279,8 @@ class Output:
 
 
 class UserStats:
-    def __init__(self,db_dict):
-        self.db = Database(db_dict)
+    def __init__(self):
+        self.db = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.db.connect()
 
     def list_users(self, params):
@@ -355,8 +358,8 @@ class DataQuality:
     Returns:
             JSON    
     '''
-    def __init__(self, db_dict, parameters):
-        self.db = Database(db_dict)
+    def __init__(self, parameters):
+        self.db = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.db.connect()
         #parameter validation using pydantic model
         if  type(parameters) is DataQualityRequestParams:

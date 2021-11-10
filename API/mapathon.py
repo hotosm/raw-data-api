@@ -18,21 +18,13 @@
 # <info@hotosm.org>
 
 from fastapi import APIRouter, Depends
-
-from src.galaxy import config
 from src.galaxy.app import Mapathon
-
 from src.galaxy.validation.models import (
     MapathonSummary,
     MapathonRequestParams,
     MapathonDetail,
 )
 
-from src.galaxy.query_builder.builder import (
-    create_changeset_query,
-    create_osm_history_query,
-    create_users_contributions_query,
-)
 
 from .auth import login_required
 
@@ -42,12 +34,12 @@ router = APIRouter(prefix="/mapathon")
 @router.post("/detail", response_model=MapathonDetail)
 def get_mapathon_detailed_report(params: MapathonRequestParams,
                                  user_data=Depends(login_required)):
-    mapathon = Mapathon(dict(config.items("INSIGHTS_PG")), params)
+    mapathon = Mapathon(params)
     return mapathon.get_detailed_report()
 
 
 @router.post("/summary", response_model=MapathonSummary)
 def get_mapathon_summary(params: MapathonRequestParams):
-    db_params = dict(config.items("INSIGHTS_PG"))
-    mapathon = Mapathon(db_params, params)
+   
+    mapathon = Mapathon(params)
     return mapathon.get_summary()

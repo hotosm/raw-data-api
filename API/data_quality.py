@@ -20,12 +20,11 @@
 from fastapi import APIRouter
 from src.galaxy.validation.models import DataQualityRequestParams
 from src.galaxy.app import DataQuality
-from src.galaxy import config
 
 router = APIRouter(prefix="/data-quality")
 
 
 @router.post("/reports")
 def data_quality_reports(params: DataQualityRequestParams):
-    data_quality = DataQuality(dict(config.items("local")), params)
+    data_quality = DataQuality(params)
     return data_quality.get_report()
