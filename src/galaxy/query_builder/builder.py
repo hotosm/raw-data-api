@@ -168,19 +168,20 @@ def create_users_contributions_query(params, changeset_query):
 
 def create_hashtagfilter_underpass(hashtags,columnname):
     """Generates hashtag filter query on the basis of list of hastags."""
-    print(hashtags)
+    
     hashtag_filters = []
     for i in hashtags:
-        print(i)
+        
         hashtag_filters.append(f"'{i}'=ANY({columnname})")
    
     join_query = " OR ".join(hashtag_filters)
     returnquery = f"WHERE {join_query}"
-    print(returnquery)
+    
     return returnquery
 
 def generate_data_quality_query(params):
     '''returns data quality query with filters and parameteres provided'''
+    print(params)
     hashtag_add_on="hotosm-project-"
     if "all" in params.issue_types:
         issue_types = ['badvalue','badgeom']
@@ -223,6 +224,6 @@ def generate_data_quality_query(params):
         from t2
         """
     
-    print(query)
+   
     return query
 

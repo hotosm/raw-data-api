@@ -366,23 +366,7 @@ class DataQuality:
             self.params= parameters
         else:
             self.params = DataQualityRequestParams(**parameters)
-        
 
-    '''Using pydantic model'''
-    # def get_report(self):
-    #     """Functions that returns data_quality Report"""
-    #     query = data_quality_query(self.params)
-    #     print(query)
-
-    #     result = self.db.executequery(query)
-    #     print(result)
-    #     dataquality_point = [
-    #         DataQualityPointFeature(**json.loads(p[0])) for p in result
-    #     ]
-    #     dataquality_coll = DataQualityPointCollection(
-    #         features=dataquality_point)
-    #     print(dataquality_coll.json())
-    #     return dataquality_coll.json()
     ''' Using our Output class '''
 
     def get_report(self):
