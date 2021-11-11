@@ -177,7 +177,7 @@ def create_hashtagfilter_underpass(hashtags,columnname):
             hashtag_filters.append(f"'{i}'=ANY({columnname})")
    
     join_query = " OR ".join(hashtag_filters)
-    returnquery = f"WHERE {join_query}"
+    returnquery = f"{join_query}"
     
     return returnquery
 
@@ -209,6 +209,7 @@ def generate_data_quality_TM_query(params):
     query =f"""   with t1 as (
         select id
                 From changesets 
+                WHERE
                   {hashtagfilter}
             ),
         t2 AS (
@@ -220,6 +221,7 @@ def generate_data_quality_TM_query(params):
                 ST_Y(location::geometry) as lat
 
         FROM validation join t1 on change_id = t1.id
+        WHERE
         {status_filter}
                 )
         select *
@@ -250,6 +252,7 @@ def generate_data_quality_username_query(params):
     query =f"""   with t1 as (
         select id,username as username
                 From users 
+                WHERE
                   {username_filter}
             ),
         t2 AS (
@@ -262,7 +265,8 @@ def generate_data_quality_username_query(params):
                 ST_Y(location::geometry) as lat
                 
         FROM validation join t1 on user_id = t1.id  
-        {status_filter} AND timestamp between '{params.from_timestamp}' and  '{params.to_timestamp}'
+        WHERE
+        ({status_filter}) AND (timestamp between '{params.from_timestamp}' and  '{params.to_timestamp}')
                 )
         select *
         from t2
