@@ -26,7 +26,6 @@ from pydantic import conlist
 from geojson_pydantic import Feature, FeatureCollection, Point
 
 
-supported_issue_types = ["badgeom", "badvalue", "all"]
 
 
 def to_camel(string: str) -> str:
@@ -118,6 +117,8 @@ class User(BaseModel):
     user_id: int
     user_name: str
 
+supported_issue_types = ["badgeom", "badvalue", "all"]
+supported_Output_types = ["GeoJSON","CSV"]
 class DataQualityRequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class
     Parameters:
@@ -132,14 +133,26 @@ class DataQualityRequestParams(BaseModel):
 
     project_ids: conlist(int, min_items=1)
     issue_types: conlist(str, min_items=1)
+    Output_type: str
 
     @validator("issue_types", allow_reuse=True)
     def match_value(cls, value, **kwargs):
         '''checks the either passed value is valid or not '''
+        print(value)
         for v in value:
+            print(v)
             if not v in supported_issue_types:
-                raise ValueError('Issue type  must be in : ' +
+                raise ValueError('Issue type '+str(v)+' must be in : ' +
                                  str(supported_issue_types))
+        return value
+    
+    @validator("Output_type", allow_reuse=True)
+    def match_output_value(cls, value, **kwargs):
+        '''checks the either passed value is valid or not '''
+        
+        if not value in supported_Output_types:
+            raise ValueError('Output type '+str(value)+' must be in : ' +
+                                str(supported_Output_types))
         return value
 
 

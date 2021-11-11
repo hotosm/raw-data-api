@@ -191,7 +191,6 @@ class Mapathon:
         # print(Output(osm_history_query,self.con).to_list())
         return report
 
-
 class Output:
     '''
     Class to convert sql query result to specific output format. It uses Pandas Dataframe
@@ -250,9 +249,7 @@ class Output:
         return dic
 
     def to_CSV(self, output_file_path):
-        """Function to return CSV data , takes output location string as input , if output location is present already it overwrites"""
-        if os.path.isfile(output_file_path) is True:
-            os.remove(output_file_path)
+        """Function to return CSV data , takes output location string as input"""
         try:
             self.dataframe.to_csv(output_file_path, encoding='utf-8')
             return "CSV: Generated at : "+ str(output_file_path)
@@ -275,8 +272,6 @@ class Output:
         # whole geojson object
         feature_collection = FeatureCollection(features=features)
         return feature_collection
-
-
 
 class UserStats:
     def __init__(self):
@@ -348,7 +343,6 @@ class UserStats:
 
         return summary
 
-
 class DataQuality:
     '''
     Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
@@ -384,4 +378,3 @@ class DataQuality:
         result=Output(query, self.con).to_CSV(filelocation)
         print(result)
         return result
-
