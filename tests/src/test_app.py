@@ -171,7 +171,8 @@ def test_data_quality_query():
         "project_ids": [
             9928,4730,5663
         ],
-        "issue_types": ["badgeom", "badvalue"]
+        "issue_types": ["badgeom", "badvalue"],
+        "Output_type": "GeoJSON"
     }
     validated_params=DataQualityRequestParams(**data_quality_params)
     expected_result="   with t1 as (\n        select id\n                From changesets \n                  WHERE 'hotosm-project-9928'=ANY(hashtags) OR 'hotosm-project-4730'=ANY(hashtags) OR 'hotosm-project-5663'=ANY(hashtags)\n            ),\n        t2 AS (\n             SELECT osm_id as Osm_id,\n                change_id as Changeset_id,\n                timestamp::text as Changeset_timestamp,\n                status::text as Issue_type,\n                ST_X(location::geometry) as lng,\n                ST_Y(location::geometry) as lat\n\n        FROM validation join t1 on change_id = t1.id\n        WHERE 'badgeom'=ANY(status) OR 'badvalue'=ANY(status)\n                )\n        select *\n        from t2\n        "

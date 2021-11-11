@@ -138,7 +138,7 @@ class DataQualityRequestParams(BaseModel):
     @validator("issue_types", allow_reuse=True)
     def match_value(cls, value, **kwargs):
         '''checks the either passed value is valid or not '''
-        print(value)
+        
         for v in value:
             print(v)
             if not v in supported_issue_types:
