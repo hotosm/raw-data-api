@@ -25,8 +25,9 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import conlist
 from geojson_pydantic import Feature, FeatureCollection, Point
 
+from datetime import datetime
 
-supported_issue_types = ["badgeom", "badvalue", "all"]
+
 
 
 def to_camel(string: str) -> str:
@@ -118,8 +119,10 @@ class User(BaseModel):
     user_id: int
     user_name: str
 
-class DataQualityRequestParams(BaseModel):
-    '''Request Parameteres validation for DataQuality Class
+supported_issue_types = ["badgeom", "badvalue", "all"]
+supported_Output_types = ["GeoJSON","CSV"]
+class DataQuality_TM_RequestParams(BaseModel):
+    '''Request Parameteres validation for DataQuality Class Tasking Manager Project ID
     Parameters:
             “project_ids”:[int],
             “issue_type”: ["badgeom", "badvalue", "all"]
@@ -132,16 +135,82 @@ class DataQualityRequestParams(BaseModel):
 
     project_ids: conlist(int, min_items=1)
     issue_types: conlist(str, min_items=1)
+    Output_type: str
 
     @validator("issue_types", allow_reuse=True)
     def match_value(cls, value, **kwargs):
         '''checks the either passed value is valid or not '''
+        
         for v in value:
+            print(v)
             if not v in supported_issue_types:
-                raise ValueError('Issue type  must be in : ' +
+                raise ValueError('Issue type '+str(v)+' must be in : ' +
                                  str(supported_issue_types))
         return value
+    
+    @validator("Output_type", allow_reuse=True)
+    def match_output_value(cls, value, **kwargs):
+        '''checks the either passed value is valid or not '''
+        
+        if not value in supported_Output_types:
+            raise ValueError('Output type '+str(value)+' must be in : ' +
+                                str(supported_Output_types))
+        return value
 
+
+class DataQuality_username_RequestParams(BaseModel):
+    '''Request Parameteres validation for DataQuality Class Username
+    Parameters:
+            osm_usernames:[str],
+            “issue_type”: ["badgeom", "badvalue", "all"]
+            from_timestamp and to_timestamp
+    '''
+    #using conlist of pydantic to refuse empty list
+
+    osm_usernames: conlist(str, min_items=1)
+    issue_types: conlist(str, min_items=1)
+    from_timestamp: Union[datetime, date]
+    to_timestamp: Union[datetime, date]
+    Output_type: str
+
+    @validator("issue_types", allow_reuse=True)
+    def match_value(cls, value, **kwargs):
+        '''checks the either passed value is valid or not '''
+        
+        for v in value:
+            
+            if not v in supported_issue_types:
+                raise ValueError('Issue type '+str(v)+' must be in : ' +
+                                 str(supported_issue_types))
+        return value
+    
+    @validator("Output_type", allow_reuse=True)
+    def match_output_value(cls, value, **kwargs):
+        '''checks the either passed value is valid or not '''
+        
+        if not value in supported_Output_types:
+            raise ValueError('Output type '+str(value)+' must be in : ' +
+                                str(supported_Output_types))
+        return value
+
+    @validator("to_timestamp",allow_reuse=True)
+    def check_timestamp_diffs(cls, value, values, **kwargs):
+        '''checks the timestap difference '''
+
+        from_timestamp = values.get("from_timestamp")
+        print(datetime.now())
+        if from_timestamp > datetime.now() or value > datetime.now():
+            raise ValueError(
+                "Can not exceed current date and time")
+        timestamp_diff = value - from_timestamp
+        if from_timestamp > value :
+            raise ValueError(
+                "Timestamp difference should be in order")
+        if timestamp_diff > timedelta(days=31):
+            raise ValueError(
+                "Timestamp difference must be lower than 31 days")
+
+        return value
 
 class DataQualityProp(BaseModel):
     Osm_id: int

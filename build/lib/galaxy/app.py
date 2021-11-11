@@ -358,7 +358,7 @@ class DataQuality:
         self.con, self.cur = self.db.connect()
         #parameter validation using pydantic model
         print(parameters)
-        self.params = DataQualityRequestParams(**parameters)
+        self.params = DataQuality_TM_RequestParams(**parameters)
 
     '''Using pydantic model'''
     # def get_report(self):

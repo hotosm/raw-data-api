@@ -191,7 +191,6 @@ class Mapathon:
         # print(Output(osm_history_query,self.con).to_list())
         return report
 
-
 class Output:
     '''
     Class to convert sql query result to specific output format. It uses Pandas Dataframe
@@ -250,9 +249,7 @@ class Output:
         return dic
 
     def to_CSV(self, output_file_path):
-        """Function to return CSV data , takes output location string as input , if output location is present already it overwrites"""
-        if os.path.isfile(output_file_path) is True:
-            os.remove(output_file_path)
+        """Function to return CSV data , takes output location string as input"""
         try:
             self.dataframe.to_csv(output_file_path, encoding='utf-8')
             return "CSV: Generated at : "+ str(output_file_path)
@@ -275,8 +272,6 @@ class Output:
         # whole geojson object
         feature_collection = FeatureCollection(features=features)
         return feature_collection
-
-
 
 class UserStats:
     def __init__(self):
@@ -348,40 +343,52 @@ class UserStats:
 
         return summary
 
-
 class DataQuality:
     '''
     Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
     Parameters:
-            “project_ids”:[],
-            “issue_types”: ["bad_geometry", "bad_value", "incomplete_tags", "all"] 
+           params and inputtype : Currently supports : TM for tasking manager id , username for OSM Username reports and hashtags for Osm hashtags
     Returns:
-            JSON    
+            GeoJSON,CSV    
     '''
-    def __init__(self, parameters):
+    def __init__(self, parameters,inputtype):
         self.db = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.db.connect()
+        self.inputtype=inputtype
         #parameter validation using pydantic model
-        if  type(parameters) is DataQualityRequestParams:
-            self.params= parameters
+        if self.inputtype =="TM":
+            if  type(parameters) is DataQuality_TM_RequestParams:
+                self.params= parameters
+            else:
+                self.params = DataQuality_TM_RequestParams(**parameters)
+        elif self.inputtype == "username":
+            if  type(parameters) is DataQuality_username_RequestParams:
+                self.params= parameters
+            else:
+                self.params = DataQuality_username_RequestParams(**parameters)
         else:
-            self.params = DataQualityRequestParams(**parameters)
+            raise ValueError("Input Type Must be in ['TM','username']")
 
     ''' Using our Output class '''
 
     def get_report(self):
         """Functions that returns data_quality Report"""
+        if self.inputtype =="TM":
+            query = generate_data_quality_TM_query(self.params)
+        elif self.inputtype == "username":
+            query = generate_data_quality_username_query(self.params)
 
-        query = generate_data_quality_query(self.params)
         result = Output(query, self.con).to_GeoJSON('lat', 'lng')
-        print(result)
+        # print(result)
         return result
     
     def get_report_as_csv(self,filelocation):
         """Functions that returns data_quality Report as CSV Format , requires file path where csv is meant to be generated"""
         
-        query = generate_data_quality_query(self.params)
+        if self.inputtype =="TM":
+            query = generate_data_quality_TM_query(self.params)
+        elif self.inputtype == "username":
+            query = generate_data_quality_username_query(self.params)
         result=Output(query, self.con).to_CSV(filelocation)
         print(result)
         return result
-
