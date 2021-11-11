@@ -114,7 +114,7 @@ class User(BaseModel):
     user_id: int
     user_name: str
 
-class DataQualityRequestParams(BaseModel):
+class DataQuality_TM_RequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class
     Parameters:
             “project_ids”:[int],

@@ -22,8 +22,8 @@ import testing.postgresql
 import pytest
 from src.galaxy.validation import models as mapathon_validation
 from src.galaxy.query_builder import builder as mapathon_query_builder
-from src.galaxy.query_builder.builder import generate_data_quality_query
-from src.galaxy.validation.models import DataQualityRequestParams
+from src.galaxy.query_builder.builder import generate_data_quality_TM_query
+from src.galaxy.validation.models import DataQuality_TM_RequestParams
 from src.galaxy import Output
 import os.path
 
@@ -174,7 +174,7 @@ def test_data_quality_query():
         "issue_types": ["badgeom", "badvalue"],
         "Output_type": "GeoJSON"
     }
-    validated_params=DataQualityRequestParams(**data_quality_params)
+    validated_params=DataQuality_TM_RequestParams(**data_quality_params)
     expected_result="   with t1 as (\n        select id\n                From changesets \n                  WHERE 'hotosm-project-9928'=ANY(hashtags) OR 'hotosm-project-4730'=ANY(hashtags) OR 'hotosm-project-5663'=ANY(hashtags)\n            ),\n        t2 AS (\n             SELECT osm_id as Osm_id,\n                change_id as Changeset_id,\n                timestamp::text as Changeset_timestamp,\n                status::text as Issue_type,\n                ST_X(location::geometry) as lng,\n                ST_Y(location::geometry) as lat\n\n        FROM validation join t1 on change_id = t1.id\n        WHERE 'badgeom'=ANY(status) OR 'badvalue'=ANY(status)\n                )\n        select *\n        from t2\n        "
-    query_result=generate_data_quality_query(validated_params)
+    query_result=generate_data_quality_TM_query(validated_params)
     assert query_result == expected_result

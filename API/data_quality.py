@@ -18,7 +18,7 @@
 # <info@hotosm.org>
 
 from fastapi import APIRouter
-from src.galaxy.validation.models import DataQualityRequestParams
+from src.galaxy.validation.models import DataQuality_TM_RequestParams,DataQuality_username_RequestParams
 from src.galaxy.app import DataQuality
 from fastapi.responses import StreamingResponse
 import io
@@ -28,12 +28,28 @@ router = APIRouter(prefix="/data-quality")
 
 
 @router.post("/project-reports")
-def data_quality_reports(params: DataQualityRequestParams):
-    data_quality = DataQuality(params)
+def data_quality_reports(params: DataQuality_TM_RequestParams):
+    data_quality = DataQuality(params,"TM")
     stream = io.StringIO()
     
     if params.Output_type == "CSV":
         exportname="TM_DataQuality_"+str(datetime.now())
+        data_quality.get_report_as_csv(stream)
+        response = StreamingResponse(iter([stream.getvalue()]),
+                                media_type="text/csv"
+        )
+        response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
+        return response
+    else:
+        return data_quality.get_report()
+
+@router.post("/user-reports")
+def data_quality_reports(params: DataQuality_username_RequestParams):
+    data_quality = DataQuality(params,"username")
+    stream = io.StringIO()
+    
+    if params.Output_type == "CSV":
+        exportname="Username_DataQuality_"+str(datetime.now())
         data_quality.get_report_as_csv(stream)
         response = StreamingResponse(iter([stream.getvalue()]),
                                 media_type="text/csv"

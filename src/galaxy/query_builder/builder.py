@@ -171,16 +171,18 @@ def create_hashtagfilter_underpass(hashtags,columnname):
     
     hashtag_filters = []
     for i in hashtags:
-        
-        hashtag_filters.append(f"'{i}'=ANY({columnname})")
+        if columnname =="username":
+            hashtag_filters.append(f"'{i}'={columnname}")
+        else:
+            hashtag_filters.append(f"'{i}'=ANY({columnname})")
    
     join_query = " OR ".join(hashtag_filters)
     returnquery = f"WHERE {join_query}"
     
     return returnquery
 
-def generate_data_quality_query(params):
-    '''returns data quality query with filters and parameteres provided'''
+def generate_data_quality_TM_query(params):
+    '''returns data quality TM query with filters and parameteres provided'''
     print(params)
     hashtag_add_on="hotosm-project-"
     if "all" in params.issue_types:
@@ -222,8 +224,49 @@ def generate_data_quality_query(params):
                 )
         select *
         from t2
-        """
-    
-   
+        """   
     return query
 
+
+def generate_data_quality_username_query(params):
+    '''returns data quality username query with filters and parameteres provided'''
+    print(params)
+    
+    if "all" in params.issue_types:
+        issue_types = ['badvalue','badgeom']
+    else:
+        issue_types=[]
+        for p in params.issue_types:
+            issue_types.append(str(p))
+    
+    osm_usernames=[]
+    for p in params.osm_usernames:
+        osm_usernames.append(p) 
+
+    username_filter=create_hashtagfilter_underpass(osm_usernames,"username")
+    status_filter=create_hashtagfilter_underpass(issue_types,"status")
+
+    '''Normal Query to feed our OUTPUT Class '''
+    query =f"""   with t1 as (
+        select id,username as username
+                From users 
+                  {username_filter}
+            ),
+        t2 AS (
+             SELECT osm_id as Osm_id,
+                change_id as Changeset_id,
+                timestamp::text as Changeset_timestamp,
+                status::text as Issue_type,
+                t1.username as username,
+                ST_X(location::geometry) as lng,
+                ST_Y(location::geometry) as lat
+                
+        FROM validation join t1 on user_id = t1.id  
+        {status_filter} AND timestamp between '{params.from_timestamp}' and  '{params.to_timestamp}'
+                )
+        select *
+        from t2
+        """
+    
+    print(query)
+    return query
