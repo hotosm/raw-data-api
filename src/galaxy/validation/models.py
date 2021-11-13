@@ -82,23 +82,20 @@ class MapathonRequestParams(BaseModel):
         '''checks the timestap difference '''
 
         from_timestamp = values.get("from_timestamp")
+
+        if from_timestamp > datetime.now() or value > datetime.now():
+            raise ValueError(
+                "Can not exceed current date and time")
         timestamp_diff = value - from_timestamp
+        if from_timestamp > value :
+            raise ValueError(
+                "Timestamp difference should be in order")
         if timestamp_diff > timedelta(hours=24):
             raise ValueError(
                 "Timestamp difference must be lower than 24 hours")
 
         return value
 
-    @validator("hashtags",allow_reuse=True)
-    def check_hashtag_filter(cls, value, values, **kwargs):
-        '''check the hashtag existence''' 
-
-        project_ids = values.get("project_ids")
-        if len(project_ids) == 0 and len(value) == 0:
-            raise ValueError(
-                "Empty lists found for both hashtags and project_ids params")
-
-        return value
 
 
 class UsersListParams(BaseModel):
