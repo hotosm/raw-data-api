@@ -146,6 +146,19 @@ def create_userstats_get_statistics_with_hashtags_query(params,con,cur):
         """
         return query
 
+def create_UserStats_get_statistics_query(params,con,cur):
+        query = """
+            SELECT (each(tags)).key as feature, action, count(distinct id)
+            FROM osm_element_history
+            WHERE timestamp BETWEEN %s AND %s
+            AND uid = %s
+            AND type in ('way','relation')
+            GROUP BY feature, action
+        """
+
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        query = cur.mogrify(query, items)
+        return query
 
 
 def create_users_contributions_query(params, changeset_query):

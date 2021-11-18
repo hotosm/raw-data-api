@@ -1,0 +1,15 @@
+[
+  "tests/src/test_app.py::test_db_create",
+  "tests/src/test_app.py::test_db_insert",
+  "tests/src/test_app.py::test_populate_data",
+  "tests/src/test_app.py::test_mapathon_osm_history_mapathon_query_builder",
+  "tests/src/test_app.py::test_mapathon_total_contributor_mapathon_query_builder",
+  "tests/src/test_app.py::test_mapathon_users_contributors_mapathon_query_builder",
+  "tests/src/test_app.py::test_mapathon_summary",
+  "tests/src/test_app.py::test_output_JSON",
+  "tests/src/test_app.py::test_output_CSV",
+  "tests/src/test_app.py::test_data_quality_TM_query",
+  "tests/src/test_app.py::test_data_quality_username_query",
+  "tests/src/test_app.py::test_userstats_get_statistics_with_hashtags_query",
+  "tests/src/test_app.py::test_userstats_get_statistics_query"
+]

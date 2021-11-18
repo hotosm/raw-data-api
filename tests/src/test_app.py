@@ -22,8 +22,8 @@ import testing.postgresql
 import pytest
 from src.galaxy.validation import models as mapathon_validation
 from src.galaxy.query_builder import builder as mapathon_query_builder
-from src.galaxy.query_builder.builder import generate_data_quality_TM_query,generate_data_quality_username_query
-from src.galaxy.validation.models import DataQuality_TM_RequestParams,DataQuality_username_RequestParams
+from src.galaxy.query_builder.builder import create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query
+from src.galaxy.validation.models import UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams
 from src.galaxy import Output
 import os.path
 
@@ -197,3 +197,38 @@ def test_data_quality_username_query():
     query_result=generate_data_quality_username_query(validated_params)
     print(query_result.encode('utf-8'))
     assert query_result == expected_result
+
+def test_userstats_get_statistics_with_hashtags_query():
+    """Function to  test userstats class's get_statistics query generator """
+    test_params= {
+        "userId": 11593794,
+        "fromTimestamp": "2021-08-27T9:00:00",
+        "toTimestamp": "2021-08-27T11:00:00",
+        "hashtags": [
+            "mapandchathour2021"
+        ],
+        "projectIds": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305, 11210,
+                10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229]
+        }
+    validated_params=UserStatsParams(**test_params)
+    expected_result="""\n            WITH T1 AS (\n                \n    SELECT user_id, id as changeset_id, user_name as username\n    FROM osm_changeset\n    WHERE "created_at" between \'2021-08-27T09:00:00\'::timestamp AND \'2021-08-27T11:00:00\'::timestamp AND (("tags" -> \'hashtags\') ~~ \'%hotosm-project-11224 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10042 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-9906 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-1381 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11203 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10681 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-8055 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-8732 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11193 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-7305 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11210 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10985 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10988 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11190 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-6658 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-5644 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10913 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-6495 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-4229 %\' OR ("tags" -> \'hashtags\') ~~ \'%mapandchathour2021 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11224;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10042;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-9906;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-1381;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11203;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10681;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-8055;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-8732;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11193;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-7305;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11210;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10985;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10988;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11190;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-6658;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-5644;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10913;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-6495;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-4229;%\' OR ("tags" -> \'comment\') ~~ \'%mapandchathour2021;%\')\n     AND user_id = 11593794\n            )\n            \n            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)\n            FROM osm_element_history AS osh, T1\n            WHERE osh.timestamp BETWEEN \'2021-08-27T09:00:00\'::timestamp AND \'2021-08-27T11:00:00\'::timestamp\n            AND osh.uid = 11593794\n            AND osh.type in (\'way\',\'relation\')\n            AND T1.changeset_id = osh.changeset\n            GROUP BY feature, action\n        \n        """
+    query_result=create_userstats_get_statistics_with_hashtags_query(validated_params,con,cur)
+    print(query_result.encode('utf-8'))
+    assert query_result == expected_result
+
+def test_userstats_get_statistics_query():
+    """Function to  test userstats class's get_statistics query generator """
+    test_params= {
+        "userId": 11593794,
+        "fromTimestamp": "2021-08-27T9:00:00",
+        "toTimestamp": "2021-08-27T11:00:00",
+        "hashtags": [
+        ],
+        "projectIds": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305, 11210,
+                10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229]
+        }
+    validated_params=UserStatsParams(**test_params)
+    expected_result="""\n            SELECT (each(tags)).key as feature, action, count(distinct id)\n            FROM osm_element_history\n            WHERE timestamp BETWEEN '2021-08-27T09:00:00'::timestamp AND '2021-08-27T11:00:00'::timestamp\n            AND uid = 11593794\n            AND type in ('way','relation')\n            GROUP BY feature, action\n        """
+    query_result=create_UserStats_get_statistics_query(validated_params,con,cur)
+    print(query_result)
+    assert query_result == expected_result.encode('utf-8')
