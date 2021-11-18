@@ -313,30 +313,7 @@ class UserStats:
         return summary
 
     def get_statistics_with_hashtags(self, params):
-        changeset_query, _, _ = create_changeset_query(params, self.con, self.cur)
-
-        # Include user_id filter.
-        changeset_query = f"{changeset_query} AND user_id = {params.user_id}"
-
-        base_query = """
-            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)
-            FROM osm_element_history AS osh, T1
-            WHERE osh.timestamp BETWEEN %s AND %s
-            AND osh.uid = %s
-            AND osh.type in ('way','relation')
-            AND T1.changeset_id = osh.changeset
-            GROUP BY feature, action
-        """
-        items = (params.from_timestamp, params.to_timestamp, params.user_id)
-        base_query = self.cur.mogrify(base_query, items).decode()
-
-        query = f"""
-            WITH T1 AS (
-                {changeset_query}
-            )
-            {base_query}
-        """
-
+        query=create_userstats_get_statistics_with_hashtags_query(params,self.con,self.cur)
         result = self.db.executequery(query)
 
         summary = [MappedFeature(**r) for r in result]
