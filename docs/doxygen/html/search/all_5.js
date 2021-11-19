@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['executequery_10',['executequery',['../classosm__stats_1_1app_1_1Database.html#a612aa5ab02c82377ac72232f4186601a',1,'osm_stats::app::Database']]]
+  ['executequery_15',['executequery',['../classgalaxy_1_1app_1_1Database.html#a227566583a091dc7eb9c032568db9fbd',1,'galaxy::app::Database']]]
 ];

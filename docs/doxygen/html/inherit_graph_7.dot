@@ -4,5 +4,5 @@ digraph "Graphical Class Hierarchy"
   edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
   node [fontname="Helvetica",fontsize="10",shape=record];
   rankdir="LR";
-  Node0 [label="osm_stats.validation.mapathon.\lBaseModel.Config",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classosm__stats_1_1validation_1_1mapathon_1_1BaseModel_1_1Config.html",tooltip=" "];
+  Node0 [label="galaxy.app.Mapathon",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgalaxy_1_1app_1_1Mapathon.html",tooltip=" "];
 }

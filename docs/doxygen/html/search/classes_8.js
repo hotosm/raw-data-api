@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['token_42',['Token',['../classAPI_1_1auth_1_1Token.html',1,'API::auth']]]
+  ['polygonfilter_65',['PolygonFilter',['../classAPI_1_1changesets_1_1PolygonFilter.html',1,'API::changesets']]]
 ];

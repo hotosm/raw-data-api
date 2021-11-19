@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_5f_5finit_5f_5f_44',['__init__',['../classosm__stats_1_1app_1_1Database.html#ac4d8bc2ba2c25209ab0f0dfbbf91354f',1,'osm_stats::app::Database']]]
+  ['_5f_5finit_5f_5f_71',['__init__',['../classgalaxy_1_1app_1_1Database.html#a2c020d3abd4efbfa5bdba4f7508505f2',1,'galaxy.app.Database.__init__()'],['../classgalaxy_1_1app_1_1Output.html#af7ee4a8480afa909587995dd0b097e4f',1,'galaxy.app.Output.__init__()']]]
 ];

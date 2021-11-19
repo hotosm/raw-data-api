@@ -12,12 +12,12 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../src/osm_stats'))
+sys.path.insert(0, os.path.abspath('../../src/galaxy'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'OSM Stats'
+project = 'OSM Galaxy'
 copyright = '2021, HOT_Tech_Team'
 author = 'HOT_Tech_Team'
 

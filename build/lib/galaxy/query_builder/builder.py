@@ -120,6 +120,47 @@ def create_osm_history_query(changeset_query, with_username):
     return query
 
 
+def create_userstats_get_statistics_with_hashtags_query(params,con,cur):
+        changeset_query, _, _ = create_changeset_query(params, con, cur)
+
+        # Include user_id filter.
+        changeset_query = f"{changeset_query} AND user_id = {params.user_id}"
+
+        base_query = """
+            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)
+            FROM osm_element_history AS osh, T1
+            WHERE osh.timestamp BETWEEN %s AND %s
+            AND osh.uid = %s
+            AND osh.type in ('way','relation')
+            AND T1.changeset_id = osh.changeset
+            GROUP BY feature, action
+        """
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        base_query = cur.mogrify(base_query, items).decode()
+
+        query = f"""
+            WITH T1 AS (
+                {changeset_query}
+            )
+            {base_query}
+        """
+        return query
+
+def create_UserStats_get_statistics_query(params,con,cur):
+        query = """
+            SELECT (each(tags)).key as feature, action, count(distinct id)
+            FROM osm_element_history
+            WHERE timestamp BETWEEN %s AND %s
+            AND uid = %s
+            AND type in ('way','relation')
+            GROUP BY feature, action
+        """
+
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        query = cur.mogrify(query, items)
+        return query
+
+
 def create_users_contributions_query(params, changeset_query):
     '''returns user contribution query'''
 
@@ -166,33 +207,38 @@ def create_users_contributions_query(params, changeset_query):
     """
     return query
 
-def create_hashtagfilter_underpass(hashtags):
+def create_hashtagfilter_underpass(hashtags,columnname):
     """Generates hashtag filter query on the basis of list of hastags."""
-    print(hashtags)
+    
     hashtag_filters = []
     for i in hashtags:
-        print(i)
-        hashtag_filters.append(f"'{i}'=ANY(hashtags)")
+        if columnname =="username":
+            hashtag_filters.append(f"'{i}'={columnname}")
+        else:
+            hashtag_filters.append(f"'{i}'=ANY({columnname})")
    
     join_query = " OR ".join(hashtag_filters)
-    returnquery = f"WHERE {join_query}"
-    print(returnquery)
+    returnquery = f"{join_query}"
+    
     return returnquery
 
-def data_quality_query(params):
-    '''returns data quality query with filters and parameteres provided'''
+def generate_data_quality_TM_query(params):
+    '''returns data quality TM query with filters and parameteres provided'''
+    print(params)
     hashtag_add_on="hotosm-project-"
     if "all" in params.issue_types:
-        issue_types = "'{badvalue}','{badgeom}'"
+        issue_types = ['badvalue','badgeom']
     else:
-        issue_types = ",".join(
-            ["'" + str(p) + "'" for p in params.issue_types])
+        issue_types=[]
+        for p in params.issue_types:
+            issue_types.append(str(p))
+    
     change_ids=[]
     for p in params.project_ids:
         change_ids.append(hashtag_add_on+str(p)) 
 
-    print(change_ids)
-    hashtagfilter=create_hashtagfilter_underpass(change_ids)
+    hashtagfilter=create_hashtagfilter_underpass(change_ids,"hashtags")
+    status_filter=create_hashtagfilter_underpass(issue_types,"status")
     '''Geojson output query for pydantic model'''
     # query1 = """
     #     select '{ "type": "Feature","properties": {   "Osm_id": ' || osm_id ||',"Changeset_id":  ' || change_id ||',"Changeset_timestamp": "' || timestamp ||'","Issue_type": "' || cast(status as text) ||'"},"geometry": ' || ST_AsGeoJSON(location)||'}'
@@ -201,11 +247,11 @@ def data_quality_query(params):
     #             change_id IN (%s)
     # """ % (issue_types, change_ids)
     '''Normal Query to feed our OUTPUT Class '''
-    query = """   with t1 as (
+    query =f"""   with t1 as (
         select id
                 From changesets 
-                  %s
-   
+                WHERE
+                  {hashtagfilter}
             ),
         t2 AS (
              SELECT osm_id as Osm_id,
@@ -215,12 +261,58 @@ def data_quality_query(params):
                 ST_X(location::geometry) as lng,
                 ST_Y(location::geometry) as lat
 
-        FROM validation ,t1
-        WHERE   status IN (%s) AND
-                change_id = t1.id
+        FROM validation join t1 on change_id = t1.id
+        WHERE
+        {status_filter}
                 )
         select *
         from t2
-        """ % ( hashtagfilter,issue_types)
+        """   
     return query
 
+
+def generate_data_quality_username_query(params):
+    
+    '''returns data quality username query with filters and parameteres provided'''
+    print(params)
+    
+    if "all" in params.issue_types:
+        issue_types = ['badvalue','badgeom']
+    else:
+        issue_types=[]
+        for p in params.issue_types:
+            issue_types.append(str(p))
+    
+    osm_usernames=[]
+    for p in params.osm_usernames:
+        osm_usernames.append(p) 
+
+    username_filter=create_hashtagfilter_underpass(osm_usernames,"username")
+    status_filter=create_hashtagfilter_underpass(issue_types,"status")
+
+    '''Normal Query to feed our OUTPUT Class '''
+    query =f"""   with t1 as (
+        select id,username as username
+                From users 
+                WHERE
+                  {username_filter}
+            ),
+        t2 AS (
+             SELECT osm_id as Osm_id,
+                change_id as Changeset_id,
+                timestamp::text as Changeset_timestamp,
+                status::text as Issue_type,
+                t1.username as username,
+                ST_X(location::geometry) as lng,
+                ST_Y(location::geometry) as lat
+                
+        FROM validation join t1 on user_id = t1.id  
+        WHERE
+        ({status_filter}) AND (timestamp between '{params.from_timestamp}' and  '{params.to_timestamp}')
+                )
+        select *
+        from t2
+        """
+    
+    print(query)
+    return query

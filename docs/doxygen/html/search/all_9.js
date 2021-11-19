@@ -1,10 +1,12 @@
 var searchData=
 [
-  ['mapathon_15',['Mapathon',['../classosm__stats_1_1app_1_1Mapathon.html',1,'osm_stats::app']]],
-  ['mapathoncontributor_16',['MapathonContributor',['../classAPI_1_1mapathon_1_1MapathonContributor.html',1,'API.mapathon.MapathonContributor'],['../classosm__stats_1_1validation_1_1mapathon_1_1MapathonContributor.html',1,'osm_stats.validation.mapathon.MapathonContributor']]],
-  ['mapathondetail_17',['MapathonDetail',['../classosm__stats_1_1validation_1_1mapathon_1_1MapathonDetail.html',1,'osm_stats.validation.mapathon.MapathonDetail'],['../classAPI_1_1mapathon_1_1MapathonDetail.html',1,'API.mapathon.MapathonDetail']]],
-  ['mapathonrequestparams_18',['MapathonRequestParams',['../classosm__stats_1_1validation_1_1mapathon_1_1MapathonRequestParams.html',1,'osm_stats.validation.mapathon.MapathonRequestParams'],['../classAPI_1_1mapathon_1_1MapathonRequestParams.html',1,'API.mapathon.MapathonRequestParams']]],
-  ['mapathonsummary_19',['MapathonSummary',['../classosm__stats_1_1validation_1_1mapathon_1_1MapathonSummary.html',1,'osm_stats.validation.mapathon.MapathonSummary'],['../classAPI_1_1mapathon_1_1MapathonSummary.html',1,'API.mapathon.MapathonSummary']]],
-  ['mappedfeature_20',['MappedFeature',['../classosm__stats_1_1validation_1_1mapathon_1_1MappedFeature.html',1,'osm_stats.validation.mapathon.MappedFeature'],['../classAPI_1_1mapathon_1_1MappedFeature.html',1,'API.mapathon.MappedFeature']]],
-  ['mappedfeaturewithuser_21',['MappedFeatureWithUser',['../classosm__stats_1_1validation_1_1mapathon_1_1MappedFeatureWithUser.html',1,'osm_stats.validation.mapathon.MappedFeatureWithUser'],['../classAPI_1_1mapathon_1_1MappedFeatureWithUser.html',1,'API.mapathon.MappedFeatureWithUser']]]
+  ['mapathon_23',['Mapathon',['../classgalaxy_1_1app_1_1Mapathon.html',1,'galaxy::app']]],
+  ['mapathoncontributor_24',['MapathonContributor',['../classgalaxy_1_1validation_1_1models_1_1MapathonContributor.html',1,'galaxy::validation::models']]],
+  ['mapathondetail_25',['MapathonDetail',['../classgalaxy_1_1validation_1_1models_1_1MapathonDetail.html',1,'galaxy::validation::models']]],
+  ['mapathonrequestparams_26',['MapathonRequestParams',['../classgalaxy_1_1validation_1_1models_1_1MapathonRequestParams.html',1,'galaxy::validation::models']]],
+  ['mapathonsummary_27',['MapathonSummary',['../classgalaxy_1_1validation_1_1models_1_1MapathonSummary.html',1,'galaxy::validation::models']]],
+  ['mappedfeature_28',['MappedFeature',['../classgalaxy_1_1validation_1_1models_1_1MappedFeature.html',1,'galaxy::validation::models']]],
+  ['mappedfeaturewithuser_29',['MappedFeatureWithUser',['../classgalaxy_1_1validation_1_1models_1_1MappedFeatureWithUser.html',1,'galaxy::validation::models']]],
+  ['match_5foutput_5fvalue_30',['match_output_value',['../classgalaxy_1_1validation_1_1models_1_1DataQuality__TM__RequestParams.html#af6ca7df05916ecdd1219f5af574abeeb',1,'galaxy.validation.models.DataQuality_TM_RequestParams.match_output_value()'],['../classgalaxy_1_1validation_1_1models_1_1DataQuality__username__RequestParams.html#af951bb6b9f975b7b59cb1cf69e797c21',1,'galaxy.validation.models.DataQuality_username_RequestParams.match_output_value()']]],
+  ['match_5fvalue_31',['match_value',['../classgalaxy_1_1validation_1_1models_1_1DataQuality__TM__RequestParams.html#acc3c1f89f75682402f39988c3fd1faf5',1,'galaxy.validation.models.DataQuality_TM_RequestParams.match_value()'],['../classgalaxy_1_1validation_1_1models_1_1DataQuality__username__RequestParams.html#ac330afb514768a680c41cef6238c7f45',1,'galaxy.validation.models.DataQuality_username_RequestParams.match_value()']]]
 ];

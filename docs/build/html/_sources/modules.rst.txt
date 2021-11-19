@@ -1,7 +1,7 @@
-osm_stats
-=========
+galaxy
+======
 
 .. toctree::
    :maxdepth: 4
 
-   osm_stats
+   galaxy

@@ -4,5 +4,5 @@ digraph "Graphical Class Hierarchy"
   edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
   node [fontname="Helvetica",fontsize="10",shape=record];
   rankdir="LR";
-  Node0 [label="osm_stats.app.Database",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classosm__stats_1_1app_1_1Database.html",tooltip=" "];
+  Node0 [label="galaxy.app.Database",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgalaxy_1_1app_1_1Database.html",tooltip=" "];
 }
