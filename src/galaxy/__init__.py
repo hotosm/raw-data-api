@@ -1,9 +1,9 @@
 from .app import Mapathon, Database,Output,DataQuality
+from .config import config
 import logging
-from configparser import ConfigParser
 
-config = ConfigParser()
-config.read("src/config.txt")
+
+
 
 
 logger = logging.getLogger(__name__)
@@ -13,5 +13,6 @@ __all__ = [
     'Mapathon',
     'Database',
     'Output',
-    'DataQuality'
+    'DataQuality',
+    'config'
 ]

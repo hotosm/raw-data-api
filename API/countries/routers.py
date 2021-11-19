@@ -4,7 +4,7 @@ from psycopg2.extras import DictCursor
 from fastapi import APIRouter
 from geojson_pydantic import FeatureCollection
 
-from .. import config
+from src.galaxy import config
 
 router = APIRouter(prefix="/countries")
 

@@ -5,7 +5,7 @@ from itsdangerous.url_safe import URLSafeSerializer
 from itsdangerous import BadSignature, SignatureExpired
 from fastapi import Header, HTTPException, status
 
-from .. import config
+from src.galaxy import config
 
 
 class AuthUser(BaseModel):

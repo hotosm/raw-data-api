@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2 import sql
 from psycopg2.extras import DictCursor
 
-from .. import config
+from src.galaxy import config
 from . import ChangesetResult, FilterParams
 from .utils import geom_filter_subquery
 from fastapi import APIRouter

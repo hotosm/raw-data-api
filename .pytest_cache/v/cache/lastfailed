@@ -1,1 +1,6 @@
-{}
+{
+  "tests/src/test_app.py::test_mapathon_osm_history_mapathon_query_builder": true,
+  "tests/src/test_app.py::test_mapathon_total_contributor_mapathon_query_builder": true,
+  "tests/src/test_app.py::test_mapathon_users_contributors_mapathon_query_builder": true,
+  "tests/src/test_app.py::test_userstats_get_statistics_with_hashtags_query": true
+}

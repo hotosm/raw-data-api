@@ -19,7 +19,7 @@
 
 from fastapi import APIRouter
 from typing import List
-from configparser import ConfigParser
+
 
 from src.galaxy.validation.models import UsersListParams, User, UserStatsParams, MappedFeature
 from src.galaxy.app import UserStats

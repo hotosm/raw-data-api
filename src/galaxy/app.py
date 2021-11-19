@@ -33,10 +33,7 @@ import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 
-from configparser import ConfigParser
-
-config = ConfigParser()
-config.read("src/config.txt")
+from .config import config
 
 
 def print_psycopg2_exception(err):
