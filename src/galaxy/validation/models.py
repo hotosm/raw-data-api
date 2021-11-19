@@ -120,9 +120,11 @@ supported_issue_types = ["badgeom", "badvalue", "all"]
 supported_Output_types = ["GeoJSON","CSV"]
 class DataQuality_TM_RequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class Tasking Manager Project ID
+    
     Parameters:
             “project_ids”:[int],
             “issue_type”: ["badgeom", "badvalue", "all"]
+    
     Acceptance Criteria : 
             project_ids: Required, Array can contain integer value only , Array can not be empty
             issue_type: Required, Only accepted value under supported issues ,Array can not be empty
@@ -157,6 +159,7 @@ class DataQuality_TM_RequestParams(BaseModel):
 
 class DataQuality_username_RequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class Username
+    
     Parameters:
             osm_usernames:[str],
             “issue_type”: ["badgeom", "badvalue", "all"]
@@ -222,5 +225,9 @@ class DataQualityPointFeature(Feature):
 
 
 class DataQualityPointCollection(FeatureCollection):
-    ''' geojson pydantic models for data quality (**** Note : Not required if we will be using OUTPUT Class'''
+    """geojson pydantic models for data quality , Note : Not required if we will be using OUTPUT Class
+
+    Args:
+        FeatureCollection ([type]): [description]
+    """
     features: List[DataQualityPointFeature]

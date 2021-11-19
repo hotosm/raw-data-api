@@ -72,6 +72,7 @@ def check_for_json(result_str):
 
 class Database:
     """ Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class """
+
     def __init__(self, db_params):
         """Database class constructor"""
 
@@ -139,11 +140,11 @@ class Database:
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
 
-    #constructor
+    # constructor
     def __init__(self, parameters):
         self.database = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.database.connect()
-        #parameter validation using pydantic model
+        # parameter validation using pydantic model
         if type(parameters) is MapathonRequestParams:
             self.params = parameters
         else:
@@ -171,7 +172,7 @@ class Mapathon:
             total_contributor_query)
         report = MapathonSummary(total_contributors=total_contributors[0].get(
             "contributors_count", "None"),
-                                 mapped_features=mapped_features)
+            mapped_features=mapped_features)
         return report
 
     def get_detailed_report(self):
@@ -199,13 +200,15 @@ class Mapathon:
 
 
 class Output:
-    '''
-    Class to convert sql query result to specific output format. It uses Pandas Dataframe
+    """Class to convert sql query result to specific output format. It uses Pandas Dataframe
+    
     Parameters:
         supports : list, dict , json and sql query string along with connection
+    
     Returns:
-        json,csv,dict,list,dataframe   
-    '''
+        json,csv,dict,list,dataframe
+    """
+
     def __init__(self, result, connection=None):
         """Constructor"""
         if isinstance(result, (list, dict)):
@@ -273,7 +276,7 @@ class Output:
         features = self.dataframe.apply(
             lambda row: Feature(geometry=Point(
                 (float(row[lng_column]), float(row[lat_column]))),
-                                properties=properties[row.name]),
+                properties=properties[row.name]),
             axis=1).tolist()
 
         # whole geojson object
@@ -323,18 +326,19 @@ class UserStats:
 
 
 class DataQuality:
-    '''
-    Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
+    """Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
+
     Parameters:
            params and inputtype : Currently supports : TM for tasking manager id , username for OSM Username reports and hashtags for Osm hashtags
+
     Returns:
-            GeoJSON,CSV    
-    '''
+        [GeoJSON,CSV ]: [description]
+    """
     def __init__(self, parameters, inputtype):
         self.db = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.db.connect()
         self.inputtype = inputtype
-        #parameter validation using pydantic model
+        # parameter validation using pydantic model
         if self.inputtype == "TM":
             if type(parameters) is DataQuality_TM_RequestParams:
                 self.params = parameters
@@ -347,8 +351,6 @@ class DataQuality:
                 self.params = DataQuality_username_RequestParams(**parameters)
         else:
             raise ValueError("Input Type Must be in ['TM','username']")
-
-    ''' Using our Output class '''
 
     def get_report(self):
         """Functions that returns data_quality Report"""

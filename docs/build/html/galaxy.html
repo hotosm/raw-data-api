@@ -111,13 +111,11 @@
 <dt class="sig sig-object py" id="galaxy.app.DataQuality">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">galaxy.app.</span></span><span class="sig-name descname"><span class="pre">DataQuality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputtype</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galaxy.app.DataQuality" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
-Parameters:</p>
-<blockquote>
-<div><p>params and inputtype : Currently supports : TM for tasking manager id , username for OSM Username reports and hashtags for Osm hashtags</p>
-</div></blockquote>
+<p>Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project</p>
 <dl class="simple">
-<dt>Returns:</dt><dd><p>GeoJSON,CSV</p>
+<dt>Parameters:</dt><dd><p>params and inputtype : Currently supports : TM for tasking manager id , username for OSM Username reports and hashtags for Osm hashtags</p>
+</dd>
+<dt>Returns:</dt><dd><p>[GeoJSON,CSV ]: [description]</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -182,12 +180,10 @@ Parameters:</p>
 <dt class="sig sig-object py" id="galaxy.app.Output">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">galaxy.app.</span></span><span class="sig-name descname"><span class="pre">Output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galaxy.app.Output" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class to convert sql query result to specific output format. It uses Pandas Dataframe
-Parameters:</p>
-<blockquote>
-<div><p>supports : list, dict , json and sql query string along with connection</p>
-</div></blockquote>
+<p>Class to convert sql query result to specific output format. It uses Pandas Dataframe</p>
 <dl class="simple">
+<dt>Parameters:</dt><dd><p>supports : list, dict , json and sql query string along with connection</p>
+</dd>
 <dt>Returns:</dt><dd><p>json,csv,dict,list,dataframe</p>
 </dd>
 </dl>
@@ -267,13 +263,11 @@ Parameters:</p>
 <dt class="sig sig-object py" id="galaxy.DataQuality">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">galaxy.</span></span><span class="sig-name descname"><span class="pre">DataQuality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputtype</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galaxy.DataQuality" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
-Parameters:</p>
-<blockquote>
-<div><p>params and inputtype : Currently supports : TM for tasking manager id , username for OSM Username reports and hashtags for Osm hashtags</p>
-</div></blockquote>
+<p>Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project</p>
 <dl class="simple">
-<dt>Returns:</dt><dd><p>GeoJSON,CSV</p>
+<dt>Parameters:</dt><dd><p>params and inputtype : Currently supports : TM for tasking manager id , username for OSM Username reports and hashtags for Osm hashtags</p>
+</dd>
+<dt>Returns:</dt><dd><p>[GeoJSON,CSV ]: [description]</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -338,12 +332,10 @@ Parameters:</p>
 <dt class="sig sig-object py" id="galaxy.Output">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">galaxy.</span></span><span class="sig-name descname"><span class="pre">Output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galaxy.Output" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class to convert sql query result to specific output format. It uses Pandas Dataframe
-Parameters:</p>
-<blockquote>
-<div><p>supports : list, dict , json and sql query string along with connection</p>
-</div></blockquote>
+<p>Class to convert sql query result to specific output format. It uses Pandas Dataframe</p>
 <dl class="simple">
+<dt>Parameters:</dt><dd><p>supports : list, dict , json and sql query string along with connection</p>
+</dd>
 <dt>Returns:</dt><dd><p>json,csv,dict,list,dataframe</p>
 </dd>
 </dl>
