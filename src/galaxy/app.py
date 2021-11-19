@@ -89,6 +89,7 @@ class Database:
             return self.conn, self.cur
         except OperationalError as err:
             """pass exception to function"""
+            
             print_psycopg2_exception(err)
             # set the connection to 'None' in case of error
             self.conn = None
@@ -166,7 +167,7 @@ class Mapathon:
                 FROM osm_changeset
                 WHERE {timestamp_filter} AND ({hashtag_filter})
             """
-        # print(osm_history_query.encode('utf-8'))
+        print(total_contributor_query)
 
         total_contributors = self.database.executequery(
             total_contributor_query)

@@ -30,7 +30,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     filter_query = "({hstore_column} -> %s) ~~ %s"
 
     hashtag_filter_values = [
-        *[f"%hotosm-project-{i} %" for i in project_ids],
+        *[f"%hotosm-project-{i};%" for i in project_ids],
         *[f"%{i} %" for i in hashtags],
     ]
     hashtag_tags_filters = [
@@ -39,7 +39,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     ]
 
     comment_filter_values = [
-        *[f"%hotosm-project-{i};%" for i in project_ids],
+        *[f"%hotosm-project-{i} %" for i in project_ids],
         *[f"%{i};%" for i in hashtags],
     ]
     comment_tags_filters = [
