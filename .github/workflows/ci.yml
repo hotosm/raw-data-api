@@ -1,0 +1,45 @@
+name: Osm Stats Module Test
+on:
+  push:
+    branches:
+      - feature/api-module
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on:
+      ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Check postgresql version 
+        run: |
+          psql -V
+      - name: Remove postgresql version  14
+        run: |
+          sudo apt-get --purge remove postgresql
+          sudo apt-get purge postgresql*
+          sudo apt-get --purge remove postgresql postgresql-doc postgresql-common
+      - name: Set up postgresql 12
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '12'
+      - name: Install Postgis 3 for Psql 12
+        run: |
+          sudo apt install postgis postgresql-12-postgis-3
+          
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Run Tests
+        run: |
+          py.test -v -s
