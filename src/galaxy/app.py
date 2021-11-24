@@ -86,7 +86,7 @@ class Database:
             return self.conn, self.cur
         except OperationalError as err:
             """pass exception to function"""
-            
+
             print_psycopg2_exception(err)
             # set the connection to 'None' in case of error
             self.conn = None
@@ -162,8 +162,11 @@ class Mapathon:
         total_contributor_query = f"""
                 SELECT COUNT(distinct user_id) as contributors_count
                 FROM osm_changeset
-                WHERE {timestamp_filter} AND ({hashtag_filter})
+                WHERE {timestamp_filter}
             """
+        if len(hashtag_filter) > 0:
+            total_contributor_query += f""" AND ({hashtag_filter})"""
+
         print(total_contributor_query)
 
         total_contributors = self.database.executequery(
@@ -199,10 +202,10 @@ class Mapathon:
 
 class Output:
     """Class to convert sql query result to specific output format. It uses Pandas Dataframe
-    
+
     Parameters:
         supports : list, dict , json and sql query string along with connection
-    
+
     Returns:
         json,csv,dict,list,dataframe
     """
@@ -332,6 +335,7 @@ class DataQuality:
     Returns:
         [GeoJSON,CSV ]: [description]
     """
+
     def __init__(self, parameters, inputtype):
         self.db = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.db.connect()
