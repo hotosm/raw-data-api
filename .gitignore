@@ -7,4 +7,6 @@ osm_galaxy.egg-info
 test.py
 test.csv
 **/.vscode/**
+**/build/doctrees/**
+
 **/.pytest_cache/**
