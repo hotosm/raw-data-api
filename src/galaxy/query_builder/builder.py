@@ -31,7 +31,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     hashtag_filter_values = [
         *[f"%hotosm-project-{i};%" for i in project_ids],
-        *[f"%{i} %" for i in hashtags],
+        *[f"%{i};%" for i in hashtags],
     ]
     hashtag_tags_filters = [
         cur.mogrify(filter_query, ("hashtags", i)).decode()
@@ -39,8 +39,8 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     ]
 
     comment_filter_values = [
-        *[f"%hotosm-project-{i};%" for i in project_ids],
-        *[f"%{i};%" for i in hashtags],
+        *[f"%hotosm-project-{i} %" for i in project_ids],
+        *[f"%{i} %" for i in hashtags],
     ]
     comment_tags_filters = [
         cur.mogrify(filter_query, ("comment", i)).decode()
@@ -213,12 +213,12 @@ def create_hashtagfilter_underpass(hashtags,columnname):
     hashtag_filters = []
     for i in hashtags:
         if columnname =="username":
-            hashtag_filters.append(f"'{i}'={columnname}")
+            hashtag_filters.append(f"""'{i}'={columnname}""")
         else:
-            hashtag_filters.append(f"'{i}'=ANY({columnname})")
+            hashtag_filters.append(f"""'{i}'=ANY({columnname})""")
    
     join_query = " OR ".join(hashtag_filters)
-    returnquery = f"{join_query}"
+    returnquery = f"""{join_query}"""
     
     return returnquery
 
@@ -316,3 +316,53 @@ def generate_data_quality_username_query(params):
     
     print(query)
     return query
+
+def generate_mapathon_summary_underpass_query(params,cur):
+    """Generates mapathon query from underpass"""
+    projectid_hashtag_add_on="hotosm-project-"
+    change_ids=[]
+    for p in params.project_ids:
+        change_ids.append(projectid_hashtag_add_on+str(p)) 
+
+    projectidfilter=create_hashtagfilter_underpass(change_ids,"hashtags")
+    hashtags=[]
+    for p in params.hashtags:
+        hashtags.append(str(p)) 
+    hashtagfilter=create_hashtagfilter_underpass(hashtags,"hashtags")
+    timestamp_filter=create_timestamp_filter_query(params.from_timestamp, params.to_timestamp,cur)
+   
+    if hashtagfilter == '' : 
+        hashtag_projectid_filter=projectidfilter
+    elif projectidfilter == '' :
+        hashtag_projectid_filter=hashtagfilter
+    else:
+        hashtag_projectid_filter = [hashtagfilter, projectidfilter]
+        hashtag_projectid_filter=" OR ".join(hashtag_projectid_filter)
+   
+    summary_query= f"""with t1 as (
+        select  *
+        from changesets
+        where  ({timestamp_filter}) AND ({hashtag_projectid_filter})
+        ),
+        t2 as (
+        select (each(added)).key as feature , (each(added)).value::Integer as count, 'create'::text as action
+        from t1
+        union all 
+        select  (each(modified)).key as feature , (each(modified)).value::Integer as count, 'modify'::text as action
+        from t1
+        )
+        select feature,action ,sum(count) as count
+        from t2
+        group by feature ,action 
+        order by count desc """
+    total_contributor_query= f"""select  COUNT(distinct user_id) as contributors_count
+        from changesets
+        where  ({timestamp_filter}) AND ({hashtag_projectid_filter})
+        """
+    # print(summary_query)
+    # print("\n")
+
+    # print(total_contributor_query)
+    
+    return summary_query,total_contributor_query
+
