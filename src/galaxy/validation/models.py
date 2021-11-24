@@ -95,6 +95,16 @@ class MapathonRequestParams(BaseModel):
                 "Timestamp difference must be lower than 24 hours")
 
         return value
+    @validator("hashtags",allow_reuse=True)
+    def check_hashtag_filter(cls, value, values, **kwargs):
+        '''check the hashtag existence''' 
+
+        project_ids = values.get("project_ids")
+        if len(project_ids) == 0 and len(value) == 0:
+            raise ValueError(
+                "Empty lists found for both hashtags and project_ids params")
+
+        return value
 
 
 
