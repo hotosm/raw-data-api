@@ -156,7 +156,7 @@ class Mapathon:
             self.params, self.con, self.cur)
         osm_history_query = create_osm_history_query(changeset_query,
                                                      with_username=False)
-        # print(osm_history_query)
+        print(osm_history_query)
         result = self.database.executequery(osm_history_query)
         mapped_features = [MappedFeature(**r) for r in result]
         total_contributor_query = f"""
@@ -167,7 +167,7 @@ class Mapathon:
         if len(hashtag_filter) > 0:
             total_contributor_query += f""" AND ({hashtag_filter})"""
 
-        print(total_contributor_query)
+        # print(total_contributor_query)
 
         total_contributors = self.database.executequery(
             total_contributor_query)

@@ -31,7 +31,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     hashtag_filter_values = [
         *[f"%hotosm-project-{i};%" for i in project_ids],
-        *[f"%{i} %" for i in hashtags],
+        *[f"%{i};%" for i in hashtags],
     ]
     hashtag_tags_filters = [
         cur.mogrify(filter_query, ("hashtags", i)).decode()
@@ -39,8 +39,8 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     ]
 
     comment_filter_values = [
-        *[f"%hotosm-project-{i};%" for i in project_ids],
-        *[f"%{i};%" for i in hashtags],
+        *[f"%hotosm-project-{i} %" for i in project_ids],
+        *[f"%{i} %" for i in hashtags],
     ]
     comment_tags_filters = [
         cur.mogrify(filter_query, ("comment", i)).decode()
