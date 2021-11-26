@@ -69,6 +69,7 @@ class MapathonDetail(BaseModel):
     mapped_features: List[MappedFeatureWithUser]
     contributors: List[MapathonContributor]
 
+invalid_request_parameters=[" ",'"','""','" "']
 class MapathonRequestParams(BaseModel):
     '''validation class for mapathon request parameter provided by user '''
 
@@ -103,7 +104,9 @@ class MapathonRequestParams(BaseModel):
         if len(project_ids) == 0 and len(value) == 0:
             raise ValueError(
                 "Empty lists found for both hashtags and project_ids params")
-
+        for v in value :
+            if  v =="":
+                raise ValueError("Hashtag value contains unsupported character")
         return value
 
 
