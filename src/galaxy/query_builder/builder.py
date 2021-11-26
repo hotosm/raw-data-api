@@ -342,20 +342,19 @@ def generate_mapathon_summary_underpass_query(params,cur):
         hashtags.append(str(p)) 
     hashtagfilter=create_hashtagfilter_underpass(hashtags,"hashtags")
     timestamp_filter=create_timestamp_filter_query(params.from_timestamp, params.to_timestamp,cur)
-   
-    if hashtagfilter == '' : 
-        hashtag_projectid_filter=projectidfilter
-    elif projectidfilter == '' :
-        hashtag_projectid_filter=hashtagfilter
+
+    base_where_query=f"""where  ({timestamp_filter}) """
+    if hashtagfilter != '' and projectidfilter != '':
+        base_where_query+= f"""AND ({hashtagfilter} OR {projectidfilter})"""
+    elif hashtagfilter == '' and projectidfilter != '':
+        base_where_query+= f"""AND ({projectidfilter})"""
     else:
-        hashtag_projectid_filter = [hashtagfilter, projectidfilter]
-        hashtag_projectid_filter=" OR ".join(hashtag_projectid_filter)
-   
+        base_where_query+= f"""AND ({hashtagfilter})"""
     summary_query= f"""with t1 as (
         select  *
         from changesets
-        where  ({timestamp_filter}) AND ({hashtag_projectid_filter})
-        ),
+        {base_where_query})
+        ,
         t2 as (
         select (each(added)).key as feature , (each(added)).value::Integer as count, 'create'::text as action
         from t1
@@ -369,7 +368,7 @@ def generate_mapathon_summary_underpass_query(params,cur):
         order by count desc """
     total_contributor_query= f"""select  COUNT(distinct user_id) as contributors_count
         from changesets
-        where  ({timestamp_filter}) AND ({hashtag_projectid_filter})
+        {base_where_query}
         """
     # print(summary_query)
     # print("\n")
@@ -377,4 +376,3 @@ def generate_mapathon_summary_underpass_query(params,cur):
     # print(total_contributor_query)
     
     return summary_query,total_contributor_query
-

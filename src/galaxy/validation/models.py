@@ -17,7 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-from typing import List, Union
+from typing import List, Union ,Optional
 from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
@@ -76,6 +76,7 @@ class MapathonRequestParams(BaseModel):
     from_timestamp: Union[datetime, date]
     to_timestamp: Union[datetime, date]
     hashtags: List[str]
+    source: Optional[str]
 
     @validator("to_timestamp",allow_reuse=True)
     def check_timestamp_diffs(cls, value, values, **kwargs):
@@ -106,7 +107,13 @@ class MapathonRequestParams(BaseModel):
 
         return value
 
-
+    @validator("source", allow_reuse=True)
+    def check_source(cls, value, **kwargs):
+        '''checks the either source  is supported or not '''
+        if value is None or value == "insight" or value == "underpass":
+            return value
+        else:
+            raise ValueError('Source '+str(value)+" does not exist")   
 
 class UsersListParams(BaseModel):
     user_names: List[str]
