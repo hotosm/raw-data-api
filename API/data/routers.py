@@ -4,7 +4,7 @@ from os.path import join
 from requests_oauthlib import OAuth2Session
 from fastapi.responses import RedirectResponse, FileResponse
 
-from .. import config
+from src.galaxy import config
 
 router = APIRouter(prefix="/data")
 

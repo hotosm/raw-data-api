@@ -4,7 +4,7 @@ from fastapi import Request, APIRouter, Depends
 from itsdangerous.url_safe import URLSafeSerializer
 from requests_oauthlib import OAuth2Session
 
-from .. import config
+from src.galaxy import config
 from . import AuthUser, Login, Token, login_required
 
 router = APIRouter(prefix="/auth")

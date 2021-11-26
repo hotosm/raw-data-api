@@ -95,6 +95,16 @@ class MapathonRequestParams(BaseModel):
                 "Timestamp difference must be lower than 24 hours")
 
         return value
+    @validator("hashtags",allow_reuse=True)
+    def check_hashtag_filter(cls, value, values, **kwargs):
+        '''check the hashtag existence''' 
+
+        project_ids = values.get("project_ids")
+        if len(project_ids) == 0 and len(value) == 0:
+            raise ValueError(
+                "Empty lists found for both hashtags and project_ids params")
+
+        return value
 
 
 
@@ -120,9 +130,11 @@ supported_issue_types = ["badgeom", "badvalue", "all"]
 supported_Output_types = ["GeoJSON","CSV"]
 class DataQuality_TM_RequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class Tasking Manager Project ID
+    
     Parameters:
             “project_ids”:[int],
             “issue_type”: ["badgeom", "badvalue", "all"]
+    
     Acceptance Criteria : 
             project_ids: Required, Array can contain integer value only , Array can not be empty
             issue_type: Required, Only accepted value under supported issues ,Array can not be empty
@@ -157,6 +169,7 @@ class DataQuality_TM_RequestParams(BaseModel):
 
 class DataQuality_username_RequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class Username
+    
     Parameters:
             osm_usernames:[str],
             “issue_type”: ["badgeom", "badvalue", "all"]
@@ -222,5 +235,9 @@ class DataQualityPointFeature(Feature):
 
 
 class DataQualityPointCollection(FeatureCollection):
-    ''' geojson pydantic models for data quality (**** Note : Not required if we will be using OUTPUT Class'''
+    """geojson pydantic models for data quality , Note : Not required if we will be using OUTPUT Class
+
+    Args:
+        FeatureCollection ([type]): [description]
+    """
     features: List[DataQualityPointFeature]

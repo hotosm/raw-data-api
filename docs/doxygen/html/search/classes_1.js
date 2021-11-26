@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['basemodel_28',['BaseModel',['../classosm__stats_1_1validation_1_1mapathon_1_1BaseModel.html',1,'osm_stats.validation.mapathon.BaseModel'],['../classAPI_1_1BaseModel.html',1,'API.BaseModel']]]
+  ['basemodel_45',['BaseModel',['../classAPI_1_1BaseModel.html',1,'API.BaseModel'],['../classgalaxy_1_1validation_1_1models_1_1BaseModel.html',1,'galaxy.validation.models.BaseModel']]]
 ];

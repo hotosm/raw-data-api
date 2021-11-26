@@ -16,7 +16,6 @@
 # Humanitarian OpenStreetmap Team
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
-
 '''Main page contains class for database mapathon and funtion for error printing  '''
 
 import sys
@@ -34,9 +33,8 @@ import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 
-from configparser import ConfigParser
-config = ConfigParser()
-config.read("src/config.txt")
+from .config import config
+
 
 def print_psycopg2_exception(err):
     """ 
@@ -55,20 +53,23 @@ def print_psycopg2_exception(err):
     print("pgcode:", err.pgcode, "\n")
     raise err
 
+
 def check_for_json(result_str):
-        """Check if the Payload is a JSON document
+    """Check if the Payload is a JSON document
 
         Return: bool:
             True in case of success, False otherwise
         """
-        try:
-            r_json = json_loads(result_str)
-            return True,r_json
-        except Exception as e:
-            return False,None
+    try:
+        r_json = json_loads(result_str)
+        return True, r_json
+    except Exception as e:
+        return False, None
+
 
 class Database:
     """ Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class """
+
     def __init__(self, db_params):
         """Database class constructor"""
 
@@ -85,6 +86,7 @@ class Database:
             return self.conn, self.cur
         except OperationalError as err:
             """pass exception to function"""
+
             print_psycopg2_exception(err)
             # set the connection to 'None' in case of error
             self.conn = None
@@ -96,7 +98,7 @@ class Database:
             if self.conn != None:
                 self.cursor = self.cur
                 # catch exception for invalid SQL statement
-               
+
                 try:
                     self.cursor.execute(query)
                     try:
@@ -132,15 +134,17 @@ class Database:
         except Exception as err:
             raise err
 
+
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
-    #constructor
+
+    # constructor
     def __init__(self, parameters):
         self.database = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.database.connect()
-        #parameter validation using pydantic model
-        if  type(parameters) is MapathonRequestParams:
-            self.params= parameters
+        # parameter validation using pydantic model
+        if type(parameters) is MapathonRequestParams:
+            self.params = parameters
         else:
             self.params = MapathonRequestParams(**parameters)
 
@@ -152,20 +156,24 @@ class Mapathon:
             self.params, self.con, self.cur)
         osm_history_query = create_osm_history_query(changeset_query,
                                                      with_username=False)
-        # print(osm_history_query)
+        print(osm_history_query)
         result = self.database.executequery(osm_history_query)
         mapped_features = [MappedFeature(**r) for r in result]
         total_contributor_query = f"""
                 SELECT COUNT(distinct user_id) as contributors_count
                 FROM osm_changeset
-                WHERE {timestamp_filter} AND ({hashtag_filter})
+                WHERE {timestamp_filter}
             """
-        # print(osm_history_query.encode('utf-8'))
+        if len(hashtag_filter) > 0:
+            total_contributor_query += f""" AND ({hashtag_filter})"""
+
+        # print(total_contributor_query)
 
         total_contributors = self.database.executequery(
             total_contributor_query)
-        report = MapathonSummary(total_contributors=total_contributors[0].get("contributors_count","None"),
-                                 mapped_features=mapped_features)
+        report = MapathonSummary(total_contributors=total_contributors[0].get(
+            "contributors_count", "None"),
+            mapped_features=mapped_features)
         return report
 
     def get_detailed_report(self):
@@ -191,14 +199,17 @@ class Mapathon:
         # print(Output(osm_history_query,self.con).to_list())
         return report
 
+
 class Output:
-    '''
-    Class to convert sql query result to specific output format. It uses Pandas Dataframe
+    """Class to convert sql query result to specific output format. It uses Pandas Dataframe
+
     Parameters:
         supports : list, dict , json and sql query string along with connection
+
     Returns:
-        json,csv,dict,list,dataframe   
-    '''
+        json,csv,dict,list,dataframe
+    """
+
     def __init__(self, result, connection=None):
         """Constructor"""
         if isinstance(result, (list, dict)):
@@ -228,7 +239,7 @@ class Output:
             raise ValueError("Input type " + str(type(result)) +
                              " is not supported")
         # print(self.dataframe)
-        if self.dataframe.empty : 
+        if self.dataframe.empty:
             raise ValueError("Dataframe is Null")
 
     def to_JSON(self):
@@ -252,7 +263,7 @@ class Output:
         """Function to return CSV data , takes output location string as input"""
         try:
             self.dataframe.to_csv(output_file_path, encoding='utf-8')
-            return "CSV: Generated at : "+ str(output_file_path)
+            return "CSV: Generated at : " + str(output_file_path)
         except Exception as err:
             raise err
 
@@ -266,12 +277,13 @@ class Output:
         features = self.dataframe.apply(
             lambda row: Feature(geometry=Point(
                 (float(row[lng_column]), float(row[lat_column]))),
-                                properties=properties[row.name]),
+                properties=properties[row.name]),
             axis=1).tolist()
 
         # whole geojson object
         feature_collection = FeatureCollection(features=features)
         return feature_collection
+
 
 class UserStats:
     def __init__(self):
@@ -279,13 +291,16 @@ class UserStats:
         self.con, self.cur = self.db.connect()
 
     def list_users(self, params):
-        user_names_str = ",".join(["%s" for n in range(len(params.user_names))])
+        user_names_str = ",".join(
+            ["%s" for n in range(len(params.user_names))])
 
-        query = sql.SQL(f"""SELECT DISTINCT user_id, user_name from osm_changeset
+        query = sql.SQL(
+            f"""SELECT DISTINCT user_id, user_name from osm_changeset
         WHERE created_at between %s AND %s AND user_name IN ({user_names_str})
         """)
 
-        items = (params.from_timestamp, params.to_timestamp, *params.user_names)
+        items = (params.from_timestamp, params.to_timestamp,
+                 *params.user_names)
         list_users_query = self.cur.mogrify(query, items)
 
         result = self.db.executequery(list_users_query)
@@ -295,85 +310,53 @@ class UserStats:
         return users_list
 
     def get_statistics(self, params):
-        query = """
-            SELECT (each(tags)).key as feature, action, count(distinct id)
-            FROM osm_element_history
-            WHERE timestamp BETWEEN %s AND %s
-            AND uid = %s
-            AND type in ('way','relation')
-            GROUP BY feature, action
-        """
-
-        items = (params.from_timestamp, params.to_timestamp, params.user_id)
-        query = self.cur.mogrify(query, items)
-
+        query = create_UserStats_get_statistics_query(params, self.con,
+                                                      self.cur)
         result = self.db.executequery(query)
         summary = [MappedFeature(**r) for r in result]
-
         return summary
 
     def get_statistics_with_hashtags(self, params):
-        changeset_query, _, _ = create_changeset_query(params, self.con, self.cur)
-
-        # Include user_id filter.
-        changeset_query = f"{changeset_query} AND user_id = {params.user_id}"
-
-        base_query = """
-            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)
-            FROM osm_element_history AS osh, T1
-            WHERE osh.timestamp BETWEEN %s AND %s
-            AND osh.uid = %s
-            AND osh.type in ('way','relation')
-            AND T1.changeset_id = osh.changeset
-            GROUP BY feature, action
-        """
-        items = (params.from_timestamp, params.to_timestamp, params.user_id)
-        base_query = self.cur.mogrify(base_query, items).decode()
-
-        query = f"""
-            WITH T1 AS (
-                {changeset_query}
-            )
-            {base_query}
-        """
-
+        query = create_userstats_get_statistics_with_hashtags_query(
+            params, self.con, self.cur)
         result = self.db.executequery(query)
 
         summary = [MappedFeature(**r) for r in result]
 
         return summary
 
+
 class DataQuality:
-    '''
-    Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
+    """Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
+
     Parameters:
            params and inputtype : Currently supports : TM for tasking manager id , username for OSM Username reports and hashtags for Osm hashtags
+
     Returns:
-            GeoJSON,CSV    
-    '''
-    def __init__(self, parameters,inputtype):
+        [GeoJSON,CSV ]: [description]
+    """
+
+    def __init__(self, parameters, inputtype):
         self.db = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.db.connect()
-        self.inputtype=inputtype
-        #parameter validation using pydantic model
-        if self.inputtype =="TM":
-            if  type(parameters) is DataQuality_TM_RequestParams:
-                self.params= parameters
+        self.inputtype = inputtype
+        # parameter validation using pydantic model
+        if self.inputtype == "TM":
+            if type(parameters) is DataQuality_TM_RequestParams:
+                self.params = parameters
             else:
                 self.params = DataQuality_TM_RequestParams(**parameters)
         elif self.inputtype == "username":
-            if  type(parameters) is DataQuality_username_RequestParams:
-                self.params= parameters
+            if type(parameters) is DataQuality_username_RequestParams:
+                self.params = parameters
             else:
                 self.params = DataQuality_username_RequestParams(**parameters)
         else:
             raise ValueError("Input Type Must be in ['TM','username']")
 
-    ''' Using our Output class '''
-
     def get_report(self):
         """Functions that returns data_quality Report"""
-        if self.inputtype =="TM":
+        if self.inputtype == "TM":
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
             query = generate_data_quality_username_query(self.params)
@@ -381,14 +364,14 @@ class DataQuality:
         result = Output(query, self.con).to_GeoJSON('lat', 'lng')
         # print(result)
         return result
-    
-    def get_report_as_csv(self,filelocation):
+
+    def get_report_as_csv(self, filelocation):
         """Functions that returns data_quality Report as CSV Format , requires file path where csv is meant to be generated"""
-        
-        if self.inputtype =="TM":
+
+        if self.inputtype == "TM":
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
             query = generate_data_quality_username_query(self.params)
-        result=Output(query, self.con).to_CSV(filelocation)
+        result = Output(query, self.con).to_CSV(filelocation)
         print(result)
         return result

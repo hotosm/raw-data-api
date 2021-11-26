@@ -1,9 +1,4 @@
-from configparser import ConfigParser
 from pydantic import BaseModel as PydanticModel
-
-config = ConfigParser()
-config.read("data/config.txt")
-
 
 def to_camel(string: str) -> str:
     split_string = string.split("_")

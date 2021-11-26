@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['osm_20stats_20api_53',['OSM Stats API',['../index.html',1,'']]]
+  ['galaxy_20api_87',['GALAXY API',['../index.html',1,'']]]
 ];

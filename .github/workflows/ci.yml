@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/api-module
+      - master
   pull_request:
     branches:
       - master

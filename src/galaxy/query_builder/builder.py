@@ -30,8 +30,8 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     filter_query = "({hstore_column} -> %s) ~~ %s"
 
     hashtag_filter_values = [
-        *[f"%hotosm-project-{i} %" for i in project_ids],
-        *[f"%{i} %" for i in hashtags],
+        *[f"%hotosm-project-{i};%" for i in project_ids],
+        *[f"%{i};%" for i in hashtags],
     ]
     hashtag_tags_filters = [
         cur.mogrify(filter_query, ("hashtags", i)).decode()
@@ -39,8 +39,8 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     ]
 
     comment_filter_values = [
-        *[f"%hotosm-project-{i};%" for i in project_ids],
-        *[f"%{i};%" for i in hashtags],
+        *[f"%hotosm-project-{i} %" for i in project_ids],
+        *[f"%{i} %" for i in hashtags],
     ]
     comment_tags_filters = [
         cur.mogrify(filter_query, ("comment", i)).decode()
@@ -118,6 +118,47 @@ def create_osm_history_query(changeset_query, with_username):
     """
 
     return query
+
+
+def create_userstats_get_statistics_with_hashtags_query(params,con,cur):
+        changeset_query, _, _ = create_changeset_query(params, con, cur)
+
+        # Include user_id filter.
+        changeset_query = f"{changeset_query} AND user_id = {params.user_id}"
+
+        base_query = """
+            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)
+            FROM osm_element_history AS osh, T1
+            WHERE osh.timestamp BETWEEN %s AND %s
+            AND osh.uid = %s
+            AND osh.type in ('way','relation')
+            AND T1.changeset_id = osh.changeset
+            GROUP BY feature, action
+        """
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        base_query = cur.mogrify(base_query, items).decode()
+
+        query = f"""
+            WITH T1 AS (
+                {changeset_query}
+            )
+            {base_query}
+        """
+        return query
+
+def create_UserStats_get_statistics_query(params,con,cur):
+        query = """
+            SELECT (each(tags)).key as feature, action, count(distinct id)
+            FROM osm_element_history
+            WHERE timestamp BETWEEN %s AND %s
+            AND uid = %s
+            AND type in ('way','relation')
+            GROUP BY feature, action
+        """
+
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        query = cur.mogrify(query, items)
+        return query
 
 
 def create_users_contributions_query(params, changeset_query):
@@ -231,6 +272,7 @@ def generate_data_quality_TM_query(params):
 
 
 def generate_data_quality_username_query(params):
+    
     '''returns data quality username query with filters and parameteres provided'''
     print(params)
     
