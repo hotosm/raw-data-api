@@ -122,7 +122,7 @@ def test_mapathon_total_contributor_mapathon_query_builder():
                 WHERE {timestamp_filter} AND ({hashtag_filter})
             """
     # print(result_total_contributor_query.encode('utf-8'))
-    # print(result_total_contributor_query.encode('utf-8'))
+    print(result_total_contributor_query)
     
     assert result_total_contributor_query == default_total_contributor_query
 
@@ -133,6 +133,8 @@ def test_mapathon_users_contributors_mapathon_query_builder():
                                                        cur)
     result_users_contributors_query = mapathon_query_builder.create_users_contributions_query(
             params, changeset_query)
+    print(result_users_contributors_query)
+
     assert result_users_contributors_query == default_users_contributors_query
 
 
@@ -145,7 +147,7 @@ def test_mapathon_summary():
 
     result = database.executequery(result_osm_history_query)
     print(result)
-    expected_report=[['building', 'create', 78], ['highway', 'modify', 6], ['natural', 'create', 5], ['water', 'create', 4], ['highway', 'create', 4], ['name:en', 'modify', 1], ['name:ne', 'modify', 1], ['name', 'modify', 1], ['ref', 'modify', 1], ['source', 'modify', 1], ['int_ref', 'modify', 1]]
+    expected_report=[['building', 'create', 827], ['natural', 'create', 117], ['building', 'modify', 27], ['highway', 'modify', 19], ['highway', 'create', 17], ['name', 'modify', 15], ['landuse', 'modify', 9], ['surface', 'modify', 8], ['addr:street', 'modify', 6], ['plinthlevel:height', 'modify', 6], ['roof:material', 'modify', 6], ['visual:condition', 'modify', 6], ['building:form', 'modify', 6], ['building:levels', 'modify', 6], ['building:material', 'modify', 6], ['landuse', 'create', 5], ['water', 'create', 4], ['natural', 'modify', 4], ['maxspeed', 'modify', 2], ['source', 'modify', 2], ['water', 'modify', 1], ['damage:event', 'modify', 1], ['ford', 'create', 1], ['ford', 'modify', 1], ['idp:camp_site', 'modify', 1], ['int_ref', 'modify', 1], ['man_made', 'modify', 1], ['name:en', 'modify', 1], ['name:ne', 'modify', 1], ['ref', 'modify', 1], ['shop', 'modify', 1], ['source:geometry', 'modify', 1], ['addr:housenumber', 'modify', 1]]
     assert result == expected_report
 
 def test_output_JSON():
