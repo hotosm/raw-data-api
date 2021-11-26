@@ -135,30 +135,37 @@ class Database:
             raise err
 
 
-class Mapathon:
-    """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
+class Underpass:
+    """This class connects to underpass database and responsible for all the underpass related functionality"""
 
-    # constructor
+    def __init__(self, parameters):
+        self.database = Database(dict(config.items("UNDERPASS")))
+        self.con, self.cur = self.database.connect()
+        self.params = parameters
+
+    def get_mapathon_summary_result(self):
+        osm_history_query, total_contributor_query = generate_mapathon_summary_underpass_query(
+            self.params, self.cur)
+        print(osm_history_query)
+        osm_history_result = self.database.executequery(osm_history_query)
+        total_contributors_result = self.database.executequery(
+            total_contributor_query)
+        return osm_history_result, total_contributors_result
+
+
+class Insight:
+    """This class connects to Insight database and responsible for all the Insight related functionality"""
+
     def __init__(self, parameters):
         self.database = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.database.connect()
-        # parameter validation using pydantic model
-        if type(parameters) is MapathonRequestParams:
-            self.params = parameters
-        else:
-            self.params = MapathonRequestParams(**parameters)
+        self.params = parameters
 
-    # Mapathon class instance method
-    def get_summary(self):
-        """Function to get summary of your mapathon event """
-
+    def get_mapathon_summary_result(self):
         changeset_query, hashtag_filter, timestamp_filter = create_changeset_query(
             self.params, self.con, self.cur)
         osm_history_query = create_osm_history_query(changeset_query,
                                                      with_username=False)
-        print(osm_history_query)
-        result = self.database.executequery(osm_history_query)
-        mapped_features = [MappedFeature(**r) for r in result]
         total_contributor_query = f"""
                 SELECT COUNT(distinct user_id) as contributors_count
                 FROM osm_changeset
@@ -166,11 +173,46 @@ class Mapathon:
             """
         if len(hashtag_filter) > 0:
             total_contributor_query += f""" AND ({hashtag_filter})"""
+        
+        print(osm_history_query)
+        osm_history_result = self.database.executequery(osm_history_query)
+        total_contributors_result = self.database.executequery(total_contributor_query)
+        return osm_history_result, total_contributors_result
 
-        # print(total_contributor_query)
+    def get_mapathon_detailed_result(self):
+        changeset_query, _, _ = create_changeset_query(
+            self.params, self.con, self.cur)
+        # History Query
+        osm_history_query = create_osm_history_query(changeset_query,
+                                                     with_username=True)
+        contributors_query = create_users_contributions_query(
+            self.params, changeset_query)
+        return osm_history_query, contributors_query
 
-        total_contributors = self.database.executequery(
-            total_contributor_query)
+
+class Mapathon:
+    """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
+
+    # constructor
+    def __init__(self, parameters,source):
+        # parameter validation using pydantic model
+        if type(parameters) is MapathonRequestParams:
+            self.params = parameters
+        else:
+            self.params = MapathonRequestParams(**parameters)
+        
+        if source == "underpass":
+            self.database = Underpass(self.params)
+        elif source == "insight":
+            self.database = Insight(self.params)
+        else:
+            raise ValueError("Source is not Supported")
+
+    # Mapathon class instance method
+    def get_summary(self):
+        """Function to get summary of your mapathon event """
+        osm_history_result,total_contributors=self.database.get_mapathon_summary_result()
+        mapped_features = [MappedFeature(**r) for r in osm_history_result]
         report = MapathonSummary(total_contributors=total_contributors[0].get(
             "contributors_count", "None"),
             mapped_features=mapped_features)
@@ -178,22 +220,9 @@ class Mapathon:
 
     def get_detailed_report(self):
         """Function to get detail report of your mapathon event. It includes individual user contribution"""
-
-        changeset_query, _, _ = create_changeset_query(self.params, self.con,
-                                                       self.cur)
-        # History Query
-        osm_history_query = create_osm_history_query(changeset_query,
-                                                     with_username=True)
-        result = self.database.executequery(osm_history_query)
-
-        mapped_features = [MappedFeatureWithUser(**r) for r in result]
-        # Contribution Query
-        contributors_query = create_users_contributions_query(
-            self.params, changeset_query)
-        # print(contributors_query.encode('utf-8'))
-        result = self.database.executequery(contributors_query)
-        # contributors = parse_obj_as(List[MapathonContributor], result)
-        contributors = [MapathonContributor(**r) for r in result]
+        osm_history_result,total_contributors=self.database.get_mapathon_detailed_result()
+        mapped_features = [MappedFeatureWithUser(**r) for r in osm_history_result]
+        contributors = [MapathonContributor(**r) for r in total_contributors]
         report = MapathonDetail(contributors=contributors,
                                 mapped_features=mapped_features)
         # print(Output(osm_history_query,self.con).to_list())
