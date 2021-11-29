@@ -59,7 +59,7 @@ def callback(request: Request):
     user_data = {
         "id": data.get("id"),
         "username": data.get("display_name"),
-        "img_url": data.get("img").get("href"),
+        "img_url": data.get("img").get("href", default = None),
     }
 
     token = serializer.dumps(user_data)
