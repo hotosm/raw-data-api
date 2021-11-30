@@ -114,7 +114,8 @@ def test_mapathon_osm_history_mapathon_query_builder():
 def test_data_quality_hashtags_query_builder():
     test_params = {
         "hashtags": ["missingmaps"],
-        "issueType": ["badgeom"]
+        "issueType": ["badgeom"],
+        "outputType": "geojson",
     }
 
     test_data_quality_hashtags_query = "\n        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation),\n        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets)\n        SELECT t1.osm_id,\n            t1.change_id as changeset_id,\n            t1.lat,\n            t1.lon,\n            t2.created_at,\n            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), ',') AS issues\n            FROM t1, t2 where t1.change_id = t2.id\n            AND unnest_hashtags in ('missingmaps')\n            AND unnest_status in ('badgeom')\n            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;\n    "
