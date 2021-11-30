@@ -2,7 +2,7 @@ name: Osm Stats Module Test
 on:
   push:
     branches:
-      - feature/api-module
+      - bug/unittest
       - master
   pull_request:
     branches:
