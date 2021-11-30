@@ -259,6 +259,12 @@ class IssueType(Enum):
     INCOMPLETE = "incomplete_tags"
 
 
+class OutputType(Enum):
+    CSV = "csv"
+    GEOJSON = "geojson"
+
+
 class DataQualityHashtagParams(BaseModel):
     hashtags: List[str]
     issue_type: List[IssueType]
+    output_type: OutputType

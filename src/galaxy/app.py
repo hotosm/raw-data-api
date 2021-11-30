@@ -361,6 +361,24 @@ class DataQualityHashtags:
         self.params = params
 
     @staticmethod
+    def to_csv_stream(results):
+        stream = io.StringIO()
+
+        properties_keys = list(results[0].get("properties").keys())
+        csv_keys = [*properties_keys, "latitude", "longitude"]
+
+        writer = DictWriter(stream, fieldnames=csv_keys)
+        writer.writeheader()
+
+        for row in results.get("features"):
+            longitude, latitude = item.get("geometry").get("coordinates")
+            row = {**item.get("properties"), 'latitude': latitude, 'longitude': longitude}
+
+            writer.writerow(row)
+
+        return (iter(stream.getvalue()))
+
+    @staticmethod
     def to_geojson(results):
         features = []
         for row in results:
