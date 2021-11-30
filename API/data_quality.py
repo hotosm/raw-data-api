@@ -18,13 +18,20 @@
 # <info@hotosm.org>
 
 from fastapi import APIRouter
-from src.galaxy.validation.models import DataQuality_TM_RequestParams,DataQuality_username_RequestParams
-from src.galaxy.app import DataQuality
+from src.galaxy.validation.models import DataQuality_TM_RequestParams,DataQuality_username_RequestParams, DataQualityHashtagParams
+from src.galaxy.app import DataQuality, DataQualityHashtags
 from fastapi.responses import StreamingResponse
 import io
 from datetime import datetime
 
 router = APIRouter(prefix="/data-quality")
+
+
+@router.post("/hashtag-reports")
+def data_quality_hashtag_reports(params: DataQualityHashtagParams):
+    data_quality = DataQualityHashtags(params)
+
+    return data_quality.get_report()
 
 
 @router.post("/project-reports")

@@ -35,7 +35,6 @@ from geojson import Feature, FeatureCollection, Point
 
 from .config import config
 
-
 def print_psycopg2_exception(err):
     """ 
     function that handles and parses psycopg2 exceptions
@@ -355,12 +354,48 @@ class UserStats:
         return summary
 
 
+class DataQualityHashtags:
+    def __init__(self, params: DataQualityHashtagParams):
+        self.db = Database(dict(config.items("UNDERPASS")))
+        self.con, self.cur = self.db.connect()
+        self.params = params
+
+    @staticmethod
+    def to_geojson(results):
+        features = []
+        for row in results:
+            geojson_feature = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [row["lon"], row["lat"]]
+                },
+                "properties": {
+                    "created_at": row["created_at"],
+                    "changeset_id": row["changeset_id"],
+                    "osm_id": row["osm_id"],
+                    "issue_type": row["issues"].split(",")
+                }
+            }
+            features.append(Feature(**geojson_feature))
+
+        feature_collection = FeatureCollection(features=features)
+
+        return feature_collection
+
+    def get_report(self):
+        query = generate_data_quality_hashtag_reports(self.cur, self.params)
+        results = self.db.executequery(query)
+        feature_collection = DataQualityHashtags.to_geojson(results)
+
+        return feature_collection
+
+
 class DataQuality:
     """Class for data quality report this is the class that self connects to database and provide you detail report about data quality inside specific tasking manager project
 
     Parameters:
            params and inputtype : Currently supports : TM for tasking manager id , username for OSM Username reports and hashtags for Osm hashtags
-
     Returns:
         [GeoJSON,CSV ]: [description]
     """

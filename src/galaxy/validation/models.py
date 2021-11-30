@@ -27,7 +27,7 @@ from geojson_pydantic import Feature, FeatureCollection, Point
 
 from datetime import datetime
 
-
+from enum import Enum
 
 
 def to_camel(string: str) -> str:
@@ -248,3 +248,14 @@ class DataQualityPointCollection(FeatureCollection):
         FeatureCollection ([type]): [description]
     """
     features: List[DataQualityPointFeature]
+
+
+class IssueType(Enum):
+    BAD_GEOM = "badgeom"
+    BAD_VALUE = "badvalue"
+    INCOMPLETE = "incomplete_tags"
+
+
+class DataQualityHashtagParams(BaseModel):
+    hashtags: List[str]
+    issue_type: List[IssueType]
