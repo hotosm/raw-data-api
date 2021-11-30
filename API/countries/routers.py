@@ -11,8 +11,11 @@ router = APIRouter(prefix="/countries")
 
 @router.get("/", response_model=FeatureCollection)
 def get_countries():
-    db_params = dict(config.items("PG"))
-    conn = psycopg2.connect(**db_params)
+    if _F_DBCFG_JSON or _F_DBCFG_PARAM:
+        conn = psycopg2.connect(**POSTGRES_CONNECTION_PARAMS)
+    elif _F_DBCFG_FILE:
+        db_params = dict(config.items("PG"))
+        conn = psycopg2.connect(**db_params)
 
     cur = conn.cursor(cursor_factory=DictCursor)
     cur.execute(
