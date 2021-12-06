@@ -101,16 +101,11 @@ def get_changesets(params: FilterParams):
         ON deleted_filter_highway_km.name = t4.name;
         """
 
-    if _F_DBCFG_JSON or _F_DBCFG_PARAM:
-        conn = psycopg2.connect(**POSTGRES_CONNECTION_PARAMS)
-    elif _F_DBCFG_FILE:
-        db_params = dict(config.items("PG"))
-        conn = psycopg2.connect(**db_params)
-
-    cur = conn.cursor(cursor_factory=DictCursor)
-    cur.execute(query)
-
-    result = cur.fetchall()
+    db_params = get_db_connection_params()
+    with psycopg2.connect(**db_params) as conn:
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute(query)
+            result = cur.fetchall()
 
     result_dto = ChangesetResult(**dict(result[0]))
 
