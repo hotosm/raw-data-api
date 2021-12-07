@@ -268,3 +268,5 @@ class DataQualityHashtagParams(BaseModel):
     hashtags: List[str]
     issue_type: List[IssueType]
     output_type: OutputType
+    from_timestamp: Union[datetime, date]
+    to_timestamp: Union[datetime, date]
