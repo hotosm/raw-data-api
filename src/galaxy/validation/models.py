@@ -61,23 +61,20 @@ class MapathonContributor(BaseModel):
 class MappedFeatureWithUser(MappedFeature):
     username: str
 
+
 class MapathonSummary(BaseModel):
     total_contributors: int
     mapped_features: List[MappedFeature]
+
 
 class MapathonDetail(BaseModel):
     mapped_features: List[MappedFeatureWithUser]
     contributors: List[MapathonContributor]
 
-invalid_request_parameters=[" ",'"','""','" "']
-class MapathonRequestParams(BaseModel):
-    '''validation class for mapathon request parameter provided by user '''
 
-    project_ids: List[int]
+class TimeStampParams(BaseModel):
     from_timestamp: Union[datetime, date]
     to_timestamp: Union[datetime, date]
-    hashtags: List[str]
-    source: Optional[str]
 
     @validator("to_timestamp",allow_reuse=True)
     def check_timestamp_diffs(cls, value, values, **kwargs):
@@ -97,6 +94,16 @@ class MapathonRequestParams(BaseModel):
                 "Timestamp difference must be lower than 24 hours")
 
         return value
+
+
+invalid_request_parameters=[" ",'"','""','" "']
+class MapathonRequestParams(TimeStampParams):
+    '''validation class for mapathon request parameter provided by user '''
+
+    project_ids: List[int]
+    hashtags: List[str]
+    source: Optional[str]
+
     @validator("hashtags",allow_reuse=True)
     def check_hashtag_filter(cls, value, values, **kwargs):
         '''check the hashtag existence''' 
@@ -124,10 +131,8 @@ class UsersListParams(BaseModel):
     to_timestamp: Union[datetime, date]
 
 
-class UserStatsParams(BaseModel):
+class UserStatsParams(TimeStampParams):
     user_id: int
-    from_timestamp: Union[datetime, date]
-    to_timestamp: Union[datetime, date]
     hashtags: List[str]
     project_ids: List[int] = []
 
@@ -177,7 +182,7 @@ class DataQuality_TM_RequestParams(BaseModel):
         return value
 
 
-class DataQuality_username_RequestParams(BaseModel):
+class DataQuality_username_RequestParams(TimeStampParams):
     '''Request Parameteres validation for DataQuality Class Username
     
     Parameters:
@@ -189,8 +194,6 @@ class DataQuality_username_RequestParams(BaseModel):
 
     osm_usernames: conlist(str, min_items=1)
     issue_types: conlist(str, min_items=1)
-    from_timestamp: Union[datetime, date]
-    to_timestamp: Union[datetime, date]
     Output_type: str
 
     @validator("issue_types", allow_reuse=True)
@@ -213,24 +216,6 @@ class DataQuality_username_RequestParams(BaseModel):
                                 str(supported_Output_types))
         return value
 
-    @validator("to_timestamp",allow_reuse=True)
-    def check_timestamp_diffs(cls, value, values, **kwargs):
-        '''checks the timestap difference '''
-
-        from_timestamp = values.get("from_timestamp")
-        print(datetime.now())
-        if from_timestamp > datetime.now() or value > datetime.now():
-            raise ValueError(
-                "Can not exceed current date and time")
-        timestamp_diff = value - from_timestamp
-        if from_timestamp > value :
-            raise ValueError(
-                "Timestamp difference should be in order")
-        if timestamp_diff > timedelta(days=31):
-            raise ValueError(
-                "Timestamp difference must be lower than 31 days")
-
-        return value
 
 class DataQualityProp(BaseModel):
     Osm_id: int
@@ -264,9 +249,7 @@ class OutputType(Enum):
     GEOJSON = "geojson"
 
 
-class DataQualityHashtagParams(BaseModel):
+class DataQualityHashtagParams(TimeStampParams):
     hashtags: List[str]
     issue_type: List[IssueType]
     output_type: OutputType
-    from_timestamp: Union[datetime, date]
-    to_timestamp: Union[datetime, date]

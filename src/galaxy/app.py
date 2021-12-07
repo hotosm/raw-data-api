@@ -32,6 +32,7 @@ import pandas
 import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
+from io import StringIO
 
 from .config import config
 
@@ -362,21 +363,26 @@ class DataQualityHashtags:
 
     @staticmethod
     def to_csv_stream(results):
-        stream = io.StringIO()
+        stream = StringIO()
 
-        properties_keys = list(results[0].get("properties").keys())
+        features = results.get("features")
+
+        if len(features) == 0:
+            return iter("")
+
+        properties_keys = list(features[0].get("properties").keys())
         csv_keys = [*properties_keys, "latitude", "longitude"]
 
         writer = DictWriter(stream, fieldnames=csv_keys)
         writer.writeheader()
 
-        for row in results.get("features"):
+        for row in features:
             longitude, latitude = item.get("geometry").get("coordinates")
             row = {**item.get("properties"), 'latitude': latitude, 'longitude': longitude}
 
             writer.writerow(row)
 
-        return (iter(stream.getvalue()))
+        return iter(stream.getvalue())
 
     @staticmethod
     def to_geojson(results):
