@@ -219,6 +219,35 @@ def create_users_contributions_query(params, changeset_query):
     """
     return query
 
+
+def generate_data_quality_hashtag_reports(cur, params):
+    filter_hashtags = ", ".join(["%s"] * len(params.hashtags))
+    filter_hashtags = cur.mogrify(sql.SQL(filter_hashtags), params.hashtags).decode()
+
+    issue_types = ", ".join(["%s"] * len(params.issue_type))
+    issue_types_str = [i.value for i in params.issue_type]
+    issue_types = cur.mogrify(sql.SQL(issue_types), issue_types_str).decode()
+
+    timestamp_filter = cur.mogrify(sql.SQL("created_at BETWEEN %s AND %s"), (params.from_timestamp, params.to_timestamp)).decode()
+
+    query = f"""
+        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation),
+        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets WHERE {timestamp_filter})
+        SELECT t1.osm_id,
+            t1.change_id as changeset_id,
+            t1.lat,
+            t1.lon,
+            t2.created_at,
+            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), ',') AS issues
+            FROM t1, t2 where t1.change_id = t2.id
+            AND unnest_hashtags in ({filter_hashtags})
+            AND unnest_status in ({issue_types})
+            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;
+    """
+
+    return query
+
+
 def create_hashtagfilter_underpass(hashtags,columnname):
     """Generates hashtag filter query on the basis of list of hastags."""
     

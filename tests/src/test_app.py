@@ -22,8 +22,8 @@ import testing.postgresql
 import pytest
 from src.galaxy.validation import models as mapathon_validation
 from src.galaxy.query_builder import builder as mapathon_query_builder
-from src.galaxy.query_builder.builder import create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query
-from src.galaxy.validation.models import UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams
+from src.galaxy.query_builder.builder import create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports
+from src.galaxy.validation.models import UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams
 from src.galaxy import Output
 import os.path
 
@@ -109,6 +109,23 @@ def test_mapathon_osm_history_mapathon_query_builder():
         changeset_query, with_username=False)
     # print(result_osm_history_query.encode('utf-8'))
     assert result_osm_history_query == default_osm_history_query
+
+
+def test_data_quality_hashtags_query_builder():
+    test_params = {
+        "hashtags": ["missingmaps"],
+        "issueType": ["badgeom"],
+        "outputType": "geojson",
+        "fromTimestamp": "2020-12-10T00:00:00",
+        "toTimestamp": "2020-12-11T00:00:00"
+    }
+
+    test_data_quality_hashtags_query = "\n        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation),\n        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets WHERE created_at BETWEEN '2020-12-10T00:00:00'::timestamp AND '2020-12-11T00:00:00'::timestamp)\n        SELECT t1.osm_id,\n            t1.change_id as changeset_id,\n            t1.lat,\n            t1.lon,\n            t2.created_at,\n            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), ',') AS issues\n            FROM t1, t2 where t1.change_id = t2.id\n            AND unnest_hashtags in ('missingmaps')\n            AND unnest_status in ('badgeom')\n            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;\n    "
+
+    params = DataQualityHashtagParams(**test_params)
+    query = generate_data_quality_hashtag_reports(cur, params)
+
+    assert query == test_data_quality_hashtags_query
 
 
 def test_mapathon_total_contributor_mapathon_query_builder():
@@ -198,11 +215,11 @@ def test_data_quality_username_query():
     ],
     "issue_types": ["badgeom","badvalue"],
     "fromTimestamp": "2021-10-7T9:00:00",
-    "toTimestamp": "2021-11-5T11:00:00",
+    "toTimestamp": "2021-10-7T11:00:00",
     "Output_type": "GeoJSON"
 }
     validated_params=DataQuality_username_RequestParams(**data_quality_params)
-    expected_result="   with t1 as (\n        select id,username as username\n                From users \n                WHERE\n                  'MANUEL_PC'=username OR 'piticasuno'=username OR 'LCrawford1833'=username\n            ),\n        t2 AS (\n             SELECT osm_id as Osm_id,\n                change_id as Changeset_id,\n                timestamp::text as Changeset_timestamp,\n                status::text as Issue_type,\n                t1.username as username,\n                ST_X(location::geometry) as lng,\n                ST_Y(location::geometry) as lat\n                \n        FROM validation join t1 on user_id = t1.id  \n        WHERE\n        ('badgeom'=ANY(status) OR 'badvalue'=ANY(status)) AND (timestamp between '2021-10-07 09:00:00' and  '2021-11-05 11:00:00')\n                )\n        select *\n        from t2\n        "
+    expected_result="   with t1 as (\n        select id,username as username\n                From users \n                WHERE\n                  'MANUEL_PC'=username OR 'piticasuno'=username OR 'LCrawford1833'=username\n            ),\n        t2 AS (\n             SELECT osm_id as Osm_id,\n                change_id as Changeset_id,\n                timestamp::text as Changeset_timestamp,\n                status::text as Issue_type,\n                t1.username as username,\n                ST_X(location::geometry) as lng,\n                ST_Y(location::geometry) as lat\n                \n        FROM validation join t1 on user_id = t1.id  \n        WHERE\n        ('badgeom'=ANY(status) OR 'badvalue'=ANY(status)) AND (timestamp between '2021-10-07 09:00:00' and  '2021-10-07 11:00:00')\n                )\n        select *\n        from t2\n        "
     query_result=generate_data_quality_username_query(validated_params)
     # print(query_result.encode('utf-8'))
     assert query_result == expected_result
