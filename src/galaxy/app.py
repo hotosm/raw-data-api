@@ -187,7 +187,9 @@ class Insight:
                                                      with_username=True)
         contributors_query = create_users_contributions_query(
             self.params, changeset_query)
-        return osm_history_query, contributors_query
+        osm_history_result = self.database.executequery(osm_history_query)
+        total_contributors_result = self.database.executequery(contributors_query)
+        return osm_history_result, total_contributors_result
 
 
 class Mapathon:
