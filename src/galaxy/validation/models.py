@@ -80,7 +80,7 @@ class TimeStampParams(BaseModel):
     def check_timestamp_diffs(cls, value, values, **kwargs):
         '''checks the timestap difference '''
 
-        # from_timestamp = values.get("from_timestamp")
+        from_timestamp = values.get("from_timestamp")
 
         # if from_timestamp > datetime.now() or value > datetime.now():
         #     raise ValueError(
