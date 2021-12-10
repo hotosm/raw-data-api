@@ -80,11 +80,11 @@ class TimeStampParams(BaseModel):
     def check_timestamp_diffs(cls, value, values, **kwargs):
         '''checks the timestap difference '''
 
-        from_timestamp = values.get("from_timestamp")
+        # from_timestamp = values.get("from_timestamp")
 
-        if from_timestamp > datetime.now() or value > datetime.now():
-            raise ValueError(
-                "Can not exceed current date and time")
+        # if from_timestamp > datetime.now() or value > datetime.now():
+        #     raise ValueError(
+        #         "Can not exceed current date and time")
         timestamp_diff = value - from_timestamp
         if from_timestamp > value :
             raise ValueError(
