@@ -253,3 +253,14 @@ class DataQualityHashtagParams(TimeStampParams):
     hashtags: List[str]
     issue_type: List[IssueType]
     output_type: OutputType
+
+class Source(Enum):
+    UNDERPASS ="underpass"
+    INSIGHT = "insight"
+
+class TrainingOrganisations(BaseModel):
+    id: int
+    name: str
+
+
+    
