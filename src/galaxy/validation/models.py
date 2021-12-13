@@ -262,5 +262,58 @@ class TrainingOrganisations(BaseModel):
     id: int
     name: str
 
+class Trainings(BaseModel):
+    tid: int
+    name: str
+    location :str = None
+    organization : str = None 
+    eventtype : str = None
+    topictype : str = None
+    topics : str = None 
+    hours : int = None
+    date : date
 
+class EventType(Enum):
+    VIRTUAL = "virtual"
+    IN_PERSON = "inperson"
+
+class SkillType(Enum):
+    # JOSM = "josm"
+    # ID_EDITOR = "ideditor"
+    # VALIDATION = "validation"
+    REMOTE = "remote"
+    FIELD = "field"
+    OTHER = "other"
+
+class TrainingParams(BaseModel):
+    """[Training Post API Parameter Validation Model]
+
+    Args:
+        BaseModel ([type]): [Pydantic Model]
+
+    Raises:
+        ValueError: [Timestamp difference should be in order]
+        Unprocessable Entity: [If any skill type or event type is out of predefined Enum values]
+    Returns:
+        [value]: [Validated Parameters]
+    """
+    from_datestamp: Optional[date] = None
+    to_datestamp: Optional[date] = None
+    oid: Optional[int] = None
+    skill_type : Optional[List[SkillType]] = None
+    event_type : Optional[EventType] = None
     
+    @validator("to_datestamp",allow_reuse=True)
+    def check_timestamp_order(cls, value, values, **kwargs):
+        '''checks the datestamps order '''
+        from_datestamp = values.get("from_datestamp")
+        if from_datestamp > value :
+            raise ValueError(
+                "Timestamp should be in order")
+        return value
+
+    class Config: 
+        """To convert enum values from class object to value""" 
+        use_enum_values = True 
+
+

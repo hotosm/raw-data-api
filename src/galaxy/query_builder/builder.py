@@ -71,10 +71,10 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     return hashtag_filter
 
 
-def create_timestamp_filter_query(from_timestamp, to_timestamp, cur):
+def create_timestamp_filter_query(column_name,from_timestamp, to_timestamp, cur):
     '''returns timestamp filter query '''
 
-    timestamp_column = "created_at"
+    timestamp_column = column_name
     # Subquery to filter changesets matching hashtag and dates.
     timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
         timestamp_column=sql.Identifier(timestamp_column))
@@ -89,7 +89,7 @@ def create_changeset_query(params, conn, cur):
 
     hashtag_filter = create_hashtag_filter_query(params.project_ids,
                                                  params.hashtags, cur, conn)
-    timestamp_filter = create_timestamp_filter_query(params.from_timestamp,
+    timestamp_filter = create_timestamp_filter_query("created_at",params.from_timestamp,
                                                      params.to_timestamp, cur)
 
     changeset_query = f"""
@@ -370,7 +370,7 @@ def generate_mapathon_summary_underpass_query(params,cur):
     for p in params.hashtags:
         hashtags.append(str(p)) 
     hashtagfilter=create_hashtagfilter_underpass(hashtags,"hashtags")
-    timestamp_filter=create_timestamp_filter_query(params.from_timestamp, params.to_timestamp,cur)
+    timestamp_filter=create_timestamp_filter_query("created_at",params.from_timestamp, params.to_timestamp,cur)
 
     base_where_query=f"""where  ({timestamp_filter}) """
     if hashtagfilter != '' and projectidfilter != '':
@@ -413,3 +413,36 @@ def generate_training_organisations_query():
             from organizations
             order by oid """
     return query
+
+def generate_filter_training_query(params):
+    base_filter= []
+    
+    if params.oid:
+        query = f"""(organization = {params.oid})"""
+        base_filter.append(query)
+
+    if params.skill_type:
+        skilltype_filter = []
+        for value in params.skill_type:
+            query = f"""topictype = '{value}'"""
+            skilltype_filter.append(query)
+        join_query=" OR ".join(skilltype_filter)
+        base_filter.append(f"""({join_query})""")
+
+    if params.event_type:
+        query = f"""(eventtype = '{params.event_type}')"""
+        base_filter.append(query)
+
+    if params.from_datestamp:
+        timestamp_query=f"""( date BETWEEN '{params.from_datestamp}'::date AND '{params.to_datestamp}'::date )"""
+        base_filter.append(timestamp_query)
+
+    filter_query=" AND ".join(base_filter)
+    # print(filter_query)
+    return filter_query
+
+def generate_training_query(filter_query):
+    base_query=f"""select * from training """
+    if filter_query :
+        base_query+=f"""WHERE {filter_query}"""
+    return base_query
