@@ -82,9 +82,9 @@ class TimeStampParams(BaseModel):
 
         from_timestamp = values.get("from_timestamp")
 
-        if from_timestamp > datetime.now() or value > datetime.now():
-            raise ValueError(
-                "Can not exceed current date and time")
+        # if from_timestamp > datetime.now() or value > datetime.now():
+        #     raise ValueError(
+        #         "Can not exceed current date and time")
         timestamp_diff = value - from_timestamp
         if from_timestamp > value :
             raise ValueError(
