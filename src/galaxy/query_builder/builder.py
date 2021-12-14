@@ -421,12 +421,12 @@ def generate_filter_training_query(params):
         query = f"""(organization = {params.oid})"""
         base_filter.append(query)
 
-    if params.skill_type:
-        skilltype_filter = []
-        for value in params.skill_type:
+    if params.topic_type:
+        topic_type_filter = []
+        for value in params.topic_type:
             query = f"""topictype = '{value}'"""
-            skilltype_filter.append(query)
-        join_query=" OR ".join(skilltype_filter)
+            topic_type_filter.append(query)
+        join_query=" OR ".join(topic_type_filter)
         base_filter.append(f"""({join_query})""")
 
     if params.event_type:

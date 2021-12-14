@@ -277,7 +277,7 @@ class EventType(Enum):
     VIRTUAL = "virtual"
     IN_PERSON = "inperson"
 
-class SkillType(Enum):
+class TopicType(Enum):
     # JOSM = "josm"
     # ID_EDITOR = "ideditor"
     # VALIDATION = "validation"
@@ -300,7 +300,7 @@ class TrainingParams(BaseModel):
     from_datestamp: Optional[date] = None
     to_datestamp: Optional[date] = None
     oid: Optional[int] = None
-    skill_type : Optional[List[SkillType]] = None
+    topic_type : Optional[List[TopicType]] = None
     event_type : Optional[EventType] = None
     
     @validator("to_datestamp",allow_reuse=True)
