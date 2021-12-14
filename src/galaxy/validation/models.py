@@ -307,9 +307,10 @@ class TrainingParams(BaseModel):
     def check_timestamp_order(cls, value, values, **kwargs):
         '''checks the datestamps order '''
         from_datestamp = values.get("from_datestamp")
-        if from_datestamp > value :
-            raise ValueError(
-                "Timestamp should be in order")
+        if from_datestamp :
+            if from_datestamp > value :
+                raise ValueError(
+                    "Timestamp should be in order")
         return value
 
     class Config: 

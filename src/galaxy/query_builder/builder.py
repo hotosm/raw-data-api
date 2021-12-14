@@ -433,8 +433,16 @@ def generate_filter_training_query(params):
         query = f"""(eventtype = '{params.event_type}')"""
         base_filter.append(query)
 
-    if params.from_datestamp:
+    if params.from_datestamp and params.to_datestamp:
         timestamp_query=f"""( date BETWEEN '{params.from_datestamp}'::date AND '{params.to_datestamp}'::date )"""
+        base_filter.append(timestamp_query)
+
+    if params.from_datestamp!= None and params.to_datestamp == None:
+        timestamp_query=f"""( date >= '{params.from_datestamp}'::date )"""
+        base_filter.append(timestamp_query)
+    
+    if params.to_datestamp!= None and params.from_datestamp == None:
+        timestamp_query=f"""( date <= '{params.to_datestamp}'::date )"""
         base_filter.append(timestamp_query)
 
     filter_query=" AND ".join(base_filter)
