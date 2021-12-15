@@ -1,9 +1,4 @@
 from pydantic import BaseModel as PydanticModel
-import os
-
-config = ConfigParser()
-config.read("src/config.txt")
-
 
 def to_camel(string: str) -> str:
     """formats underscore seperated words with camel case
