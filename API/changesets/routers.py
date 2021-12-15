@@ -2,8 +2,7 @@ import psycopg2
 
 from psycopg2 import sql
 from psycopg2.extras import DictCursor
-
-from src.galaxy import config
+from src.galaxy import get_db_connection_params
 from . import ChangesetResult, FilterParams
 from .utils import geom_filter_subquery
 from fastapi import APIRouter
@@ -101,13 +100,11 @@ def get_changesets(params: FilterParams):
         ON deleted_filter_highway_km.name = t4.name;
         """
 
-    db_params = dict(config.items("PG"))
-    conn = psycopg2.connect(**db_params)
-
-    cur = conn.cursor(cursor_factory=DictCursor)
-    cur.execute(query)
-
-    result = cur.fetchall()
+    db_params = get_db_connection_params()
+    with psycopg2.connect(**db_params) as conn:
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute(query)
+            result = cur.fetchall()
 
     result_dto = ChangesetResult(**dict(result[0]))
 

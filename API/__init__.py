@@ -1,11 +1,14 @@
 from pydantic import BaseModel as PydanticModel
 
 def to_camel(string: str) -> str:
+    """formats underscore seperated words with camel case
+
+    So this: hello_world_goodbye_new_york
+    becomes this: helloWorldGoodbyeNewYork
+    """
     split_string = string.split("_")
 
-    return "".join(
-        [split_string[0], *[w.capitalize() for w in split_string[1:]]]
-    )
+    return "".join([split_string[0], *[w.capitalize() for w in split_string[1:]]])
 
 
 class BaseModel(PydanticModel):
