@@ -41,6 +41,7 @@ class BaseModel(PydanticModel):
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True
+        use_enum_values = True
 
 
 class MappedFeature(BaseModel):
@@ -141,6 +142,16 @@ class User(BaseModel):
     user_id: int
     user_name: str
 
+class IssueType(Enum):
+    BAD_GEOM = "badgeom"
+    BAD_VALUE = "badvalue"
+    INCOMPLETE = "incomplete_tags"
+
+
+class OutputType(Enum):
+    CSV = "csv"
+    GEOJSON = "geojson"
+
 supported_issue_types = ["badgeom", "badvalue", "all"]
 supported_Output_types = ["GeoJSON","CSV"]
 class DataQuality_TM_RequestParams(BaseModel):
@@ -156,31 +167,9 @@ class DataQuality_TM_RequestParams(BaseModel):
 
     '''
     #using conlist of pydantic to refuse empty list
-
     project_ids: conlist(int, min_items=1)
-    issue_types: conlist(str, min_items=1)
-    Output_type: str
-
-    @validator("issue_types", allow_reuse=True)
-    def match_value(cls, value, **kwargs):
-        '''checks the either passed value is valid or not '''
-        
-        for v in value:
-            print(v)
-            if not v in supported_issue_types:
-                raise ValueError('Issue type '+str(v)+' must be in : ' +
-                                 str(supported_issue_types))
-        return value
-    
-    @validator("Output_type", allow_reuse=True)
-    def match_output_value(cls, value, **kwargs):
-        '''checks the either passed value is valid or not '''
-        
-        if not value in supported_Output_types:
-            raise ValueError('Output type '+str(value)+' must be in : ' +
-                                str(supported_Output_types))
-        return value
-
+    issue_types: List[IssueType]
+    Output_type: OutputType
 
 class DataQuality_username_RequestParams(TimeStampParams):
     '''Request Parameteres validation for DataQuality Class Username
@@ -193,28 +182,8 @@ class DataQuality_username_RequestParams(TimeStampParams):
     #using conlist of pydantic to refuse empty list
 
     osm_usernames: conlist(str, min_items=1)
-    issue_types: conlist(str, min_items=1)
-    Output_type: str
-
-    @validator("issue_types", allow_reuse=True)
-    def match_value(cls, value, **kwargs):
-        '''checks the either passed value is valid or not '''
-        
-        for v in value:
-            
-            if not v in supported_issue_types:
-                raise ValueError('Issue type '+str(v)+' must be in : ' +
-                                 str(supported_issue_types))
-        return value
-    
-    @validator("Output_type", allow_reuse=True)
-    def match_output_value(cls, value, **kwargs):
-        '''checks the either passed value is valid or not '''
-        
-        if not value in supported_Output_types:
-            raise ValueError('Output type '+str(value)+' must be in : ' +
-                                str(supported_Output_types))
-        return value
+    issue_types: List[IssueType]
+    Output_type: OutputType
 
 
 class DataQualityProp(BaseModel):
@@ -236,17 +205,6 @@ class DataQualityPointCollection(FeatureCollection):
         FeatureCollection ([type]): [description]
     """
     features: List[DataQualityPointFeature]
-
-
-class IssueType(Enum):
-    BAD_GEOM = "badgeom"
-    BAD_VALUE = "badvalue"
-    INCOMPLETE = "incomplete_tags"
-
-
-class OutputType(Enum):
-    CSV = "csv"
-    GEOJSON = "geojson"
 
 
 class DataQualityHashtagParams(TimeStampParams):
@@ -312,9 +270,5 @@ class TrainingParams(BaseModel):
                 raise ValueError(
                     "Timestamp should be in order")
         return value
-
-    class Config: 
-        """To convert enum values from class object to value""" 
-        use_enum_values = True 
 
 
