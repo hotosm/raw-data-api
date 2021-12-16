@@ -21,7 +21,7 @@
 """
 from fastapi import APIRouter, Depends
 from src.galaxy.app import Training
-from src.galaxy.validation.models import TrainingOrganisations
+from src.galaxy.validation.models import TrainingOrganisations, TrainingParams , Trainings
 from .auth import login_required
 from typing import List
 router = APIRouter(prefix="/training")
@@ -32,3 +32,9 @@ router = APIRouter(prefix="/training")
 def get_organisations_list():
     training = Training("underpass")
     return training.get_all_organisations()
+
+@router.post("",response_model=List[Trainings])
+# def get_organisations_list(user_data=Depends(login_required)):
+def get_trainings_list(params:TrainingParams):
+    training= Training("underpass")
+    return training.get_trainingslist(params)

@@ -161,6 +161,15 @@ class Underpass:
         training_all_organisations_query = generate_training_organisations_query()
         query_result= self.database.executequery(training_all_organisations_query)
         return query_result
+    
+    def training_list(self,params):
+        filter_training_query= generate_filter_training_query(params)
+        training_query= generate_training_query(filter_training_query)
+        print(training_query)
+        query_result= self.database.executequery(training_query)
+        # print(query_result)
+        return query_result
+
 
 
 
@@ -483,7 +492,6 @@ class Training :
     """[Class responsible for Training data API]
     """
     def __init__(self,source):
-        
         if source == Source.UNDERPASS.value:
                 self.database = Underpass()
         else:
@@ -495,10 +503,15 @@ class Training :
         Returns:
             [type]: [List of Training Organisations ( id, name )]
         """
-        org_list = self.database.all_training_organisations()
-        Training_organisations_list= [TrainingOrganisations(**r) for r in org_list]
+        query_result = self.database.all_training_organisations()
+        Training_organisations_list= [TrainingOrganisations(**r) for r in query_result]
         print(Training_organisations_list)
         return Training_organisations_list
         
-        
+    def get_trainingslist(self,params: TrainingParams):
+        query_result=self.database.training_list(params)
+        Trainings_list= [Trainings(**r) for r in query_result]
+        print(Trainings_list)
+        return Trainings_list
+
 
