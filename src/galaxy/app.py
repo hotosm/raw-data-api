@@ -138,7 +138,7 @@ class Database:
 class Underpass:
     """This class connects to underpass database and responsible for all the underpass related functionality"""
 
-    def __init__(self, parameters):
+    def __init__(self, parameters=None):
         self.database = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.database.connect()
         self.params = parameters
@@ -151,12 +151,23 @@ class Underpass:
         total_contributors_result = self.database.executequery(
             total_contributor_query)
         return osm_history_result, total_contributors_result
+    
+    def all_training_organisations(self):
+        """[Resposible for the total organisations result generation]
+
+        Returns:
+            [query_result]: [oid,name]
+        """
+        training_all_organisations_query = generate_training_organisations_query()
+        query_result= self.database.executequery(training_all_organisations_query)
+        return query_result
+
 
 
 class Insight:
     """This class connects to Insight database and responsible for all the Insight related functionality"""
 
-    def __init__(self, parameters):
+    def __init__(self, parameters=None):
         self.database = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.database.connect()
         self.params = parameters
@@ -465,3 +476,29 @@ class DataQuality:
         result = Output(query, self.con).to_CSV(filelocation)
         print(result)
         return result
+
+
+from .validation.models import Source
+class Training :
+    """[Class responsible for Training data API]
+    """
+    def __init__(self,source):
+        
+        if source == Source.UNDERPASS.value:
+                self.database = Underpass()
+        else:
+            raise ValueError("Source is not Supported")
+    
+    def get_all_organisations(self):
+        """[Generates result for all list of available organisations within the database.]
+
+        Returns:
+            [type]: [List of Training Organisations ( id, name )]
+        """
+        org_list = self.database.all_training_organisations()
+        Training_organisations_list= [TrainingOrganisations(**r) for r in org_list]
+        print(Training_organisations_list)
+        return Training_organisations_list
+        
+        
+

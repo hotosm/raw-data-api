@@ -405,3 +405,11 @@ def generate_mapathon_summary_underpass_query(params,cur):
     # print(total_contributor_query)
     
     return summary_query,total_contributor_query
+
+def generate_training_organisations_query():
+    """Generates query for listing out all the organisations listed in training table from underpass
+    """
+    query= f"""select oid as id ,name
+            from organizations
+            order by oid """
+    return query
