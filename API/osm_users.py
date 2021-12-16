@@ -33,7 +33,7 @@ def list_users(params: UsersListParams):
     return UserStats().list_users(params)
 
 
-@router.post("/statistics/", response_model=List[MappedFeature])
+@router.post("/statistics", response_model=List[MappedFeature])
 def user_statistics(params: UserStatsParams):
     user_stats = UserStats()
 
