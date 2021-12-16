@@ -152,8 +152,6 @@ class OutputType(Enum):
     CSV = "csv"
     GEOJSON = "geojson"
 
-supported_issue_types = ["badgeom", "badvalue", "all"]
-supported_Output_types = ["GeoJSON","CSV"]
 class DataQuality_TM_RequestParams(BaseModel):
     '''Request Parameteres validation for DataQuality Class Tasking Manager Project ID
     
@@ -169,7 +167,7 @@ class DataQuality_TM_RequestParams(BaseModel):
     #using conlist of pydantic to refuse empty list
     project_ids: conlist(int, min_items=1)
     issue_types: List[IssueType]
-    Output_type: OutputType
+    output_type: OutputType
 
 class DataQuality_username_RequestParams(TimeStampParams):
     '''Request Parameteres validation for DataQuality Class Username
@@ -183,7 +181,7 @@ class DataQuality_username_RequestParams(TimeStampParams):
 
     osm_usernames: conlist(str, min_items=1)
     issue_types: List[IssueType]
-    Output_type: OutputType
+    output_type: OutputType
 
 
 class DataQualityProp(BaseModel):
