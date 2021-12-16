@@ -34,7 +34,7 @@ def data_quality_hashtag_reports(params: DataQualityHashtagParams):
 
     results = data_quality.get_report()
 
-    if params.output_type.value == OutputType.GEOJSON.value:
+    if params.output_type == OutputType.GEOJSON.value:
         return results
 
     # Set Response as streaming for CSV files.
@@ -50,31 +50,33 @@ def data_quality_hashtag_reports(params: DataQualityHashtagParams):
 @router.post("/project-reports")
 def data_quality_reports(params: DataQuality_TM_RequestParams):
     data_quality = DataQuality(params,"TM")
-    stream = io.StringIO()
-    
-    if params.Output_type == "CSV":
-        exportname="TM_DataQuality_"+str(datetime.now())
-        data_quality.get_report_as_csv(stream)
-        response = StreamingResponse(iter([stream.getvalue()]),
-                                media_type="text/csv"
-        )
-        response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
-        return response
-    else:
+
+    if params.output_type == OutputType.GEOJSON.value:
         return data_quality.get_report()
+
+    stream = io.StringIO()
+    exportname="TM_DataQuality_"+str(datetime.now())
+    data_quality.get_report_as_csv(stream)
+    response = StreamingResponse(iter([stream.getvalue()]),
+                            media_type="text/csv"
+    )
+    response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
+    return response
+
 
 @router.post("/user-reports")
 def data_quality_reports(params: DataQuality_username_RequestParams):
     data_quality = DataQuality(params,"username")
-    stream = io.StringIO()
     
-    if params.Output_type == "CSV":
-        exportname="Username_DataQuality_"+str(datetime.now())
-        data_quality.get_report_as_csv(stream)
-        response = StreamingResponse(iter([stream.getvalue()]),
-                                media_type="text/csv"
-        )
-        response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
-        return response
-    else:
+    if params.output_type == OutputType.GEOJSON.value:
         return data_quality.get_report()
+    stream = io.StringIO()
+   
+    exportname="Username_DataQuality_"+str(datetime.now())
+    data_quality.get_report_as_csv(stream)
+    response = StreamingResponse(iter([stream.getvalue()]),
+                            media_type="text/csv"
+    )
+    response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
+    return response
+

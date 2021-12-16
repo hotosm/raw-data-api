@@ -225,7 +225,7 @@ def generate_data_quality_hashtag_reports(cur, params):
     filter_hashtags = cur.mogrify(sql.SQL(filter_hashtags), params.hashtags).decode()
 
     issue_types = ", ".join(["%s"] * len(params.issue_type))
-    issue_types_str = [i.value for i in params.issue_type]
+    issue_types_str = [i for i in params.issue_type]
     issue_types = cur.mogrify(sql.SQL(issue_types), issue_types_str).decode()
 
     timestamp_filter = cur.mogrify(sql.SQL("created_at BETWEEN %s AND %s"), (params.from_timestamp, params.to_timestamp)).decode()

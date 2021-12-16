@@ -470,11 +470,13 @@ class DataQuality:
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
             query = generate_data_quality_username_query(self.params)
-
-        result = Output(query, self.con).to_GeoJSON('lat', 'lng')
+        try:
+            result = Output(query, self.con).to_GeoJSON('lat', 'lng')
+            return result
+        except Exception as err:
+            return err
         # print(result)
-        return result
-
+        
     def get_report_as_csv(self, filelocation):
         """Functions that returns data_quality Report as CSV Format , requires file path where csv is meant to be generated"""
 
@@ -482,9 +484,11 @@ class DataQuality:
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
             query = generate_data_quality_username_query(self.params)
-        result = Output(query, self.con).to_CSV(filelocation)
-        print(result)
-        return result
+        try:
+            result = Output(query, self.con).to_CSV(filelocation)
+            return result
+        except Exception as err:
+            return err  
 
 
 from .validation.models import Source
