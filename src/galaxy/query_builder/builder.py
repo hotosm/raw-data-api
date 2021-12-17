@@ -353,6 +353,7 @@ def generate_data_quality_username_query(params):
                 )
         select *
         from t2
+        order by username
         """
     
     print(query)
