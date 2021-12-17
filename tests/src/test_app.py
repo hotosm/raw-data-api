@@ -219,9 +219,9 @@ def test_data_quality_username_query():
     "output_type": "geojson"
 }
     validated_params=DataQuality_username_RequestParams(**data_quality_params)
-    expected_result="   with t1 as (\n        select id,username as username\n                From users \n                WHERE\n                  'MANUEL_PC'=username OR 'piticasuno'=username OR 'LCrawford1833'=username\n            ),\n        t2 AS (\n             SELECT osm_id as Osm_id,\n                change_id as Changeset_id,\n                timestamp::text as Changeset_timestamp,\n                status::text as Issue_type,\n                t1.username as username,\n                ST_X(location::geometry) as lng,\n                ST_Y(location::geometry) as lat\n                \n        FROM validation join t1 on user_id = t1.id  \n        WHERE\n        ('badgeom'=ANY(status) OR 'badvalue'=ANY(status)) AND (timestamp between '2021-10-07 09:00:00' and  '2021-10-07 11:00:00')\n                )\n        select *\n        from t2\n        "
+    expected_result="   with t1 as (\n        select id,username as username\n                From users \n                WHERE\n                  'MANUEL_PC'=username OR 'piticasuno'=username OR 'LCrawford1833'=username\n            ),\n        t2 AS (\n             SELECT osm_id as Osm_id,\n                change_id as Changeset_id,\n                timestamp::text as Changeset_timestamp,\n                status::text as Issue_type,\n                t1.username as username,\n                ST_X(location::geometry) as lng,\n                ST_Y(location::geometry) as lat\n                \n        FROM validation join t1 on user_id = t1.id  \n        WHERE\n        ('badgeom'=ANY(status) OR 'badvalue'=ANY(status)) AND (timestamp between '2021-10-07 09:00:00' and  '2021-10-07 11:00:00')\n                )\n        select *\n        from t2\n        order by username\n        "
     query_result=generate_data_quality_username_query(validated_params)
-    # print(query_result.encode('utf-8'))
+    print(query_result.encode('utf-8'))
     assert query_result == expected_result
 
 def test_userstats_get_statistics_with_hashtags_query():
