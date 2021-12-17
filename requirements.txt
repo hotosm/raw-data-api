@@ -16,7 +16,7 @@ itsdangerous==2.0.1
 pytest == 3.7
 testing.postgresql==1.3.0
 pandas == 1.3.4
-numpy == 1.17.3
+numpy == 1.19.3
 geojson == 2.5.0
 # Used for new relic monitoring
 newrelic == 7.2.4.171
