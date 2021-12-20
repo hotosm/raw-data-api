@@ -26,6 +26,7 @@ from src.galaxy.query_builder.builder import create_UserStats_get_statistics_que
 from src.galaxy.validation.models import UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams
 from src.galaxy import Output
 import os.path
+from pydantic import ValidationError as PydanticError
 
 # Reference to testing.postgresql db instance
 postgresql = None
@@ -112,6 +113,7 @@ def test_mapathon_osm_history_mapathon_query_builder():
 
 
 def test_data_quality_hashtags_query_builder():
+    # No geometry, with hashtags.
     test_params = {
         "hashtags": ["missingmaps"],
         "issueType": ["badgeom"],
@@ -120,12 +122,107 @@ def test_data_quality_hashtags_query_builder():
         "toTimestamp": "2020-12-11T00:00:00"
     }
 
-    test_data_quality_hashtags_query = "\n        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation),\n        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets WHERE created_at BETWEEN '2020-12-10T00:00:00'::timestamp AND '2020-12-11T00:00:00'::timestamp)\n        SELECT t1.osm_id,\n            t1.change_id as changeset_id,\n            t1.lat,\n            t1.lon,\n            t2.created_at,\n            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), ',') AS issues\n            FROM t1, t2 where t1.change_id = t2.id\n            AND unnest_hashtags in ('missingmaps')\n            AND unnest_status in ('badgeom')\n            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;\n    "
+    test_data_quality_hashtags_query = "\n        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation ),\n        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets WHERE created_at BETWEEN '2020-12-10T00:00:00'::timestamp AND '2020-12-11T00:00:00'::timestamp)\n        SELECT t1.osm_id,\n            t1.change_id as changeset_id,\n            t1.lat,\n            t1.lon,\n            t2.created_at,\n            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), ',') AS issues\n            FROM t1, t2 WHERE t1.change_id = t2.id\n            AND unnest_hashtags in ('missingmaps')\n            AND unnest_status in ('badgeom')\n            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;\n    "
 
     params = DataQualityHashtagParams(**test_params)
     query = generate_data_quality_hashtag_reports(cur, params)
 
     assert query == test_data_quality_hashtags_query
+
+    # Test geometry, no hashtags.
+    test_params = {
+        "fromTimestamp": "2020-12-10T00:00:00",
+        "toTimestamp": "2020-12-11T00:00:00",
+        "issueType": [
+            "badgeom"
+        ],
+        "outputType": "geojson",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [
+                        -74.80708971619606,
+                        11.002032789290594
+                    ],
+                    [
+                        -74.80621799826622,
+                        11.002032789290594
+                    ],
+                    [
+                        -74.80621799826622,
+                        11.00265678856572
+                    ],
+                    [
+                        -74.80708971619606,
+                        11.00265678856572
+                    ],
+                    [
+                        -74.80708971619606,
+                        11.002032789290594
+                    ]
+                ]
+            ]
+        }
+    }
+
+    test_data_quality_hashtags_query_no_hashtags = '\n        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation WHERE ST_CONTAINS(ST_GEOMFROMGEOJSON(\'{"coordinates": [[[-74.80708971619606, 11.002032789290594], [-74.80621799826622, 11.002032789290594], [-74.80621799826622, 11.00265678856572], [-74.80708971619606, 11.00265678856572], [-74.80708971619606, 11.002032789290594]]], "type": "Polygon"}\'), location)),\n        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets WHERE created_at BETWEEN \'2020-12-10T00:00:00\'::timestamp AND \'2020-12-11T00:00:00\'::timestamp)\n        SELECT t1.osm_id,\n            t1.change_id as changeset_id,\n            t1.lat,\n            t1.lon,\n            t2.created_at,\n            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), \',\') AS issues\n            FROM t1, t2 WHERE t1.change_id = t2.id\n            \n            AND unnest_status in (\'badgeom\')\n            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;\n    '
+    params = DataQualityHashtagParams(**test_params)
+    query = generate_data_quality_hashtag_reports(cur, params)
+
+    assert query == test_data_quality_hashtags_query_no_hashtags
+
+    # Test no geometry, no hashtags. Raise a pydantic error.
+    test_params = {
+        "fromTimestamp": "2020-12-11T00:00:00",
+        "toTimestamp": "2020-12-11T00:00:00",
+        "issueType": [
+            "badgeom"
+        ],
+        "outputType": "geojson"
+    }
+
+    with pytest.raises(PydanticError):
+        params = DataQualityHashtagParams(**test_params)
+
+    test_params = {
+        "fromTimestamp": "2020-12-11T00:00:00",
+        "toTimestamp": "2020-12-11T00:00:00",
+        "issueType": [
+            "badgeom"
+        ],
+        "outputType": "geojson",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [
+                        -76.387939453125,
+                        9.611582210984674
+                    ],
+                    [
+                        -73.76220703125,
+                        9.611582210984674
+                    ],
+                    [
+                        -73.76220703125,
+                        11.544616463449655
+                    ],
+                    [
+                        -76.387939453125,
+                        11.544616463449655
+                    ],
+                    [
+                        -76.387939453125,
+                        9.611582210984674
+                    ]
+                ]
+            ]
+        }
+    }
+
+    with pytest.raises(PydanticError) as e:
+        params = DataQualityHashtagParams(**test_params)
 
 
 def test_mapathon_total_contributor_mapathon_query_builder():
