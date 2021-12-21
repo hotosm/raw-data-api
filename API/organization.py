@@ -19,7 +19,6 @@
 
 """[Router Responsible for Organizational data API ]
 """
-from fastapi_pagination import Page, Params, paginate
 from fastapi import APIRouter, Depends
 from src.galaxy.app import OrganizationHashtags
 from src.galaxy.validation.models import OrganizationHashtag, OrganizationOutputtype,OrganizationHashtagParams
@@ -29,17 +28,16 @@ from fastapi.responses import StreamingResponse
 import io
 from datetime import datetime
 
-router = APIRouter(prefix="/organization")
+router = APIRouter(prefix="/hashtags")
 
 
 
-@router.post("/statistics",response_model=Page[OrganizationHashtag])
+@router.post("/statistics",response_model=List[OrganizationHashtag])
 # def get_organisations_list(user_data=Depends(login_required)):
-def get_ogranization_stat(params:OrganizationHashtagParams,
-                            pageparam:Params = Depends()):
+def get_ogranization_stat(params:OrganizationHashtagParams):
     organization= OrganizationHashtags(params)
     if params.output_type == OrganizationOutputtype.JSON.value:
-        return paginate(organization.get_report(),pageparam)
+        return organization.get_report()
     stream = io.StringIO()
     exportname =f"Hashtags_Organization_{datetime.now().isoformat()}"
     organization.get_report_as_csv(stream)
