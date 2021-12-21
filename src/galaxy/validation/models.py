@@ -303,6 +303,8 @@ class TrainingParams(BaseModel):
 class Frequency(Enum):
     WEEKLY = "w"
     MONTHLY = "m"
+    QUARTERLY = "q"
+    YEARLY = "y"
 
 class OrganizationOutputtype(Enum):
     JSON = "json"
@@ -320,6 +322,7 @@ class OrganizationHashtagParams(BaseModel):
                 raise ValueError(
                    v+ "is not allowed")
         return value
+
 
 class OrganizationHashtag(BaseModel):
     hashtag: str
