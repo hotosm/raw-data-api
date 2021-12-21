@@ -525,17 +525,16 @@ class OrganizationHashtags :
         self.db = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.db.connect()
         self.params = params
+        self.query = generate_organization_hashtag_reports(self.cur, self.params)
     
     def get_report(self):
-        query = generate_organization_hashtag_reports(self.cur, self.params)
-        query_result = self.db.executequery(query)
+        query_result = self.db.executequery(self.query)
         results= [OrganizationHashtag(**r) for r in query_result]
         return results
    
     def get_report_as_csv(self,filelocation):
-        query = generate_organization_hashtag_reports(self.cur, self.params)
         try:
-            result = Output(query, self.con).to_CSV(filelocation)
+            result = Output(self.query, self.con).to_CSV(filelocation)
             return result
         except Exception as err:
             return err  

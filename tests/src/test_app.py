@@ -364,7 +364,7 @@ def test_organization_hashtag_query():
         "msf"
     ],
     "frequency": "w",
-    "outputType": "geojson"
+    "outputType": "json"
     }
     validated_params= OrganizationHashtagParams(**test_params)
     expected_query = f"""with t1 as (
