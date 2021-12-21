@@ -23,3 +23,4 @@ newrelic == 7.2.4.171
 # '''required for generating documentations '''
 sphinx_rtd_theme==1.0.0
 sphinx==4.2.0
+area==1.1.1

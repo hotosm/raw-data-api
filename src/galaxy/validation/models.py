@@ -17,17 +17,23 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+import json
+
 from typing import List, Union ,Optional
 from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
 
 from pydantic import conlist
-from geojson_pydantic import Feature, FeatureCollection, Point
+from geojson_pydantic import Feature, FeatureCollection, Point, Polygon
 
 from datetime import datetime
 
 from enum import Enum
+
+from area import area
+
+MAX_POLYGON_AREA = 5000 # km^2
 
 
 def to_camel(string: str) -> str:
@@ -206,17 +212,39 @@ class DataQualityPointCollection(FeatureCollection):
 
 
 class DataQualityHashtagParams(TimeStampParams):
-    hashtags: List[str]
+    hashtags: Optional[List[str]]
     issue_type: List[IssueType]
     output_type: OutputType
+    geometry: Optional[Polygon]
+
+    @validator("geometry", always=True)
+    def check_not_defined_fields(cls, value, values):
+        hashtags = values.get("hashtags")
+
+        if value is None and (hashtags is None or len(hashtags) == 0):
+            raise ValueError("'geometry' and 'hashtags' fields not provided")
+
+        if value is None:
+            return
+
+        area_m2 = area(json.loads(value.json()))
+        area_km2 = area_m2 * 1E-6
+
+        if area_km2 > MAX_POLYGON_AREA:
+            raise ValueError("Polygon Area is higher than 5000 km^2")
+
+        return value
+
 
 class Source(Enum):
     UNDERPASS ="underpass"
     INSIGHT = "insight"
 
+
 class TrainingOrganisations(BaseModel):
     id: int
     name: str
+
 
 class Trainings(BaseModel):
     tid: int
@@ -229,9 +257,11 @@ class Trainings(BaseModel):
     hours : int = None
     date : date
 
+
 class EventType(Enum):
     VIRTUAL = "virtual"
     IN_PERSON = "inperson"
+
 
 class TopicType(Enum):
     # JOSM = "josm"
@@ -240,6 +270,7 @@ class TopicType(Enum):
     REMOTE = "remote"
     FIELD = "field"
     OTHER = "other"
+
 
 class TrainingParams(BaseModel):
     """[Training Post API Parameter Validation Model]
@@ -268,5 +299,3 @@ class TrainingParams(BaseModel):
                 raise ValueError(
                     "Timestamp should be in order")
         return value
-
-
