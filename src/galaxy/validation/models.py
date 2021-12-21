@@ -32,9 +32,11 @@ from datetime import datetime
 from enum import Enum
 
 from area import area
+import re
 
 MAX_POLYGON_AREA = 5000 # km^2
-
+SPECIAL_CHARACTER = '[@_!#$%^&*() <>?/\|}{~:,"]'
+# this as argument in compile method
 
 def to_camel(string: str) -> str:
     split_string = string.split("_")
@@ -316,11 +318,17 @@ class OrganizationHashtagParams(BaseModel):
     output_type: OrganizationOutputtype
 
     @validator("hashtags",allow_reuse=True)
-    def check_single_hashtag(cls, value, values, **kwargs):
+    def check_hashtag_string(cls, value, values, **kwargs):
+        regex = re.compile(SPECIAL_CHARACTER)
         for v in value :
+            v= v.strip()
             if len(v) < 2 :
                 raise ValueError(
-                   v+ "is not allowed")
+                   "Hash tag value " +v+" is not allowed")
+                
+            if(regex.search(v) != None):
+                raise ValueError(
+                   "Hash tag contains special character or space : " +v+" ,Which is not allowed")
         return value
 
 

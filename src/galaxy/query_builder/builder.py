@@ -469,7 +469,7 @@ def generate_training_query(filter_query):
 def generate_organization_hashtag_reports(cur,params):
     hashtags=[]
     for p in params.hashtags:
-        hashtags.append("name = '"+str(p)+"'" )
+        hashtags.append("name = '"+str(p.strip())+"'" )
     filter_hashtags = " or ".join(hashtags)
     # filter_hashtags = cur.mogrify(sql.SQL(filter_hashtags), params.hashtags).decode()
     query = f"""with t1 as (
