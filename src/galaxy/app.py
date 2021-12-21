@@ -518,4 +518,27 @@ class Training :
         print(Trainings_list)
         return Trainings_list
 
+class OrganizationHashtags :
+    """[Class responsible for Organization Hashtag data API]
+    """
+    def __init__(self, params: OrganizationHashtagParams):
+        self.db = Database(dict(config.items("INSIGHTS_PG")))
+        self.con, self.cur = self.db.connect()
+        self.params = params
+    
+    def get_report(self):
+        query = generate_organization_hashtag_reports(self.cur, self.params)
+        query_result = self.db.executequery(query)
+        results= [OrganizationHashtag(**r) for r in query_result]
+        return results
+   
+    def get_report_as_csv(self,filelocation):
+        query = generate_organization_hashtag_reports(self.cur, self.params)
+        try:
+            result = Output(query, self.con).to_CSV(filelocation)
+            return result
+        except Exception as err:
+            return err  
 
+
+    

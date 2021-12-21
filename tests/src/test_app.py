@@ -22,8 +22,8 @@ import testing.postgresql
 import pytest
 from src.galaxy.validation import models as mapathon_validation
 from src.galaxy.query_builder import builder as mapathon_query_builder
-from src.galaxy.query_builder.builder import create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports
-from src.galaxy.validation.models import UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams
+from src.galaxy.query_builder.builder import generate_organization_hashtag_reports,create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports
+from src.galaxy.validation.models import OrganizationHashtagParams, UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams
 from src.galaxy import Output
 import os.path
 from pydantic import ValidationError as PydanticError
@@ -355,3 +355,32 @@ def test_userstats_get_statistics_query():
     query_result=create_UserStats_get_statistics_query(validated_params,con,cur)
     # print(query_result)
     assert query_result == expected_result.encode('utf-8')
+
+def test_organization_hashtag_query():
+    """[Function to test ogranization hashtag api query generation]
+    """
+    test_params = {
+    "hashtags": [
+        "msf"
+    ],
+    "frequency": "w",
+    "outputType": "geojson"
+    }
+    validated_params= OrganizationHashtagParams(**test_params)
+    expected_query = f"""with t1 as (
+            select id, name
+            from hashtag
+            where name = 'msf'
+            ),
+            t2 as (
+            select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km
+            from hashtag_stats join t1 on id=t1.id
+            where type='w'
+            )
+            select * 
+            from t2
+            order by hashtag"""
+    query_result=generate_organization_hashtag_reports(cur,validated_params)
+    assert query_result.encode('utf-8') == expected_query.encode('utf-8')
+    
+    

@@ -299,3 +299,33 @@ class TrainingParams(BaseModel):
                 raise ValueError(
                     "Timestamp should be in order")
         return value
+
+class Frequency(Enum):
+    WEEKLY = "w"
+    MONTHLY = "m"
+
+class OrganizationOutputtype(Enum):
+    JSON = "json"
+    CSV = "csv"
+
+class OrganizationHashtagParams(BaseModel):
+    hashtags : conlist(str, min_items=1)
+    frequency : Frequency
+    output_type: OrganizationOutputtype
+
+    @validator("hashtags",allow_reuse=True)
+    def check_single_hashtag(cls, value, values, **kwargs):
+        for v in value :
+            if len(v) < 2 :
+                raise ValueError(
+                   v+ "is not allowed")
+        return value
+
+class OrganizationHashtag(BaseModel):
+    hashtag: str
+    frequency: str
+    start_date :date
+    end_date : date  
+    total_new_buildings : int
+    total_unique_contributors : int
+    total_new_road_km : int 
