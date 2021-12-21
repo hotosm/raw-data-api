@@ -374,7 +374,7 @@ def test_organization_hashtag_query():
             ),
             t2 as (
             select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km
-            from hashtag_stats join t1 on id=t1.id
+            from hashtag_stats join t1 on hashtag_id=t1.id
             where type='w'
             )
             select * 
