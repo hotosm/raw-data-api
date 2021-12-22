@@ -276,7 +276,7 @@ def create_hashtagfilter_underpass(hashtags,columnname):
 
 def generate_data_quality_TM_query(params):
     '''returns data quality TM query with filters and parameteres provided'''
-    print(params)
+    # print(params)
     hashtag_add_on="hotosm-project-"
     if "all" in params.issue_types:
         issue_types = ['badvalue','badgeom']
@@ -326,7 +326,7 @@ def generate_data_quality_TM_query(params):
 def generate_data_quality_username_query(params):
     
     '''returns data quality username query with filters and parameteres provided'''
-    print(params)
+    # print(params)
     
     if "all" in params.issue_types:
         issue_types = ['badvalue','badgeom']
@@ -366,8 +366,7 @@ def generate_data_quality_username_query(params):
         from t2
         order by username
         """
-    
-    print(query)
+    # print(query)
     return query
 
 def generate_mapathon_summary_underpass_query(params,cur):
