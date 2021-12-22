@@ -35,8 +35,10 @@ from area import area
 import re
 
 MAX_POLYGON_AREA = 5000 # km^2
-SPECIAL_CHARACTER = '[@_!#$%^&*() <>?/\|}{~:,"]'
+
 # this as argument in compile method
+SPECIAL_CHARACTER = '[@_!#$%^&*() <>?/\|}{~:,"]'
+ORGANIZATIONAL_FREQUENCY =  {"w" : 7,"m" : 30, "q": 90, "y":365}
 
 def to_camel(string: str) -> str:
     split_string = string.split("_")
@@ -316,6 +318,8 @@ class OrganizationHashtagParams(BaseModel):
     hashtags : conlist(str, min_items=1)
     frequency : Frequency
     output_type: OrganizationOutputtype
+    start_date :  Optional[date] = None
+    end_date : Optional[date] = None
 
     @validator("hashtags",allow_reuse=True)
     def check_hashtag_string(cls, value, values, **kwargs):
@@ -330,6 +334,15 @@ class OrganizationHashtagParams(BaseModel):
                 raise ValueError(
                    "Hash tag contains special character or space : " +v+" ,Which is not allowed")
         return value
+
+    @validator("end_date",allow_reuse=True)
+    def check_date_difference(cls, value, values, **kwargs):
+        start_date = values.get("start_date")
+        frequency = values.get("frequency")
+        difference= value-start_date
+        
+        if difference < timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
+            raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days for """)
 
 
 class OrganizationHashtag(BaseModel):
