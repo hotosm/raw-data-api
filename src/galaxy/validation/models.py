@@ -343,6 +343,7 @@ class OrganizationHashtagParams(BaseModel):
         
         if difference < timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
             raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days for """)
+        return value
 
 
 class OrganizationHashtag(BaseModel):

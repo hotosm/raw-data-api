@@ -356,16 +356,19 @@ def test_userstats_get_statistics_query():
     # print(query_result)
     assert query_result == expected_result.encode('utf-8')
 
-def test_organization_hashtag_query():
+def test_organization_hashtag_weekly_query():
     """[Function to test ogranization hashtag api query generation]
     """
+    #for weekly stat
     test_params = {
-    "hashtags": [
-        "msf"
-    ],
-    "frequency": "w",
-    "outputType": "json"
-    }
+        "hashtags": [
+            "msf"
+        ],
+        "frequency": "w",
+        "outputType": "json",
+        "startDate": "2020-10-22",
+        "endDate": "2020-12-22"
+        }
     validated_params= OrganizationHashtagParams(**test_params)
     expected_query = f"""with t1 as (
             select id, name
@@ -373,14 +376,40 @@ def test_organization_hashtag_query():
             where name = 'msf'
             ),
             t2 as (
-            select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km
+                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km
             from hashtag_stats join t1 on hashtag_id=t1.id
-            where type='w'
+            where type='w' and start_date >= '2020-10-22T12:00:00.000'::timestamp and end_date <= '2020-12-22T12:00:00.000'::timestamp
             )
             select * 
             from t2
             order by hashtag"""
     query_result=generate_organization_hashtag_reports(cur,validated_params)
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
-    
-    
+     
+def test_organization_hashtag_monthly_query():
+    #for monthly stat
+    month_param={
+        "hashtags": [
+            "msf"
+        ],
+        "frequency": "m",
+        "outputType": "json",
+        "startDate": "2020-10-22",
+        "endDate": "2020-12-22"
+        }
+    validated_params = OrganizationHashtagParams(**month_param)
+    expected_query = f"""with t1 as (
+            select id, name
+            from hashtag
+            where name = 'msf'
+            ),
+            t2 as (
+                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km
+            from hashtag_stats join t1 on hashtag_id=t1.id
+            where type='m' and start_date >= '2020-10-22T00:00:00.000'::timestamp and end_date <= '2020-12-22T00:00:00.000'::timestamp
+            )
+            select * 
+            from t2
+            order by hashtag"""
+    query_result=generate_organization_hashtag_reports(cur,validated_params)
+    assert query_result.encode('utf-8') == expected_query.encode('utf-8')

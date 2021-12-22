@@ -528,7 +528,6 @@ class OrganizationHashtags :
         self.query = generate_organization_hashtag_reports(self.cur, self.params)
     
     def get_report(self):
-        print(self.query)
         query_result = self.db.executequery(self.query)
         results= [OrganizationHashtag(**r) for r in query_result]
         return results
