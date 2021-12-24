@@ -30,11 +30,11 @@ jobs:
         
       - name : Debug Output
         run : |
-          ls -la
+          ls -la ./docs
 
       - name: Deploy HTML
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./html
+          publish_dir: ./docs
           publish_branch: gh-pages
