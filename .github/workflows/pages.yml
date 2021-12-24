@@ -4,7 +4,7 @@ on:
     branches:
       - enhance/documentation
 jobs:
-  build:
+  deploy:
     runs-on:
       ubuntu-latest
 
