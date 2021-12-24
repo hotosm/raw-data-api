@@ -1,4 +1,4 @@
-name: Osm Stats Module Test
+name: Unit Test
 on:
   push:
     branches:
