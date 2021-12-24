@@ -27,9 +27,14 @@ jobs:
           sphinx-apidoc -o source ../src/galaxy
           sphinx-apidoc -o source ../API
           make html
+        
+      - name : Debug Output
+        run : |
+          ls -la
 
       - name: Deploy HTML
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./html
           publish_branch: gh-pages
