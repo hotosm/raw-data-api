@@ -1,6 +1,6 @@
 name: Sphinx Action
 on:
-  commit:
+  push:
     branches:
       - enhance/documentation
 jobs:
