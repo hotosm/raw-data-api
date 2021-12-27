@@ -2,11 +2,10 @@ __pycache__
 config.txt
 env
 venv
-dist
 osm_galaxy.egg-info
 test.py
 test.csv
 **/.vscode/**
-**/build/doctrees/**
-
+**/build/**
+**/dist/**
 **/.pytest_cache/**
