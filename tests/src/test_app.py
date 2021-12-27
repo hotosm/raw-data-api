@@ -376,7 +376,7 @@ def test_organization_hashtag_weekly_query():
             where name = 'msf'
             ),
             t2 as (
-                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_meters
+                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km as total_new_road_meters
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='w' and start_date >= '2020-10-22T12:00:00.000'::timestamp and end_date <= '2020-12-22T12:00:00.000'::timestamp
             )
@@ -404,7 +404,7 @@ def test_organization_hashtag_monthly_query():
             where name = 'msf'
             ),
             t2 as (
-                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_meters
+                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km as total_new_road_meters
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='m' and start_date >= '2020-10-22T00:00:00.000'::timestamp and end_date <= '2020-12-22T00:00:00.000'::timestamp
             )
