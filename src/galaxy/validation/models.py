@@ -354,4 +354,4 @@ class OrganizationHashtag(BaseModel):
     end_date : date  
     total_new_buildings : int
     total_unique_contributors : int
-    total_new_road_km : int 
+    total_new_road_meters : int 
