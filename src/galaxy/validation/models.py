@@ -32,9 +32,13 @@ from datetime import datetime
 from enum import Enum
 
 from area import area
+import re
 
 MAX_POLYGON_AREA = 5000 # km^2
 
+# this as argument in compile method
+SPECIAL_CHARACTER = '[@_!#$%^&*() <>?/\|}{~:,"]'
+ORGANIZATIONAL_FREQUENCY =  {"w" : 7,"m" : 30, "q": 90, "y":365}
 
 def to_camel(string: str) -> str:
     split_string = string.split("_")
@@ -299,3 +303,54 @@ class TrainingParams(BaseModel):
                 raise ValueError(
                     "Timestamp should be in order")
         return value
+
+class Frequency(Enum):
+    WEEKLY = "w"
+    MONTHLY = "m"
+    QUARTERLY = "q"
+    YEARLY = "y"
+
+class OrganizationOutputtype(Enum):
+    JSON = "json"
+    CSV = "csv"
+
+class OrganizationHashtagParams(BaseModel):
+    hashtags : conlist(str, min_items=1)
+    frequency : Frequency
+    output_type: OrganizationOutputtype
+    start_date :  Optional[date] = None
+    end_date : Optional[date] = None
+
+    @validator("hashtags",allow_reuse=True)
+    def check_hashtag_string(cls, value, values, **kwargs):
+        regex = re.compile(SPECIAL_CHARACTER)
+        for v in value :
+            v= v.strip()
+            if len(v) < 2 :
+                raise ValueError(
+                   "Hash tag value " +v+" is not allowed")
+                
+            if(regex.search(v) != None):
+                raise ValueError(
+                   "Hash tag contains special character or space : " +v+" ,Which is not allowed")
+        return value
+
+    @validator("end_date",allow_reuse=True)
+    def check_date_difference(cls, value, values, **kwargs):
+        start_date = values.get("start_date")
+        frequency = values.get("frequency")
+        difference= value-start_date
+        
+        if difference < timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
+            raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days for """)
+        return value
+
+
+class OrganizationHashtag(BaseModel):
+    hashtag: str
+    frequency: str
+    start_date :date
+    end_date : date  
+    total_new_buildings : int
+    total_unique_contributors : int
+    total_new_road_km : int 

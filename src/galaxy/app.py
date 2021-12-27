@@ -146,7 +146,7 @@ class Underpass:
     def get_mapathon_summary_result(self):
         osm_history_query, total_contributor_query = generate_mapathon_summary_underpass_query(
             self.params, self.cur)
-        print(osm_history_query)
+        # print(osm_history_query)
         osm_history_result = self.database.executequery(osm_history_query)
         total_contributors_result = self.database.executequery(
             total_contributor_query)
@@ -165,7 +165,7 @@ class Underpass:
     def training_list(self,params):
         filter_training_query= generate_filter_training_query(params)
         training_query= generate_training_query(filter_training_query)
-        print(training_query)
+        # print(training_query)
         query_result= self.database.executequery(training_query)
         # print(query_result)
         return query_result
@@ -194,7 +194,7 @@ class Insight:
         if len(hashtag_filter) > 0:
             total_contributor_query += f""" AND ({hashtag_filter})"""
         
-        print(osm_history_query)
+        # print(osm_history_query)
         osm_history_result = self.database.executequery(osm_history_query)
         total_contributors_result = self.database.executequery(total_contributor_query)
         return osm_history_result, total_contributors_result
@@ -264,7 +264,7 @@ class Output:
     def __init__(self, result, connection=None):
         """Constructor"""
         if isinstance(result, (list, dict)):
-            print(type(result))
+            # print(type(result))
             try:
                 self.dataframe = pandas.DataFrame(result)
             except Exception as err:
@@ -272,7 +272,7 @@ class Output:
         elif isinstance(result, str):
             check, r_json = check_for_json(result)
             if check is True:
-                print("i am json")
+                # print("i am json")
                 try:
                     self.dataframe = pandas.json_normalize(r_json)
                 except Exception as err:
@@ -509,13 +509,35 @@ class Training :
         """
         query_result = self.database.all_training_organisations()
         Training_organisations_list= [TrainingOrganisations(**r) for r in query_result]
-        print(Training_organisations_list)
+        # print(Training_organisations_list)
         return Training_organisations_list
         
     def get_trainingslist(self,params: TrainingParams):
         query_result=self.database.training_list(params)
         Trainings_list= [Trainings(**r) for r in query_result]
-        print(Trainings_list)
+        # print(Trainings_list)
         return Trainings_list
 
+class OrganizationHashtags :
+    """[Class responsible for Organization Hashtag data API]
+    """
+    def __init__(self, params: OrganizationHashtagParams):
+        self.db = Database(dict(config.items("INSIGHTS_PG")))
+        self.con, self.cur = self.db.connect()
+        self.params = params
+        self.query = generate_organization_hashtag_reports(self.cur, self.params)
+    
+    def get_report(self):
+        query_result = self.db.executequery(self.query)
+        results= [OrganizationHashtag(**r) for r in query_result]
+        return results
+   
+    def get_report_as_csv(self,filelocation):
+        try:
+            result = Output(self.query, self.con).to_CSV(filelocation)
+            return result
+        except Exception as err:
+            return err  
 
+
+    

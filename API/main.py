@@ -28,6 +28,8 @@ from .mapathon import router as mapathon_router
 from .osm_users import router as osm_users_router
 from .data_quality import router as data_quality_router
 from .trainings import router as training_router
+from .organization import router as organization_router
+
 
 
 app = FastAPI()
@@ -50,4 +52,6 @@ app.include_router(data_router)
 app.include_router(osm_users_router)
 app.include_router(data_quality_router)
 app.include_router(training_router)
+app.include_router(organization_router)
+
 

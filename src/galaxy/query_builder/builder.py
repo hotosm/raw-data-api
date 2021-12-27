@@ -19,6 +19,7 @@
 
 from psycopg2 import sql
 from json import dumps
+from ..validation.models import Frequency
 
 HSTORE_COLUMN = "tags"
 
@@ -258,7 +259,6 @@ def generate_data_quality_hashtag_reports(cur, params):
 
     return query
 
-
 def create_hashtagfilter_underpass(hashtags,columnname):
     """Generates hashtag filter query on the basis of list of hastags."""
     
@@ -276,7 +276,7 @@ def create_hashtagfilter_underpass(hashtags,columnname):
 
 def generate_data_quality_TM_query(params):
     '''returns data quality TM query with filters and parameteres provided'''
-    print(params)
+    # print(params)
     hashtag_add_on="hotosm-project-"
     if "all" in params.issue_types:
         issue_types = ['badvalue','badgeom']
@@ -326,7 +326,7 @@ def generate_data_quality_TM_query(params):
 def generate_data_quality_username_query(params):
     
     '''returns data quality username query with filters and parameteres provided'''
-    print(params)
+    # print(params)
     
     if "all" in params.issue_types:
         issue_types = ['badvalue','badgeom']
@@ -366,8 +366,7 @@ def generate_data_quality_username_query(params):
         from t2
         order by username
         """
-    
-    print(query)
+    # print(query)
     return query
 
 def generate_mapathon_summary_underpass_query(params,cur):
@@ -466,3 +465,37 @@ def generate_training_query(filter_query):
     if filter_query :
         base_query+=f"""WHERE {filter_query}"""
     return base_query
+
+def generate_organization_hashtag_reports(cur,params):
+    hashtags=[]
+    for p in params.hashtags:
+        hashtags.append("name = '"+str(p.strip())+"'" )
+    filter_hashtags = " or ".join(hashtags)
+    # filter_hashtags = cur.mogrify(sql.SQL(filter_hashtags), params.hashtags).decode()
+    t2_query= f"""select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km
+            from hashtag_stats join t1 on hashtag_id=t1.id
+            where type='{params.frequency}'"""
+    month_time= f"""0:00:00"""
+    week_time= f"""12:00:00"""
+    if params.end_date != None or params.start_date != None :
+        timestamp=[]
+        time=f"""{"12" if params.frequency is Frequency.WEEKLY.value else "00" }"""
+        if params.start_date:
+            timestamp.append(f"""start_date >= '{params.start_date}T{time}:00:00.000'::timestamp""")
+        if params.end_date:
+            timestamp.append(f"""end_date <= '{params.end_date}T{time}:00:00.000'::timestamp""")
+        filter_timestamp =" and ".join(timestamp)
+        t2_query+=f""" and {filter_timestamp}"""              
+    query = f"""with t1 as (
+            select id, name
+            from hashtag
+            where {filter_hashtags}
+            ),
+            t2 as (
+                {t2_query}
+            )
+            select * 
+            from t2
+            order by hashtag"""
+    # print(query)
+    return query
