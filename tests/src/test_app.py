@@ -307,8 +307,8 @@ def test_data_quality_TM_query():
 def test_data_quality_username_query():
     """Function to test data quality username query generator of Data Quality Class """
     data_quality_params= {
-        "fromTimestamp": "2020-12-16T00:30:00.000",
-        "toTimestamp": "2021-12-17T00:15:00.000",
+        "fromTimestamp": "2021-07-01T00:30:00.000",
+        "toTimestamp": "2021-07-02T00:15:00.000",
         "osmUsernames": [
             "Fadlilaa IRM-ED","Bert Araali"
         ],
@@ -345,7 +345,7 @@ def test_data_quality_username_query():
         from
             changesets
         where
-            created_at between '2021-12-16 00:30:00' and  '2021-12-17 00:15:00')
+            created_at between '2021-07-01 00:30:00' and  '2021-07-02 00:15:00')
         select
             t2.osm_id as Osm_id ,
             t2.change_id as Changeset_id,
