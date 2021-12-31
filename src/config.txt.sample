@@ -1,4 +1,4 @@
-[PG]
+[DATABASE]
 host=localhost
 user=
 password=
@@ -19,7 +19,7 @@ path=
 underpass=underpass.sql
 osmstats=osmstats.sql
 
-[INSIGHTS_PG]
+[INSIGHTS_DATABASE]
 host=localhost
 user=postgres
 password=changeme

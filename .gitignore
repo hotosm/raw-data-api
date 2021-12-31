@@ -10,3 +10,5 @@ test.csv
 **/build/doctrees/**
 
 **/.pytest_cache/**
+newrelic.ini
+newrelic.ini_backup
