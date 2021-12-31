@@ -343,11 +343,12 @@ class OrganizationHashtagParams(BaseModel):
     @validator("end_date",allow_reuse=True)
     def check_date_difference(cls, value, values, **kwargs):
         start_date = values.get("start_date")
-        frequency = values.get("frequency")
-        difference= value-start_date
-        
-        if difference < timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
-            raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days for """)
+        if start_date:      
+            frequency = values.get("frequency")
+            difference= value-start_date
+            
+            if difference < timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
+                raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days for """)
         return value
 
 
@@ -358,4 +359,4 @@ class OrganizationHashtag(BaseModel):
     end_date : date  
     total_new_buildings : int
     total_unique_contributors : int
-    total_new_road_km : int 
+    total_new_road_meters : int 
