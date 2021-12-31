@@ -22,10 +22,11 @@ import testing.postgresql
 import pytest
 from src.galaxy.validation import models as mapathon_validation
 from src.galaxy.query_builder import builder as mapathon_query_builder
-from src.galaxy.query_builder.builder import create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports
-from src.galaxy.validation.models import UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams
+from src.galaxy.query_builder.builder import generate_organization_hashtag_reports,create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports
+from src.galaxy.validation.models import OrganizationHashtagParams, UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams
 from src.galaxy import Output
 import os.path
+from pydantic import ValidationError as PydanticError
 
 # Reference to testing.postgresql db instance
 postgresql = None
@@ -112,6 +113,7 @@ def test_mapathon_osm_history_mapathon_query_builder():
 
 
 def test_data_quality_hashtags_query_builder():
+    # No geometry, with hashtags.
     test_params = {
         "hashtags": ["missingmaps"],
         "issueType": ["badgeom"],
@@ -120,12 +122,107 @@ def test_data_quality_hashtags_query_builder():
         "toTimestamp": "2020-12-11T00:00:00"
     }
 
-    test_data_quality_hashtags_query = "\n        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation),\n        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets WHERE created_at BETWEEN '2020-12-10T00:00:00'::timestamp AND '2020-12-11T00:00:00'::timestamp)\n        SELECT t1.osm_id,\n            t1.change_id as changeset_id,\n            t1.lat,\n            t1.lon,\n            t2.created_at,\n            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), ',') AS issues\n            FROM t1, t2 where t1.change_id = t2.id\n            AND unnest_hashtags in ('missingmaps')\n            AND unnest_status in ('badgeom')\n            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;\n    "
+    test_data_quality_hashtags_query = "\n        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation ),\n        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets WHERE created_at BETWEEN '2020-12-10T00:00:00'::timestamp AND '2020-12-11T00:00:00'::timestamp)\n        SELECT t1.osm_id,\n            t1.change_id as changeset_id,\n            t1.lat,\n            t1.lon,\n            t2.created_at,\n            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), ',') AS issues\n            FROM t1, t2 WHERE t1.change_id = t2.id\n            AND unnest_hashtags in ('missingmaps')\n            AND unnest_status in ('badgeom')\n            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;\n    "
 
     params = DataQualityHashtagParams(**test_params)
     query = generate_data_quality_hashtag_reports(cur, params)
 
     assert query == test_data_quality_hashtags_query
+
+    # Test geometry, no hashtags.
+    test_params = {
+        "fromTimestamp": "2020-12-10T00:00:00",
+        "toTimestamp": "2020-12-11T00:00:00",
+        "issueType": [
+            "badgeom"
+        ],
+        "outputType": "geojson",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [
+                        -74.80708971619606,
+                        11.002032789290594
+                    ],
+                    [
+                        -74.80621799826622,
+                        11.002032789290594
+                    ],
+                    [
+                        -74.80621799826622,
+                        11.00265678856572
+                    ],
+                    [
+                        -74.80708971619606,
+                        11.00265678856572
+                    ],
+                    [
+                        -74.80708971619606,
+                        11.002032789290594
+                    ]
+                ]
+            ]
+        }
+    }
+
+    test_data_quality_hashtags_query_no_hashtags = '\n        WITH t1 AS (SELECT osm_id, change_id, st_x(location) AS lat, st_y(location) AS lon, unnest(status) AS unnest_status from validation WHERE ST_CONTAINS(ST_GEOMFROMGEOJSON(\'{"coordinates": [[[-74.80708971619606, 11.002032789290594], [-74.80621799826622, 11.002032789290594], [-74.80621799826622, 11.00265678856572], [-74.80708971619606, 11.00265678856572], [-74.80708971619606, 11.002032789290594]]], "type": "Polygon"}\'), location)),\n        t2 AS (SELECT id, created_at, unnest(hashtags) AS unnest_hashtags from changesets WHERE created_at BETWEEN \'2020-12-10T00:00:00\'::timestamp AND \'2020-12-11T00:00:00\'::timestamp)\n        SELECT t1.osm_id,\n            t1.change_id as changeset_id,\n            t1.lat,\n            t1.lon,\n            t2.created_at,\n            ARRAY_TO_STRING(ARRAY_AGG(t1.unnest_status), \',\') AS issues\n            FROM t1, t2 WHERE t1.change_id = t2.id\n            \n            AND unnest_status in (\'badgeom\')\n            GROUP BY t1.osm_id, t1.lat, t1.lon, t2.created_at, t1.change_id;\n    '
+    params = DataQualityHashtagParams(**test_params)
+    query = generate_data_quality_hashtag_reports(cur, params)
+
+    assert query == test_data_quality_hashtags_query_no_hashtags
+
+    # Test no geometry, no hashtags. Raise a pydantic error.
+    test_params = {
+        "fromTimestamp": "2020-12-11T00:00:00",
+        "toTimestamp": "2020-12-11T00:00:00",
+        "issueType": [
+            "badgeom"
+        ],
+        "outputType": "geojson"
+    }
+
+    with pytest.raises(PydanticError):
+        params = DataQualityHashtagParams(**test_params)
+
+    test_params = {
+        "fromTimestamp": "2020-12-11T00:00:00",
+        "toTimestamp": "2020-12-11T00:00:00",
+        "issueType": [
+            "badgeom"
+        ],
+        "outputType": "geojson",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [
+                        -76.387939453125,
+                        9.611582210984674
+                    ],
+                    [
+                        -73.76220703125,
+                        9.611582210984674
+                    ],
+                    [
+                        -73.76220703125,
+                        11.544616463449655
+                    ],
+                    [
+                        -76.387939453125,
+                        11.544616463449655
+                    ],
+                    [
+                        -76.387939453125,
+                        9.611582210984674
+                    ]
+                ]
+            ]
+        }
+    }
+
+    with pytest.raises(PydanticError) as e:
+        params = DataQualityHashtagParams(**test_params)
 
 
 def test_mapathon_total_contributor_mapathon_query_builder():
@@ -210,19 +307,70 @@ def test_data_quality_TM_query():
 def test_data_quality_username_query():
     """Function to test data quality username query generator of Data Quality Class """
     data_quality_params= {
-    "osm_usernames": [
-        "MANUEL_PC","piticasuno","LCrawford1833"
-    ],
-    "issue_types": ["badgeom","badvalue"],
-    "fromTimestamp": "2021-10-7T9:00:00",
-    "toTimestamp": "2021-10-7T11:00:00",
-    "output_type": "geojson"
-}
+        "fromTimestamp": "2021-07-01T00:30:00.000",
+        "toTimestamp": "2021-07-02T00:15:00.000",
+        "osmUsernames": [
+            "Fadlilaa IRM-ED","Bert Araali"
+        ],
+        "issueTypes": [
+            "badgeom"
+        ],
+        "outputType": "geojson"
+        }
     validated_params=DataQuality_username_RequestParams(**data_quality_params)
-    expected_result="   with t1 as (\n        select id,username as username\n                From users \n                WHERE\n                  'MANUEL_PC'=username OR 'piticasuno'=username OR 'LCrawford1833'=username\n            ),\n        t2 AS (\n             SELECT osm_id as Osm_id,\n                change_id as Changeset_id,\n                timestamp::text as Changeset_timestamp,\n                status::text as Issue_type,\n                t1.username as username,\n                ST_X(location::geometry) as lng,\n                ST_Y(location::geometry) as lat\n                \n        FROM validation join t1 on user_id = t1.id  \n        WHERE\n        ('badgeom'=ANY(status) OR 'badvalue'=ANY(status)) AND (timestamp between '2021-10-07 09:00:00' and  '2021-10-07 11:00:00')\n                )\n        select *\n        from t2\n        order by username\n        "
-    query_result=generate_data_quality_username_query(validated_params)
-    print(query_result.encode('utf-8'))
-    assert query_result == expected_result
+    expected_result = f"""with t1 as (
+        select
+            id,
+            username as username
+        from
+            users
+        where
+            'Fadlilaa IRM-ED'=username OR 'Bert Araali'=username ),
+        t2 as (
+        select
+            osm_id,
+            change_id,
+            st_x(location) as lat,
+            st_y(location) as lon,
+            unnest(status) as unnest_status
+        from
+            validation,
+            t1
+        where
+            user_id = t1.id),
+        t3 as (
+        select
+            id,
+            created_at
+        from
+            changesets
+        where
+            created_at between '2021-07-01 00:30:00' and  '2021-07-02 00:15:00')
+        select
+            t2.osm_id as Osm_id ,
+            t2.change_id as Changeset_id,
+            t3.created_at as Changeset_timestamp,
+            ARRAY_TO_STRING(ARRAY_AGG(t2.unnest_status), ',') as Issue_type,
+            t1.username as username,
+            t2.lat,
+            t2.lon as lng
+        from
+            t1,
+            t2,
+            t3
+        where
+            t2.change_id = t3.id
+            and unnest_status in ('badgeom')
+        group by
+            t2.osm_id,
+            t1.username,
+            t2.lat,
+            t2.lon,
+            t3.created_at,
+            t2.change_id;"""
+    query_result=generate_data_quality_username_query(validated_params,cur)
+    # print(query_result.encode('utf-8'))
+    assert query_result.encode('utf-8') == expected_result.encode('utf-8')
 
 def test_userstats_get_statistics_with_hashtags_query():
     """Function to  test userstats class's get_statistics query generator """
@@ -239,7 +387,7 @@ def test_userstats_get_statistics_with_hashtags_query():
     validated_params=UserStatsParams(**test_params)
     expected_result='\n            WITH T1 AS (\n                \n    SELECT user_id, id as changeset_id, user_name as username\n    FROM osm_changeset\n    WHERE "created_at" between \'2021-08-27T09:00:00\'::timestamp AND \'2021-08-27T11:00:00\'::timestamp AND (("tags" -> \'hashtags\') ~~ \'%hotosm-project-11224;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10042;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-9906;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-1381;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11203;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10681;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-8055;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-8732;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11193;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-7305;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11210;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10985;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10988;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11190;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-6658;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-5644;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10913;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-6495;%\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-4229;%\' OR ("tags" -> \'hashtags\') ~~ \'%mapandchathour2021;%\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11224 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10042 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-9906 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-1381 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11203 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10681 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-8055 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-8732 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11193 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-7305 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11210 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10985 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10988 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11190 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-6658 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-5644 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10913 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-6495 %\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-4229 %\' OR ("tags" -> \'comment\') ~~ \'%mapandchathour2021 %\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11224\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11224\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10042\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10042\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-9906\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-9906\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-1381\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-1381\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11203\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11203\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10681\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10681\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-8055\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-8055\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-8732\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-8732\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11193\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11193\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-7305\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-7305\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11210\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11210\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10985\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10985\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10988\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10988\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-11190\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-11190\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-6658\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-6658\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-5644\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-5644\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-10913\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-10913\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-6495\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-6495\' OR ("tags" -> \'hashtags\') ~~ \'%hotosm-project-4229\' OR ("tags" -> \'comment\') ~~ \'%hotosm-project-4229\' OR ("tags" -> \'hashtags\') ~~ \'%mapandchathour2021\' OR ("tags" -> \'comment\') ~~ \'%mapandchathour2021\')\n     AND user_id = 11593794\n            )\n            \n            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)\n            FROM osm_element_history AS osh, T1\n            WHERE osh.timestamp BETWEEN \'2021-08-27T09:00:00\'::timestamp AND \'2021-08-27T11:00:00\'::timestamp\n            AND osh.uid = 11593794\n            AND osh.type in (\'way\',\'relation\')\n            AND T1.changeset_id = osh.changeset\n            GROUP BY feature, action\n        \n        '
     query_result=create_userstats_get_statistics_with_hashtags_query(validated_params,con,cur)
-    print(query_result.encode('utf-8'))
+    # print(query_result.encode('utf-8'))
     assert query_result == expected_result
 
 def test_userstats_get_statistics_query():
@@ -258,3 +406,61 @@ def test_userstats_get_statistics_query():
     query_result=create_UserStats_get_statistics_query(validated_params,con,cur)
     # print(query_result)
     assert query_result == expected_result.encode('utf-8')
+
+def test_organization_hashtag_weekly_query():
+    """[Function to test ogranization hashtag api query generation]
+    """
+    #for weekly stat
+    test_params = {
+        "hashtags": [
+            "msf"
+        ],
+        "frequency": "w",
+        "outputType": "json",
+        "startDate": "2020-10-22",
+        "endDate": "2020-12-22"
+        }
+    validated_params= OrganizationHashtagParams(**test_params)
+    expected_query = f"""with t1 as (
+            select id, name
+            from hashtag
+            where name = 'msf'
+            ),
+            t2 as (
+                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km as total_new_road_meters
+            from hashtag_stats join t1 on hashtag_id=t1.id
+            where type='w' and start_date >= '2020-10-22T12:00:00.000'::timestamp and end_date <= '2020-12-22T12:00:00.000'::timestamp
+            )
+            select * 
+            from t2
+            order by hashtag"""
+    query_result=generate_organization_hashtag_reports(cur,validated_params)
+    assert query_result.encode('utf-8') == expected_query.encode('utf-8')
+     
+def test_organization_hashtag_monthly_query():
+    #for monthly stat
+    month_param={
+        "hashtags": [
+            "msf"
+        ],
+        "frequency": "m",
+        "outputType": "json",
+        "startDate": "2020-10-22",
+        "endDate": "2020-12-22"
+        }
+    validated_params = OrganizationHashtagParams(**month_param)
+    expected_query = f"""with t1 as (
+            select id, name
+            from hashtag
+            where name = 'msf'
+            ),
+            t2 as (
+                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km as total_new_road_meters
+            from hashtag_stats join t1 on hashtag_id=t1.id
+            where type='m' and start_date >= '2020-10-22T00:00:00.000'::timestamp and end_date <= '2020-12-22T00:00:00.000'::timestamp
+            )
+            select * 
+            from t2
+            order by hashtag"""
+    query_result=generate_organization_hashtag_reports(cur,validated_params)
+    assert query_result.encode('utf-8') == expected_query.encode('utf-8')

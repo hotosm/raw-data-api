@@ -17,18 +17,28 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+import json
+
 from typing import List, Union ,Optional
 from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
 
 from pydantic import conlist
-from geojson_pydantic import Feature, FeatureCollection, Point
+from geojson_pydantic import Feature, FeatureCollection, Point, Polygon
 
 from datetime import datetime
 
 from enum import Enum
 
+from area import area
+import re
+
+MAX_POLYGON_AREA = 5000 # km^2
+
+# this as argument in compile method
+SPECIAL_CHARACTER = '[@_!#$%^&*() <>?/\|}{~:,"]'
+ORGANIZATIONAL_FREQUENCY =  {"w" : 7,"m" : 30, "q": 90, "y":365}
 
 def to_camel(string: str) -> str:
     split_string = string.split("_")
@@ -145,7 +155,12 @@ class User(BaseModel):
 class IssueType(Enum):
     BAD_GEOM = "badgeom"
     BAD_VALUE = "badvalue"
-    INCOMPLETE = "incomplete_tags"
+    INCOMPLETE = "incomplete"
+    NO_TAGS = "notags"
+    COMPLETE = "complete"
+    ORPHAN = "orphan"
+    OVERLAPPING = "overlaping"
+    DUPLICATE = "duplicate" 
 
 
 class OutputType(Enum):
@@ -206,17 +221,39 @@ class DataQualityPointCollection(FeatureCollection):
 
 
 class DataQualityHashtagParams(TimeStampParams):
-    hashtags: List[str]
+    hashtags: Optional[List[str]]
     issue_type: List[IssueType]
     output_type: OutputType
+    geometry: Optional[Polygon]
+
+    @validator("geometry", always=True)
+    def check_not_defined_fields(cls, value, values):
+        hashtags = values.get("hashtags")
+
+        if value is None and (hashtags is None or len(hashtags) == 0):
+            raise ValueError("'geometry' and 'hashtags' fields not provided")
+
+        if value is None:
+            return
+
+        area_m2 = area(json.loads(value.json()))
+        area_km2 = area_m2 * 1E-6
+
+        if area_km2 > MAX_POLYGON_AREA:
+            raise ValueError("Polygon Area is higher than 5000 km^2")
+
+        return value
+
 
 class Source(Enum):
     UNDERPASS ="underpass"
     INSIGHT = "insight"
 
+
 class TrainingOrganisations(BaseModel):
     id: int
     name: str
+
 
 class Trainings(BaseModel):
     tid: int
@@ -229,9 +266,11 @@ class Trainings(BaseModel):
     hours : int = None
     date : date
 
+
 class EventType(Enum):
     VIRTUAL = "virtual"
     IN_PERSON = "inperson"
+
 
 class TopicType(Enum):
     # JOSM = "josm"
@@ -240,6 +279,7 @@ class TopicType(Enum):
     REMOTE = "remote"
     FIELD = "field"
     OTHER = "other"
+
 
 class TrainingParams(BaseModel):
     """[Training Post API Parameter Validation Model]
@@ -269,4 +309,54 @@ class TrainingParams(BaseModel):
                     "Timestamp should be in order")
         return value
 
+class Frequency(Enum):
+    WEEKLY = "w"
+    MONTHLY = "m"
+    QUARTERLY = "q"
+    YEARLY = "y"
 
+class OrganizationOutputtype(Enum):
+    JSON = "json"
+    CSV = "csv"
+
+class OrganizationHashtagParams(BaseModel):
+    hashtags : conlist(str, min_items=1)
+    frequency : Frequency
+    output_type: OrganizationOutputtype
+    start_date :  Optional[date] = None
+    end_date : Optional[date] = None
+
+    @validator("hashtags",allow_reuse=True)
+    def check_hashtag_string(cls, value, values, **kwargs):
+        regex = re.compile(SPECIAL_CHARACTER)
+        for v in value :
+            v= v.strip()
+            if len(v) < 2 :
+                raise ValueError(
+                   "Hash tag value " +v+" is not allowed")
+                
+            if(regex.search(v) != None):
+                raise ValueError(
+                   "Hash tag contains special character or space : " +v+" ,Which is not allowed")
+        return value
+
+    @validator("end_date",allow_reuse=True)
+    def check_date_difference(cls, value, values, **kwargs):
+        start_date = values.get("start_date")
+        if start_date:      
+            frequency = values.get("frequency")
+            difference= value-start_date
+            
+            if difference < timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
+                raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days for """)
+        return value
+
+
+class OrganizationHashtag(BaseModel):
+    hashtag: str
+    frequency: str
+    start_date :date
+    end_date : date  
+    total_new_buildings : int
+    total_unique_contributors : int
+    total_new_road_meters : int 

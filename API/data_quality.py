@@ -55,7 +55,7 @@ def data_quality_reports(params: DataQuality_TM_RequestParams):
         return data_quality.get_report()
 
     stream = io.StringIO()
-    exportname="TM_DataQuality_"+str(datetime.now())
+    exportname =f"TM_DataQuality_{datetime.now().isoformat()}"
     data_quality.get_report_as_csv(stream)
     response = StreamingResponse(iter([stream.getvalue()]),
                             media_type="text/csv"
@@ -71,8 +71,7 @@ def data_quality_reports(params: DataQuality_username_RequestParams):
     if params.output_type == OutputType.GEOJSON.value:
         return data_quality.get_report()
     stream = io.StringIO()
-   
-    exportname="Username_DataQuality_"+str(datetime.now())
+    exportname =f"Username_DataQuality_{datetime.now().isoformat()}"
     data_quality.get_report_as_csv(stream)
     response = StreamingResponse(iter([stream.getvalue()]),
                             media_type="text/csv"

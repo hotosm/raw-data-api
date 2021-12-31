@@ -2,13 +2,12 @@ __pycache__
 config.txt
 env
 venv
-dist
 osm_galaxy.egg-info
 test.py
 test.csv
 **/.vscode/**
-**/build/doctrees/**
-
+=======
+build
 **/.pytest_cache/**
 newrelic.ini
 newrelic.ini_backup
