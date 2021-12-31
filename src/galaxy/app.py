@@ -469,7 +469,7 @@ class DataQuality:
         if self.inputtype == "TM":
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
-            query = generate_data_quality_username_query(self.params)
+            query = generate_data_quality_username_query(self.params,self.cur)
         try:
             result = Output(query, self.con).to_GeoJSON('lat', 'lng')
             return result
@@ -483,7 +483,7 @@ class DataQuality:
         if self.inputtype == "TM":
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
-            query = generate_data_quality_username_query(self.params)
+            query = generate_data_quality_username_query(self.params,self.cur)
         try:
             result = Output(query, self.con).to_CSV(filelocation)
             return result
