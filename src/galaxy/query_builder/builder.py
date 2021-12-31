@@ -323,49 +323,95 @@ def generate_data_quality_TM_query(params):
     return query
 
 
-def generate_data_quality_username_query(params):
+def generate_data_quality_username_query(params,cur):
     
     '''returns data quality username query with filters and parameteres provided'''
     # print(params)
     
-    if "all" in params.issue_types:
-        issue_types = ['badvalue','badgeom']
-    else:
-        issue_types=[]
-        for p in params.issue_types:
-            issue_types.append(str(p))
+    issue_types = ", ".join(["%s"] * len(params.issue_types))
+    issue_types_str = [i for i in params.issue_types]
+    issue_types = cur.mogrify(sql.SQL(issue_types), issue_types_str).decode()
     
     osm_usernames=[]
     for p in params.osm_usernames:
         osm_usernames.append(p) 
 
     username_filter=create_hashtagfilter_underpass(osm_usernames,"username")
-    status_filter=create_hashtagfilter_underpass(issue_types,"status")
 
     '''Normal Query to feed our OUTPUT Class '''
-    query =f"""   with t1 as (
-        select id,username as username
-                From users 
-                WHERE
-                  {username_filter}
-            ),
-        t2 AS (
-             SELECT osm_id as Osm_id,
-                change_id as Changeset_id,
-                timestamp::text as Changeset_timestamp,
-                status::text as Issue_type,
-                t1.username as username,
-                ST_X(location::geometry) as lng,
-                ST_Y(location::geometry) as lat
+    # query =f"""   with t1 as (
+    #     select id,username as username
+    #             From users 
+    #             WHERE
+    #               {username_filter}
+    #         ),
+    #     t2 AS (
+    #          SELECT osm_id as Osm_id,
+    #             change_id as Changeset_id,
+    #             timestamp::text as Changeset_timestamp,
+    #             status::text as Issue_type,
+    #             t1.username as username,
+    #             ST_X(location::geometry) as lng,
+    #             ST_Y(location::geometry) as lat
                 
-        FROM validation join t1 on user_id = t1.id  
-        WHERE
-        ({status_filter}) AND (timestamp between '{params.from_timestamp}' and  '{params.to_timestamp}')
-                )
-        select *
-        from t2
-        order by username
-        """
+    #     FROM validation join t1 on user_id = t1.id  
+    #     WHERE
+    #     ({status_filter}) AND (timestamp between '{params.from_timestamp}' and  '{params.to_timestamp}')
+    #             )
+    #     select *
+    #     from t2
+    #     order by username
+    #     """
+    query= f"""with t1 as (
+        select
+            id,
+            username as username
+        from
+            users
+        where
+            {username_filter} ),
+        t2 as (
+        select
+            osm_id,
+            change_id,
+            st_x(location) as lat,
+            st_y(location) as lon,
+            unnest(status) as unnest_status
+        from
+            validation,
+            t1
+        where
+            user_id = t1.id),
+        t3 as (
+        select
+            id,
+            created_at
+        from
+            changesets
+        where
+            created_at between '{params.from_timestamp}' and  '{params.to_timestamp}')
+        select
+            t2.osm_id as Osm_id ,
+            t2.change_id as Changeset_id,
+            t3.created_at as Changeset_timestamp,
+            ARRAY_TO_STRING(ARRAY_AGG(t2.unnest_status), ',') as Issue_type,
+            t1.username as username,
+            t2.lat,
+            t2.lon as lng
+        from
+            t1,
+            t2,
+            t3
+        where
+            t2.change_id = t3.id
+            and unnest_status in ({issue_types})
+        group by
+            t2.osm_id,
+            t1.username,
+            t2.lat,
+            t2.lon,
+            t3.created_at,
+            t2.change_id;"""
     # print(query)
     return query
 

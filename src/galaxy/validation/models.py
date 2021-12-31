@@ -155,7 +155,12 @@ class User(BaseModel):
 class IssueType(Enum):
     BAD_GEOM = "badgeom"
     BAD_VALUE = "badvalue"
-    INCOMPLETE = "incomplete_tags"
+    INCOMPLETE = "incomplete"
+    NO_TAGS = "notags"
+    COMPLETE = "complete"
+    ORPHAN = "orphan"
+    OVERLAPPING = "overlaping"
+    DUPLICATE = "duplicate" 
 
 
 class OutputType(Enum):
