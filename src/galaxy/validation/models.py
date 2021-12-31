@@ -20,12 +20,13 @@
 import json
 
 from typing import List, Union ,Optional
+import geojson
 from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
 
 from pydantic import conlist
-from geojson_pydantic import Feature, FeatureCollection, Point, Polygon
+from geojson_pydantic import Feature, FeatureCollection, Point, Polygon , MultiPolygon
 
 from datetime import datetime
 
@@ -318,7 +319,7 @@ class Frequency(Enum):
 class OrganizationOutputtype(Enum):
     JSON = "json"
     CSV = "csv"
-
+    
 class OrganizationHashtagParams(BaseModel):
     hashtags : conlist(str, min_items=1)
     frequency : Frequency
@@ -338,7 +339,7 @@ class OrganizationHashtagParams(BaseModel):
             if(regex.search(v) != None):
                 raise ValueError(
                    "Hash tag contains special character or space : " +v+" ,Which is not allowed")
-        return value
+        return value 
 
     @validator("end_date",allow_reuse=True)
     def check_date_difference(cls, value, values, **kwargs):
@@ -360,3 +361,45 @@ class OrganizationHashtag(BaseModel):
     total_new_buildings : int
     total_unique_contributors : int
     total_new_road_meters : int 
+
+class FeatureType (Enum):
+    BUILDING = "building"
+    HIGHWAY = "highway"
+    LANDUSE = "landuse"
+    WATERWAY = "waterway"
+
+class RawDataOutputType ( Enum):
+    GEOJSON ="geojson"
+    KML = "kml"
+    SHAPEFILE = "shp"
+
+class HashtagParams ( BaseModel):
+    hashtags : Optional[List[str]]
+    @validator("hashtags",allow_reuse=True)
+    def check_hashtag_string(cls, value, values, **kwargs):
+        regex = re.compile(SPECIAL_CHARACTER)
+        for v in value :
+            v= v.strip()
+            if len(v) < 2 :
+                raise ValueError(
+                   "Hash tag value " +v+" is not allowed")
+                
+            if(regex.search(v) != None):
+                raise ValueError(
+                   "Hash tag contains special character or space : " +v+" ,Which is not allowed")
+        return value 
+class RawDataParams (HashtagParams):
+    feature_type = Optional[List[TopicType]]
+    from_timestamp: Union[datetime, date]
+    to_timestamp: Union[datetime, date] 
+    output_type = RawDataOutputType
+    geometry: MultiPolygon
+
+    @validator("geometry", always=True)
+    def check_geometry_area(cls, value, values):
+        area_m2 = area(json.loads(value.json()))
+        area_km2 = area_m2 * 1E-6
+        if area_km2 > MAX_POLYGON_AREA:
+            raise ValueError("Polygon Area is higher than 5000 km^2")
+        return value
+    
