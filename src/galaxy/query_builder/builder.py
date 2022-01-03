@@ -27,12 +27,12 @@ HSTORE_COLUMN = "tags"
 def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     '''returns hastag filter query '''
 
-    merged_items = [*project_ids, *hashtags]
+    # merged_items = [*project_ids , *hashtags]
 
     filter_query = "({hstore_column} -> %s) ~~ %s"
 
     hashtag_filter_values = [
-        *[f"%hotosm-project-{i};%" for i in project_ids],
+        *[f"%hotosm-project-{i};%" if project_ids is not None else '' for i in project_ids],
         *[f"%{i};%" for i in hashtags],
     ]
     hashtag_tags_filters = [
@@ -41,7 +41,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     ]
 
     comment_filter_values = [
-        *[f"%hotosm-project-{i} %" for i in project_ids],
+        *[f"%hotosm-project-{i} %" if project_ids is not None else '' for i in project_ids],
         *[f"%{i} %" for i in hashtags],
     ]
     comment_tags_filters = [
@@ -51,7 +51,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     # Include cases for hasthags and comments found at the end of the string.
     no_char_filter_values = [
-        *[f"%hotosm-project-{i}" for i in project_ids],
+        *[f"%hotosm-project-{i}" if project_ids is not None else '' for i in project_ids],
         *[f"%{i}" for i in hashtags],
     ]
     no_char_filter_values = [
@@ -545,3 +545,63 @@ def generate_organization_hashtag_reports(cur,params):
             order by hashtag"""
     # print(query)
     return query
+
+def raw_data_extraction_query(cur,conn,params):
+    geometry_dump = dumps(dict(params.geometry))
+    geom_filter = f"ST_CONTAINS(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"
+    timestamp_filter = cur.mogrify(sql.SQL("created_at BETWEEN %s AND %s"), (params.from_timestamp, params.to_timestamp)).decode()
+    t1= f"""select
+        id as changeset_id
+    from
+        osm_changeset
+    where
+        {geom_filter}
+        and ({timestamp_filter})"""
+    if params.hashtags :
+        hashtag_filter= create_hashtag_filter_query("",params.hashtags,cur,conn)
+        t1+=f"""and ({hashtag_filter})""" 
+    query= f"""with t1 as(
+            {t1}
+        ),
+        t2 as (
+        select
+            id
+        from
+            osm_element_history as t3,
+            t1
+        where
+            t1.changeset_id = t3.changeset 
+            )
+        select
+            oeh.id,
+            oeh."type",
+            oeh.tags::text as tags,
+            oeh.changeset as changeset_id,
+            oeh."timestamp"::text as created_at,
+            oeh.uid as user_id,
+            oeh."version" ,
+            oeh."action" ,
+            oeh.country ,
+            case
+            when oeh.nds is not null then ST_AsGeoJSON(public.construct_geometry(oeh.nds,
+            oeh.id,
+            oeh."timestamp"))
+            else ST_AsGeoJSON(geom)
+            end as geometry
+        from
+            osm_element_history oeh ,
+            t2
+        where
+            oeh.id = t2.id
+            and oeh."action" != 'delete'
+            and oeh.version = (
+            select
+                max("version")
+            from
+                public.osm_element_history i
+            where
+                i.id = t2.id
+                and i."timestamp"< '{params.to_timestamp}'::timestamptz )"""
+    # print(query)
+    return query
+    

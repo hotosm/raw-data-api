@@ -29,6 +29,8 @@ from .osm_users import router as osm_users_router
 from .data_quality import router as data_quality_router
 from .trainings import router as training_router
 from .organization import router as organization_router
+from .raw_data import router as raw_data_router
+
 
 
 
@@ -53,5 +55,7 @@ app.include_router(osm_users_router)
 app.include_router(data_quality_router)
 app.include_router(training_router)
 app.include_router(organization_router)
+app.include_router(raw_data_router)
+
 
 

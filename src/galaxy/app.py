@@ -18,7 +18,9 @@
 # <info@hotosm.org>
 '''Main page contains class for database mapathon and funtion for error printing  '''
 
+from .validation.models import Source
 import sys
+from fastapi import param_functions
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
@@ -33,8 +35,10 @@ import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
-
+import io
 from .config import config
+import geojson
+
 
 def print_psycopg2_exception(err):
     """ 
@@ -151,7 +155,7 @@ class Underpass:
         total_contributors_result = self.database.executequery(
             total_contributor_query)
         return osm_history_result, total_contributors_result
-    
+
     def all_training_organisations(self):
         """[Resposible for the total organisations result generation]
 
@@ -159,18 +163,17 @@ class Underpass:
             [query_result]: [oid,name]
         """
         training_all_organisations_query = generate_training_organisations_query()
-        query_result= self.database.executequery(training_all_organisations_query)
+        query_result = self.database.executequery(
+            training_all_organisations_query)
         return query_result
-    
-    def training_list(self,params):
-        filter_training_query= generate_filter_training_query(params)
-        training_query= generate_training_query(filter_training_query)
+
+    def training_list(self, params):
+        filter_training_query = generate_filter_training_query(params)
+        training_query = generate_training_query(filter_training_query)
         # print(training_query)
-        query_result= self.database.executequery(training_query)
+        query_result = self.database.executequery(training_query)
         # print(query_result)
         return query_result
-
-
 
 
 class Insight:
@@ -193,10 +196,11 @@ class Insight:
             """
         if len(hashtag_filter) > 0:
             total_contributor_query += f""" AND ({hashtag_filter})"""
-        
+
         # print(osm_history_query)
         osm_history_result = self.database.executequery(osm_history_query)
-        total_contributors_result = self.database.executequery(total_contributor_query)
+        total_contributors_result = self.database.executequery(
+            total_contributor_query)
         return osm_history_result, total_contributors_result
 
     def get_mapathon_detailed_result(self):
@@ -208,7 +212,8 @@ class Insight:
         contributors_query = create_users_contributions_query(
             self.params, changeset_query)
         osm_history_result = self.database.executequery(osm_history_query)
-        total_contributors_result = self.database.executequery(contributors_query)
+        total_contributors_result = self.database.executequery(
+            contributors_query)
         return osm_history_result, total_contributors_result
 
 
@@ -216,13 +221,13 @@ class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
 
     # constructor
-    def __init__(self, parameters,source):
+    def __init__(self, parameters, source):
         # parameter validation using pydantic model
         if type(parameters) is MapathonRequestParams:
             self.params = parameters
         else:
             self.params = MapathonRequestParams(**parameters)
-        
+
         if source == "underpass":
             self.database = Underpass(self.params)
         elif source == "insight":
@@ -233,7 +238,7 @@ class Mapathon:
     # Mapathon class instance method
     def get_summary(self):
         """Function to get summary of your mapathon event """
-        osm_history_result,total_contributors=self.database.get_mapathon_summary_result()
+        osm_history_result, total_contributors = self.database.get_mapathon_summary_result()
         mapped_features = [MappedFeature(**r) for r in osm_history_result]
         report = MapathonSummary(total_contributors=total_contributors[0].get(
             "contributors_count", "None"),
@@ -242,8 +247,9 @@ class Mapathon:
 
     def get_detailed_report(self):
         """Function to get detail report of your mapathon event. It includes individual user contribution"""
-        osm_history_result,total_contributors=self.database.get_mapathon_detailed_result()
-        mapped_features = [MappedFeatureWithUser(**r) for r in osm_history_result]
+        osm_history_result, total_contributors = self.database.get_mapathon_detailed_result()
+        mapped_features = [MappedFeatureWithUser(
+            **r) for r in osm_history_result]
         contributors = [MapathonContributor(**r) for r in total_contributors]
         report = MapathonDetail(contributors=contributors,
                                 mapped_features=mapped_features)
@@ -263,6 +269,7 @@ class Output:
 
     def __init__(self, result, connection=None):
         """Constructor"""
+        # print(result)
         if isinstance(result, (list, dict)):
             # print(type(result))
             try:
@@ -291,7 +298,11 @@ class Output:
                              " is not supported")
         # print(self.dataframe)
         if self.dataframe.empty:
-            raise ValueError("Dataframe is Null")
+            return []
+
+    def get_dataframe(self):
+        print(self.dataframe)
+        return self.dataframe
 
     def to_JSON(self):
         """Function to convert query result to JSON, Returns JSON"""
@@ -400,7 +411,8 @@ class DataQualityHashtags:
 
         for row in features:
             longitude, latitude = item.get("geometry").get("coordinates")
-            row = {**item.get("properties"), 'latitude': latitude, 'longitude': longitude}
+            row = {**item.get("properties"),
+                   'latitude': latitude, 'longitude': longitude}
 
             writer.writerow(row)
 
@@ -469,38 +481,38 @@ class DataQuality:
         if self.inputtype == "TM":
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
-            query = generate_data_quality_username_query(self.params,self.cur)
+            query = generate_data_quality_username_query(self.params, self.cur)
         try:
             result = Output(query, self.con).to_GeoJSON('lat', 'lng')
             return result
         except Exception as err:
             return err
         # print(result)
-        
+
     def get_report_as_csv(self, filelocation):
         """Functions that returns data_quality Report as CSV Format , requires file path where csv is meant to be generated"""
 
         if self.inputtype == "TM":
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
-            query = generate_data_quality_username_query(self.params,self.cur)
+            query = generate_data_quality_username_query(self.params, self.cur)
         try:
             result = Output(query, self.con).to_CSV(filelocation)
             return result
         except Exception as err:
-            return err  
+            return err
 
 
-from .validation.models import Source
-class Training :
+class Training:
     """[Class responsible for Training data API]
     """
-    def __init__(self,source):
+
+    def __init__(self, source):
         if source == Source.UNDERPASS.value:
-                self.database = Underpass()
+            self.database = Underpass()
         else:
             raise ValueError("Source is not Supported")
-    
+
     def get_all_organisations(self):
         """[Generates result for all list of available organisations within the database.]
 
@@ -508,36 +520,78 @@ class Training :
             [type]: [List of Training Organisations ( id, name )]
         """
         query_result = self.database.all_training_organisations()
-        Training_organisations_list= [TrainingOrganisations(**r) for r in query_result]
+        Training_organisations_list = [
+            TrainingOrganisations(**r) for r in query_result]
         # print(Training_organisations_list)
         return Training_organisations_list
-        
-    def get_trainingslist(self,params: TrainingParams):
-        query_result=self.database.training_list(params)
-        Trainings_list= [Trainings(**r) for r in query_result]
+
+    def get_trainingslist(self, params: TrainingParams):
+        query_result = self.database.training_list(params)
+        Trainings_list = [Trainings(**r) for r in query_result]
         # print(Trainings_list)
         return Trainings_list
 
-class OrganizationHashtags :
+
+class OrganizationHashtags:
     """[Class responsible for Organization Hashtag data API]
     """
+
     def __init__(self, params: OrganizationHashtagParams):
         self.db = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.db.connect()
         self.params = params
-        self.query = generate_organization_hashtag_reports(self.cur, self.params)
-    
+        self.query = generate_organization_hashtag_reports(
+            self.cur, self.params)
+
     def get_report(self):
         query_result = self.db.executequery(self.query)
-        results= [OrganizationHashtag(**r) for r in query_result]
+        results = [OrganizationHashtag(**r) for r in query_result]
         return results
-   
-    def get_report_as_csv(self,filelocation):
+
+    def get_report_as_csv(self, filelocation):
         try:
             result = Output(self.query, self.con).to_CSV(filelocation)
             return result
         except Exception as err:
-            return err  
+            return err
 
 
-    
+class RawData:
+    def __init__(self, params: HashtagParams):
+        self.params = params
+        self.db = Database(dict(config.items("INSIGHTS_PG")))
+        self.con, self.cur = self.db.connect()
+
+    @staticmethod
+    def to_geojson(results):
+        features = []
+        for row in results:
+            geojson_feature = {
+                "type": "Feature",
+                "geometry":
+                    json.loads(row["geometry"]),
+                "properties": {
+                    "id": row["id"],
+                    "type": row["type"],
+                    "tags": row["tags"],
+                    "chageset_id": row["changeset_id"],
+                    "created_at": row["created_at"],
+                    "user_id": row["user_id"],
+                    "version": row["version"],
+                    "action": row["action"],
+                    "country": row["country"]
+                    }
+            }
+            features.append(Feature(**geojson_feature))
+
+        feature_collection = FeatureCollection(features=features)
+
+        return feature_collection
+
+    def extract_data(self):
+        extraction_query = raw_data_extraction_query(
+            self.cur, self.con, self.params)
+        results = self.db.executequery(extraction_query)
+        feature_collection = RawData.to_geojson(results)
+        print(feature_collection)
+        return feature_collection

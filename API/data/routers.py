@@ -34,7 +34,6 @@ def callback(db_name: str, request: Request):
     # Perform token exchange.
     osm_url = config.get("OAUTH", "url")
     token_url = f"{osm_url}/oauth2/token"
-
     redirect_path = config.get("OAUTH", "redirect_uri")
     redirect_uri = f"{redirect_path}/{db_name}"
 
