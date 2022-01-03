@@ -373,33 +373,33 @@ class RawDataOutputType ( Enum):
     KML = "kml"
     SHAPEFILE = "shp"
 
-class HashtagParams ( BaseModel):
-    hashtags : Optional[List[str]]
-    @validator("hashtags",allow_reuse=True)
-    def check_hashtag_string(cls, value, values, **kwargs):
-        regex = re.compile(SPECIAL_CHARACTER)
-        for v in value :
-            v= v.strip()
-            if len(v) < 2 :
-                raise ValueError(
-                   "Hash tag value " +v+" is not allowed")
+# class HashtagParams(BaseModel):
+#     hashtags : Optional[List[str]]
+#     @validator("hashtags",allow_reuse=True)
+#     def check_hashtag_string(cls, value, values, **kwargs):
+#         regex = re.compile(SPECIAL_CHARACTER)
+#         for v in value :
+#             v= v.strip()
+#             if len(v) < 2 :
+#                 raise ValueError(
+#                    "Hash tag value " +v+" is not allowed")
                 
-            if(regex.search(v) != None):
-                raise ValueError(
-                   "Hash tag contains special character or space : " +v+" ,Which is not allowed")
-        return value 
-class RawDataParams (HashtagParams):
-    feature_type = Optional[List[TopicType]]
-    from_timestamp: Union[datetime, date]
-    to_timestamp: Union[datetime, date] 
-    output_type = RawDataOutputType
-    geometry: MultiPolygon
+#             if(regex.search(v) != None):
+#                 raise ValueError(
+#                    "Hash tag contains special character or space : " +v+" ,Which is not allowed")
+#         return value 
+# class RawDataParams(HashtagParams):
+#     feature_type = Optional[List[TopicType]]
+#     from_timestamp: Union[datetime, date]
+#     to_timestamp: Union[datetime, date] 
+#     output_type = RawDataOutputType
+#     geometry: MultiPolygon
 
-    @validator("geometry", always=True)
-    def check_geometry_area(cls, value, values):
-        area_m2 = area(json.loads(value.json()))
-        area_km2 = area_m2 * 1E-6
-        if area_km2 > MAX_POLYGON_AREA:
-            raise ValueError("Polygon Area is higher than 5000 km^2")
-        return value
+#     @validator("geometry", always=True)
+#     def check_geometry_area(cls, value, values):
+#         area_m2 = area(json.loads(value.json()))
+#         area_km2 = area_m2 * 1E-6
+#         if area_km2 > MAX_POLYGON_AREA:
+#             raise ValueError("Polygon Area is higher than 5000 km^2")
+#         return value
     
