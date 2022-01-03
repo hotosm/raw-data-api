@@ -9,3 +9,5 @@ test.csv
 =======
 build
 **/.pytest_cache/**
+newrelic.ini
+newrelic.ini_backup
