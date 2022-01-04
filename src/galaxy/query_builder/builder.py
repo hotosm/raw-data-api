@@ -565,43 +565,42 @@ def raw_data_extraction_query(cur,conn,params):
         ),
         t2 as (
         select
-            id
-        from
-            osm_element_history as t3,
-            t1
-        where
-            t1.changeset_id = t3.changeset 
-            )
-        select
-            oeh.id,
-            oeh."type",
-            oeh.tags::text as tags,
-            oeh.changeset as changeset_id,
-            oeh."timestamp"::text as created_at,
-            oeh.uid as user_id,
-            oeh."version" ,
-            oeh."action" ,
-            oeh.country ,
+            *,
             case
-            when oeh.nds is not null then ST_AsGeoJSON(public.construct_geometry(oeh.nds,
-            oeh.id,
-            oeh."timestamp"))
-            else ST_AsGeoJSON(geom)
+                when oeh.nds is not null then ST_AsGeoJSON(public.construct_geometry(oeh.nds,
+                oeh.id,
+                oeh."timestamp"))
+                else ST_AsGeoJSON(geom)
             end as geometry
         from
-            osm_element_history oeh ,
-            t2
+            osm_element_history oeh,
+            t1
         where
-            oeh.id = t2.id
-            and oeh."action" != 'delete'
-            and oeh.version = (
-            select
-                max("version")
-            from
-                public.osm_element_history i
-            where
-                i.id = t2.id
-                and i."timestamp"< '{params.to_timestamp}'::timestamptz )"""
+            oeh.changeset = t1.changeset_id
+	        and oeh."action" != 'delete'
+            and oeh."type" != 'relation'
+         	and oeh.version = (
+                select
+                    max("version")
+                from
+                    public.osm_element_history i
+                where
+                    i.id = oeh.id and i.type = oeh.type
+                    and i."timestamp"< '{params.to_timestamp}'::timestamptz )  
+            )
+        select
+            t2.id,
+            t2."type",
+            t2.tags::text as tags,
+            t2.changeset as changeset_id,
+            t2."timestamp"::text as created_at,
+            t2.uid as user_id,
+            t2."version" ,
+            t2."action" ,
+            t2.country ,
+            t2.geometry
+        from
+            t2"""
     # print(query)
     return query
     

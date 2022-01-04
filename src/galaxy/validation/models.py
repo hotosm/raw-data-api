@@ -414,7 +414,6 @@ class RawDataParams(HashtagParams):
         difference= value-start_date
         if start_date > value :
             raise ValueError(f"""From and To timestamps are not in order""")
-            
         if difference > timedelta(days = 180):
                 raise ValueError(f"""You can pass date interval up to maximum 6 Months""")
         return value

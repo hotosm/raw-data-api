@@ -566,10 +566,15 @@ class RawData:
     def to_geojson(results):
         features = []
         for row in results:
+            try:
+                json_geometry= json.loads(row["geometry"])
+            except:
+                print(row)
+                raise ValueError("error here")
             geojson_feature = {
                 "type": "Feature",
                 "geometry":
-                    json.loads(row["geometry"]),
+                    json_geometry,
                 "properties": {
                     "id": row["id"],
                     "type": row["type"],
@@ -600,6 +605,7 @@ class RawData:
     def extract_data_pd(self):
         extraction_query = raw_data_extraction_query(
             self.cur, self.con, self.params)
+        print(extraction_query)
         df = Output(extraction_query,self.con).get_dataframe()
         print(df)
         properties = df.drop(['geometry'],
