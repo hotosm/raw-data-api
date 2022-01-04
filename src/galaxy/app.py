@@ -107,7 +107,7 @@ class Database:
                     self.cursor.execute(query)
                     try:
                         result = self.cursor.fetchall()
-                        # print(result)
+                        print("Result fetched from Database")
                         return result
                     except:
                         return self.cursor.statusmessage
@@ -301,7 +301,7 @@ class Output:
             return []
 
     def get_dataframe(self):
-        print(self.dataframe)
+        # print(self.dataframe)
         return self.dataframe
 
     def to_JSON(self):
@@ -592,6 +592,24 @@ class RawData:
         extraction_query = raw_data_extraction_query(
             self.cur, self.con, self.params)
         results = self.db.executequery(extraction_query)
+        
         feature_collection = RawData.to_geojson(results)
-        print(feature_collection)
+        # print(feature_collection)
+        return feature_collection
+
+    def extract_data_pd(self):
+        extraction_query = raw_data_extraction_query(
+            self.cur, self.con, self.params)
+        df = Output(extraction_query,self.con).get_dataframe()
+        print(df)
+        properties = df.drop(['geometry'],
+                                         axis=1).to_dict('records')
+
+        features = df.apply(
+            lambda row: Feature(geometry=json.loads(str(row['geometry'])),
+                properties=properties[row.name]),
+            axis=1).tolist()
+
+        # whole geojson object
+        feature_collection = FeatureCollection(features=features)
         return feature_collection

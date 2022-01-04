@@ -408,3 +408,13 @@ class RawDataParams(HashtagParams):
                 raise ValueError("Polygon Area %s km^2 is higher than 5000 km^2"%area_km2)
         return value
     
+    @validator("to_timestamp",allow_reuse=True)
+    def check_date_difference(cls, value, values, **kwargs):
+        start_date = values.get("from_timestamp")
+        difference= value-start_date
+        if start_date > value :
+            raise ValueError(f"""From and To timestamps are not in order""")
+            
+        if difference > timedelta(days = 180):
+                raise ValueError(f"""You can pass date interval up to maximum 6 Months""")
+        return value

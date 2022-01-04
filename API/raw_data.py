@@ -32,7 +32,7 @@ router = APIRouter(prefix="/rawdata")
 
 @router.post("")
 def get_raw_data(params:RawDataParams):
-    result= RawData(params).extract_data()
+    result= RawData(params).extract_data_pd()
     stream = io.StringIO()
     geojson.dump(result,stream)
     response = StreamingResponse(iter([stream.getvalue()]),media_type="application/geo+json")
