@@ -389,11 +389,11 @@ class HashtagParams(BaseModel):
                    "Hash tag contains special character or space : " +v+" ,Which is not allowed")
         return value 
 class RawDataParams(HashtagParams):
-    from_timestamp:datetime
-    to_timestamp: datetime
-    output_type = RawDataOutputType
-    feature_type =FeatureTypeRawData
-    geometry: MultiPolygon
+    from_timestamp :datetime
+    to_timestamp : datetime
+    output_type : RawDataOutputType
+    feature_type : FeatureTypeRawData
+    geometry : MultiPolygon
 
     @validator("geometry", allow_reuse=True)
     def check_geometry_area(cls, value, values):
