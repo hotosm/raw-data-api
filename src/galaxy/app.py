@@ -566,28 +566,29 @@ class RawData:
     def to_geojson(results):
         features = []
         for row in results:
-            try:
-                json_geometry= json.loads(row["geometry"])
-            except:
-                print(row)
-                raise ValueError("error here")
-            geojson_feature = {
-                "type": "Feature",
-                "geometry":
-                    json_geometry,
-                "properties": {
-                    "id": row["id"],
-                    "type": row["type"],
-                    "tags": row["tags"],
-                    "chageset_id": row["changeset_id"],
-                    "created_at": row["created_at"],
-                    "user_id": row["user_id"],
-                    "version": row["version"],
-                    "action": row["action"],
-                    "country": row["country"]
-                    }
-            }
-            features.append(Feature(**geojson_feature))
+            if row["geometry"]:
+                try:
+                    json_geometry= json.loads(row["geometry"])
+                except:
+                    print(row)
+                    raise ValueError("error here")
+                geojson_feature = {
+                    "type": "Feature",
+                    "geometry":
+                        json_geometry,
+                    "properties": {
+                        "id": row["id"],
+                        "type": row["type"],
+                        "tags": row["tags"],
+                        "chageset_id": row["changeset_id"],
+                        "created_at": row["created_at"],
+                        "user_id": row["user_id"],
+                        "version": row["version"],
+                        "action": row["action"],
+                        "country": row["country"]
+                        }
+                }
+                features.append(Feature(**geojson_feature))
 
         feature_collection = FeatureCollection(features=features)
 
