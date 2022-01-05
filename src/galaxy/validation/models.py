@@ -38,7 +38,7 @@ import re
 MAX_POLYGON_AREA = 5000 # km^2
 
 # this as argument in compile method
-SPECIAL_CHARACTER = '[@_!#$%^&*() <>?/\|}{~:,"]'
+SPECIAL_CHARACTER = '[@!#$%^&*() <>?/\|}{~:,"]'
 ORGANIZATIONAL_FREQUENCY =  {"w" : 7,"m" : 30, "q": 90, "y":365}
 
 def to_camel(string: str) -> str:
@@ -393,7 +393,7 @@ class RawDataParams(HashtagParams):
     to_timestamp : datetime
     geometry : MultiPolygon
     output_type : Optional[RawDataOutputType]
-    feature_type : Optional[FeatureTypeRawData]
+    feature_type : Optional[List[FeatureTypeRawData]] = None
     
 
     @validator("geometry", allow_reuse=True)
@@ -412,9 +412,14 @@ class RawDataParams(HashtagParams):
     @validator("to_timestamp",allow_reuse=True)
     def check_date_difference(cls, value, values, **kwargs):
         start_date = values.get("from_timestamp")
+        hashtags = values.get("hashtags")
         difference= value-start_date
         if start_date > value :
             raise ValueError(f"""From and To timestamps are not in order""")
-        if difference > timedelta(days = 180):
-                raise ValueError(f"""You can pass date interval up to maximum 6 Months""")
+        if hashtags != None or len(hashtags) != 0:
+            acceptedday=365*3
+        else:
+            acceptedday=180
+        if difference > timedelta(days = acceptedday):
+                raise ValueError(f"""You can pass date interval up to maximum {acceptedday} Months""")
         return value
