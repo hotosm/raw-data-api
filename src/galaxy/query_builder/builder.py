@@ -600,15 +600,15 @@ def raw_data_extraction_query(cur,conn,params):
             t2.country ,
             t2.geometry
         from
-            t2"""
+            t2
+        where
+            t2.geometry is not null"""
     if params.feature_type :
         feature_type=[]
         for p in params.feature_type:
             feature_type.append(f"""t2.tags?'{p}'""" )
         filter_feature_type = " or ".join(feature_type)
-        query+= f"""
-        where
-            {filter_feature_type}"""
+        query+= f""" and ({filter_feature_type})"""
     # print(query)
     return query
     
