@@ -570,7 +570,7 @@ def raw_data_extraction_query(cur,conn,params):
                 when oeh.nds is not null then ST_AsGeoJSON(public.construct_geometry(oeh.nds,
                 oeh.id,
                 oeh."timestamp"))
-                else ST_AsGeoJSON(geom)
+                else ST_AsGeoJSON(ST_MakePoint(oeh.lon,oeh.lat))
             end as geometry
         from
             osm_element_history oeh,

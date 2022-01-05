@@ -391,9 +391,10 @@ class HashtagParams(BaseModel):
 class RawDataParams(HashtagParams):
     from_timestamp :datetime
     to_timestamp : datetime
-    output_type : RawDataOutputType
-    feature_type : FeatureTypeRawData
     geometry : MultiPolygon
+    output_type : Optional[RawDataOutputType]
+    feature_type : Optional[FeatureTypeRawData]
+    
 
     @validator("geometry", allow_reuse=True)
     def check_geometry_area(cls, value, values):
