@@ -27,15 +27,26 @@ from fastapi.responses import StreamingResponse
 from datetime import datetime
 import geojson
 import io
+import time
+import zipfile
+from io import BytesIO
 router = APIRouter(prefix="/rawdata")
-
 
 @router.post("")
 def get_raw_data(params:RawDataParams):
+    start_time = time.time()
     result= RawData(params).extract_data()
     stream = io.StringIO()
     geojson.dump(result,stream)
-    response = StreamingResponse(iter([stream.getvalue()]),media_type="application/geo+json")
+    in_memory = BytesIO()
+    zf = zipfile.ZipFile(in_memory, mode="w")
     exportname =f"Raw_Data_{datetime.now().isoformat()}"
-    response.headers["Content-Disposition"] = f"attachment; filename={exportname}.geojson"
+    # Compressing geojson file in memory 
+    zf.writestr(f"""{exportname}.geojson""",stream.getvalue())
+    zf.close()
+    # print(in_memory)
+    print("zip binding done ")
+    response = StreamingResponse(iter([in_memory.getvalue()]),media_type="application/zip")
+    response.headers["Content-Disposition"] = f"attachment; filename={exportname}.zip"
+    print("-----Raw Data Request Took-- %s seconds -----" % (time.time() - start_time))
     return response

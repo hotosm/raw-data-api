@@ -35,9 +35,12 @@ import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
-import io
 from .config import config
 import geojson
+import logging
+
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
+
 
 
 def print_psycopg2_exception(err):
@@ -104,10 +107,11 @@ class Database:
                 # catch exception for invalid SQL statement
 
                 try:
+                    logging.debug('Query sent to Database')
                     self.cursor.execute(query)
                     try:
                         result = self.cursor.fetchall()
-                        print("Result fetched from Database")
+                        logging.debug('Result fetched from Database')
                         return result
                     except:
                         return self.cursor.statusmessage
@@ -591,32 +595,30 @@ class RawData:
                 features.append(Feature(**geojson_feature))
 
         feature_collection = FeatureCollection(features=features)
-
+        logging.debug('Geojson Binding Done !')
         return feature_collection
 
     def extract_data(self):
         extraction_query = raw_data_extraction_query(
             self.cur, self.con, self.params)
         results = self.db.executequery(extraction_query)
-        
         feature_collection = RawData.to_geojson(results)
-        # print(feature_collection)
         return feature_collection
 
     def extract_data_pd(self):
         extraction_query = raw_data_extraction_query(
             self.cur, self.con, self.params)
-        print(extraction_query)
+        logging.debug('Query sent to Database')
         df = Output(extraction_query,self.con).get_dataframe()
-        print(df)
+        logging.debug('Result fetched from Database')
         properties = df.drop(['geometry'],
                                          axis=1).to_dict('records')
-
         features = df.apply(
             lambda row: Feature(geometry=json.loads(str(row['geometry'])),
-                properties=properties[row.name]),
+                properties=properties[row.name]) if row['geometry'] else '',
             axis=1).tolist()
 
         # whole geojson object
         feature_collection = FeatureCollection(features=features)
+        logging.debug('Geojson Binding Done !')
         return feature_collection
