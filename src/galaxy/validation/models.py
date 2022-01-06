@@ -388,7 +388,9 @@ class HashtagParams(BaseModel):
                 raise ValueError(
                    "Hash tag contains special character or space : " +v+" ,Which is not allowed")
         return value 
-class RawDataParams(HashtagParams):
+
+RAWDATA_HISTORICAL_POLYGON_AREA = 100
+class RawDataHistoricalParams(HashtagParams):
     from_timestamp :datetime
     to_timestamp : datetime
     geometry : MultiPolygon
@@ -405,8 +407,8 @@ class RawDataParams(HashtagParams):
             
             area_km2 = area_m2 * 1E-6
             print(area_km2)
-            if area_km2 > MAX_POLYGON_AREA:
-                raise ValueError("Polygon Area %s km^2 is higher than 5000 km^2"%area_km2)
+            if area_km2 > RAWDATA_HISTORICAL_POLYGON_AREA:
+                raise ValueError("Polygon Area %s km^2 is higher than 100 km^2"%area_km2)
         return value
     
     @validator("to_timestamp",allow_reuse=True)
@@ -417,9 +419,27 @@ class RawDataParams(HashtagParams):
         if start_date > value :
             raise ValueError(f"""From and To timestamps are not in order""")
         if hashtags != None or len(hashtags) != 0:
-            acceptedday=365*3
+            acceptedday=365
         else:
             acceptedday=180
         if difference > timedelta(days = acceptedday):
                 raise ValueError(f"""You can pass date interval up to maximum {acceptedday} Months""")
+        return value
+
+RAWDATA_CURRENT_POLYGON_AREA = 10
+class RawDataCurrentParams(BaseModel):
+    geometry : MultiPolygon
+    output_type : Optional[RawDataOutputType]
+    feature_type : Optional[List[FeatureTypeRawData]] = None
+    
+    @validator("geometry", allow_reuse=True)
+    def check_geometry_area(cls, value, values):
+        cd=json.loads(value.json())["coordinates"]
+        for x in range(len(cd)):
+            geom_cd='{"type":"Polygon","coordinates":%s}'% cd[x]  
+            area_m2 = area(geom_cd)
+            area_km2 = area_m2 * 1E-6
+            print(area_km2)
+            if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
+                raise ValueError("Polygon Area %s km^2 is higher than 10 km^2"%area_km2)
         return value

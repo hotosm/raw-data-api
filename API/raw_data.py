@@ -20,7 +20,7 @@
 """[Router Responsible for Raw data API ]
 """
 from fastapi import APIRouter, Depends
-from src.galaxy.validation.models import RawDataParams
+from src.galaxy.validation.models import RawDataHistoricalParams , RawDataCurrentParams
 from .auth import login_required
 from src.galaxy.app import RawData
 from fastapi.responses import StreamingResponse
@@ -30,12 +30,20 @@ import io
 import time
 import zipfile
 from io import BytesIO
-router = APIRouter(prefix="/rawdata")
+router = APIRouter(prefix="/raw-data")
 
-@router.post("/")
-def get_raw_data(params:RawDataParams):
+@router.post("/historical-snapshot/")
+def get_historical_data(params:RawDataHistoricalParams):
+    result= RawData(params).extract_historical_data()
+    return generate_rawdata_response(result)
+
+@router.post("/current-snapshot/")
+def get_current_data(params:RawDataCurrentParams):
+    result= RawData(params).extract_current_data()
+    return generate_rawdata_response(result)
+
+def generate_rawdata_response(result):
     start_time = time.time()
-    result= RawData(params).extract_data()
     stream = io.StringIO()
     geojson.dump(result,stream)
     in_memory = BytesIO()
@@ -50,3 +58,4 @@ def get_raw_data(params:RawDataParams):
     response.headers["Content-Disposition"] = f"attachment; filename={exportname}.zip"
     print("-----Raw Data Request Took-- %s seconds -----" % (time.time() - start_time))
     return response
+    

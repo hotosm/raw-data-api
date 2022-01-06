@@ -104,19 +104,22 @@ class Database:
         try:
             if self.conn != None:
                 self.cursor = self.cur
-                # catch exception for invalid SQL statement
+                if query!= None:
+                    # catch exception for invalid SQL statement
 
-                try:
-                    logging.debug('Query sent to Database')
-                    self.cursor.execute(query)
                     try:
-                        result = self.cursor.fetchall()
-                        logging.debug('Result fetched from Database')
-                        return result
-                    except:
-                        return self.cursor.statusmessage
-                except Exception as err:
-                    print_psycopg2_exception(err)
+                        logging.debug('Query sent to Database')
+                        self.cursor.execute(query)
+                        try:
+                            result = self.cursor.fetchall()
+                            logging.debug('Result fetched from Database')
+                            return result
+                        except:
+                            return self.cursor.statusmessage
+                    except Exception as err:
+                        print_psycopg2_exception(err)
+                else:
+                    raise ValueError("Query is Null")
 
                     # rollback the previous transaction before starting another
                     self.conn.rollback()
@@ -598,9 +601,16 @@ class RawData:
         logging.debug('Geojson Binding Done !')
         return feature_collection
 
-    def extract_data(self):
-        extraction_query = raw_data_extraction_query(
+    def extract_historical_data(self):
+        extraction_query = raw_historical_data_extraction_query(
             self.cur, self.con, self.params)
+        results = self.db.executequery(extraction_query)
+        feature_collection = RawData.to_geojson(results)
+        return feature_collection
+    
+    def extract_current_data(self):
+        extraction_query = raw_currentdata_extraction_query(self.params)
+        print(extraction_query)
         results = self.db.executequery(extraction_query)
         feature_collection = RawData.to_geojson(results)
         return feature_collection
