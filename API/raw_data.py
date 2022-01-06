@@ -39,7 +39,7 @@ def get_raw_data(params:RawDataParams):
     stream = io.StringIO()
     geojson.dump(result,stream)
     in_memory = BytesIO()
-    zf = zipfile.ZipFile(in_memory, mode="w")
+    zf = zipfile.ZipFile(in_memory, "w" , zipfile.ZIP_DEFLATED)
     exportname =f"Raw_Data_{datetime.now().isoformat()}"
     # Compressing geojson file in memory 
     zf.writestr(f"""{exportname}.geojson""",stream.getvalue())
