@@ -32,7 +32,7 @@ import zipfile
 from io import BytesIO
 router = APIRouter(prefix="/rawdata")
 
-@router.post("")
+@router.post("/")
 def get_raw_data(params:RawDataParams):
     start_time = time.time()
     result= RawData(params).extract_data()

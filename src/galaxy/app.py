@@ -604,21 +604,3 @@ class RawData:
         results = self.db.executequery(extraction_query)
         feature_collection = RawData.to_geojson(results)
         return feature_collection
-
-    def extract_data_pd(self):
-        extraction_query = raw_data_extraction_query(
-            self.cur, self.con, self.params)
-        logging.debug('Query sent to Database')
-        df = Output(extraction_query,self.con).get_dataframe()
-        logging.debug('Result fetched from Database')
-        properties = df.drop(['geometry'],
-                                         axis=1).to_dict('records')
-        features = df.apply(
-            lambda row: Feature(geometry=json.loads(str(row['geometry'])),
-                properties=properties[row.name]) if row['geometry'] else '',
-            axis=1).tolist()
-
-        # whole geojson object
-        feature_collection = FeatureCollection(features=features)
-        logging.debug('Geojson Binding Done !')
-        return feature_collection
