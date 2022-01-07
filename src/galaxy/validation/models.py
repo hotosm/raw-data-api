@@ -20,12 +20,13 @@
 import json
 
 from typing import List, Union ,Optional
+import geojson
 from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
 
 from pydantic import conlist
-from geojson_pydantic import Feature, FeatureCollection, Point, Polygon
+from geojson_pydantic import Feature, FeatureCollection, Point, Polygon , MultiPolygon
 
 from datetime import datetime
 
@@ -37,7 +38,7 @@ import re
 MAX_POLYGON_AREA = 5000 # km^2
 
 # this as argument in compile method
-SPECIAL_CHARACTER = '[@_!#$%^&*() <>?/\|}{~:,"]'
+SPECIAL_CHARACTER = '[@!#$%^&*() <>?/\|}{~:,"]'
 ORGANIZATIONAL_FREQUENCY =  {"w" : 7,"m" : 30, "q": 90, "y":365}
 
 def to_camel(string: str) -> str:
@@ -142,10 +143,31 @@ class UsersListParams(BaseModel):
     to_timestamp: Union[datetime, date]
 
 
-class UserStatsParams(TimeStampParams):
+class UserStatsParams(BaseModel):
+    from_timestamp: Union[datetime, date]
+    to_timestamp: Union[datetime, date]
     user_id: int
     hashtags: List[str]
     project_ids: List[int] = []
+    
+    @validator("to_timestamp",allow_reuse=True)
+    def check_timestamp_diffs(cls, value, values, **kwargs):
+        '''checks the timestap difference '''
+
+        from_timestamp = values.get("from_timestamp")
+
+        # if from_timestamp > datetime.now() or value > datetime.now():
+        #     raise ValueError(
+        #         "Can not exceed current date and time")
+        timestamp_diff = value - from_timestamp
+        if from_timestamp > value :
+            raise ValueError(
+                "Timestamp difference should be in order")
+        if timestamp_diff > timedelta(days=30):
+            raise ValueError(
+                "Statistics is available for a maximum period of 1 month")
+
+        return value
 
 
 class User(BaseModel):
@@ -318,7 +340,7 @@ class Frequency(Enum):
 class OrganizationOutputtype(Enum):
     JSON = "json"
     CSV = "csv"
-
+    
 class OrganizationHashtagParams(BaseModel):
     hashtags : conlist(str, min_items=1)
     frequency : Frequency
@@ -338,7 +360,7 @@ class OrganizationHashtagParams(BaseModel):
             if(regex.search(v) != None):
                 raise ValueError(
                    "Hash tag contains special character or space : " +v+" ,Which is not allowed")
-        return value
+        return value 
 
     @validator("end_date",allow_reuse=True)
     def check_date_difference(cls, value, values, **kwargs):
@@ -360,3 +382,85 @@ class OrganizationHashtag(BaseModel):
     total_new_buildings : int
     total_unique_contributors : int
     total_new_road_meters : int 
+
+class FeatureTypeRawData ( Enum):
+    BUILDING = "building"
+    HIGHWAY = "highway"
+    LANDUSE = "landuse"
+    WATERWAY = "waterway"
+
+class RawDataOutputType ( Enum):
+    GEOJSON ="geojson"
+    KML = "kml"
+    SHAPEFILE = "shp"
+
+class HashtagParams(BaseModel):
+    hashtags : Optional[List[str]]
+    @validator("hashtags",allow_reuse=True)
+    def check_hashtag_string(cls, value, values, **kwargs):
+        regex = re.compile(SPECIAL_CHARACTER)
+        for v in value :
+            v= v.strip()
+            if len(v) < 2 :
+                raise ValueError(
+                   "Hash tag value " +v+" is not allowed")
+                
+            if(regex.search(v) != None):
+                raise ValueError(
+                   "Hash tag contains special character or space : " +v+" ,Which is not allowed")
+        return value 
+
+RAWDATA_HISTORICAL_POLYGON_AREA = 100
+class RawDataHistoricalParams(HashtagParams):
+    from_timestamp :datetime
+    to_timestamp : datetime
+    geometry : MultiPolygon
+    output_type : Optional[RawDataOutputType]
+    feature_type : Optional[List[FeatureTypeRawData]] = None
+    
+
+    @validator("geometry", allow_reuse=True)
+    def check_geometry_area(cls, value, values):
+        cd=json.loads(value.json())["coordinates"]
+        for x in range(len(cd)):
+            geom_cd='{"type":"Polygon","coordinates":%s}'% cd[x]  
+            area_m2 = area(geom_cd)
+            
+            area_km2 = area_m2 * 1E-6
+            print(area_km2)
+            if area_km2 > RAWDATA_HISTORICAL_POLYGON_AREA:
+                raise ValueError("Polygon Area %s km^2 is higher than 100 km^2"%area_km2)
+        return value
+    
+    @validator("to_timestamp",allow_reuse=True)
+    def check_date_difference(cls, value, values, **kwargs):
+        start_date = values.get("from_timestamp")
+        hashtags = values.get("hashtags")
+        difference= value-start_date
+        if start_date > value :
+            raise ValueError(f"""From and To timestamps are not in order""")
+        if hashtags != None or len(hashtags) != 0:
+            acceptedday=365
+        else:
+            acceptedday=180
+        if difference > timedelta(days = acceptedday):
+                raise ValueError(f"""You can pass date interval up to maximum {acceptedday} Months""")
+        return value
+
+RAWDATA_CURRENT_POLYGON_AREA = 10
+class RawDataCurrentParams(BaseModel):
+    geometry : MultiPolygon
+    output_type : Optional[RawDataOutputType]
+    feature_type : Optional[List[FeatureTypeRawData]] = None
+    
+    @validator("geometry", allow_reuse=True)
+    def check_geometry_area(cls, value, values):
+        cd=json.loads(value.json())["coordinates"]
+        for x in range(len(cd)):
+            geom_cd='{"type":"Polygon","coordinates":%s}'% cd[x]  
+            area_m2 = area(geom_cd)
+            area_km2 = area_m2 * 1E-6
+            print(area_km2)
+            if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
+                raise ValueError("Polygon Area %s km^2 is higher than 10 km^2"%area_km2)
+        return value
