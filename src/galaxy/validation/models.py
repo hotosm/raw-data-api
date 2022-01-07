@@ -143,10 +143,31 @@ class UsersListParams(BaseModel):
     to_timestamp: Union[datetime, date]
 
 
-class UserStatsParams(TimeStampParams):
+class UserStatsParams(BaseModel):
+    from_timestamp: Union[datetime, date]
+    to_timestamp: Union[datetime, date]
     user_id: int
     hashtags: List[str]
     project_ids: List[int] = []
+    
+    @validator("to_timestamp",allow_reuse=True)
+    def check_timestamp_diffs(cls, value, values, **kwargs):
+        '''checks the timestap difference '''
+
+        from_timestamp = values.get("from_timestamp")
+
+        # if from_timestamp > datetime.now() or value > datetime.now():
+        #     raise ValueError(
+        #         "Can not exceed current date and time")
+        timestamp_diff = value - from_timestamp
+        if from_timestamp > value :
+            raise ValueError(
+                "Timestamp difference should be in order")
+        if timestamp_diff > timedelta(days=30):
+            raise ValueError(
+                "Statistics is available for a maximum period of 1 month")
+
+        return value
 
 
 class User(BaseModel):
