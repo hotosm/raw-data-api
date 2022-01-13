@@ -142,14 +142,10 @@ class UsersListParams(BaseModel):
     from_timestamp: Union[datetime, date]
     to_timestamp: Union[datetime, date]
 
-
-class UserStatsParams(BaseModel):
+class DateStampParams(BaseModel):
     from_timestamp: Union[datetime, date]
     to_timestamp: Union[datetime, date]
-    user_id: int
-    hashtags: List[str]
-    project_ids: List[int] = []
-    
+
     @validator("to_timestamp",allow_reuse=True)
     def check_timestamp_diffs(cls, value, values, **kwargs):
         '''checks the timestap difference '''
@@ -168,6 +164,12 @@ class UserStatsParams(BaseModel):
                 "Statistics is available for a maximum period of 1 month")
 
         return value
+class UserStatsParams(DateStampParams):
+    user_id: int
+    hashtags: List[str]
+    project_ids: List[int] = []
+    
+    
 
 
 class User(BaseModel):
@@ -206,7 +208,7 @@ class DataQuality_TM_RequestParams(BaseModel):
     issue_types: List[IssueType]
     output_type: OutputType
 
-class DataQuality_username_RequestParams(TimeStampParams):
+class DataQuality_username_RequestParams(DateStampParams):
     '''Request Parameteres validation for DataQuality Class Username
     
     Parameters:
