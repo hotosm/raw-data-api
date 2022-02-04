@@ -615,60 +615,51 @@ def raw_historical_data_extraction_query(cur,conn,params):
 def raw_currentdata_extraction_query(params):
     geometry_dump = dumps(dict(params.geometry))
     geom_filter = f"ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"
-    query=f"""with t1 as(
-                select
-                    id as changeset_id
-                from
-                    osm_changeset
-                where
-                    {geom_filter}
-                        ),
-                t2 as (
-                select
-                    *,
-                    case
-                        when oeh.nds is not null then ST_AsGeoJSON(public.construct_geometry(oeh.nds,
-                        oeh.id,
-                        oeh."timestamp"))
-                        else ST_AsGeoJSON(ST_MakePoint(oeh.lon,
-                        oeh.lat))
-                    end as geometry
-                from
-                    osm_element_history oeh ,
-                    t1
-                where
-                    oeh.changeset = t1.changeset_id
-                    and oeh.version = (
-                    select
-                        max("version")
-                    from
-                        public.osm_element_history i
-                    where
-                        i.id = oeh.id
-                        and i."type" = oeh."type" 
-                                    )
-                    and oeh."action" != 'delete'
-                    )
-                select
-                    t2.id,
-                    t2."type",
-                    t2.tags::text as tags,
-                    t2.changeset as changeset_id,
-                    t2."timestamp"::text as created_at,
-                    t2.uid as user_id,
-                    t2."version" ,
-                    t2."action" ,
-                    t2.country ,
-                    t2.geometry
-                from
-                    t2"""
+    # query=f"""select
+    #             osm_id as id,
+    #             "user" as type,
+    #             tags::text as tags,
+    #             changeset as changeset_id,
+    #             timestamp::text as created_at,
+    #             uid as user_id,
+    #             version ,
+    #             user as action ,
+    #             user as country ,
+    #             ST_AsGeoJSON(geom) as geometry
+    #         from
+    #             ways
+    #         where
+    #             {geom_filter}"""
+    query= f"""select
+                json_build_object( 
+                'type' , 'FeatureCollection', 
+                'features', json_agg( 
+                    json_build_object( 
+                        'type' , 'Feature', 
+                        'geometry' , ST_AsGeoJSON(geom)::json, 
+                        'properties', json_build_object( 
+                            'id', osm_id,
+                            'user_id', uid,
+                            'username', user,
+                            'version', version,
+                            'changeset_id', changeset,
+                            'created_at', timestamp::text,
+                            'tags', tags::text
+                        ) 
+                    ) 
+                ) 
+            ) as json_data
+        from
+                ways
+        where
+            {geom_filter}"""
     if params.feature_type :
         feature_type=[]
         for p in params.feature_type:
-            feature_type.append(f"""t2.tags?'{p}'""" )
+            feature_type.append(f"""tags?'{p}'""" )
         filter_feature_type = " or ".join(feature_type)
-        query+= f"""
-        where
-            {filter_feature_type}"""
+        query+= f""" and {filter_feature_type}"""
     return query
+    # return b_q1
+
     

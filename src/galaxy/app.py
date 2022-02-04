@@ -566,12 +566,13 @@ class OrganizationHashtags:
 class RawData:
     def __init__(self, params: HashtagParams):
         self.params = params
-        self.db = Database(dict(config.items("INSIGHTS_PG")))
+        self.db = Database(dict(config.items("raw")))
         self.con, self.cur = self.db.connect()
 
     @staticmethod
     def to_geojson(results):
         features = []
+        logging.debug('Geojson Binding Started !')
         for row in results:
             if row["geometry"]:
                 try:
@@ -600,7 +601,7 @@ class RawData:
         feature_collection = FeatureCollection(features=features)
         logging.debug('Geojson Binding Done !')
         return feature_collection
-
+    
     def extract_historical_data(self):
         extraction_query = raw_historical_data_extraction_query(
             self.cur, self.con, self.params)
@@ -612,5 +613,7 @@ class RawData:
         extraction_query = raw_currentdata_extraction_query(self.params)
         print(extraction_query)
         results = self.db.executequery(extraction_query)
-        feature_collection = RawData.to_geojson(results)
-        return feature_collection
+        # feature_collection = RawData.to_geojson(results)
+        # return feature_collection
+        return results
+    

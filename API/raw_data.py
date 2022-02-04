@@ -31,21 +31,30 @@ import time
 import zipfile
 from io import BytesIO
 router = APIRouter(prefix="/raw-data")
+import logging
+
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 @router.post("/historical-snapshot/")
 def get_historical_data(params:RawDataHistoricalParams):
+    start_time = time.time()
     result= RawData(params).extract_historical_data()
-    return generate_rawdata_response(result)
+    return generate_rawdata_response(result,start_time)
 
 @router.post("/current-snapshot/")
 def get_current_data(params:RawDataCurrentParams):
-    result= RawData(params).extract_current_data()
-    return generate_rawdata_response(result)
-
-def generate_rawdata_response(result):
     start_time = time.time()
+    result= RawData(params).extract_current_data()
+    rpnse=generate_rawdata_response(result,start_time)
+    return rpnse
+
+def generate_rawdata_response(result,start_time):
     stream = io.StringIO()
-    geojson.dump(result,stream)
+    
+    logging.debug('Geojson Dumping Started !')
+    geojson.dump(result[0][0],stream)
+    logging.debug('Zip Binding Started !')
+
     in_memory = BytesIO()
     zf = zipfile.ZipFile(in_memory, "w" , zipfile.ZIP_DEFLATED)
     exportname =f"Raw_Data_{datetime.now().isoformat()}"
@@ -53,7 +62,8 @@ def generate_rawdata_response(result):
     zf.writestr(f"""{exportname}.geojson""",stream.getvalue())
     zf.close()
     # print(in_memory)
-    print("zip binding done ")
+    logging.debug('Zip Binding Done !')
+
     response = StreamingResponse(iter([in_memory.getvalue()]),media_type="application/zip")
     response.headers["Content-Disposition"] = f"attachment; filename={exportname}.zip"
     print("-----Raw Data Request Took-- %s seconds -----" % (time.time() - start_time))
