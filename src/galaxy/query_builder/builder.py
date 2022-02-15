@@ -650,7 +650,7 @@ def raw_currentdata_extraction_query(params):
                 ) 
             ) as json_data
         from
-                ways
+                ways_poly
         where
             {geom_filter}"""
     if params.feature_type :

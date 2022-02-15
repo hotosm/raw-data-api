@@ -387,9 +387,9 @@ class OrganizationHashtag(BaseModel):
 
 class FeatureTypeRawData ( Enum):
     BUILDING = "building"
-    HIGHWAY = "highway"
+    # HIGHWAY = "highway"
     LANDUSE = "landuse"
-    WATERWAY = "waterway"
+    # WATERWAY = "waterway"
 
 class RawDataOutputType ( Enum):
     GEOJSON ="geojson"

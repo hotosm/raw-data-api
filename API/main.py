@@ -31,7 +31,8 @@ from .trainings import router as training_router
 from .organization import router as organization_router
 from .raw_data import router as raw_data_router
 
-
+# import os
+# os.environ['OAUTHLIB_INSECURE_TRANSPORT'] ='1'
 
 
 app = FastAPI()

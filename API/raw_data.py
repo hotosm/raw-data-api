@@ -35,11 +35,11 @@ import logging
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
-@router.post("/historical-snapshot/")
-def get_historical_data(params:RawDataHistoricalParams):
-    start_time = time.time()
-    result= RawData(params).extract_historical_data()
-    return generate_rawdata_response(result,start_time)
+# @router.post("/historical-snapshot/")
+# def get_historical_data(params:RawDataHistoricalParams):
+#     start_time = time.time()
+#     result= RawData(params).extract_historical_data()
+#     return generate_rawdata_response(result,start_time)
 
 @router.post("/current-snapshot/")
 def get_current_data(params:RawDataCurrentParams):
