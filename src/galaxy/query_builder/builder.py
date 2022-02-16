@@ -615,6 +615,22 @@ def raw_historical_data_extraction_query(cur,conn,params):
 def raw_currentdata_extraction_query(params):
     geometry_dump = dumps(dict(params.geometry))
     geom_filter = f"ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"
+    query=f"""select
+                osm_id as id,
+                "user" as type,
+                tags::text as tags,
+                changeset as changeset_id,
+                timestamp::text as created_at,
+                uid as user_id,
+                version ,
+                user as action ,
+                user as country ,
+                ST_AsGeoJSON(geom) as geometry
+            from
+                ways_poly
+            where
+                {geom_filter}"""
+              
     # query=f"""select
     #             osm_id as id,
     #             "user" as type,
@@ -627,32 +643,32 @@ def raw_currentdata_extraction_query(params):
     #             user as country ,
     #             ST_AsGeoJSON(geom) as geometry
     #         from
-    #             ways
+    #             ways_poly
     #         where
-    #             {geom_filter}"""
-    query= f"""select
-                json_build_object( 
-                'type' , 'FeatureCollection', 
-                'features', json_agg( 
-                    json_build_object( 
-                        'type' , 'Feature', 
-                        'geometry' , ST_AsGeoJSON(geom)::json, 
-                        'properties', json_build_object( 
-                            'id', osm_id,
-                            'user_id', uid,
-                            'username', user,
-                            'version', version,
-                            'changeset_id', changeset,
-                            'created_at', timestamp::text,
-                            'tags', tags::text
-                        ) 
-                    ) 
-                ) 
-            ) as json_data
-        from
-                ways_poly
-        where
-            {geom_filter}"""
+    #             country=61 and tags ? 'building'"""  
+    # query= f"""select
+    #             json_build_object( 
+    #             'type' , 'FeatureCollection', 
+    #             'features', json_agg( 
+    #                 json_build_object( 
+    #                     'type' , 'Feature', 
+    #                     'geometry' , ST_AsGeoJSON(geom)::json, 
+    #                     'properties', json_build_object( 
+    #                         'id', osm_id,
+    #                         'user_id', uid,
+    #                         'username', user,
+    #                         'version', version,
+    #                         'changeset_id', changeset,
+    #                         'created_at', timestamp::text,
+    #                         'tags', tags::text
+    #                     ) 
+    #                 ) 
+    #             ) 
+    #         ) as json_data
+    #     from
+    #             ways_poly
+    #     where
+    #         {geom_filter}"""
     if params.feature_type :
         feature_type=[]
         for p in params.feature_type:

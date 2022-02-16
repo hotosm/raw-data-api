@@ -32,6 +32,7 @@ import zipfile
 from io import BytesIO
 router = APIRouter(prefix="/raw-data")
 import logging
+import orjson
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -51,15 +52,14 @@ def get_current_data(params:RawDataCurrentParams):
 def generate_rawdata_response(result,start_time):
     stream = io.StringIO()
     
-    logging.debug('Geojson Dumping Started !')
-    geojson.dump(result[0][0],stream)
+    # logging.debug('Geojson Dumping Started !')
+    # geojson.dump(result[0][0],stream)
     logging.debug('Zip Binding Started !')
-
     in_memory = BytesIO()
     zf = zipfile.ZipFile(in_memory, "w" , zipfile.ZIP_DEFLATED)
     exportname =f"Raw_Data_{datetime.now().isoformat()}"
     # Compressing geojson file in memory 
-    zf.writestr(f"""{exportname}.geojson""",stream.getvalue())
+    zf.writestr(f"""{exportname}.geojson""",orjson.dumps(result))
     zf.close()
     # print(in_memory)
     logging.debug('Zip Binding Done !')
