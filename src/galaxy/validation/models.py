@@ -449,7 +449,7 @@ class RawDataHistoricalParams(HashtagParams):
                 raise ValueError(f"""You can pass date interval up to maximum {acceptedday} Months""")
         return value
 
-RAWDATA_CURRENT_POLYGON_AREA = 150000
+RAWDATA_CURRENT_POLYGON_AREA = 650000
 class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     output_type : Optional[RawDataOutputType]
