@@ -45,7 +45,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 @router.post("/current-snapshot/")
 def get_current_data(params:RawDataCurrentParams):
     start_time = time.time()
-    logging.debug('Request Received from API ')
+    logging.debug('Request Received from Raw Data API ')
     result= RawData(params).extract_current_data()
     rpnse=generate_rawdata_response(result,start_time)
     return rpnse
