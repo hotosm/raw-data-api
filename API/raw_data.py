@@ -56,7 +56,7 @@ def generate_rawdata_response(result,start_time):
     zf = zipfile.ZipFile(in_memory, "w" , zipfile.ZIP_DEFLATED)
     exportname =f"Raw_Data_{datetime.now().isoformat()}"
     # Compressing geojson file in memory 
-    zf.writestr(f"""{exportname}.geojson""",orjson.dumps(result))
+    zf.writestr(f"""{exportname}.geojson""",orjson.dumps(result[0][0]))
     zf.close()
     # print(in_memory)
     logging.debug('Zip Binding Done !')
