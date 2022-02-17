@@ -636,7 +636,8 @@ def raw_currentdata_extraction_query(params):
     #                 where
     #                     ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
     #                     ST_SetSRID(b.boundary,
-    #                     4326)))
+    #                     4326))
+    #                     limit 1)
     #             and
     #             {geom_filter}""" 
     query= f"""select
@@ -669,7 +670,8 @@ def raw_currentdata_extraction_query(params):
                     where
                         ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
                         ST_SetSRID(b.boundary,
-                        4326)))
+                        4326))
+                    limit 1)
                 and
             {geom_filter}"""
     if params.filters :
