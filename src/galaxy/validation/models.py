@@ -73,14 +73,24 @@ class MapathonContributor(BaseModel):
     user_id: int
     username: str
     total_buildings: int
-    mapped_tasks: int
-    validated_tasks: int
-    editors: str
-
+    editors: Optional[str]
 
 class MappedFeatureWithUser(MappedFeature):
     username: str
 
+class UserTimeStats(BaseModel):
+    user_id: int
+    time_spent_mapping: float
+    time_spent_validating: float
+
+class UserTaskStats(BaseModel):
+    user_id: int
+    mapped_task_count: int
+    validated_task_count: int
+
+class TMUserStats(BaseModel):
+    task_stats: List[UserTaskStats]
+    time_stats: List[UserTimeStats]
 
 class MapathonSummary(BaseModel):
     total_contributors: int
@@ -90,6 +100,7 @@ class MapathonSummary(BaseModel):
 class MapathonDetail(BaseModel):
     mapped_features: List[MappedFeatureWithUser]
     contributors: List[MapathonContributor]
+    tm_stats: List[TMUserStats]
 
 
 class TimeStampParams(BaseModel):

@@ -32,3 +32,10 @@ user=
 password=
 database=galaxy
 port=
+
+[TM]
+database=
+user=
+password=
+host=
+port=

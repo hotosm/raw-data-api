@@ -214,6 +214,24 @@ class Insight:
         return osm_history_result, total_contributors_result
 
 
+class TaskingManager:
+    """ This class connects to the Tasking Manager database and is responsible for all the TM related functionality. """
+
+    def __init__(self, parameters=None):
+        self.database = Database(get_db_connection_params("TM"))
+        self.con, self.cur = self.database.connect()
+        self.params = parameters
+
+    def get_tasks_mapped_and_validated_per_user(self):
+        tasks_mapped__and_validated_query = create_user_tasks_mapped_and_validated_query(self.params)
+        tasks_mapped_and_validated_result = self.database.executequery(tasks_mapped__and_validated_query)
+        return tasks_mapped_and_validated_result
+
+    def get_time_spent_mapping_and_validating_per_user(self):
+        time_spent_mapping_and_validating_query = create_user_time_spent_mapping_and_validating_query(self.params)
+        time_spent_mapping_and_validating_result = self.database.executequery(time_spent_mapping_and_validating_query)
+        return time_spent_mapping_and_validating_result
+
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
 
@@ -247,11 +265,26 @@ class Mapathon:
         osm_history_result,total_contributors=self.database.get_mapathon_detailed_result()
         mapped_features = [MappedFeatureWithUser(**r) for r in osm_history_result]
         contributors = [MapathonContributor(**r) for r in total_contributors]
+
+        tm = TaskingManager(self.params)
+        tasks_result = tm.get_tasks_mapped_and_validated_per_user()
+        for r in tasks_result:
+            r[1] = r[1] if r[1] > 0 else 0
+            r[2] = r[2] if r[2] > 0 else 0
+        task_stats = [UserTaskStats(**r) for r in tasks_result]
+        
+        time_spent_result = tm.get_time_spent_mapping_and_validating_per_user()
+        for t in time_spent_result:
+            t[1] = t[1].total_seconds() if t[1] else 0.0
+            t[2] = t[2].total_seconds() if t[2] else 0.0
+        time_stats = [UserTimeStats(**r) for r in time_spent_result]
+    
+        tm_stats = [TMUserStats(task_stats=task_stats, time_stats=time_stats)]
         report = MapathonDetail(contributors=contributors,
-                                mapped_features=mapped_features)
+                                mapped_features=mapped_features,
+                                tm_stats=tm_stats)
         # print(Output(osm_history_query,self.con).to_list())
         return report
-
 
 class Output:
     """Class to convert sql query result to specific output format. It uses Pandas Dataframe
