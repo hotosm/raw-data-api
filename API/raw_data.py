@@ -45,15 +45,12 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 @router.post("/current-snapshot/")
 def get_current_data(params:RawDataCurrentParams):
     start_time = time.time()
+    logging.debug('Request Received from API ')
     result= RawData(params).extract_current_data()
     rpnse=generate_rawdata_response(result,start_time)
     return rpnse
 
 def generate_rawdata_response(result,start_time):
-    stream = io.StringIO()
-    
-    # logging.debug('Geojson Dumping Started !')
-    # geojson.dump(result[0][0],stream)
     logging.debug('Zip Binding Started !')
     in_memory = BytesIO()
     zf = zipfile.ZipFile(in_memory, "w" , zipfile.ZIP_DEFLATED)
