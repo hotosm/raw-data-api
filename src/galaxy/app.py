@@ -609,7 +609,7 @@ class RawData:
     
     def extract_current_data(self):
         extraction_query = raw_currentdata_extraction_query(self.params)
-        print(extraction_query)
+        # print(extraction_query)
         results = self.db.executequery(extraction_query)
         feature_collection = RawData.to_geojson(results)
         return feature_collection
