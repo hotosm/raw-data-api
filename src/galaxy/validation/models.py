@@ -25,7 +25,7 @@ from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
 
-from pydantic import conlist
+from pydantic import conlist , Json
 from geojson_pydantic import Feature, FeatureCollection, Point, Polygon , MultiPolygon
 
 from datetime import datetime
@@ -451,18 +451,26 @@ class RawDataHistoricalParams(HashtagParams):
 
 RAWDATA_CURRENT_POLYGON_AREA = 150000
 class RawDataCurrentParams(BaseModel):
-    geometry : MultiPolygon
+    geometry : Polygon
     output_type : Optional[RawDataOutputType]
-    feature_type : Optional[List[FeatureTypeRawData]] = None
+    filters :  Optional[dict]=None
+    # feature_type : Optional[List[FeatureTypeRawData]] = None
     
     @validator("geometry", allow_reuse=True)
     def check_geometry_area(cls, value, values):
-        cd=json.loads(value.json())["coordinates"]
-        for x in range(len(cd)):
-            geom_cd='{"type":"Polygon","coordinates":%s}'% cd[x]  
-            area_m2 = area(geom_cd)
-            area_km2 = area_m2 * 1E-6
-            print(f"""{area_km2} Square Km""")
-            if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
+        area_m2 = area(json.loads(value.json()))
+        area_km2 = area_m2 * 1E-6
+
+        if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
                 raise ValueError("Polygon Area %s km^2 is higher than 10 km^2"%area_km2)
+
         return value
+        # cd=json.loads(value.json())["coordinates"]
+        # for x in range(len(cd)):
+        #     geom_cd='{"type":"Polygon","coordinates":%s}'% cd[x]  
+        #     area_m2 = area(geom_cd)
+        #     area_km2 = area_m2 * 1E-6
+        #     print(f"""{area_km2} Square Km""")
+        #     if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
+        #         raise ValueError("Polygon Area %s km^2 is higher than 10 km^2"%area_km2)
+

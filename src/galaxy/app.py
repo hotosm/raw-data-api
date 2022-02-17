@@ -585,15 +585,13 @@ class RawData:
                     "geometry":
                         json_geometry,
                     "properties": {
-                        "id": row["id"],
-                        "type": row["type"],
-                        "tags": row["tags"],
-                        "chageset_id": row["changeset_id"],
-                        "created_at": row["created_at"],
+                        "osm_id": row["id"],
                         "user_id": row["user_id"],
+                        "user_name": row["user_name"],              
+                        "chageset_id": row["changeset_id"],
                         "version": row["version"],
-                        "action": row["action"],
-                        "country": row["country"]
+                        "tags": row["tags"],
+                        "created_at": row["created_at"],
                         }
                 }
                 features.append(Feature(**geojson_feature))
@@ -615,5 +613,4 @@ class RawData:
         results = self.db.executequery(extraction_query)
         feature_collection = RawData.to_geojson(results)
         return feature_collection
-        # return results
     

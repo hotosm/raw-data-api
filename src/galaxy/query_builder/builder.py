@@ -17,6 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+from itertools import filterfalse
 from psycopg2 import sql
 from json import dumps
 from ..validation.models import Frequency
@@ -614,68 +615,74 @@ def raw_historical_data_extraction_query(cur,conn,params):
     
 def raw_currentdata_extraction_query(params):
     geometry_dump = dumps(dict(params.geometry))
-    geom_filter = f"ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"
+    geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     query=f"""select
                 osm_id as id,
-                "user" as type,
-                tags::text as tags,
-                changeset as changeset_id,
-                timestamp::text as created_at,
                 uid as user_id,
+                "user" as user_name,
+                changeset as changeset_id,
                 version ,
-                user as action ,
-                user as country ,
+                tags::text as tags,
+                timestamp::text as created_at,
                 ST_AsGeoJSON(geom) as geometry
             from
                 ways_poly
             where
-                {geom_filter}"""
-              
-    # query=f"""select
-    #             osm_id as id,
-    #             "user" as type,
-    #             tags::text as tags,
-    #             changeset as changeset_id,
-    #             timestamp::text as created_at,
-    #             uid as user_id,
-    #             version ,
-    #             user as action ,
-    #             user as country ,
-    #             ST_AsGeoJSON(geom) as geometry
-    #         from
-    #             ways_poly
-    #         where
-    #             country=61 and tags ? 'building'"""  
-    # query= f"""select
-    #             json_build_object( 
-    #             'type' , 'FeatureCollection', 
-    #             'features', json_agg( 
-    #                 json_build_object( 
-    #                     'type' , 'Feature', 
-    #                     'geometry' , ST_AsGeoJSON(geom)::json, 
-    #                     'properties', json_build_object( 
-    #                         'id', osm_id,
-    #                         'user_id', uid,
-    #                         'username', user,
-    #                         'version', version,
-    #                         'changeset_id', changeset,
-    #                         'created_at', timestamp::text,
-    #                         'tags', tags::text
-    #                     ) 
-    #                 ) 
-    #             ) 
-    #         ) as json_data
-    #     from
-    #             ways_poly
-    #     where
-    #         {geom_filter}"""
-    if params.feature_type :
-        feature_type=[]
-        for p in params.feature_type:
-            feature_type.append(f"""tags?'{p}'""" )
-        filter_feature_type = " or ".join(feature_type)
-        query+= f""" and {filter_feature_type}"""
+                country=(
+                    select
+                        b.id
+                    from
+                        boundaries b
+                    where
+                        ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
+                        ST_SetSRID(b.boundary,
+                        4326)))
+                and
+                {geom_filter}""" 
+    # # query= f"""select
+    # #             json_build_object( 
+    # #             'type' , 'FeatureCollection', 
+    # #             'features', json_agg( 
+    # #                 json_build_object( 
+    # #                     'type' , 'Feature', 
+    # #                     'geometry' , ST_AsGeoJSON(geom)::json, 
+    # #                     'properties', json_build_object( 
+    # #                         'id', osm_id,
+    # #                         'user_id', uid,
+    # #                         'username', user,
+    # #                         'version', version,
+    # #                         'changeset_id', changeset,
+    # #                         'created_at', timestamp::text,
+    # #                         'tags', tags::text
+    # #                     ) 
+    # #                 ) 
+    # #             ) 
+    # #         ) as json_data
+    # #     from
+    # #             ways_poly
+    # #     where
+    # #         {geom_filter}"""
+    if params.filters :
+        filter= params.filters
+        incoming_filter=[]
+        for key, value in filter.items():
+            if value : 
+                if isinstance(value, list):
+                    v_l= []
+                    for l in value:
+                        v_l.append(f""" "{l.strip()}" """)
+                    v_l_join= " , ".join(v_l)
+                    value_list= f"""[{v_l_join}]"""
+                    
+                    k=f""" "{key.strip()}" """
+                    incoming_filter.append("""tags @> '{"""+k+""":"""+value_list+"""}'""")
+                else:
+                    incoming_filter.append(f"""tags-> '{key.strip()}' ? '{value.strip()}'""")
+            else:
+                incoming_filter.append(f"""tags ? '{key.strip()}'""")
+        attribute_filter=" OR ".join(incoming_filter)
+        query+= f""" and ({attribute_filter})"""
     return query
-    # return b_q1
+    # # return b_q1
 
     
