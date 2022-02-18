@@ -605,7 +605,10 @@ class RawData:
         return feature_collection
     
     def extract_current_data(self):
-        extraction_query = raw_currentdata_extraction_query(self.params)
+        geometry_dump = orjson.dumps(dict(self.params.geometry))
+        country_id_query=get_country_id_query(geometry_dump)
+        country_id = self.db.executequery(country_id_query)
+        extraction_query = raw_currentdata_extraction_query(self.params,country_id,geometry_dump)
         # print(extraction_query)
         results = self.db.executequery(extraction_query)
         # feature_collection = RawData.to_geojson(results)
