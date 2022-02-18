@@ -39,6 +39,7 @@ from .config import config
 import geojson
 import logging
 import orjson
+from json import dumps
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 
@@ -81,7 +82,6 @@ class Database:
         """Database class constructor"""
 
         self.db_params = db_params
-        print('Database class object created...')
 
     def connect(self):
         """Database class instance method used to connect to database parameters with error printing"""
@@ -89,7 +89,7 @@ class Database:
         try:
             self.conn = connect(**self.db_params)
             self.cur = self.conn.cursor(cursor_factory=DictCursor)
-            print('Database connection has been Successful...')
+            logging.debug('Database connection has been Successful...')
             return self.conn, self.cur
         except OperationalError as err:
             """pass exception to function"""
@@ -562,27 +562,6 @@ class OrganizationHashtags:
         except Exception as err:
             return err
 
-def get_feature(row):
-    try:
-        json_geometry= orjson.loads(row["geometry"])
-    except:
-        print(row)
-        raise ValueError("error here")
-    geojson_feature = {
-        "type": "Feature",
-        "geometry":
-            json_geometry,
-        "properties": {
-            "osm_id": row["id"],
-            "user_id": row["user_id"],
-            "user_name": row["user_name"],              
-            "chageset_id": row["changeset_id"],
-            "version": row["version"],
-            "tags": row["tags"],
-            "created_at": row["created_at"],
-            }
-    }
-    return Feature(**geojson_feature)
 class RawData:
     def __init__(self, params: HashtagParams):
         self.params = params
@@ -590,9 +569,32 @@ class RawData:
         self.con, self.cur = self.db.connect()
 
     @staticmethod
+    def get_geojson_feature(row):
+        try:
+            json_geometry= orjson.loads(row["geometry"])
+        except:
+            print(row)
+            raise ValueError("error here")
+        geojson_feature = {
+            "type": "Feature",
+            "geometry":
+                json_geometry,
+            "properties": {
+                "osm_id": row["id"],
+                "user_id": row["user_id"],
+                "user_name": row["user_name"],              
+                "chageset_id": row["changeset_id"],
+                "version": row["version"],
+                "tags": row["tags"],
+                "created_at": row["created_at"],
+                }
+        }
+        return Feature(**geojson_feature)
+    
+    @staticmethod
     def to_geojson(results):
         logging.debug('Geojson Binding Started !')
-        features = [get_feature(row) for row in results if row["geometry"]]
+        features = [RawData.get_geojson_feature(row) for row in results if row["geometry"]]
         feature_collection = FeatureCollection(features=features)
         logging.debug('Geojson Binding Done !')
         return feature_collection
@@ -605,12 +607,11 @@ class RawData:
         return feature_collection
     
     def extract_current_data(self):
-        geometry_dump = orjson.dumps(dict(self.params.geometry))
-        country_id_query=get_country_id_query(geometry_dump)
-        country_id = self.db.executequery(country_id_query)
-        extraction_query = raw_currentdata_extraction_query(self.params,country_id,geometry_dump)
+        geometry_dump = dumps(dict(self.params.geometry))
+        country_id = self.db.executequery(get_country_id_query(geometry_dump))
+        extraction_query = raw_currentdata_extraction_query(self.params,country_id[0][0],geometry_dump)
         # print(extraction_query)
         results = self.db.executequery(extraction_query)
-        # feature_collection = RawData.to_geojson(results)
-        return results
+        feature_collection = RawData.to_geojson(results)
+        return feature_collection
     

@@ -612,22 +612,60 @@ def raw_historical_data_extraction_query(cur,conn,params):
             {filter_feature_type}"""
     # print(query)
     return query
+ 
+def get_country_id_query(geometry_dump):
     
-def raw_currentdata_extraction_query(params):
-    geometry_dump = dumps(dict(params.geometry))
+    base_query=f"""select
+                        b.id
+                    from
+                        boundaries b
+                    where
+                        ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
+                        ST_SetSRID(b.boundary,
+                        4326))
+                        limit 1"""
+    return base_query
+                        
+
+def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
-    # query=f"""select
-    #             osm_id as id,
-    #             uid as user_id,
-    #             "user" as user_name,
-    #             changeset as changeset_id,
-    #             version ,
-    #             tags::text as tags,
-    #             timestamp::text as created_at,
-    #             ST_AsGeoJSON(geom) as geometry
-    #         from
+    query=f"""select
+                osm_id as id,
+                uid as user_id,
+                "user" as user_name,
+                changeset as changeset_id,
+                version ,
+                tags::text as tags,
+                timestamp::text as created_at,
+                ST_AsGeoJSON(geom) as geometry
+            from
+                ways_poly
+            where
+                country={c_id}
+                and
+                {geom_filter}""" 
+    # query= f"""select
+    #             json_build_object( 
+    #             'type' , 'FeatureCollection', 
+    #             'features', json_agg( 
+    #                 json_build_object( 
+    #                     'type' , 'Feature', 
+    #                     'geometry' , ST_AsGeoJSON(geom)::json, 
+    #                     'properties', json_build_object( 
+    #                         'id', osm_id,
+    #                         'user_id', uid,
+    #                         'username', user,
+    #                         'version', version,
+    #                         'changeset_id', changeset,
+    #                         'created_at', timestamp::text,
+    #                         'tags', tags::text
+    #                     ) 
+    #                 ) 
+    #             ) 
+    #         ) as json_data
+    #     from
     #             ways_poly
-    #         where
+    #     where
     #             country=(
     #                 select
     #                     b.id
@@ -637,43 +675,9 @@ def raw_currentdata_extraction_query(params):
     #                     ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
     #                     ST_SetSRID(b.boundary,
     #                     4326))
-    #                     limit 1)
+    #                 limit 1)
     #             and
-    #             {geom_filter}""" 
-    query= f"""select
-                json_build_object( 
-                'type' , 'FeatureCollection', 
-                'features', json_agg( 
-                    json_build_object( 
-                        'type' , 'Feature', 
-                        'geometry' , ST_AsGeoJSON(geom)::json, 
-                        'properties', json_build_object( 
-                            'id', osm_id,
-                            'user_id', uid,
-                            'username', user,
-                            'version', version,
-                            'changeset_id', changeset,
-                            'created_at', timestamp::text,
-                            'tags', tags::text
-                        ) 
-                    ) 
-                ) 
-            ) as json_data
-        from
-                ways_poly
-        where
-                country=(
-                    select
-                        b.id
-                    from
-                        boundaries b
-                    where
-                        ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
-                        ST_SetSRID(b.boundary,
-                        4326))
-                    limit 1)
-                and
-            {geom_filter}"""
+    #         {geom_filter}"""
     if params.filters :
         filter= params.filters
         incoming_filter=[]
