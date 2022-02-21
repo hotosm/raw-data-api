@@ -386,10 +386,10 @@ class OrganizationHashtag(BaseModel):
     total_new_road_meters : int 
 
 class FeatureTypeRawData ( Enum):
-    BUILDING = "building"
-    # HIGHWAY = "highway"
-    LANDUSE = "landuse"
-    # WATERWAY = "waterway"
+    NODES = "nodes"
+    LINE = "ways_line"
+    POLYGON = "ways_poly"
+    RELATION = "relations"
 
 class RawDataOutputType ( Enum):
     GEOJSON ="geojson"
@@ -418,7 +418,7 @@ class RawDataHistoricalParams(HashtagParams):
     to_timestamp : datetime
     geometry : MultiPolygon
     output_type : Optional[RawDataOutputType]
-    feature_type : Optional[List[FeatureTypeRawData]] = None
+    # feature_type : Optional[List[FeatureTypeRawData]] = None
     
 
     @validator("geometry", allow_reuse=True)
@@ -454,7 +454,7 @@ class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     output_type : Optional[RawDataOutputType]
     filters :  Optional[dict]=None
-    # feature_type : Optional[List[FeatureTypeRawData]] = None
+    feature_type : Optional[List[FeatureTypeRawData]] = None
     
     @validator("geometry", allow_reuse=True)
     def check_geometry_area(cls, value, values):

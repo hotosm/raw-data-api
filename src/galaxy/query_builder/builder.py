@@ -629,7 +629,29 @@ def get_country_id_query(geometry_dump):
 
 def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
-    query=f"""select
+    base_query=[]
+    if params.filters :
+            filter= params.filters
+            incoming_filter=[]
+            for key, value in filter.items():
+                if value : 
+                    if isinstance(value, list):
+                        v_l= []
+                        for l in value:
+                            v_l.append(f""" "{l.strip()}" """)
+                        v_l_join= " , ".join(v_l)
+                        value_list= f"""[{v_l_join}]"""
+                        
+                        k=f""" "{key.strip()}" """
+                        incoming_filter.append("""tags @> '{"""+k+""":"""+value_list+"""}'""")
+                    else:
+                        incoming_filter.append(f"""tags-> '{key.strip()}' ? '{value.strip()}'""")
+                else:
+                    incoming_filter.append(f"""tags ? '{key.strip()}'""")
+            attribute_filter=" OR ".join(incoming_filter)
+        
+    for type in params.feature_type:
+        query=f"""select
                 osm_id as id,
                 uid as user_id,
                 "user" as user_name,
@@ -639,11 +661,17 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
                 timestamp::text as created_at,
                 ST_AsGeoJSON(geom) as geometry
             from
-                ways_poly
+                {type}
             where
                 country={c_id}
                 and
-                {geom_filter}""" 
+                {geom_filter}"""
+        if attribute_filter:
+            query+= f"""and ({attribute_filter})"""
+        base_query.append(query)
+    
+    final_query=" UNION ALL ".join(base_query)       
+        
     # query= f"""select
     #             json_build_object( 
     #             'type' , 'FeatureCollection', 
@@ -678,27 +706,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     #                 limit 1)
     #             and
     #         {geom_filter}"""
-    if params.filters :
-        filter= params.filters
-        incoming_filter=[]
-        for key, value in filter.items():
-            if value : 
-                if isinstance(value, list):
-                    v_l= []
-                    for l in value:
-                        v_l.append(f""" "{l.strip()}" """)
-                    v_l_join= " , ".join(v_l)
-                    value_list= f"""[{v_l_join}]"""
-                    
-                    k=f""" "{key.strip()}" """
-                    incoming_filter.append("""tags @> '{"""+k+""":"""+value_list+"""}'""")
-                else:
-                    incoming_filter.append(f"""tags-> '{key.strip()}' ? '{value.strip()}'""")
-            else:
-                incoming_filter.append(f"""tags ? '{key.strip()}'""")
-        attribute_filter=" OR ".join(incoming_filter)
-        query+= f""" and ({attribute_filter})"""
-    return query
-    # # return b_q1
+    print(final_query)
+    return final_query
 
     
