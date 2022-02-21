@@ -454,7 +454,7 @@ class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     output_type : Optional[RawDataOutputType]
     filters :  Optional[dict]=None
-    feature_type : Optional[List[FeatureTypeRawData]] = None
+    feature_type : List[FeatureTypeRawData]
     
     @validator("geometry", allow_reuse=True)
     def check_geometry_area(cls, value, values):
