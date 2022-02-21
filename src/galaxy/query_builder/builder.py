@@ -630,6 +630,7 @@ def get_country_id_query(geometry_dump):
 def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
+    attribute_filter= None
     if params.filters :
             filter= params.filters
             incoming_filter=[]
