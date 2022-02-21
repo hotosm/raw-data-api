@@ -663,8 +663,6 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
             from
                 {type}
             where
-                country={c_id}
-                and
                 {geom_filter}"""
         if attribute_filter:
             query+= f"""and ({attribute_filter})"""
