@@ -705,7 +705,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     #                 limit 1)
     #             and
     #         {geom_filter}"""
-    print(final_query)
+    # print(final_query)
     return final_query
 
     
