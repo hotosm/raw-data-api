@@ -568,33 +568,33 @@ class RawData:
         self.db = Database(dict(config.items("raw")))
         self.con, self.cur = self.db.connect()
 
-    @staticmethod
-    def get_geojson_feature(row):
-        try:
-            json_geometry= orjson.loads(row["geometry"])
-        except:
-            print(row)
-            raise ValueError("error here")
-        geojson_feature = {
-            "type": "Feature",
-            "geometry":
-                json_geometry,
-            "properties": {
-                "osm_id": row["id"],
-                "user_id": row["user_id"],
-                "user_name": row["user_name"],              
-                "chageset_id": row["changeset_id"],
-                "version": row["version"],
-                "tags": row["tags"],
-                "created_at": row["created_at"],
-                }
-        }
-        return Feature(**geojson_feature)
+    # @staticmethod
+    # def get_geojson_feature(row):
+    #     try:
+    #         json_geometry= orjson.loads(row["geometry"])
+    #     except:
+    #         print(row)
+    #         raise ValueError("error here")
+    #     geojson_feature = {
+    #         "type": "Feature",
+    #         "geometry":
+    #             json_geometry,
+    #         "properties": {
+    #             "osm_id": row["id"],
+    #             "user_id": row["user_id"],
+    #             "user_name": row["user_name"],              
+    #             "chageset_id": row["changeset_id"],
+    #             "version": row["version"],
+    #             "tags": row["tags"],
+    #             "created_at": row["created_at"],
+    #             }
+    #     }
+    #     return Feature(**geojson_feature)
     
     @staticmethod
     def to_geojson(results):
         logging.debug('Geojson Binding Started !')
-        features = [RawData.get_geojson_feature(row) for row in results if row["geometry"]]
+        features = [row for row in results]
         feature_collection = FeatureCollection(features=features)
         logging.debug('Geojson Binding Done !')
         return feature_collection
@@ -610,7 +610,7 @@ class RawData:
         geometry_dump = dumps(dict(self.params.geometry))
         country_id = self.db.executequery(get_country_id_query(geometry_dump))
         extraction_query = raw_currentdata_extraction_query(self.params,country_id[0][0],geometry_dump)
-        # print(extraction_query)
+        # print(extraction_query)     
         results = self.db.executequery(extraction_query)
         feature_collection = RawData.to_geojson(results)
         return feature_collection

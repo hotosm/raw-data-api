@@ -653,14 +653,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
         
     for type in params.feature_type:
         query=f"""select
-                osm_id as id,
-                uid as user_id,
-                "user" as user_name,
-                changeset as changeset_id,
-                version ,
-                tags::text as tags,
-                timestamp::text as created_at,
-                ST_AsGeoJSON(geom) as geometry
+                    ST_AsGeoJSON({type}.*)
             from
                 {type}
             where
@@ -675,19 +668,19 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     #             json_build_object( 
     #             'type' , 'FeatureCollection', 
     #             'features', json_agg( 
-    #                 json_build_object( 
-    #                     'type' , 'Feature', 
-    #                     'geometry' , ST_AsGeoJSON(geom)::json, 
-    #                     'properties', json_build_object( 
-    #                         'id', osm_id,
-    #                         'user_id', uid,
-    #                         'username', user,
-    #                         'version', version,
-    #                         'changeset_id', changeset,
-    #                         'created_at', timestamp::text,
-    #                         'tags', tags::text
-    #                     ) 
-    #                 ) 
+                    # json_build_object( 
+                    #     'type' , 'Feature', 
+                    #     'geometry' , ST_AsGeoJSON(geom)::json, 
+                    #     'properties', json_build_object( 
+                    #         'id', osm_id,
+                    #         'user_id', uid,
+                    #         'username', user,
+                    #         'version', version,
+                    #         'changeset_id', changeset,
+                    #         'created_at', timestamp::text,
+                    #         'tags', tags::text
+                    #     ) 
+                    # ) 
     #             ) 
     #         ) as json_data
     #     from
