@@ -47,10 +47,6 @@ def get_current_data(params:RawDataCurrentParams):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
     result= RawData(params).extract_current_data()
-    rpnse=generate_rawdata_response(result,start_time)
-    return rpnse
-
-def generate_rawdata_response(result,start_time):
     logging.debug('Zip Binding Started !')
     in_memory = BytesIO()
     zf = zipfile.ZipFile(in_memory, "w" , zipfile.ZIP_DEFLATED)
@@ -58,9 +54,7 @@ def generate_rawdata_response(result,start_time):
     # Compressing geojson file in memory 
     zf.writestr(f"""{exportname}.geojson""",orjson.dumps(result))
     zf.close()
-    # print(in_memory)
     logging.debug('Zip Binding Done !')
-
     response = StreamingResponse(iter([in_memory.getvalue()]),media_type="application/zip")
     response.headers["Content-Disposition"] = f"attachment; filename={exportname}.zip"
     print("-----Raw Data Request Took-- %s seconds -----" % (time.time() - start_time))

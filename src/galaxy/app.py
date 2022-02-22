@@ -603,18 +603,13 @@ class RawData:
         extraction_query = raw_historical_data_extraction_query(
             self.cur, self.con, self.params)
         results = self.db.executequery(extraction_query)
-        feature_collection = RawData.to_geojson(results)
-        return feature_collection
+        return  RawData.to_geojson(results)
     
     def extract_current_data(self):
         geometry_dump = dumps(dict(self.params.geometry))
         #None for now , once all country is populated in db we will uncomment it 
         # country_id = self.db.executequery(get_country_id_query(geometry_dump))
         extraction_query = raw_currentdata_extraction_query(self.params,None,geometry_dump)
-        # print(extraction_query)     
         results = self.db.executequery(extraction_query)
-
-        feature_collection = RawData.to_geojson(results)
-       
-        return feature_collection
+        return RawData.to_geojson(results)
     
