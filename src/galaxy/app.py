@@ -594,7 +594,7 @@ class RawData:
     @staticmethod
     def to_geojson(results):
         logging.debug('Geojson Binding Started !')
-        features = [row for row in results]
+        features = [ orjson.loads(row[0]) for row in results]
         feature_collection = FeatureCollection(features=features)
         logging.debug('Geojson Binding Done !')
         return feature_collection
@@ -608,10 +608,13 @@ class RawData:
     
     def extract_current_data(self):
         geometry_dump = dumps(dict(self.params.geometry))
-        country_id = self.db.executequery(get_country_id_query(geometry_dump))
-        extraction_query = raw_currentdata_extraction_query(self.params,country_id[0][0],geometry_dump)
+        #None for now , once all country is populated in db we will uncomment it 
+        # country_id = self.db.executequery(get_country_id_query(geometry_dump))
+        extraction_query = raw_currentdata_extraction_query(self.params,None,geometry_dump)
         # print(extraction_query)     
         results = self.db.executequery(extraction_query)
+
         feature_collection = RawData.to_geojson(results)
+       
         return feature_collection
     
