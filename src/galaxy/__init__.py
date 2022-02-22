@@ -5,7 +5,10 @@ import json
 import logging
 import os
 
-def get_db_connection_params() -> dict:
+def get_db_connection_params(dbIdentifier) -> dict:
+    if dbIdentifier == "INSIGHTS":
+        return dict(config.items("INSIGHTS"))
+
     json_env = os.getenv("POSTGRES_CONNECTION_PARAMS")
     del json_env["dbinstanceidentifier"]
     del json_env["engine"]
@@ -28,7 +31,7 @@ def get_db_connection_params() -> dict:
     }
 
     if None in connection_params.values():
-        return dict(config.items("PG"))
+        return dict(config.items("UNDERPASS"))
 
     return connection_params
 
