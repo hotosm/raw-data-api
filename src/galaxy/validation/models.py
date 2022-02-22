@@ -460,7 +460,7 @@ class RawDataCurrentParams(BaseModel):
     def check_geometry_area(cls, value, values):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1E-6
-
+        print(area_km2)
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
                 raise ValueError(f"""Polygon Area {area_km2} km^2 is higher than {RAWDATA_CURRENT_POLYGON_AREA} km^2""")
 

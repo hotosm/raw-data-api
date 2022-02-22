@@ -664,41 +664,6 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     
     final_query=" UNION ALL ".join(base_query)       
         
-    # query= f"""select
-    #             json_build_object( 
-    #             'type' , 'FeatureCollection', 
-    #             'features', json_agg( 
-                    # json_build_object( 
-                    #     'type' , 'Feature', 
-                    #     'geometry' , ST_AsGeoJSON(geom)::json, 
-                    #     'properties', json_build_object( 
-                    #         'id', osm_id,
-                    #         'user_id', uid,
-                    #         'username', user,
-                    #         'version', version,
-                    #         'changeset_id', changeset,
-                    #         'created_at', timestamp::text,
-                    #         'tags', tags::text
-                    #     ) 
-                    # ) 
-    #             ) 
-    #         ) as json_data
-    #     from
-    #             ways_poly
-    #     where
-    #             country=(
-    #                 select
-    #                     b.id
-    #                 from
-    #                     boundaries b
-    #                 where
-    #                     ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
-    #                     ST_SetSRID(b.boundary,
-    #                     4326))
-    #                 limit 1)
-    #             and
-    #         {geom_filter}"""
-    # print(final_query)
     return final_query
 
     
