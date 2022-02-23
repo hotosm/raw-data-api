@@ -639,14 +639,14 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
                     if isinstance(value, list):
                         v_l= []
                         for l in value:
-                            v_l.append(f""" "{l.strip()}" """)
+                            v_l.append(f""" '{l.strip()}' """)
                         v_l_join= " , ".join(v_l)
-                        value_list= f"""[{v_l_join}]"""
+                        value_tuple= f"""({v_l_join})"""
                         
-                        k=f""" "{key.strip()}" """
-                        incoming_filter.append("""tags @> '{"""+k+""":"""+value_list+"""}'""")
+                        k=f""" '{key.strip()}' """
+                        incoming_filter.append("""tags ->> """+k+"""IN """+value_tuple+"""""")
                     else:
-                        incoming_filter.append(f"""tags-> '{key.strip()}' ? '{value.strip()}'""")
+                        incoming_filter.append(f"""tags ->> '{key.strip()}' = '{value.strip()}'""")
                 else:
                     incoming_filter.append(f"""tags ? '{key.strip()}'""")
             attribute_filter=" OR ".join(incoming_filter)
@@ -659,7 +659,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
             where
                 {geom_filter}"""
         if attribute_filter:
-            query+= f"""and ({attribute_filter})"""
+            query+= f""" and ({attribute_filter})"""
         base_query.append(query)
     
     final_query=" UNION ALL ".join(base_query)       

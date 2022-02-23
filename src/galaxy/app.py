@@ -39,6 +39,7 @@ from .config import config
 import geojson
 import logging
 import orjson
+
 from json import dumps
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -594,8 +595,7 @@ class RawData:
     @staticmethod
     def to_geojson(results):
         logging.debug('Geojson Binding Started !')
-        features = [ orjson.loads(row[0]) for row in results]
-        feature_collection = FeatureCollection(features=features)
+        feature_collection = FeatureCollection(features=[orjson.loads(row[0]) for row in results])
         logging.debug('Geojson Binding Done !')
         return feature_collection
     
