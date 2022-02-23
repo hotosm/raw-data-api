@@ -142,7 +142,7 @@ class Database:
                 if self.cursor:
                     self.cursor.close()
                     self.conn.close()
-                    print("Connection closed")
+                    logging.debug("Database Connection closed")
         except Exception as err:
             raise err
 
@@ -611,5 +611,6 @@ class RawData:
         # country_id = self.db.executequery(get_country_id_query(geometry_dump))
         extraction_query = raw_currentdata_extraction_query(self.params,None,geometry_dump)
         results = self.db.executequery(extraction_query)
+        self.db.close_conn()
         return RawData.to_geojson(results)
     

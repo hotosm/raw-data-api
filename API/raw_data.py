@@ -23,16 +23,15 @@ from fastapi import APIRouter, Depends
 from src.galaxy.validation.models import RawDataHistoricalParams , RawDataCurrentParams
 from .auth import login_required
 from src.galaxy.app import RawData
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse
 from datetime import datetime
-import geojson
-import io
 import time
 import zipfile
-from io import BytesIO
 router = APIRouter(prefix="/raw-data")
 import logging
 import orjson
+import os 
+from starlette.background import BackgroundTasks
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -42,21 +41,27 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 #     result= RawData(params).extract_historical_data()
 #     return generate_rawdata_response(result,start_time)
 
+def remove_file(path: str) -> None:
+    os.unlink(path)
+
 @router.post("/current-snapshot/")
-def get_current_data(params:RawDataCurrentParams):
+def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
     result= RawData(params).extract_current_data()
     logging.debug('Zip Binding Started !')
-    in_memory = BytesIO()
-    zf = zipfile.ZipFile(in_memory, "w" , zipfile.ZIP_DEFLATED)
-    exportname =f"Raw_Data_{datetime.now().isoformat()}"
-    # Compressing geojson file in memory 
+    # in_memory = BytesIO()
+    exportname =f"Raw_Export_{datetime.now().isoformat()}"
+    #saving file in temp directory instead of memory so that zipping file will not eat memory 
+    temp_path=f"""tmp/{exportname}.zip"""
+    zf = zipfile.ZipFile(temp_path, "w" , zipfile.ZIP_DEFLATED)
+    # Compressing geojson file
     zf.writestr(f"""{exportname}.geojson""",orjson.dumps(result))
     zf.close()
     logging.debug('Zip Binding Done !')
-    response = StreamingResponse(iter([in_memory.getvalue()]),media_type="application/zip")
+    response = FileResponse(temp_path,media_type="application/zip")
     response.headers["Content-Disposition"] = f"attachment; filename={exportname}.zip"
     print("-----Raw Data Request Took-- %s seconds -----" % (time.time() - start_time))
+    background_tasks.add_task(remove_file, temp_path)
     return response
     
