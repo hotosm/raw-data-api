@@ -591,9 +591,9 @@ class RawData:
         
         cursor = self.con.cursor(name='fetch_raw') #using server side cursor
         logging.debug('Server side Cursor Query Sent')
-        cursor.itersize = 2000 # defining itersize to deliver client at one time
+        cursor.itersize = 20000 # defining itersize to deliver client at one time
         cursor.execute(extraction_query)
-        logging.debug(f"""Server side Query result returned, Starting Post Processing With itersize of {itersize}""")
+        logging.debug(f"""Server side Query result returned, Starting Post Processing With itersize of {cursor.itersize}""")
         records = cursor.fetchmany(cursor.itersize)
         features=[]
         while len(records) > 0:
