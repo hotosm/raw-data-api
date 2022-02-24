@@ -568,29 +568,6 @@ class RawData:
         self.params = params
         self.db = Database(dict(config.items("raw")))
         self.con, self.cur = self.db.connect()
-
-    # @staticmethod
-    # def get_geojson_feature(row):
-    #     try:
-    #         json_geometry= orjson.loads(row["geometry"])
-    #     except:
-    #         print(row)
-    #         raise ValueError("error here")
-    #     geojson_feature = {
-    #         "type": "Feature",
-    #         "geometry":
-    #             json_geometry,
-    #         "properties": {
-    #             "osm_id": row["id"],
-    #             "user_id": row["user_id"],
-    #             "user_name": row["user_name"],              
-    #             "chageset_id": row["changeset_id"],
-    #             "version": row["version"],
-    #             "tags": row["tags"],
-    #             "created_at": row["created_at"],
-    #             }
-    #     }
-    #     return Feature(**geojson_feature)
     
     @staticmethod
     def to_geojson(results):
@@ -610,7 +587,30 @@ class RawData:
         #None for now , once all country is populated in db we will uncomment it 
         # country_id = self.db.executequery(get_country_id_query(geometry_dump))
         extraction_query = raw_currentdata_extraction_query(self.params,None,geometry_dump)
-        results = self.db.executequery(extraction_query)
-        self.db.close_conn()
-        return RawData.to_geojson(results)
+        # results = self.db.executequery(extraction_query)
+        
+        cursor = self.con.cursor(name='fetch_raw') #using server side cursor
+        logging.debug('Server side Cursor Query Sent')
+        cursor.itersize = 2000 # defining itersize to deliver client at one time
+        cursor.execute(extraction_query)
+        logging.debug(f"""Server side Query result returned, Starting Post Processing With itersize of {itersize}""")
+        records = cursor.fetchmany(cursor.itersize)
+        features=[]
+        while len(records) > 0:
+            for row in records:
+                features.append(orjson.loads(row[0]))
+            records = cursor.fetchmany(cursor.itersize)
+
+        cursor.close() # closing connection to avoid memory issues
+        self.con.close()
+        feature_collection = FeatureCollection(features=features)
+        logging.debug('Post Processing Done , Returning Geojson File to Zip')
+        
+        # dump_geojson_temp_file = f"""tmp/{exportname}.geojson"""
+        # with open(dump_geojson_temp_file,'w',encoding = 'utf-8') as f:
+        #     json.dump(feature_collection,f)
+        # f.close()
+        # logging.debug('Dumping Geojson File Finished')
+        
+        return feature_collection
     
