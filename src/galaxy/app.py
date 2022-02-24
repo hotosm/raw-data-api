@@ -582,35 +582,32 @@ class RawData:
         results = self.db.executequery(extraction_query)
         return  RawData.to_geojson(results)
     
-    def extract_current_data(self):
+    def extract_current_data(self,exportname):
         geometry_dump = dumps(dict(self.params.geometry))
         #None for now , once all country is populated in db we will uncomment it 
         # country_id = self.db.executequery(get_country_id_query(geometry_dump))
         extraction_query = raw_currentdata_extraction_query(self.params,None,geometry_dump)
-        # results = self.db.executequery(extraction_query)
-        
-        cursor = self.con.cursor(name='fetch_raw') #using server side cursor
-        logging.debug('Server side Cursor Query Sent')
-        cursor.itersize = 20000 # defining itersize to deliver client at one time
-        cursor.execute(extraction_query)
-        logging.debug(f"""Server side Query result returned, Starting Post Processing With itersize of {cursor.itersize}""")
-        records = cursor.fetchmany(cursor.itersize)
-        features=[]
-        while len(records) > 0:
-            for row in records:
-                features.append(orjson.loads(row[0]))
-            records = cursor.fetchmany(cursor.itersize)
-
-        cursor.close() # closing connection to avoid memory issues
-        self.con.close()
-        feature_collection = FeatureCollection(features=features)
-        logging.debug('Post Processing Done , Returning Geojson File to Zip')
-        
-        # dump_geojson_temp_file = f"""tmp/{exportname}.geojson"""
-        # with open(dump_geojson_temp_file,'w',encoding = 'utf-8') as f:
-        #     json.dump(feature_collection,f)
-        # f.close()
-        # logging.debug('Dumping Geojson File Finished')
-        
-        return feature_collection
+        pre_geojson="""{"type": "FeatureCollection","features": ["""
+        post_geojson= """]}"""
+        dump_geojson_temp_file = f"""tmp/{exportname}.geojson"""
+        with open(dump_geojson_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
+            f.write(pre_geojson)            
+            logging.debug('Server side Cursor Query Sent')
+            with self.con.cursor(name='fetch_raw') as cursor: #using server side cursor
+                cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+                cursor.execute(extraction_query)
+                first=True
+                for row in cursor:
+                    if first:
+                        first = False
+                        f.write(row[0])
+                    else:
+                        f.write(',')
+                        f.write(row[0])
+                cursor.close() # closing connection to avoid memory issues
+                self.con.close()
+            f.write(post_geojson)
+        f.close()
+        logging.debug(f"""Server side Query result returned, Post Processing Done""")
+        return dump_geojson_temp_file
     

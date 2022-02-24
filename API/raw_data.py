@@ -51,7 +51,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
     exportname =f"Raw_Export_{datetime.now().isoformat()}"
-    dump_geojson_temp_file= RawData(params).extract_current_data()
+    dump_geojson_temp_file= RawData(params).extract_current_data(exportname)
     logging.debug('Zip Binding Started !')
     # in_memory = BytesIO()
     
@@ -59,16 +59,16 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     zip_temp_path=f"""tmp/{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w" , zipfile.ZIP_DEFLATED)
     # Compressing geojson file
-    zf.writestr(f"""{exportname}.geojson""",orjson.dumps(dump_geojson_temp_file))
-    # zf.write(dump_geojson_temp_file)
+    # zf.writestr(f"""{exportname}.geojson""",orjson.dumps(dump_geojson_temp_file))
+    zf.write(dump_geojson_temp_file)
     
     zf.close()
     logging.debug('Zip Binding Done !')
     response = FileResponse(zip_temp_path,media_type="application/zip")
     response.headers["Content-Disposition"] = f"attachment; filename={exportname}.zip"
     print("-----Raw Data Request Took-- %s seconds -----" % (time.time() - start_time))
-    background_tasks.add_task(remove_file, zip_temp_path)
-    # background_tasks.add_task(remove_file, dump_geojson_temp_file)
+    background_tasks.add_task(remove_file, zip_temp_path) #clearing the tmp zip file 
+    background_tasks.add_task(remove_file, dump_geojson_temp_file) # clearing tmp geojson file 
     
     return response
     
