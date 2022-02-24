@@ -592,7 +592,7 @@ class RawData:
         dump_geojson_temp_file = f"""tmp/{exportname}.geojson"""
         with open(dump_geojson_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
             f.write(pre_geojson)            
-            logging.debug('Server side Cursor Query Sent')
+            logging.debug('Server side Cursor Query Sent with 1000 Chunk Size')
             with self.con.cursor(name='fetch_raw') as cursor: #using server side cursor
                 cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
                 cursor.execute(extraction_query)
@@ -608,6 +608,6 @@ class RawData:
                 self.con.close()
             f.write(post_geojson)
         f.close()
-        logging.debug(f"""Server side Query result returned, Post Processing Done""")
+        logging.debug(f"""Server side Query Result  Post Processing Done""")
         return dump_geojson_temp_file
     
