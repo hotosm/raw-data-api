@@ -12,3 +12,4 @@ build
 newrelic.ini
 newrelic.ini_backup
 tmp
+nohup.out
