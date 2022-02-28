@@ -519,7 +519,7 @@ def generate_organization_hashtag_reports(cur,params):
         hashtags.append("name = '"+str(p.strip()).lower()+"'" )
     filter_hashtags = " or ".join(hashtags)
     # filter_hashtags = cur.mogrify(sql.SQL(filter_hashtags), params.hashtags).decode()
-    t2_query= f"""select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_km as total_new_road_meters
+    t2_query= f"""select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='{params.frequency}'"""
     month_time= f"""0:00:00"""

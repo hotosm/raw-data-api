@@ -19,7 +19,7 @@ path=
 underpass=underpass.sql
 osmstats=osmstats.sql
 
-[INSIGHTS_DATABASE]
+[INSIGHTS]
 host=localhost
 user=postgres
 password=changeme

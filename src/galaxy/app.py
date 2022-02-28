@@ -35,6 +35,7 @@ import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
+<<<<<<< HEAD
 from .config import config
 import geojson
 import logging
@@ -44,6 +45,10 @@ from json import dumps
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 
+=======
+
+from .config import get_db_connection_params
+>>>>>>> origin/master
 
 def print_psycopg2_exception(err):
     """ 
@@ -151,7 +156,8 @@ class Underpass:
     """This class connects to underpass database and responsible for all the underpass related functionality"""
 
     def __init__(self, parameters=None):
-        self.database = Database(dict(config.items("UNDERPASS")))
+        self.database = Database(get_db_connection_params("UNDERPASS"))
+        # self.database = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.database.connect()
         self.params = parameters
 
@@ -188,7 +194,8 @@ class Insight:
     """This class connects to Insight database and responsible for all the Insight related functionality"""
 
     def __init__(self, parameters=None):
-        self.database = Database(dict(config.items("INSIGHTS_PG")))
+        self.database = Database(get_db_connection_params("INSIGHTS"))
+        # self.database = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.database.connect()
         self.params = parameters
 
@@ -357,7 +364,8 @@ class Output:
 
 class UserStats:
     def __init__(self):
-        self.db = Database(dict(config.items("INSIGHTS_PG")))
+        self.db = Database(get_db_connection_params("INSIGHTS"))
+        # self.db = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.db.connect()
 
     def list_users(self, params):
@@ -398,7 +406,8 @@ class UserStats:
 
 class DataQualityHashtags:
     def __init__(self, params: DataQualityHashtagParams):
-        self.db = Database(dict(config.items("UNDERPASS")))
+        self.db = Database(get_db_connection_params("UNDERPASS"))
+        # self.db = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.db.connect()
         self.params = params
 
@@ -467,7 +476,8 @@ class DataQuality:
     """
 
     def __init__(self, parameters, inputtype):
-        self.db = Database(dict(config.items("UNDERPASS")))
+        self.db = Database(get_db_connection_params("UNDERPASS"))
+        # self.db = Database(dict(config.items("UNDERPASS")))
         self.con, self.cur = self.db.connect()
         self.inputtype = inputtype
         # parameter validation using pydantic model
@@ -545,7 +555,8 @@ class OrganizationHashtags:
     """
 
     def __init__(self, params: OrganizationHashtagParams):
-        self.db = Database(dict(config.items("INSIGHTS_PG")))
+        self.db = Database(get_db_connection_params("INSIGHTS"))
+        # self.db = Database(dict(config.items("INSIGHTS_PG")))
         self.con, self.cur = self.db.connect()
         self.params = params
         self.query = generate_organization_hashtag_reports(

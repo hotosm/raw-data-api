@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2.extras import DictCursor
 from fastapi import APIRouter
 from geojson_pydantic import FeatureCollection
-from src.galaxy import get_db_connection_params
+from src.galaxy.config import get_db_connection_params
 
 router = APIRouter(prefix="/countries")
 @router.get("/", response_model=FeatureCollection)
