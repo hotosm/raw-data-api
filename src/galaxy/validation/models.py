@@ -385,7 +385,7 @@ class OrganizationHashtag(BaseModel):
     total_unique_contributors : int
     total_new_road_meters : int 
 
-class FeatureTypeRawData ( Enum):
+class GeometryTypeRawData ( Enum):
     NODES = "nodes"
     LINE = "ways_line"
     POLYGON = "ways_poly"
@@ -418,7 +418,7 @@ class RawDataHistoricalParams(HashtagParams):
     to_timestamp : datetime
     geometry : MultiPolygon
     output_type : Optional[RawDataOutputType]
-    # feature_type : Optional[List[FeatureTypeRawData]] = None
+    # geometry_type : Optional[List[FeatureTypeRawData]] = None
     
 
     @validator("geometry", allow_reuse=True)
@@ -453,8 +453,8 @@ RAWDATA_CURRENT_POLYGON_AREA = 5000
 class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     output_type : Optional[RawDataOutputType]
-    filters :  Optional[dict]=None
-    feature_type : List[FeatureTypeRawData]
+    osm_tags :  Optional[dict]=None
+    geometry_type : List[GeometryTypeRawData]
     
     @validator("geometry", allow_reuse=True)
     def check_geometry_area(cls, value, values):

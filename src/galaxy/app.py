@@ -35,20 +35,14 @@ import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
-<<<<<<< HEAD
 from .config import config
 import geojson
 import logging
 import orjson
-
 from json import dumps
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
-
-=======
-
 from .config import get_db_connection_params
->>>>>>> origin/master
 
 def print_psycopg2_exception(err):
     """ 

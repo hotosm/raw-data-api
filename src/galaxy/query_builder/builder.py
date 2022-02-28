@@ -602,14 +602,14 @@ def raw_historical_data_extraction_query(cur,conn,params):
             t2.geometry
         from
             t2"""
-    if params.feature_type :
-        feature_type=[]
-        for p in params.feature_type:
-            feature_type.append(f"""t2.tags?'{p}'""" )
-        filter_feature_type = " or ".join(feature_type)
+    if params.geometry_type :
+        geometry_type=[]
+        for p in params.geometry_type:
+            geometry_type.append(f"""t2.tags?'{p}'""" )
+        filter_geometry_type = " or ".join(geometry_type)
         query+= f"""
         where
-            {filter_feature_type}"""
+            {filter_geometry_type}"""
     # print(query)
     return query
  
@@ -631,8 +631,8 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
     attribute_filter= None
-    if params.filters :
-            filter= params.filters
+    if params.osm_tags :
+            filter= params.osm_tags
             incoming_filter=[]
             for key, value in filter.items():
                 if value : 
@@ -651,7 +651,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
                     incoming_filter.append(f"""tags ? '{key.strip()}'""")
             attribute_filter=" OR ".join(incoming_filter)
         
-    for type in params.feature_type:
+    for type in params.geometry_type:
         query=f"""select
                     ST_AsGeoJSON({type}.*)
             from
