@@ -456,6 +456,15 @@ class RawDataCurrentParams(BaseModel):
     osm_tags :  Optional[dict]=None
     geometry_type : List[GeometryTypeRawData]
     
+    @validator("osm_tags", allow_reuse=True)
+    def check_value(cls, value, values):
+        for key, v in value.items():
+            if isinstance(v, list):   
+                pass
+            else :
+                raise ValueError("Value should be of List Type")
+        return value
+    
     @validator("geometry", allow_reuse=True)
     def check_geometry_area(cls, value, values):
         area_m2 = area(json.loads(value.json()))

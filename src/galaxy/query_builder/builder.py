@@ -631,25 +631,27 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
     attribute_filter= None
+    # print(params.osm_tags)
     if params.osm_tags :
-            filter= params.osm_tags
-            incoming_filter=[]
-            for key, value in filter.items():
-                if value : 
-                    if isinstance(value, list):
-                        v_l= []
-                        for l in value:
-                            v_l.append(f""" '{l.strip()}' """)
-                        v_l_join= " , ".join(v_l)
-                        value_tuple= f"""({v_l_join})"""
-                        
-                        k=f""" '{key.strip()}' """
-                        incoming_filter.append("""tags ->> """+k+"""IN """+value_tuple+"""""")
-                    else:
-                        incoming_filter.append(f"""tags ->> '{key.strip()}' = '{value.strip()}'""")
-                else:
-                    incoming_filter.append(f"""tags ? '{key.strip()}'""")
-            attribute_filter=" OR ".join(incoming_filter)
+        filter= params.osm_tags
+
+        incoming_filter=[]
+        for key, value in filter.items():
+
+            if len(value)>1:
+                v_l= []
+                for l in value:
+                    v_l.append(f""" '{l.strip()}' """)
+                v_l_join= " , ".join(v_l)
+                value_tuple= f"""({v_l_join})"""
+                
+                k=f""" '{key.strip()}' """
+                incoming_filter.append("""tags ->> """+k+"""IN """+value_tuple+"""""")
+            elif len(value)==1:
+                incoming_filter.append(f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+            else: 
+                incoming_filter.append(f"""tags ? '{key.strip()}'""")
+        attribute_filter=" OR ".join(incoming_filter)
         
     for type in params.geometry_type:
         query=f"""select
