@@ -484,9 +484,6 @@ class RawDataCurrentParams(BaseModel):
                 return None
             
         if osm_elements:
-            if (value is None or len(value) == 0)  and (osm_elements is None or len(osm_elements) == 0):
-                raise ValueError("osm_elements and geometry_type is not defined")
-            
             if (value != None or len(value) != 0)  and (osm_elements != None or len(osm_elements) != 0):
                 raise ValueError("You can not pass both osm_elements and geometry_type")
         return value
