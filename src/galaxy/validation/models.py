@@ -385,12 +385,6 @@ class OrganizationHashtag(BaseModel):
     total_unique_contributors : int
     total_new_road_meters : int 
 
-class GeometryTypeRawData ( Enum):
-    NODES = "nodes"
-    LINE = "ways_line"
-    POLYGON = "ways_poly"
-    RELATION = "relations"
-
 class RawDataOutputType ( Enum):
     GEOJSON ="geojson"
     KML = "kml"
@@ -411,6 +405,8 @@ class HashtagParams(BaseModel):
                 raise ValueError(
                    "Hash tag contains special character or space : " +v+" ,Which is not allowed")
         return value 
+
+
 
 RAWDATA_HISTORICAL_POLYGON_AREA = 100
 class RawDataHistoricalParams(HashtagParams):
@@ -449,12 +445,28 @@ class RawDataHistoricalParams(HashtagParams):
                 raise ValueError(f"""You can pass date interval up to maximum {acceptedday} Months""")
         return value
 
+class GeometryTypeRawData ( Enum):
+    POINT="POINT"
+    LINESTRING = "LINESTRING"
+    POLYGON = "POLYGON"
+    MULTILINESTRING = "MULTILINESTRING"
+    MULTIPOLYGON = "MULTIPOLYGON"
+    
+
+class OsmElementRawData(Enum):
+    NODES = "nodes"
+    WAYS_LINE = "ways_line"
+    WAYS_POLY = "ways_poly"
+    RELATIONS = "relations"
+
 RAWDATA_CURRENT_POLYGON_AREA = 5000
 class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     output_type : Optional[RawDataOutputType]
     osm_tags :  Optional[dict]=None
-    geometry_type : List[GeometryTypeRawData]
+    osm_elements : Optional[List[OsmElementRawData]] = None
+    geometry_type : Optional[List[GeometryTypeRawData]] = None
+    
     
     @validator("osm_tags", allow_reuse=True)
     def check_value(cls, value, values):
@@ -463,6 +475,21 @@ class RawDataCurrentParams(BaseModel):
                 pass
             else :
                 raise ValueError("Value should be of List Type")
+        return value
+
+    @validator("geometry_type", always=True)    
+    def check_not_defined_fields(cls, value, values):
+        osm_elements = values.get("osm_elements")
+        if (value is None or len(value) == 0):
+                return
+            
+        if osm_elements:
+            if (value is None or len(value) == 0)  and (osm_elements is None or len(osm_elements) == 0):
+                raise ValueError("osm_elements and geometry_type is not defined")
+            
+            if (value != None or len(value) != 0)  and (osm_elements != None or len(osm_elements) != 0):
+                raise ValueError("You can not pass both osm_elements and geometry_type")
+
         return value
     
     @validator("geometry", allow_reuse=True)

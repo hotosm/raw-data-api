@@ -20,8 +20,7 @@
 from itertools import filterfalse
 from psycopg2 import sql
 from json import dumps
-from ..validation.models import Frequency
-
+from ..validation.models import Frequency,GeometryTypeRawData as geomtype
 HSTORE_COLUMN = "tags"
 
 
@@ -630,6 +629,7 @@ def get_country_id_query(geometry_dump):
 def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
+    relation_geom=[]
     attribute_filter= None
     # print(params.osm_tags)
     if params.osm_tags :
@@ -652,18 +652,70 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
             else: 
                 incoming_filter.append(f"""tags ? '{key.strip()}'""")
         attribute_filter=" OR ".join(incoming_filter)
-        
-    for type in params.geometry_type:
-        query=f"""select
+     
+    if params.osm_elements  :
+        if len(params.osm_elements)>0:
+            for type in params.osm_elements:
+                query=f"""select
                     ST_AsGeoJSON({type}.*)
-            from
-                {type}
-            where
-                {geom_filter}"""
-        if attribute_filter:
-            query+= f""" and ({attribute_filter})"""
-        base_query.append(query)
-    
+                    from
+                        {type}
+                    where
+                        {geom_filter}"""
+                if attribute_filter:
+                    query+= f""" and ({attribute_filter})"""
+                base_query.append(query)      
+    if params.geometry_type:
+        if len(params.geometry_type)>0:
+            for type in params.geometry_type:
+                
+                if type == geomtype.POINT.value :      
+                    query_point=f"""select
+                        ST_AsGeoJSON(nodes.*)
+                        from
+                            nodes
+                        where
+                            {geom_filter}"""
+                    if attribute_filter:
+                        query_point+= f""" and ({attribute_filter})"""
+                    base_query.append(query_point)
+
+                elif type == geomtype.LINESTRING.value :       
+                    query_ways_line=f"""select
+                        ST_AsGeoJSON(ways_line.*)
+                        from
+                            ways_line
+                        where
+                            {geom_filter}"""
+                    if attribute_filter:
+                        query_ways_line+= f""" and ({attribute_filter})"""
+                    base_query.append(query_ways_line)
+                else:
+                    if type == geomtype.POLYGON.value :       
+                        query_poly=f"""select
+                            ST_AsGeoJSON(ways_poly.*)
+                            from
+                                ways_poly
+                            where
+                            {geom_filter}"""
+                        if attribute_filter:
+                            query_poly+= f""" and ({attribute_filter})"""
+                        base_query.append(query_poly)
+                    relation_geom.append(f"""geometrytype(geom)='{type}'""")
+            if len(relation_geom) !=0:
+                query_relation=f"""select
+                    ST_AsGeoJSON(relations.*)
+                    from
+                        relations
+                    where
+                        {geom_filter}"""
+                if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
+                    join_relation_geom=" or ".join(relation_geom)
+                    query_relation+=f"""and ( {join_relation_geom} )"""
+                if attribute_filter:
+                    query_relation+= f""" and ({attribute_filter})"""
+                base_query.append(query_relation)
+                
     final_query=" UNION ALL ".join(base_query)       
         
     return final_query
