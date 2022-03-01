@@ -652,6 +652,9 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
             else: 
                 incoming_filter.append(f"""tags ? '{key.strip()}'""")
         attribute_filter=" OR ".join(incoming_filter)
+    
+    if params.osm_elements is None and params.geometry_type is None:
+        params.osm_elements= ['nodes','ways_line','ways_poly','relations']
      
     if params.osm_elements  :
         if len(params.osm_elements)>0:

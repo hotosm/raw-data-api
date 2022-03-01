@@ -481,7 +481,7 @@ class RawDataCurrentParams(BaseModel):
     def check_not_defined_fields(cls, value, values):
         osm_elements = values.get("osm_elements")
         if (value is None or len(value) == 0):
-                return
+                return None
             
         if osm_elements:
             if (value is None or len(value) == 0)  and (osm_elements is None or len(osm_elements) == 0):
@@ -489,7 +489,12 @@ class RawDataCurrentParams(BaseModel):
             
             if (value != None or len(value) != 0)  and (osm_elements != None or len(osm_elements) != 0):
                 raise ValueError("You can not pass both osm_elements and geometry_type")
+        return value
 
+    @validator("osm_elements", always=True)    
+    def check_null_list(cls, value, values):
+        if (value is None or len(value) == 0):
+                return None
         return value
     
     @validator("geometry", allow_reuse=True)
