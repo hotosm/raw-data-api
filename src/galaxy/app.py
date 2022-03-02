@@ -590,10 +590,10 @@ class RawData:
         #None for now , once all country is populated in db we will uncomment it 
         # country_id = self.db.executequery(get_country_id_query(geometry_dump))
         extraction_query = raw_currentdata_extraction_query(self.params,None,geometry_dump)
-        print(extraction_query)
+        # print(extraction_query)
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
-        dump_geojson_temp_file = f"""tmp/{exportname}.geojson"""
+        dump_geojson_temp_file = f"""data/{exportname}.geojson"""
         with open(dump_geojson_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
             f.write(pre_geojson)            
             logging.debug('Server side Cursor Query Sent with 1000 Chunk Size')
