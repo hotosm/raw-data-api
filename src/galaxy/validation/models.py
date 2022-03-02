@@ -446,11 +446,11 @@ class RawDataHistoricalParams(HashtagParams):
         return value
 
 class GeometryTypeRawData ( Enum):
-    POINT="POINT"
-    LINESTRING = "LINESTRING"
-    POLYGON = "POLYGON"
-    MULTILINESTRING = "MULTILINESTRING"
-    MULTIPOLYGON = "MULTIPOLYGON"
+    POINT="point"
+    LINESTRING = "linestring"
+    POLYGON = "polygon"
+    MULTILINESTRING = "multilinestring"
+    MULTIPOLYGON = "multipolygon"
     
 
 class OsmElementRawData(Enum):

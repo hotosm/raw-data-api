@@ -704,7 +704,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
                         if attribute_filter:
                             query_poly+= f""" and ({attribute_filter})"""
                         base_query.append(query_poly)
-                    relation_geom.append(f"""geometrytype(geom)='{type}'""")
+                    relation_geom.append(f"""geometrytype(geom)='{type.upper()}'""")
             if len(relation_geom) !=0:
                 query_relation=f"""select
                     ST_AsGeoJSON(relations.*)
@@ -714,7 +714,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
                         {geom_filter}"""
                 if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
                     join_relation_geom=" or ".join(relation_geom)
-                    query_relation+=f"""and ( {join_relation_geom} )"""
+                    query_relation+=f""" and ( {join_relation_geom} )"""
                 if attribute_filter:
                     query_relation+= f""" and ({attribute_filter})"""
                 base_query.append(query_relation)
