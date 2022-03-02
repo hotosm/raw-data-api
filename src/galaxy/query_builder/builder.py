@@ -672,7 +672,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
         if len(params.geometry_type)>0:
             for type in params.geometry_type:
                 
-                if type == geomtype.POINT.value :      
+                if type is geomtype.POINT.value :      
                     query_point=f"""select
                         ST_AsGeoJSON(nodes.*)
                         from
@@ -683,7 +683,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
                         query_point+= f""" and ({attribute_filter})"""
                     base_query.append(query_point)
 
-                elif type == geomtype.LINESTRING.value :       
+                elif type is geomtype.LINESTRING.value :       
                     query_ways_line=f"""select
                         ST_AsGeoJSON(ways_line.*)
                         from
@@ -694,7 +694,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
                         query_ways_line+= f""" and ({attribute_filter})"""
                     base_query.append(query_ways_line)
                 else:
-                    if type == geomtype.POLYGON.value :       
+                    if type is geomtype.POLYGON.value :       
                         query_poly=f"""select
                             ST_AsGeoJSON(ways_poly.*)
                             from
