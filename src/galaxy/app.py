@@ -36,7 +36,6 @@ from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
 from .config import config
-import geojson
 import logging
 import orjson
 from json import dumps
@@ -221,8 +220,7 @@ class Insight:
         contributors_query = create_users_contributions_query(
             self.params, changeset_query)
         osm_history_result = self.database.executequery(osm_history_query)
-        total_contributors_result = self.database.executequery(
-            contributors_query)
+        total_contributors_result = self.database.executequery(contributors_query)
         return osm_history_result, total_contributors_result
 
 
@@ -592,7 +590,7 @@ class RawData:
         #None for now , once all country is populated in db we will uncomment it 
         # country_id = self.db.executequery(get_country_id_query(geometry_dump))
         extraction_query = raw_currentdata_extraction_query(self.params,None,geometry_dump)
-        # print(extraction_query)
+        print(extraction_query)
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
         dump_geojson_temp_file = f"""tmp/{exportname}.geojson"""

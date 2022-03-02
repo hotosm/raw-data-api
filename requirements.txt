@@ -24,6 +24,6 @@ newrelic == 7.2.4.171
 sphinx_rtd_theme==1.0.0
 sphinx==4.2.0
 area==1.1.1
-
+orjson==3.6.7
 # pagination 
 # fastapi-pagination==0.9.1
