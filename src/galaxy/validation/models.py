@@ -370,9 +370,8 @@ class OrganizationHashtagParams(BaseModel):
         if start_date:      
             frequency = values.get("frequency")
             difference= value-start_date
-            
-            if difference < timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
-                raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days for """)
+            if difference > timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
+                raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days""")
         return value
 
 
