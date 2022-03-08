@@ -567,6 +567,14 @@ class OrganizationHashtags:
             return err
 
 class RawData:
+    """Class responsible for the Rawdata Extraction from available sources , Currently Works for Underpass source Current Snapshot
+    Returns:
+    Geojson Zip file 
+    Supports:
+    -Any Key value pair of osm tags 
+    -A Polygon
+    -Osm element type (Optional)
+    """
     def __init__(self, params: HashtagParams):
         self.params = params
         self.db = Database(dict(config.items("raw")))
@@ -574,18 +582,39 @@ class RawData:
     
     @staticmethod
     def to_geojson(results):
+        """Responsible for converting query result to featurecollection
+
+        Args:
+            results (_type_): Query Result geojson per feature string
+
+        Returns:
+            _type_: featurecollection
+        """
         logging.debug('Geojson Binding Started !')
         feature_collection = FeatureCollection(features=[orjson.loads(row[0]) for row in results])
         logging.debug('Geojson Binding Done !')
         return feature_collection
     
     def extract_historical_data(self):
+        """Idea is to extract historical data , Currently not maintained
+
+        Returns:
+            _type_: geojson featurecollection
+        """
         extraction_query = raw_historical_data_extraction_query(
             self.cur, self.con, self.params)
         results = self.db.executequery(extraction_query)
         return  RawData.to_geojson(results)
     
     def extract_current_data(self,exportname):
+        """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump 
+
+        Args:
+            exportname: takes filename as argument to create geojson file passed from routers
+
+        Returns:
+            _file_path_: geojson file location path
+        """
         geometry_dump = dumps(dict(self.params.geometry))
         #None for now , once all country is populated in db we will uncomment it 
         # country_id = self.db.executequery(get_country_id_query(geometry_dump))
