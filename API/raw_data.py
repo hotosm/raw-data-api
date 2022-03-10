@@ -71,8 +71,6 @@ async def get_current_data(params:RawDataCurrentParams,background_tasks: Backgro
     exportname =f"Raw_Export_{datetime.now().isoformat()}"
     dump_geojson_temp_file=RawData(params).extract_current_data(exportname)
     logging.debug('Zip Binding Started !')
-    # in_memory = BytesIO()
-    
     #saving file in temp directory instead of memory so that zipping file will not eat memory 
     zip_temp_path=f"""exports/{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w" , zipfile.ZIP_DEFLATED)
