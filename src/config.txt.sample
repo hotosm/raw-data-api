@@ -5,6 +5,10 @@ password=
 dbname=
 port=
 
+[HOST]
+host=localhost
+port=8000
+
 [OAUTH]
 client_id=
 client_secret=

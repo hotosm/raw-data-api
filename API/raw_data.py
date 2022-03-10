@@ -19,11 +19,11 @@
 
 """[Router Responsible for Raw data API ]
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,Request
 from src.galaxy.validation.models import RawDataHistoricalParams , RawDataCurrentParams
 from .auth import login_required
 from src.galaxy.app import RawData
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse , StreamingResponse
 from datetime import datetime
 import time
 import zipfile
@@ -33,6 +33,7 @@ import orjson
 import os 
 from starlette.background import BackgroundTasks
 from .auth import login_required
+from src.galaxy import config
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -48,7 +49,8 @@ def remove_file(path: str) -> None:
     os.unlink(path)
 
 @router.post("/current-snapshot/")
-def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
+def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,response_class=FileResponse):  
+# def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
     exportname =f"Raw_Export_{datetime.now().isoformat()}"
@@ -65,11 +67,16 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     
     zf.close()
     logging.debug('Zip Binding Done !')
-    response = FileResponse(zip_temp_path,media_type="application/zip")
-    response.headers["Content-Disposition"] = f"attachment; filename={exportname}.zip"
+    # response = StreamingResponse(zip_temp_path,media_type="application/zip")
+    # # response.headers["Content-Disposition"] = f"attachment; filename={exportname}.zip"
     print("-----Raw Data Request Took-- %s seconds -----" % (time.time() - start_time))
-    background_tasks.add_task(remove_file, zip_temp_path) #clearing the tmp zip file 
+    # background_tasks.add_task(remove_file, zip_temp_path) #clearing the tmp zip file 
     background_tasks.add_task(remove_file, dump_geojson_temp_file) # clearing tmp geojson file 
     
-    return response
+    client_host = dict(config.items("HOST"))['host'] #getting hosting url 
+    client_port = dict(config.items("HOST"))['port'] #getting hosting port
+
+    download_url=f"""{client_host}:{client_port}/{zip_temp_path}"""
+    response_time=time.time() - start_time
+    return {"download_url": download_url, "response_time": f"""{int(response_time)} Seconds"""}
     
