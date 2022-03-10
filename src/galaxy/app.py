@@ -622,7 +622,7 @@ class RawData:
         # print(extraction_query)
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
-        dump_geojson_temp_file = f"""data/{exportname}.geojson"""
+        dump_geojson_temp_file = f"""exports/{exportname}.geojson"""
         with open(dump_geojson_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
             f.write(pre_geojson)            
             logging.debug('Server side Cursor Query Sent with 1000 Chunk Size')

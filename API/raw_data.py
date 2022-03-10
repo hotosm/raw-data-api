@@ -57,7 +57,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     # in_memory = BytesIO()
     
     #saving file in temp directory instead of memory so that zipping file will not eat memory 
-    zip_temp_path=f"""data/{exportname}.zip"""
+    zip_temp_path=f"""exports/{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w" , zipfile.ZIP_DEFLATED)
     # Compressing geojson file
     zf.writestr(f"""clipping_boundary.geojson""",orjson.dumps(dict(params.geometry)))
