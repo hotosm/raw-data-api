@@ -64,7 +64,7 @@ def remove_file(path: str) -> None:
     os.unlink(path)
 
 @router.post("/current-snapshot/")
-def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks):  #using async function so that multiple request at a time won't get stuck
+def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks):  
 # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
