@@ -47,7 +47,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 #     return generate_rawdata_response(result,start_time)
 
 @router.get("/exports/{file_name}")
-async def download_export(file_name: str,background_tasks: BackgroundTasks):
+def download_export(file_name: str,background_tasks: BackgroundTasks):
     """Used for Delivering our export to user , It will hold the zip file until user downloads or hits the url once it is delivered it gets cleared up, Designed as  a separate function to avoid the condition ( waiting for the api response without knowing what is happening on the background )
     Returns zip file if it is present on our server if not returns null 
     """
@@ -55,7 +55,7 @@ async def download_export(file_name: str,background_tasks: BackgroundTasks):
     if exists(zip_temp_path):
         response = FileResponse(zip_temp_path,media_type="application/zip")
         response.headers["Content-Disposition"] = f"attachment; filename={file_name}.zip"
-        background_tasks.add_task(remove_file, zip_temp_path) #clearing the tmp zip file
+        # background_tasks.add_task(remove_file, zip_temp_path) #clearing the tmp zip file
         return response
 
 def remove_file(path: str) -> None:
@@ -64,7 +64,7 @@ def remove_file(path: str) -> None:
     os.unlink(path)
 
 @router.post("/current-snapshot/")
-async def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks):  #using async function so that multiple request at a time won't get stuck
+def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks):  #using async function so that multiple request at a time won't get stuck
 # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
