@@ -35,7 +35,6 @@ from starlette.background import BackgroundTasks
 from .auth import login_required
 from src.galaxy import config
 from os.path import exists
-from area import area
 import json
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
@@ -69,7 +68,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
     exportname =f"Raw_Export_{datetime.now().isoformat()}"
-    dump_geojson_temp_file=RawData(params).extract_current_data(exportname)
+    dump_geojson_temp_file,geom_area=RawData(params).extract_current_data(exportname)
     logging.debug('Zip Binding Started !')
     #saving file in temp directory instead of memory so that zipping file will not eat memory 
     zip_temp_path=f"""exports/{exportname}.zip"""
@@ -88,5 +87,5 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
 
     download_url=f"""{client_host}:{client_port}/raw-data/exports/{exportname}""" # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function ! 
     response_time=time.time() - start_time
-    return {"download_url": download_url, "response_time": f"""{int(response_time)} Seconds""", "query_area" : f"""{int(area(json.loads(params.geometry.json()))* 1E-6)} Sq Km"""}
+    return {"download_url": download_url, "response_time": f"""{int(response_time)} Seconds""", "query_area" : f"""{geom_area} Sq Km"""}
     

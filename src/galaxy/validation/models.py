@@ -459,7 +459,7 @@ class OsmElementRawData(Enum):
     WAYS_POLY = "ways_poly"
     RELATIONS = "relations"
 
-RAWDATA_CURRENT_POLYGON_AREA = 5000
+RAWDATA_CURRENT_POLYGON_AREA = 500000
 class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     output_type : Optional[RawDataOutputType]
@@ -500,7 +500,7 @@ class RawDataCurrentParams(BaseModel):
         area_km2 = area_m2 * 1E-6
         # print(area_km2)
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
-                raise ValueError(f"""Polygon Area {area_km2} km^2 is higher than {RAWDATA_CURRENT_POLYGON_AREA} km^2""")
+                raise ValueError(f"""Polygon Area {int(area_km2)} km^2 is higher than {RAWDATA_CURRENT_POLYGON_AREA} km^2""")
         return value
         # cd=json.loads(value.json())["coordinates"]
         # for x in range(len(cd)):

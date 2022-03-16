@@ -38,6 +38,8 @@ from io import StringIO
 from .config import config
 import logging
 import orjson
+from area import area
+
 from json import dumps
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -616,9 +618,10 @@ class RawData:
             _file_path_: geojson file location path
         """
         geometry_dump = dumps(dict(self.params.geometry))
+        geom_area=int(area(json.loads(self.params.geometry.json()))* 1E-6)
         #None for now , once all country is populated in db we will uncomment it 
-        # country_id = self.db.executequery(get_country_id_query(geometry_dump))
-        extraction_query = raw_currentdata_extraction_query(self.params,None,geometry_dump)
+        country_id = self.db.executequery(get_country_id_query(geometry_dump))
+        extraction_query = raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area)
         # print(extraction_query)
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
@@ -642,5 +645,5 @@ class RawData:
             f.write(post_geojson)
         f.close()
         logging.debug(f"""Server side Query Result  Post Processing Done""")
-        return dump_geojson_temp_file
+        return dump_geojson_temp_file,geom_area
     
