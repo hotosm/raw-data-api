@@ -20,7 +20,7 @@
 from itertools import filterfalse
 from psycopg2 import sql
 from json import dumps
-from ..validation.models import Frequency,GeometryTypeRawData as geomtype
+from ..validation.models import Frequency,OsmElementRawData,GeometryTypeRawData as geomtype
 HSTORE_COLUMN = "tags"
 
 
@@ -621,12 +621,11 @@ def get_country_id_query(geometry_dump):
                     where
                         ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
                         ST_SetSRID(b.boundary,
-                        4326))
-                        limit 1"""
+                        4326))"""
     return base_query
                         
 
-def raw_currentdata_extraction_query(params,c_id,geometry_dump):
+def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
     relation_geom=[]
@@ -659,12 +658,18 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
     if params.osm_elements  :
         if len(params.osm_elements)>0:
             for type in params.osm_elements:
+                if type is OsmElementRawData.WAYS_POLY.value and  geom_area > 100000 :
+                    country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                    country_filter=" OR ".join(country_filter_base)
+                    where_clause=f"""({country_filter}) and {geom_filter}"""
+                else :
+                    where_clause=f"""{geom_filter}"""
                 query=f"""select
                     ST_AsGeoJSON({type}.*)
                     from
                         {type}
                     where
-                        {geom_filter}"""
+                        {where_clause}"""
                 if attribute_filter:
                     query+= f""" and ({attribute_filter})"""
                 base_query.append(query)      
@@ -694,13 +699,19 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump):
                         query_ways_line+= f""" and ({attribute_filter})"""
                     base_query.append(query_ways_line)
                 else:
-                    if type is geomtype.POLYGON.value :       
+                    if type is geomtype.POLYGON.value : 
+                        if geom_area > 100000 : # country logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for 
+                            country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                            country_filter=" OR ".join(country_filter_base)
+                            where_clause=f"""({country_filter}) and {geom_filter}"""
+                        else:
+                            where_clause=f"""{geom_filter}"""
                         query_poly=f"""select
                             ST_AsGeoJSON(ways_poly.*)
                             from
                                 ways_poly
                             where
-                            {geom_filter}"""
+                            {where_clause}"""
                         if attribute_filter:
                             query_poly+= f""" and ({attribute_filter})"""
                         base_query.append(query_poly)
