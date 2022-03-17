@@ -622,7 +622,7 @@ class RawData:
         #None for now , once all country is populated in db we will uncomment it 
         country_id = self.db.executequery(get_country_id_query(geometry_dump))
         extraction_query = raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area)
-        # print(extraction_query)
+        print(extraction_query)
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
         dump_geojson_temp_file = f"""exports/{exportname}.geojson"""

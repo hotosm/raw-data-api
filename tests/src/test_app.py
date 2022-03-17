@@ -557,7 +557,7 @@ def test_rawdata_current_snapshot_osm_elements_query() :
             "outputType": "geojson",
             "osmTags": {},
             "osmElements": [
-                "nodes","ways_poly","relations"
+                "nodes","ways","relations"
             ]
             }
     validated_params = RawDataCurrentParams(**test_param)
@@ -572,6 +572,11 @@ def test_rawdata_current_snapshot_osm_elements_query() :
                         ways_poly
                     where
                         ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) UNION ALL select
+                    ST_AsGeoJSON(ways_line.*)
+                    from
+                        ways_line
+                    where
+                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) UNION ALL select  
                     ST_AsGeoJSON(relations.*)
                     from
                         relations

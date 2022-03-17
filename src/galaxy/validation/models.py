@@ -455,8 +455,7 @@ class GeometryTypeRawData ( Enum):
 
 class OsmElementRawData(Enum):
     NODES = "nodes"
-    WAYS_LINE = "ways_line"
-    WAYS_POLY = "ways_poly"
+    WAYS = "ways"
     RELATIONS = "relations"
 
 RAWDATA_CURRENT_POLYGON_AREA = 500000

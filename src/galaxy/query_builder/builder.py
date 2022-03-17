@@ -657,8 +657,13 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
      
     if params.osm_elements  :
         if len(params.osm_elements)>0:
+            if OsmElementRawData.WAYS.value in params.osm_elements : # converting ways to ways_line and ways_poly since we store them in two different tables 
+                params.osm_elements.remove( OsmElementRawData.WAYS.value)
+                params.osm_elements.append( 'ways_poly')
+                params.osm_elements.append( 'ways_line')
+
             for type in params.osm_elements:
-                if type is OsmElementRawData.WAYS_POLY.value and  geom_area > 100000 :
+                if type == 'ways_poly' and  geom_area > 100000 :
                     country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
                     country_filter=" OR ".join(country_filter_base)
                     where_clause=f"""({country_filter}) and {geom_filter}"""
