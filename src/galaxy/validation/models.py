@@ -41,6 +41,14 @@ MAX_POLYGON_AREA = 5000 # km^2
 SPECIAL_CHARACTER = '[@!#$%^&*() <>?/\|}{~:,"]'
 ORGANIZATIONAL_FREQUENCY =  {"w" : 7,"m" : 30, "q": 90, "y":365}
 
+def checkIfDuplicates(input_list):
+    listOfElems=list(map(lambda x: x.lower(), input_list)) # converting all hashtags value to lowercase to check duplicates because MissingMaps and missingmaps both are treated same and considered as duplicate 
+    ''' Check if given list contains any duplicates '''
+    if len(listOfElems) == len(set(listOfElems)):
+        return False
+    else:
+        return True
+
 def to_camel(string: str) -> str:
     split_string = string.split("_")
 
@@ -127,6 +135,9 @@ class MapathonRequestParams(TimeStampParams):
         for v in value :
             if  v =="":
                 raise ValueError("Hashtag value contains unsupported character")
+        if checkIfDuplicates(value) is True:
+            raise ValueError("Hashtag Contains Duplicate entries")
+        
         return value
 
     @validator("source", allow_reuse=True)
