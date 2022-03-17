@@ -481,10 +481,14 @@ class RawDataCurrentParams(BaseModel):
         osm_elements = values.get("osm_elements")
         if (value is None or len(value) == 0):
                 return None
-            
-        if osm_elements:
-            if (value != None or len(value) != 0)  and (osm_elements != None or len(osm_elements) != 0):
-                raise ValueError("You can not pass both osm_elements and geometry_type")
+        if osm_elements:  
+            if (GeometryTypeRawData.POINT.value in value and OsmElementRawData.NODES.value in osm_elements) or (GeometryTypeRawData.LINESTRING.value in value and OsmElementRawData.WAYS.value in osm_elements) or (GeometryTypeRawData.POLYGON.value in value and OsmElementRawData.WAYS.value in osm_elements) or (OsmElementRawData.RELATIONS.value in osm_elements):
+                pass
+            else:
+                raise ValueError("Mapping between osm_elements and geometry_type is invalid")
+            # if osm_elements:
+        #     if (value != None or len(value) != 0)  and (osm_elements != None or len(osm_elements) != 0):
+        #         raise ValueError("You can not pass both osm_elements and geometry_type")
         return value
 
     @validator("osm_elements", always=True)    

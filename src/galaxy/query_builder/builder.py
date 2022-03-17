@@ -655,9 +655,64 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
     if params.osm_elements is None and params.geometry_type is None:
         params.osm_elements= ['nodes','ways_line','ways_poly','relations']
     
-    if len(params.osm_elements)>0 and len(params.geometry_type)>0:
-        pass
+    if params.osm_elements is not None and params.geometry_type is not None:
+        if geomtype.POINT.value in params.geometry_type and OsmElementRawData.NODES.value in params.osm_elements:
+            query_point=f"""select
+                        ST_AsGeoJSON(nodes.*)
+                        from
+                            nodes
+                        where
+                            {geom_filter}"""
+            if attribute_filter:
+                query_point+= f""" and ({attribute_filter})"""
+            base_query.append(query_point)
      
+        if geomtype.LINESTRING.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
+            query_ways_line=f"""select
+                ST_AsGeoJSON(ways_line.*)
+                from
+                    ways_line
+                where
+                    {geom_filter}"""
+            if attribute_filter:
+                query_ways_line+= f""" and ({attribute_filter})"""
+            base_query.append(query_ways_line)
+
+        if geomtype.POLYGON.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
+            if geom_area > 100000 : # country logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for 
+                country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                country_filter=" OR ".join(country_filter_base)
+                where_clause=f"""({country_filter}) and {geom_filter}"""
+            else:
+                where_clause=f"""{geom_filter}"""
+            query_poly=f"""select
+                ST_AsGeoJSON(ways_poly.*)
+                from
+                    ways_poly
+                where
+                {where_clause}"""
+            if attribute_filter:
+                query_poly+= f""" and ({attribute_filter})"""
+            base_query.append(query_poly)
+
+        if OsmElementRawData.RELATIONS.value in params.osm_elements:
+
+            for tp in params.geometry_type:
+                relation_geom.append(f"""geometrytype(geom)='{tp.upper()}'""")
+            query_relation=f"""select
+                ST_AsGeoJSON(relations.*)
+                from
+                    relations
+                where
+                    {geom_filter}"""
+            # if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
+            join_relation_geom=" or ".join(relation_geom)
+            query_relation+=f""" and ( {join_relation_geom} )"""
+            if attribute_filter:
+                query_relation+= f""" and ({attribute_filter})"""
+            base_query.append(query_relation)
+ 
+        
     if params.osm_elements and params.geometry_type is None :
         if len(params.osm_elements)>0:
             if OsmElementRawData.WAYS.value in params.osm_elements : # converting ways to ways_line and ways_poly since we store them in two different tables 
