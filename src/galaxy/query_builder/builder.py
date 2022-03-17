@@ -29,7 +29,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     merged_items = [*project_ids, *hashtags]
 
-    filter_query = "({hstore_column} -> %s) ~~ %s"
+    filter_query = "({hstore_column} -> %s) ~~* %s"
 
     hashtag_filter_values = [
         *[f"%hotosm-project-{i};%" for i in project_ids],
