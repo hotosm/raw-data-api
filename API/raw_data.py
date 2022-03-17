@@ -36,6 +36,7 @@ from .auth import login_required
 from src.galaxy import config
 from os.path import exists
 import json
+from uuid import uuid4
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -67,7 +68,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
 # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
-    exportname =f"Raw_Export_{datetime.now().isoformat()}"
+    exportname =f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}" # unique id for zip file and geojson for each export
     dump_geojson_temp_file,geom_area=RawData(params).extract_current_data(exportname)
     logging.debug('Zip Binding Started !')
     #saving file in temp directory instead of memory so that zipping file will not eat memory 
