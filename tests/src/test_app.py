@@ -520,7 +520,7 @@ def test_rawdata_current_snapshot_geometry_query() :
                         relations
                     where
                         ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) and ( geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON' ) and (tags ? 'building' OR tags ->>  'amenity' IN ( 'place'  ,  'shop' ) OR tags ->> 'type' = 'Multipolygon')"""
-    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)))
+    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)),100)
     # print(query_result)
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
 
@@ -567,6 +567,11 @@ def test_rawdata_current_snapshot_osm_elements_query() :
                         nodes
                     where
                         ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) UNION ALL select
+                    ST_AsGeoJSON(relations.*)
+                    from
+                        relations
+                    where
+                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) UNION ALL select
                     ST_AsGeoJSON(ways_poly.*)
                     from
                         ways_poly
@@ -576,13 +581,8 @@ def test_rawdata_current_snapshot_osm_elements_query() :
                     from
                         ways_line
                     where
-                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) UNION ALL select  
-                    ST_AsGeoJSON(relations.*)
-                    from
-                        relations
-                    where
                         ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)"""
-    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)))
+    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)),100)
     # print(query_result)
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
      
