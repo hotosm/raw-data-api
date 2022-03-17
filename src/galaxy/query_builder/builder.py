@@ -654,8 +654,11 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
     
     if params.osm_elements is None and params.geometry_type is None:
         params.osm_elements= ['nodes','ways_line','ways_poly','relations']
+    
+    if len(params.osm_elements)>0 and len(params.geometry_type)>0:
+        pass
      
-    if params.osm_elements  :
+    if params.osm_elements and params.geometry_type is None :
         if len(params.osm_elements)>0:
             if OsmElementRawData.WAYS.value in params.osm_elements : # converting ways to ways_line and ways_poly since we store them in two different tables 
                 params.osm_elements.remove( OsmElementRawData.WAYS.value)
@@ -677,8 +680,9 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
                         {where_clause}"""
                 if attribute_filter:
                     query+= f""" and ({attribute_filter})"""
-                base_query.append(query)      
-    if params.geometry_type:
+                base_query.append(query) 
+                     
+    if params.geometry_type and  params.osm_elements is None:
         if len(params.geometry_type)>0:
             for type in params.geometry_type:
                 
