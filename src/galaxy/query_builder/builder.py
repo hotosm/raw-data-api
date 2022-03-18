@@ -211,61 +211,50 @@ def create_users_contributions_query(params, changeset_query):
     """
     return query
 
-def create_user_time_spent_mapping_and_validating_query(params):
-    project_ids = ",".join([str(p) for p in params.project_ids])
-
-    query = f"""
-        SELECT DISTINCT th.user_id,
-            (
-                SELECT SUM(CAST(TO_TIMESTAMP(action_text,  'HH24:MI:SS') AS TIME))
-                FROM public.task_history
-                WHERE user_id = th.user_id
-                AND action = 'LOCKED_FOR_MAPPING'
-                OR action = 'AUTO_UNLOCKED_FOR_MAPPING'
-                AND action_date BETWEEN '{params.from_timestamp}' AND '{params.to_timestamp}'
-                AND project_id IN ({project_ids})
-            ) AS time_spent_mapping,
-            (
-                SELECT SUM(CAST(TO_TIMESTAMP(action_text,  'HH24:MI:SS') AS TIME))
-                FROM public.task_history
-                WHERE user_id = th.user_id
-                AND action = 'LOCKED_FOR_VALIDATION'
-                AND action_date BETWEEN '{params.from_timestamp}' AND '{params.to_timestamp}'
-                AND project_id IN ({project_ids})
-            ) AS time_spent_validating
-        FROM public.task_history th
-        WHERE (action = 'LOCKED_FOR_MAPPING' or action = 'AUTO_UNLOCKED_FOR_MAPPING') or action = 'LOCKED_FOR_VALIDATION'
-        GROUP BY th.user_id;
-    """
+def create_user_tasks_mapped_and_validated_query(project_ids, from_timestamp, to_timestamp):
+    tm_project_ids = ",".join([str(p) for p in project_ids])
     
-    return query;
+    mapped_query = f"""
+        SELECT th.user_id, COUNT(th.task_id) as tasks_mapped
+            FROM PUBLIC.task_history th
+            WHERE th.action_text = 'MAPPED'
+            AND th.action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND th.project_id IN ({tm_project_ids})
+            GROUP BY th.user_id;
+    """
+    validated_query = f"""
+        SELECT th.user_id, COUNT(th.task_id) as tasks_validated
+            FROM PUBLIC.task_history th
+            WHERE th.action_text = 'VALIDATED'
+            AND th.action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND th.project_id IN ({tm_project_ids})
+            GROUP BY th.user_id;
+    """
+    return mapped_query, validated_query
 
-def create_user_tasks_mapped_and_validated_query(params):
-    project_ids = ",".join([str(p) for p in params.project_ids])
+def create_user_time_spent_mapping_and_validating_query(project_ids, from_timestamp, to_timestamp):
+    tm_project_ids = ",".join([str(p) for p in project_ids])
 
-    query = f"""
-        SELECT DISTINCT th.user_id,
-            (
-                SELECT COUNT(task_id)
-                FROM public.task_history
-                WHERE user_id = th.user_id
-                AND action_text = 'MAPPED'
-                AND action_date BETWEEN '{params.from_timestamp}' AND '{params.to_timestamp}'
-                AND project_id IN ({project_ids})
-            ) AS mapped_task_count,
-            (
-                SELECT COUNT(task_id)
-                FROM public.task_history
-                WHERE user_id = th.user_id
-                AND action_text = 'VALIDATED'
-                AND action_date BETWEEN '{params.from_timestamp}' AND '{params.to_timestamp}'
-                AND project_id IN ({project_ids})
-            ) AS validated_task_count
-        FROM public.task_history th
-        WHERE th.action_text = 'MAPPED' OR th.action_text = 'VALIDATED'; 
+    time_spent_mapping_query = f"""
+        SELECT user_id, SUM(CAST(TO_TIMESTAMP(action_text, 'HH24:MI:SS') AS TIME)) AS time_spent_mapping
+        FROM public.task_history
+        WHERE
+            (action = 'LOCKED_FOR_MAPPING'
+            OR action = 'AUTO_UNLOCKED_FOR_MAPPING')
+            AND action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND project_id IN ({tm_project_ids})
+        GROUP BY user_id;
     """
 
-    return query
+    time_spent_validating_query = f"""
+        SELECT user_id, SUM(CAST(TO_TIMESTAMP(action_text, 'HH24:MI:SS') AS TIME)) AS time_spent_validating
+        FROM public.task_history
+        WHERE action = 'LOCKED_FOR_VALIDATION'
+            AND action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND project_id IN ({tm_project_ids})
+        GROUP BY user_id;
+    """
+    return time_spent_mapping_query, time_spent_validating_query;
 
 def generate_data_quality_hashtag_reports(cur, params):
     if params.hashtags is not None and len(params.hashtags) > 0:

@@ -222,15 +222,38 @@ class TaskingManager:
         self.con, self.cur = self.database.connect()
         self.params = parameters
 
+    def extract_project_ids(self):
+        test_hashtag = "hotosm-project-"
+        ids = []
+        
+        if (len(self.params.project_ids) > 0):
+            ids.extend(self.params.project_ids)
+        
+        if(len(self.params.hashtags) > 0):
+            for hashtag in self.params.hashtags:
+                if test_hashtag in hashtag:
+                    if len(hashtag[15:]) > 0: ids.append(hashtag[15:])
+        return ids
+
     def get_tasks_mapped_and_validated_per_user(self):
-        tasks_mapped__and_validated_query = create_user_tasks_mapped_and_validated_query(self.params)
-        tasks_mapped_and_validated_result = self.database.executequery(tasks_mapped__and_validated_query)
-        return tasks_mapped_and_validated_result
+        project_ids = self.extract_project_ids()
+        if len(project_ids) > 0:
+            tasks_mapped_query, tasks_validated_query = create_user_tasks_mapped_and_validated_query(project_ids,
+            self.params.from_timestamp, self.params.to_timestamp)
+            tasks_mapped_result = self.database.executequery(tasks_mapped_query)
+            tasks_validated_result = self.database.executequery(tasks_validated_query)
+            return tasks_mapped_result, tasks_validated_result
+        return [],[]
 
     def get_time_spent_mapping_and_validating_per_user(self):
-        time_spent_mapping_and_validating_query = create_user_time_spent_mapping_and_validating_query(self.params)
-        time_spent_mapping_and_validating_result = self.database.executequery(time_spent_mapping_and_validating_query)
-        return time_spent_mapping_and_validating_result
+        project_ids = self.extract_project_ids()
+        if len(project_ids) > 0:
+            time_spent_mapping_query, time_spent_validating_query = create_user_time_spent_mapping_and_validating_query(project_ids,
+            self.params.from_timestamp, self.params.to_timestamp)
+            time_spent_mapping_result = self.database.executequery(time_spent_mapping_query)
+            time_spent_validating_result = self.database.executequery(time_spent_validating_query)
+            return time_spent_mapping_result, time_spent_validating_result
+        return [],[]   
 
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
@@ -267,19 +290,31 @@ class Mapathon:
         contributors = [MapathonContributor(**r) for r in total_contributors]
 
         tm = TaskingManager(self.params)
-        tasks_result = tm.get_tasks_mapped_and_validated_per_user()
-        for r in tasks_result:
-            r[1] = r[1] if r[1] > 0 else 0
-            r[2] = r[2] if r[2] > 0 else 0
-        task_stats = [UserTaskStats(**r) for r in tasks_result]
+        tasks_mapped_results, tasks_validated_results = tm.get_tasks_mapped_and_validated_per_user()
+        time_mapping_results, time_validating_results = tm.get_time_spent_mapping_and_validating_per_user()
+        tasks_mapped_stats, tasks_validated_stats, time_mapping_stats, time_validating_stats = [], [], [], []
+        if (len(tasks_mapped_results) > 0):
+            for r in tasks_mapped_results:
+                r[1] = r[1] if r[1] > 0 else 0
+            tasks_mapped_stats = [MappedTaskStats(**r) for r in tasks_mapped_results]
+        if (len(tasks_validated_results) > 0):
+            for r in tasks_validated_results:
+                r[1] = r[1] if r[1] > 0 else 0
+            tasks_validated_stats = [ValidatedTaskStats(**r) for r in tasks_validated_results]
+        if (len(time_mapping_results) > 0): 
+            for t in time_mapping_results:
+                t[1] = t[1].total_seconds() if t[1] else 0.0
+            time_mapping_stats = [TimeSpentMapping(**r) for r in time_mapping_results]
+        if (len(time_validating_results) > 0): 
+            for t in time_validating_results:
+                t[1] = t[1].total_seconds() if t[1] else 0.0
+            time_validating_stats = [TimeSpentValidating(**r) for r in time_validating_results] 
         
-        time_spent_result = tm.get_time_spent_mapping_and_validating_per_user()
-        for t in time_spent_result:
-            t[1] = t[1].total_seconds() if t[1] else 0.0
-            t[2] = t[2].total_seconds() if t[2] else 0.0
-        time_stats = [UserTimeStats(**r) for r in time_spent_result]
-    
-        tm_stats = [TMUserStats(task_stats=task_stats, time_stats=time_stats)]
+        tm_stats = [TMUserStats(tasks_mapped=tasks_mapped_stats,
+                                tasks_validated=tasks_validated_stats,
+                                time_spent_mapping=time_mapping_stats,
+                                time_spent_validating=time_validating_stats)]
+
         report = MapathonDetail(contributors=contributors,
                                 mapped_features=mapped_features,
                                 tm_stats=tm_stats)
