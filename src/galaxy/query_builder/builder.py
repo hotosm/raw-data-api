@@ -630,7 +630,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
     base_query=[]
     relation_geom=[]
     attribute_filter= None
-    select_condition=f"""*"""
+    select_condition=f"""osm_id ,tags::text as tags,geom"""
     if params.columns :
         if len(params.columns) > 0:
             filter_col=[]
