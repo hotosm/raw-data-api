@@ -630,6 +630,16 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
     base_query=[]
     relation_geom=[]
     attribute_filter= None
+    select_condition=f"""*"""
+    if params.columns :
+        if len(params.columns) > 0:
+            filter_col=[]
+            filter_col.append('osm_id')
+            for cl in params.columns:
+                if cl !='':
+                    filter_col.append(f"""tags ->> '{cl.strip()}' as {cl.strip()}""")
+            filter_col.append('geom')
+            select_condition=" , ".join(filter_col) 
     # print(params.osm_tags)
     if params.osm_tags :
         filter= params.osm_tags
@@ -658,7 +668,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
     if params.osm_elements is not None and params.geometry_type is not None:
         if geomtype.POINT.value in params.geometry_type and OsmElementRawData.NODES.value in params.osm_elements:
             query_point=f"""select
-                        ST_AsGeoJSON(nodes.*)
+                        {select_condition}
                         from
                             nodes
                         where
@@ -669,7 +679,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
      
         if geomtype.LINESTRING.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
             query_ways_line=f"""select
-                ST_AsGeoJSON(ways_line.*)
+                {select_condition}
                 from
                     ways_line
                 where
@@ -686,7 +696,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
             else:
                 where_clause=f"""{geom_filter}"""
             query_poly=f"""select
-                ST_AsGeoJSON(ways_poly.*)
+                {select_condition}
                 from
                     ways_poly
                 where
@@ -700,7 +710,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
             for tp in params.geometry_type:
                 relation_geom.append(f"""geometrytype(geom)='{tp.upper()}'""")
             query_relation=f"""select
-                ST_AsGeoJSON(relations.*)
+                {select_condition}
                 from
                     relations
                 where
@@ -728,7 +738,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
                 else :
                     where_clause=f"""{geom_filter}"""
                 query=f"""select
-                    ST_AsGeoJSON({type}.*)
+                    {select_condition}
                     from
                         {type}
                     where
@@ -743,7 +753,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
                 
                 if type is geomtype.POINT.value :      
                     query_point=f"""select
-                        ST_AsGeoJSON(nodes.*)
+                        {select_condition}
                         from
                             nodes
                         where
@@ -754,7 +764,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
 
                 elif type is geomtype.LINESTRING.value :       
                     query_ways_line=f"""select
-                        ST_AsGeoJSON(ways_line.*)
+                        {select_condition}
                         from
                             ways_line
                         where
@@ -771,7 +781,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
                         else:
                             where_clause=f"""{geom_filter}"""
                         query_poly=f"""select
-                            ST_AsGeoJSON(ways_poly.*)
+                            {select_condition}
                             from
                                 ways_poly
                             where
@@ -782,7 +792,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
                     relation_geom.append(f"""geometrytype(geom)='{type.upper()}'""")
             if len(relation_geom) !=0:
                 query_relation=f"""select
-                    ST_AsGeoJSON(relations.*)
+                    {select_condition}
                     from
                         relations
                     where
@@ -793,8 +803,11 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
                 if attribute_filter:
                     query_relation+= f""" and ({attribute_filter})"""
                 base_query.append(query_relation)
+    table_base_query=[]
+    for i in range(len(base_query)):
+        table_base_query.append(f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")             
                 
-    final_query=" UNION ALL ".join(base_query)       
+    final_query=" UNION ALL ".join(table_base_query)       
         
     return final_query
 

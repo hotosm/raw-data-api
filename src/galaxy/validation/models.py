@@ -463,6 +463,7 @@ class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     output_type : Optional[RawDataOutputType]
     osm_tags :  Optional[dict]=None
+    columns : Optional[List[str]]=None
     osm_elements : Optional[List[OsmElementRawData]] = None
     geometry_type : Optional[List[GeometryTypeRawData]] = None
     
