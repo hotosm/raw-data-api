@@ -458,7 +458,7 @@ class OsmElementRawData(Enum):
     WAYS = "ways"
     RELATIONS = "relations"
 
-RAWDATA_CURRENT_POLYGON_AREA = 500000
+RAWDATA_CURRENT_POLYGON_AREA = 1500000
 class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     output_type : Optional[RawDataOutputType]
