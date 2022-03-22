@@ -386,9 +386,8 @@ class OrganizationHashtag(BaseModel):
     total_new_road_meters : int 
 
 class RawDataOutputType ( Enum):
-    GEOJSON ="geojson"
-    KML = "kml"
-    SHAPEFILE = "shp"
+    GEOJSON ="GeoJSON"
+    KML = "KML"
 
 class HashtagParams(BaseModel):
     hashtags : Optional[List[str]]
@@ -461,7 +460,7 @@ class OsmElementRawData(Enum):
 RAWDATA_CURRENT_POLYGON_AREA = 1500000
 class RawDataCurrentParams(BaseModel):
     geometry : Polygon
-    output_type : Optional[RawDataOutputType]
+    output_type : Optional[RawDataOutputType]=None
     osm_tags :  Optional[dict]=None
     columns : Optional[List[str]]=None
     osm_elements : Optional[List[OsmElementRawData]] = None

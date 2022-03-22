@@ -39,7 +39,7 @@ from .config import config
 import logging
 import orjson
 from area import area
-
+import subprocess
 from json import dumps
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -584,7 +584,7 @@ class RawData:
     
     @staticmethod
     def to_geojson(results):
-        """Responsible for converting query result to featurecollection
+        """Responsible for converting query result to featurecollection , It is absolute now ~ not used anymore
 
         Args:
             results (_type_): Query Result geojson per feature string
@@ -607,29 +607,25 @@ class RawData:
             self.cur, self.con, self.params)
         results = self.db.executequery(extraction_query)
         return  RawData.to_geojson(results)
+    @staticmethod
+    def ogr_export(query,export_path,outputtype):
+        """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
+        db_items=dict(config.items("raw"))
+        formatted_query=query.replace('"','\\"')     
+        cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(outputtype=outputtype, export_path = export_path, host = db_items.get('host'), username = db_items.get('user'), db = db_items.get('dbname'), password = db_items.get('password'), pg_sql_select = formatted_query)
+        logging.debug("Calling ogr2ogr")
+        run=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        logging.debug(run.stdout.read())
     
-    def extract_current_data(self,exportname):
-        """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump 
-
-        Args:
-            exportname: takes filename as argument to create geojson file passed from routers
-
-        Returns:
-            _file_path_: geojson file location path
-        """
-        geometry_dump = dumps(dict(self.params.geometry))
-        geom_area=int(area(json.loads(self.params.geometry.json()))* 1E-6)
-        #None for now , once all country is populated in db we will uncomment it 
-        country_id = self.db.executequery(get_country_id_query(geometry_dump))
-        extraction_query = raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area)
-        print(extraction_query)
+    @staticmethod
+    def query2geojson(con,extraction_query,dump_geojson_temp_file):
+        """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
-        dump_geojson_temp_file = f"""exports/{exportname}.geojson"""
         with open(dump_geojson_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
             f.write(pre_geojson)            
             logging.debug('Server side Cursor Query Sent with 1000 Chunk Size')
-            with self.con.cursor(name='fetch_raw') as cursor: #using server side cursor
+            with con.cursor(name='fetch_raw') as cursor: #using server side cursor
                 cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
                 cursor.execute(extraction_query)
                 first=True
@@ -641,9 +637,31 @@ class RawData:
                         f.write(',')
                         f.write(row[0])
                 cursor.close() # closing connection to avoid memory issues
-                self.con.close()
+                con.close()
             f.write(post_geojson)
         f.close()
         logging.debug(f"""Server side Query Result  Post Processing Done""")
-        return dump_geojson_temp_file,geom_area
+    
+    def extract_current_data(self,exportname):
+        """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump 
+        Args:
+            exportname: takes filename as argument to create geojson file passed from routers
+
+        Returns:
+            _file_path_: geojson file location path
+        """
+        geometry_dump = dumps(dict(self.params.geometry))
+        geom_area=int(area(json.loads(self.params.geometry.json()))* 1E-6)
+        #None for now , once all country is populated in db we will uncomment it 
+        country_id = self.db.executequery(get_country_id_query(geometry_dump))
+        if self.params.output_type is None:
+            output_type=RawDataOutputType.GEOJSON.value # if nothing is supplied then default output type will be geojson
+        else:
+            output_type=self.params.output_type
+        dump_temp_file = f"""exports/{exportname}.{output_type.lower()}"""
+        if output_type is RawDataOutputType.GEOJSON.value: # currently we have only geojson binding function written other than that we have depend on ogr
+            RawData.query2geojson(self.con,raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area),dump_temp_file) # uses own conversion class
+        else:
+            RawData.ogr_export(raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area,True),dump_temp_file,output_type) #uses ogr export to export
+        return dump_temp_file,geom_area
     

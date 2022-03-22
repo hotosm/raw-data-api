@@ -625,7 +625,7 @@ def get_country_id_query(geometry_dump):
     return base_query
                         
 
-def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
+def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_export=False):
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
     relation_geom=[]
@@ -803,10 +803,12 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area):
                 if attribute_filter:
                     query_relation+= f""" and ({attribute_filter})"""
                 base_query.append(query_relation)
-    table_base_query=[]
-    for i in range(len(base_query)):
-        table_base_query.append(f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")             
-                
+    if ogr_export:
+        table_base_query=base_query # since query will be different for ogr exports and geojson exports because for ogr exports we don't need to grab each row in geojson 
+    else:
+        table_base_query=[]
+        for i in range(len(base_query)):
+            table_base_query.append(f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")             
     final_query=" UNION ALL ".join(table_base_query)       
         
     return final_query
