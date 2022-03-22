@@ -252,19 +252,22 @@ def test_mapathon_users_contributors_mapathon_query_builder():
     assert result_users_contributors_query == default_users_contributors_query
 
 def test_mapathon_users_tasks_mapped_and_validated_query_builder():
-    default_tasks_mapped_and_validated_query = "\n        SELECT DISTINCT th.user_id,\n            (\n                SELECT COUNT(task_id)\n                FROM public.task_history\n                WHERE user_id = th.user_id\n                AND action_text = 'MAPPED'\n                AND action_date BETWEEN '2021-08-27 09:00:00' AND '2021-08-27 11:00:00'\n                AND project_id IN (11224,10042,9906,1381,11203,10681,8055,8732,11193,7305,11210,10985,10988,11190,6658,5644,10913,6495,4229)\n            ) AS mapped_task_count,\n            (\n                SELECT COUNT(task_id)\n                FROM public.task_history\n                WHERE user_id = th.user_id\n                AND action_text = 'VALIDATED'\n                AND action_date BETWEEN '2021-08-27 09:00:00' AND '2021-08-27 11:00:00'\n                AND project_id IN (11224,10042,9906,1381,11203,10681,8055,8732,11193,7305,11210,10985,10988,11190,6658,5644,10913,6495,4229)\n            ) AS validated_task_count\n        FROM public.task_history th\n        WHERE th.action_text = 'MAPPED' OR th.action_text = 'VALIDATED'; \n    "
+    default_tasks_mapped_query = '\n        SELECT th.user_id, COUNT(th.task_id) as tasks_mapped\n            FROM PUBLIC.task_history th\n            WHERE th.action_text = \'MAPPED\'\n            AND th.action_date BETWEEN \'2021-08-27 09:00:00\' AND \'2021-08-27 11:00:00\'\n            AND th.project_id IN (11224,10042,9906,1381,11203,10681,8055,8732,11193,7305,11210,10985,10988,11190,6658,5644,10913,6495,4229)\n            GROUP BY th.user_id;\n    '    
+    default_tasks_validated_query = '\n        SELECT th.user_id, COUNT(th.task_id) as tasks_validated\n            FROM PUBLIC.task_history th\n            WHERE th.action_text = \'VALIDATED\'\n            AND th.action_date BETWEEN \'2021-08-27 09:00:00\' AND \'2021-08-27 11:00:00\'\n            AND th.project_id IN (11224,10042,9906,1381,11203,10681,8055,8732,11193,7305,11210,10985,10988,11190,6658,5644,10913,6495,4229)\n            GROUP BY th.user_id;\n    '
     params = mapathon_validation.MapathonRequestParams(**test_param)
-    result_tasks_mapped__and_validated_query = mapathon_query_builder.create_user_tasks_mapped_and_validated_query(params)
+    result_tasks_mapped_query, result_tasks_validated_query = mapathon_query_builder.create_user_tasks_mapped_and_validated_query(params.project_ids, params.from_timestamp, params.to_timestamp)
 
-    assert result_tasks_mapped__and_validated_query == default_tasks_mapped_and_validated_query
+    assert result_tasks_mapped_query == default_tasks_mapped_query
+    assert result_tasks_validated_query == default_tasks_validated_query
 
 def test_mapathon_users_time_spent_mapping_and_validating_query_builder():
-    default_time_spent_mapping_and_validating_query = "\n        SELECT DISTINCT th.user_id,\n            (\n                SELECT SUM(CAST(TO_TIMESTAMP(action_text,  'HH24:MI:SS') AS TIME))\n                FROM public.task_history\n                WHERE user_id = th.user_id\n                AND action = 'LOCKED_FOR_MAPPING'\n                OR action = 'AUTO_UNLOCKED_FOR_MAPPING'\n                AND action_date BETWEEN '2021-08-27 09:00:00' AND '2021-08-27 11:00:00'\n                AND project_id IN (11224,10042,9906,1381,11203,10681,8055,8732,11193,7305,11210,10985,10988,11190,6658,5644,10913,6495,4229)\n            ) AS time_spent_mapping,\n            (\n                SELECT SUM(CAST(TO_TIMESTAMP(action_text,  'HH24:MI:SS') AS TIME))\n                FROM public.task_history\n                WHERE user_id = th.user_id\n                AND action = 'LOCKED_FOR_VALIDATION'\n                AND action_date BETWEEN '2021-08-27 09:00:00' AND '2021-08-27 11:00:00'\n                AND project_id IN (11224,10042,9906,1381,11203,10681,8055,8732,11193,7305,11210,10985,10988,11190,6658,5644,10913,6495,4229)\n            ) AS time_spent_validating\n        FROM public.task_history th\n        WHERE (action = 'LOCKED_FOR_MAPPING' or action = 'AUTO_UNLOCKED_FOR_MAPPING') or action = 'LOCKED_FOR_VALIDATION'\n        GROUP BY th.user_id;\n    "
+    default_time_mapping_query = '\n        SELECT user_id, SUM(CAST(TO_TIMESTAMP(action_text, \'HH24:MI:SS\') AS TIME)) AS time_spent_mapping\n        FROM public.task_history\n        WHERE\n            (action = \'LOCKED_FOR_MAPPING\'\n            OR action = \'AUTO_UNLOCKED_FOR_MAPPING\')\n            AND action_date BETWEEN \'2021-08-27 09:00:00\' AND \'2021-08-27 11:00:00\'\n            AND project_id IN (11224,10042,9906,1381,11203,10681,8055,8732,11193,7305,11210,10985,10988,11190,6658,5644,10913,6495,4229)\n        GROUP BY user_id;\n    '
+    default_time_validating_query = '\n        SELECT user_id, SUM(CAST(TO_TIMESTAMP(action_text, \'HH24:MI:SS\') AS TIME)) AS time_spent_validating\n        FROM public.task_history\n        WHERE action = \'LOCKED_FOR_VALIDATION\'\n            AND action_date BETWEEN \'2021-08-27 09:00:00\' AND \'2021-08-27 11:00:00\'\n            AND project_id IN (11224,10042,9906,1381,11203,10681,8055,8732,11193,7305,11210,10985,10988,11190,6658,5644,10913,6495,4229)\n        GROUP BY user_id;\n    '
     params = mapathon_validation.MapathonRequestParams(**test_param)
-    result_time_spent_mapping_and_validating_query = mapathon_query_builder.create_user_time_spent_mapping_and_validating_query(params)
-
-    assert result_time_spent_mapping_and_validating_query == default_time_spent_mapping_and_validating_query
-
+    result_time_mapping_query, result_time_validating_query = mapathon_query_builder.create_user_time_spent_mapping_and_validating_query(params.project_ids, params.from_timestamp, params.to_timestamp)
+    
+    assert result_time_mapping_query == default_time_mapping_query
+    assert result_time_validating_query == default_time_validating_query
 
 def test_mapathon_summary():
     params = mapathon_validation.MapathonRequestParams(**test_param)
