@@ -630,7 +630,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
     base_query=[]
     relation_geom=[]
     attribute_filter= None 
-    select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with this list
+    select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     if params.columns :
         if len(params.columns) > 0:
             filter_col=[]
