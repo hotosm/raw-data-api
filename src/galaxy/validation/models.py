@@ -388,6 +388,7 @@ class OrganizationHashtag(BaseModel):
 class RawDataOutputType ( Enum):
     GEOJSON ="GeoJSON"
     KML = "KML"
+    MBTILES ="MBTILES"
 
 class HashtagParams(BaseModel):
     hashtags : Optional[List[str]]
@@ -457,15 +458,15 @@ class OsmElementRawData(Enum):
     WAYS = "ways"
     RELATIONS = "relations"
 
-RAWDATA_CURRENT_POLYGON_AREA = 1500000
+
+
 class RawDataCurrentParams(BaseModel):
-    geometry : Polygon
     output_type : Optional[RawDataOutputType]=None
+    geometry : Polygon
     osm_tags :  Optional[dict]=None
     columns : Optional[List[str]]=None
     osm_elements : Optional[List[OsmElementRawData]] = None
     geometry_type : Optional[List[GeometryTypeRawData]] = None
-    
     
     @validator("osm_tags", allow_reuse=True)
     def check_value(cls, value, values):
@@ -485,10 +486,7 @@ class RawDataCurrentParams(BaseModel):
             if (GeometryTypeRawData.POINT.value in value and OsmElementRawData.NODES.value in osm_elements) or (GeometryTypeRawData.LINESTRING.value in value and OsmElementRawData.WAYS.value in osm_elements) or (GeometryTypeRawData.POLYGON.value in value and OsmElementRawData.WAYS.value in osm_elements) or (OsmElementRawData.RELATIONS.value in osm_elements):
                 pass
             else:
-                raise ValueError("Mapping between osm_elements and geometry_type is invalid")
-            # if osm_elements:
-        #     if (value != None or len(value) != 0)  and (osm_elements != None or len(osm_elements) != 0):
-        #         raise ValueError("You can not pass both osm_elements and geometry_type")
+                raise ValueError("Mapping between osm_elements and geometry_type is invalid") # since you can pass both we need validation for mapping between osm elements and geometry type . for eg : you can not search points in ways or in relation which does not make sense 
         return value
 
     @validator("osm_elements", always=True)    
@@ -497,20 +495,16 @@ class RawDataCurrentParams(BaseModel):
                 return None
         return value
     
-    @validator("geometry", allow_reuse=True)
+    @validator("geometry", always=True)
     def check_geometry_area(cls, value, values):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1E-6
-        # print(area_km2)
+        RAWDATA_CURRENT_POLYGON_AREA=1500000
+        output_type = values.get("output_type")
+        if output_type:
+            if output_type is RawDataOutputType.MBTILES.value: # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
+                RAWDATA_CURRENT_POLYGON_AREA=20
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
-                raise ValueError(f"""Polygon Area {int(area_km2)} km^2 is higher than {RAWDATA_CURRENT_POLYGON_AREA} km^2""")
+                raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
         return value
-        # cd=json.loads(value.json())["coordinates"]
-        # for x in range(len(cd)):
-        #     geom_cd='{"type":"Polygon","coordinates":%s}'% cd[x]  
-        #     area_m2 = area(geom_cd)
-        #     area_km2 = area_m2 * 1E-6
-        #     print(f"""{area_km2} Square Km""")
-        #     if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
-        #         raise ValueError("Polygon Area %s km^2 is higher than 10 km^2"%area_km2)
 
