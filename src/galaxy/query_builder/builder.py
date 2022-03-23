@@ -629,8 +629,8 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
     relation_geom=[]
-    attribute_filter= None
-    select_condition=f"""osm_id ,tags::text as tags,geom"""
+    attribute_filter= None 
+    select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with this list
     if params.columns :
         if len(params.columns) > 0:
             filter_col=[]
@@ -640,7 +640,6 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                     filter_col.append(f"""tags ->> '{cl.strip()}' as {cl.strip()}""")
             filter_col.append('geom')
             select_condition=" , ".join(filter_col) 
-    # print(params.osm_tags)
     if params.osm_tags :
         filter= params.osm_tags
 
@@ -813,4 +812,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
         
     return final_query
 
+def check_last_updated_rawdata():
+    query = f"""select NOW()-importdate as last_updated from planet_osm_replication_status"""
+    return query
     

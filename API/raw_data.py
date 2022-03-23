@@ -69,24 +69,37 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
     exportname =f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}" # unique id for zip file and geojson for each export
-    dump_geojson_temp_file,geom_area=RawData(params).extract_current_data(exportname)
+    dump_temp_file,geom_area=RawData(params).extract_current_data(exportname)
     logging.debug('Zip Binding Started !')
     #saving file in temp directory instead of memory so that zipping file will not eat memory 
     zip_temp_path=f"""exports/{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w" , zipfile.ZIP_DEFLATED)
     # Compressing geojson file
     zf.writestr(f"""clipping_boundary.geojson""",orjson.dumps(dict(params.geometry)))
-    zf.write(dump_geojson_temp_file)
-    
+    zf.write(dump_temp_file)
     zf.close()
+    Binded_file_size=os.path.getsize(dump_temp_file) # getting file size which is binded into zip
     logging.debug('Zip Binding Done !')
-    logging.debug("-----Raw Data Request Took-- %s seconds -----" % (time.time() - start_time))
-    background_tasks.add_task(remove_file, dump_geojson_temp_file) # # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore  
-
+    background_tasks.add_task(remove_file, dump_temp_file) # # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore  
     client_host = dict(config.items("HOST"))['host'] #getting hosting url 
     client_port = dict(config.items("HOST"))['port'] #getting hosting port
-
     download_url=f"""{client_host}:{client_port}/raw-data/exports/{exportname}""" # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function ! 
     response_time=time.time() - start_time
-    return {"download_url": download_url, "response_time": f"""{int(response_time)} Seconds""", "query_area" : f"""{geom_area} Sq Km"""}
-    
+    zip_file_size=os.path.getsize(zip_temp_path) #getting file size of zip , units are in bytes converted to mb in response
+    logging.debug("-----Raw Data Request Took-- %s seconds -----" % (response_time))
+    if int(response_time) < 60 :
+        response_time_str=f"""{int(response_time)} Seconds"""
+    else : 
+        minute=int(response_time/60)
+        response_time_str=f"""{minute} Minute"""
+    return {"download_url": download_url, "response_time": response_time_str, "query_area" : f"""{geom_area} Sq Km ""","binded_file_size":f"""{int(Binded_file_size/1000000}) MB""" , "zip_file_size":f"""{int(zip_file_size/1000000}) MB"""}
+
+@router.get("/status/")    
+def check_current_db_status():
+    """Gives status about DB update, Substracts with current time and last db update time"""
+    result= RawData().check_status()
+    if int(result) == 0:
+        response = "Less than a Minute ago"
+    else:
+        response = f"""{int(result)} Minute ago"""    
+    return {"last_updated": response}

@@ -577,7 +577,7 @@ class RawData:
     -A Polygon
     -Osm element type (Optional)
     """
-    def __init__(self, params: HashtagParams):
+    def __init__(self, params: HashtagParams = None):
         self.params = params
         self.db = Database(dict(config.items("raw")))
         self.con, self.cur = self.db.connect()
@@ -611,18 +611,26 @@ class RawData:
     def ogr_export(query,export_path,outputtype):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
         db_items=dict(config.items("raw"))
-        formatted_query=query.replace('"','\\"')     
-        cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(outputtype=outputtype, export_path = export_path, host = db_items.get('host'), username = db_items.get('user'), db = db_items.get('dbname'), password = db_items.get('password'), pg_sql_select = formatted_query)
+        formatted_query=query.replace('"','\\"')
+        if outputtype is  RawDataOutputType.MBTILES.value: # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
+            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(outputtype=outputtype, export_path = export_path, host = db_items.get('host'), username = db_items.get('user'), db = db_items.get('dbname'), password = db_items.get('password'), pg_sql_select = formatted_query)
+        else:    
+            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(outputtype=outputtype, export_path = export_path, host = db_items.get('host'), username = db_items.get('user'), db = db_items.get('dbname'), password = db_items.get('password'), pg_sql_select = formatted_query)
         logging.debug("Calling ogr2ogr")
+        
         run=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        logging.debug(run.stdout.read())
+        for c in iter(lambda: run.stdout.read(2), b''): 
+            logging.debug(c.strip())
+        # logging.debug(run.stdout.read())
+        
     
     @staticmethod
-    def query2geojson(con,extraction_query,dump_geojson_temp_file):
+    def query2geojson(con,extraction_query,dump_temp_file):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
+        # print(extraction_query)
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
-        with open(dump_geojson_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
+        with open(dump_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
             f.write(pre_geojson)            
             logging.debug('Server side Cursor Query Sent with 1000 Chunk Size')
             with con.cursor(name='fetch_raw') as cursor: #using server side cursor
@@ -652,8 +660,7 @@ class RawData:
         """
         geometry_dump = dumps(dict(self.params.geometry))
         geom_area=int(area(json.loads(self.params.geometry.json()))* 1E-6)
-        #None for now , once all country is populated in db we will uncomment it 
-        country_id = self.db.executequery(get_country_id_query(geometry_dump))
+        country_id = self.db.executequery(get_country_id_query(geometry_dump)) # this will be applied only when polygon gets bigger we will be slicing index size to search 
         if self.params.output_type is None:
             output_type=RawDataOutputType.GEOJSON.value # if nothing is supplied then default output type will be geojson
         else:
@@ -664,4 +671,11 @@ class RawData:
         else:
             RawData.ogr_export(raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area,True),dump_temp_file,output_type) #uses ogr export to export
         return dump_temp_file,geom_area
+    
+    def check_status(self):
+        """Gives status about DB update, Substracts with current time and last db update time"""
+        status_query=check_last_updated_rawdata()
+        behind_time=self.db.executequery(status_query)
+        behind_time_min=behind_time[0][0].total_seconds()/60
+        return behind_time_min
     
