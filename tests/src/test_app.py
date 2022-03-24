@@ -496,7 +496,7 @@ def test_rawdata_current_snapshot_geometry_query() :
                     ]
                     ]
                 },
-            "outputType": "geojson",
+            "outputType": "GeoJSON",
             "osmTags": {"building":[],"amenity":["place","shop"],"type":["Multipolygon"]},
 
             "geometryType": [
@@ -554,7 +554,7 @@ def test_rawdata_current_snapshot_osm_elements_query() :
                     ]
                     ]
                 },
-            "outputType": "geojson",
+            "outputType": "GeoJSON",
             "osmTags": {},
             "osmElements": [
                 "nodes","ways","relations"
