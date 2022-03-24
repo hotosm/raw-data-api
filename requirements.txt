@@ -27,4 +27,6 @@ area==1.1.1
 orjson==3.6.7
 # pagination 
 # fastapi-pagination==0.9.1
-gdal == 3.3.2
+
+#gdal and ogr2ogr is required on the machine to run rawdata endpoint 
+# gdal == 3.3.2 
