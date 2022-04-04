@@ -7,6 +7,9 @@ config.read("src/config.txt")
 def get_db_connection_params(dbIdentifier) -> dict:
     if dbIdentifier == "INSIGHTS":
         return dict(config.items("INSIGHTS"))
+    
+    if dbIdentifier == "TM":
+        return dict(config.items("TM"))
 
     json_env = os.getenv("POSTGRES_CONNECTION_PARAMS")
     del json_env["dbinstanceidentifier"]
