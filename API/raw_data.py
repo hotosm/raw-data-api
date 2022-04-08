@@ -92,7 +92,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     else : 
         minute=int(response_time/60)
         response_time_str=f"""{minute} Minute"""
-    return {"download_url": download_url, "response_time": response_time_str, "query_area" : f"""{geom_area} Sq Km ""","binded_file_size":f"""{Binded_file_size/1000000} MB""" , "zip_file_size":f"""{zip_file_size/1000000} MB"""}
+    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area" : f"""{geom_area} Sq Km ""","binded_file_size":f"""{Binded_file_size/1000000} MB""" , "zip_file_size":zip_file_size}
 
 @router.get("/status/")    
 def check_current_db_status():
