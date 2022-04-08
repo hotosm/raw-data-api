@@ -12,8 +12,8 @@ def get_db_connection_params(dbIdentifier) -> dict:
         return dict(config.items("TM"))
 
     json_env = os.getenv("POSTGRES_CONNECTION_PARAMS")
-    del json_env["dbinstanceidentifier"]
-    del json_env["engine"]
+#     del json_env["dbinstanceidentifier"] # disabled for now to get it working , need to find it's relevance and better way to use it 
+#     del json_env["engine"]
 
     if json_env is not None:
         return json.loads(json_env)
