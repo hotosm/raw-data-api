@@ -26,7 +26,7 @@ port=
 
 #### 4. Navigate to Fast API Docs to get details about API Endpoint 
 
-After sucessfully running server , aHit [this](http://127.0.0.1:8000/docs) URL on your browser
+After sucessfully running server , Hit [this](http://127.0.0.1:8000/docs) URL on your browser
 
 ```http://127.0.0.1:8000/docs```
 
