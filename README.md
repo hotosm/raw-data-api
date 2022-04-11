@@ -2,11 +2,11 @@
 
 ## Install
 
-1. Install requirements.
+#### 1. Install requirements.
 
 ```pip install -r requirements.txt```
 
-2. Create ```config.txt``` inside src directory.
+#### 2. Create ```config.txt``` inside src directory.
 
 Following this [config sample](https://github.com/hotosm/galaxy-api/blob/master/src/config.txt.sample) setup your database configuration like this config block 
 
@@ -20,9 +20,15 @@ port=
 ```
 
 
-3. Run server
+#### 3. Run server
 
 ```uvicorn API.main:app --reload```
+
+#### 4. Navigate to Fast API Docs to get details about API Endpoint 
+
+After sucessfully running server , aHit [this](http://127.0.0.1:8000/docs) URL on your browser
+
+```http://127.0.0.1:8000/docs```
 
 ## Run tests 
 
