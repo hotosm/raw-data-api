@@ -64,7 +64,7 @@ def remove_file(path: str) -> None:
     os.unlink(path)
 
 @router.post("/current-snapshot/")
-def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks):  
+def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,request: Request):  
 # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
@@ -81,8 +81,8 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     Binded_file_size=os.path.getsize(dump_temp_file) # getting file size which is binded into zip
     logging.debug('Zip Binding Done !')
     background_tasks.add_task(remove_file, dump_temp_file) # # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore  
-    client_host = dict(config.items("HOST"))['host'] #getting hosting url 
-    client_port = dict(config.items("HOST"))['port'] #getting hosting port
+    client_host = request.client.host #getting client host
+    client_port = request.url.port #getting hosting port
     download_url=f"""{client_host}:{client_port}/raw-data/exports/{exportname}""" # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function ! 
     response_time=time.time() - start_time
     zip_file_size=os.path.getsize(zip_temp_path) #getting file size of zip , units are in bytes converted to mb in response
