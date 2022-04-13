@@ -36,10 +36,3 @@ user=
 password=
 database=galaxy
 port=
-
-[RAW_DATA]
-host=localhost
-user=admin
-password=admin
-database=raw
-port=5432

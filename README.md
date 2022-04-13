@@ -2,13 +2,46 @@
 
 ## Install
 
-Install requirements.
+#### 1. Install requirements.
 
 ```pip install -r requirements.txt```
 
-Run server
+#### 2. Create ```config.txt``` inside src directory.
+
+Following this [config sample](https://github.com/hotosm/galaxy-api/blob/master/src/config.txt.sample) setup your database configuration like this config block 
+
+```
+[SOURCE_NAME]
+host=localhost
+user=
+password=
+dbname=
+port=
+```
+
+
+#### 3. Run server
 
 ```uvicorn API.main:app --reload```
+
+#### 4. Navigate to Fast API Docs to get details about API Endpoint 
+
+After sucessfully running server , Hit [this](http://127.0.0.1:8000/docs) URL on your browser
+
+```http://127.0.0.1:8000/docs```
+
+## Run tests 
+
+Galaxy-API uses pytest for tests ,Navigate to root Dir, Install package in editable mode
+
+
+```pip install -e .```
+
+
+Make sure you have postgresql installed locally with postgis extension enabled , Now Run Pytest
+
+
+```py.test -v -s```
 
 # Galaxy Package
 

@@ -29,7 +29,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     # merged_items = [*project_ids , *hashtags]
 
-    filter_query = "({hstore_column} -> %s) ~~ %s"
+    filter_query = "({hstore_column} -> %s) ~~* %s"
 
     hashtag_filter_values = [
         *[f"%hotosm-project-{i};%" if project_ids is not None else '' for i in project_ids],
@@ -204,23 +204,57 @@ def create_users_contributions_query(params, changeset_query):
     SELECT user_id,
         username,
         total_buildings,
-        public.tasks_per_user(user_id,
-            '{project_ids}',
-            '{from_timestamp}',
-            '{to_timestamp}',
-            'MAPPED') AS mapped_tasks,
-        public.tasks_per_user(user_id,
-            '{project_ids}',
-            '{from_timestamp}',
-            '{to_timestamp}',
-            'VALIDATED') AS validated_tasks,
         public.editors_per_user(user_id,
-            '{from_timestamp}',
-            '{to_timestamp}') AS editors
+        '{from_timestamp}',
+        '{to_timestamp}') AS editors
     FROM T3;
     """
     return query
 
+def create_user_tasks_mapped_and_validated_query(project_ids, from_timestamp, to_timestamp):
+    tm_project_ids = ",".join([str(p) for p in project_ids])
+    
+    mapped_query = f"""
+        SELECT th.user_id, COUNT(th.task_id) as tasks_mapped
+            FROM PUBLIC.task_history th
+            WHERE th.action_text = 'MAPPED'
+            AND th.action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND th.project_id IN ({tm_project_ids})
+            GROUP BY th.user_id;
+    """
+    validated_query = f"""
+        SELECT th.user_id, COUNT(th.task_id) as tasks_validated
+            FROM PUBLIC.task_history th
+            WHERE th.action_text = 'VALIDATED'
+            AND th.action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND th.project_id IN ({tm_project_ids})
+            GROUP BY th.user_id;
+    """
+    return mapped_query, validated_query
+
+def create_user_time_spent_mapping_and_validating_query(project_ids, from_timestamp, to_timestamp):
+    tm_project_ids = ",".join([str(p) for p in project_ids])
+
+    time_spent_mapping_query = f"""
+        SELECT user_id, SUM(CAST(TO_TIMESTAMP(action_text, 'HH24:MI:SS') AS TIME)) AS time_spent_mapping
+        FROM public.task_history
+        WHERE
+            (action = 'LOCKED_FOR_MAPPING'
+            OR action = 'AUTO_UNLOCKED_FOR_MAPPING')
+            AND action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND project_id IN ({tm_project_ids})
+        GROUP BY user_id;
+    """
+
+    time_spent_validating_query = f"""
+        SELECT user_id, SUM(CAST(TO_TIMESTAMP(action_text, 'HH24:MI:SS') AS TIME)) AS time_spent_validating
+        FROM public.task_history
+        WHERE action = 'LOCKED_FOR_VALIDATION'
+            AND action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND project_id IN ({tm_project_ids})
+        GROUP BY user_id;
+    """
+    return time_spent_mapping_query, time_spent_validating_query;
 
 def generate_data_quality_hashtag_reports(cur, params):
     if params.hashtags is not None and len(params.hashtags) > 0:

@@ -41,6 +41,14 @@ MAX_POLYGON_AREA = 5000 # km^2
 SPECIAL_CHARACTER = '[@!#$%^&*() <>?/\|}{~:,"]'
 ORGANIZATIONAL_FREQUENCY =  {"w" : 7,"m" : 30, "q": 90, "y":365}
 
+def checkIfDuplicates(input_list):
+    listOfElems=list(map(lambda x: x.lower(), input_list)) # converting all hashtags value to lowercase to check duplicates because MissingMaps and missingmaps both are treated same and considered as duplicate 
+    ''' Check if given list contains any duplicates '''
+    if len(listOfElems) == len(set(listOfElems)):
+        return False
+    else:
+        return True
+
 def to_camel(string: str) -> str:
     split_string = string.split("_")
 
@@ -65,14 +73,31 @@ class MapathonContributor(BaseModel):
     user_id: int
     username: str
     total_buildings: int
-    mapped_tasks: int
-    validated_tasks: int
-    editors: str
-
+    editors: Optional[str]
 
 class MappedFeatureWithUser(MappedFeature):
     username: str
 
+class TimeSpentMapping(BaseModel):
+    user_id: int
+    time_spent_mapping: float
+
+class TimeSpentValidating(BaseModel):
+    user_id: int
+    time_spent_validating: float
+
+class MappedTaskStats(BaseModel):
+    user_id: int
+    tasks_mapped: int
+
+class ValidatedTaskStats(BaseModel):
+    user_id: int
+    tasks_validated: int
+class TMUserStats(BaseModel):
+    tasks_mapped: List[MappedTaskStats]
+    tasks_validated: List[ValidatedTaskStats]
+    time_spent_mapping: List[TimeSpentMapping]
+    time_spent_validating: List[TimeSpentValidating]
 
 class MapathonSummary(BaseModel):
     total_contributors: int
@@ -82,6 +107,7 @@ class MapathonSummary(BaseModel):
 class MapathonDetail(BaseModel):
     mapped_features: List[MappedFeatureWithUser]
     contributors: List[MapathonContributor]
+    tm_stats: List[TMUserStats]
 
 
 class TimeStampParams(BaseModel):
@@ -127,6 +153,9 @@ class MapathonRequestParams(TimeStampParams):
         for v in value :
             if  v =="":
                 raise ValueError("Hashtag value contains unsupported character")
+        if checkIfDuplicates(value) is True:
+            raise ValueError("Hashtag Contains Duplicate entries")
+        
         return value
 
     @validator("source", allow_reuse=True)
@@ -370,9 +399,8 @@ class OrganizationHashtagParams(BaseModel):
         if start_date:      
             frequency = values.get("frequency")
             difference= value-start_date
-            
             if difference < timedelta(days = ORGANIZATIONAL_FREQUENCY[frequency]):
-                raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days for """)
+                raise ValueError(f"""Minimum Date Difference is of {ORGANIZATIONAL_FREQUENCY[frequency]} days""")
         return value
 
 
