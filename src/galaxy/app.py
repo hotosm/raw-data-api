@@ -693,12 +693,12 @@ class RawData:
         
     
     @staticmethod
-    def query2geojson(con,extraction_query,dump_temp_file):
+    def query2geojson(con,extraction_query,dump_temp_file_path):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
         # print(extraction_query)
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
-        with open(dump_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
+        with open(dump_temp_file_path, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
             f.write(pre_geojson)            
             logging.debug('Server side Cursor Query Sent with 1000 Chunk Size')
             with con.cursor(name='fetch_raw') as cursor: #using server side cursor
@@ -728,17 +728,26 @@ class RawData:
         """
         geometry_dump = dumps(dict(self.params.geometry))
         geom_area=int(area(json.loads(self.params.geometry.json()))* 1E-6)
-        country_id = self.db.executequery(get_country_id_query(geometry_dump)) # this will be applied only when polygon gets bigger we will be slicing index size to search 
+        if geom_area > 100000:
+            country_id = self.db.executequery(get_country_id_query(geometry_dump)) # this will be applied only when polygon gets bigger we will be slicing index size to search 
+        else:
+            country_id=None
         if self.params.output_type is None:
             output_type=RawDataOutputType.GEOJSON.value # if nothing is supplied then default output type will be geojson
         else:
             output_type=self.params.output_type
-        dump_temp_file = f"""exports/{exportname}.{output_type.lower()}"""
+        path = 'exports/'
+        # Check whether the export path exists or not
+        isExist = os.path.exists(path)
+        if not isExist:   
+            # Create a exports directory because it does not exist 
+            os.makedirs(path)
+        dump_temp_file_path = f"""exports/{exportname}.{output_type.lower()}"""
         if output_type is RawDataOutputType.GEOJSON.value: # currently we have only geojson binding function written other than that we have depend on ogr
-            RawData.query2geojson(self.con,raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area),dump_temp_file) # uses own conversion class
+            RawData.query2geojson(self.con,raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area),dump_temp_file_path) # uses own conversion class
         else:
-            RawData.ogr_export(raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area,True),dump_temp_file,output_type) #uses ogr export to export
-        return dump_temp_file,geom_area
+            RawData.ogr_export(raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area,True),dump_temp_file_path,output_type) #uses ogr export to export
+        return dump_temp_file_path,geom_area
     
     def check_status(self):
         """Gives status about DB update, Substracts with current time and last db update time"""
