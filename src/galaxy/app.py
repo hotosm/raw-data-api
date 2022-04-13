@@ -579,7 +579,7 @@ class RawData:
     """
     def __init__(self, params: HashtagParams = None):
         self.params = params
-        self.db = Database(dict(config.items("raw")))
+        self.db = Database(dict(config.items("RAW_DATA")))
         self.con, self.cur = self.db.connect()
     
     @staticmethod

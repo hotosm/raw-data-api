@@ -30,7 +30,6 @@ from .data_quality import router as data_quality_router
 from .trainings import router as training_router
 from .organization import router as organization_router
 from .raw_data import router as raw_data_router
-from fastapi.staticfiles import StaticFiles
 
 # This is used for local setup for auth login
 # import os
@@ -38,7 +37,6 @@ from fastapi.staticfiles import StaticFiles
 
 
 app = FastAPI()
-app.mount("/exports", StaticFiles(directory="exports"), name="export") #static directory to download rawdata files
 
 origins = ["*"]
 
