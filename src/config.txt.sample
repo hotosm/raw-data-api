@@ -34,7 +34,7 @@ database=galaxy
 port=
 
 [TM]
-database=
+host=
 user=
 password=
 host=
