@@ -663,7 +663,10 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
     relation_geom=[]
-    attribute_filter= None 
+    master_attribute_filter= None 
+    nodes_filter= None # it will prioritize nodes, ways and relation filter before master filter , if both are passed then nodes,ways and relation filter will be prioritized
+    ways_filter= None
+    relations_filter=None
     select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     if params.columns :
         if len(params.columns) > 0:
@@ -675,30 +678,19 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
             filter_col.append('geom')
             select_condition=" , ".join(filter_col) 
     if params.osm_tags :
-        filter= params.osm_tags
+        master_attribute_filter=create_rawdata_filter(params.osm_tags)
+    if params.nodes_filter:
+        nodes_filter=create_rawdata_filter(params.nodes_filter)
+    if params.ways_filter:
+        ways_filter=create_rawdata_filter(params.ways_filter)
+    if params.relation_filter:
+        relations_filter=create_rawdata_filter(params.ways_filter)
 
-        incoming_filter=[]
-        for key, value in filter.items():
-
-            if len(value)>1:
-                v_l= []
-                for l in value:
-                    v_l.append(f""" '{l.strip()}' """)
-                v_l_join= " , ".join(v_l)
-                value_tuple= f"""({v_l_join})"""
-                
-                k=f""" '{key.strip()}' """
-                incoming_filter.append("""tags ->> """+k+"""IN """+value_tuple+"""""")
-            elif len(value)==1:
-                incoming_filter.append(f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
-            else: 
-                incoming_filter.append(f"""tags ? '{key.strip()}'""")
-        attribute_filter=" OR ".join(incoming_filter)
     
     if params.osm_elements is None and params.geometry_type is None:
         params.osm_elements= ['nodes','ways_line','ways_poly','relations']
     
-    if params.osm_elements is not None and params.geometry_type is not None:
+    if params.osm_elements is not None and params.geometry_type is not None: # condition when both osm element and geom type is supplied
         if geomtype.POINT.value in params.geometry_type and OsmElementRawData.NODES.value in params.osm_elements:
             query_point=f"""select
                         {select_condition}
@@ -706,8 +698,10 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                             nodes
                         where
                             {geom_filter}"""
-            if attribute_filter:
-                query_point+= f""" and ({attribute_filter})"""
+            if nodes_filter:
+                query_point+= f""" and ({nodes_filter})"""
+            elif master_attribute_filter:
+                query_point+= f""" and ({master_attribute_filter})"""
             base_query.append(query_point)
      
         if geomtype.LINESTRING.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
@@ -717,8 +711,10 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                     ways_line
                 where
                     {geom_filter}"""
-            if attribute_filter:
-                query_ways_line+= f""" and ({attribute_filter})"""
+            if ways_filter:
+                query_ways_line+= f""" and ({ways_filter})"""
+            elif master_attribute_filter:
+                query_ways_line+= f""" and ({master_attribute_filter})"""
             base_query.append(query_ways_line)
 
         if geomtype.POLYGON.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
@@ -734,29 +730,36 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                     ways_poly
                 where
                 {where_clause}"""
-            if attribute_filter:
-                query_poly+= f""" and ({attribute_filter})"""
+            
+            if ways_filter:
+                query_poly+= f""" and ({ways_filter})"""
+            elif master_attribute_filter:
+                query_poly+= f""" and ({master_attribute_filter})"""
             base_query.append(query_poly)
 
         if OsmElementRawData.RELATIONS.value in params.osm_elements:
 
             for tp in params.geometry_type:
-                relation_geom.append(f"""geometrytype(geom)='{tp.upper()}'""")
+                if tp is not geomtype.POINT.value:
+                    relation_geom.append(f"""geometrytype(geom)='{tp.upper()}'""")
             query_relation=f"""select
                 {select_condition}
                 from
                     relations
                 where
                     {geom_filter}"""
-            # if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
-            join_relation_geom=" or ".join(relation_geom)
-            query_relation+=f""" and ( {join_relation_geom} )"""
-            if attribute_filter:
-                query_relation+= f""" and ({attribute_filter})"""
+            if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
+            
+                join_relation_geom=" or ".join(relation_geom)
+                query_relation+=f""" and ( {join_relation_geom} )"""
+            if relations_filter:
+                query_relation+= f""" and ({relations_filter})"""
+            elif master_attribute_filter:
+                query_relation+= f""" and ({master_attribute_filter})"""
             base_query.append(query_relation)
  
         
-    if params.osm_elements and params.geometry_type is None :
+    if params.osm_elements and params.geometry_type is None : # condition when only nodes,ways,relations are supplied
         if len(params.osm_elements)>0:
             if OsmElementRawData.WAYS.value in params.osm_elements : # converting ways to ways_line and ways_poly since we store them in two different tables 
                 params.osm_elements.remove( OsmElementRawData.WAYS.value)
@@ -776,11 +779,26 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                         {type}
                     where
                         {where_clause}"""
-                if attribute_filter:
-                    query+= f""" and ({attribute_filter})"""
+                
+                if type == 'ways_poly' or type == 'ways_line':
+                    if ways_filter :
+                        query+= f""" and ({ways_filter})"""
+                    elif master_attribute_filter:
+                        query+= f""" and ({master_attribute_filter})"""
+                elif type is OsmElementRawData.NODES.value :
+                    if nodes_filter :
+                        query+= f""" and ({nodes_filter})"""
+                    elif master_attribute_filter:
+                        query+= f""" and ({master_attribute_filter})"""
+                elif type is OsmElementRawData.RELATIONS.value:
+                    if relations_filter :
+                        query+= f""" and ({relations_filter})"""
+                    elif master_attribute_filter:
+                        query+= f""" and ({master_attribute_filter})"""
+
                 base_query.append(query) 
                      
-    if params.geometry_type and  params.osm_elements is None:
+    if params.geometry_type and  params.osm_elements is None: # condition when only geometry type is supplied
         if len(params.geometry_type)>0:
             for type in params.geometry_type:
                 
@@ -791,8 +809,10 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                             nodes
                         where
                             {geom_filter}"""
-                    if attribute_filter:
-                        query_point+= f""" and ({attribute_filter})"""
+                    if nodes_filter :
+                        query_point+= f""" and ({nodes_filter})"""
+                    elif master_attribute_filter:
+                        query_point+= f""" and ({master_attribute_filter})"""
                     base_query.append(query_point)
 
                 elif type is geomtype.LINESTRING.value :       
@@ -802,8 +822,10 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                             ways_line
                         where
                             {geom_filter}"""
-                    if attribute_filter:
-                        query_ways_line+= f""" and ({attribute_filter})"""
+                    if ways_filter :
+                        query_ways_line+= f""" and ({ways_filter})"""
+                    elif master_attribute_filter:
+                        query_ways_line+= f""" and ({master_attribute_filter})"""
                     base_query.append(query_ways_line)
                 else:
                     if type is geomtype.POLYGON.value : 
@@ -819,8 +841,10 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                                 ways_poly
                             where
                             {where_clause}"""
-                        if attribute_filter:
-                            query_poly+= f""" and ({attribute_filter})"""
+                        if ways_filter :
+                            query_poly+= f""" and ({ways_filter})"""
+                        elif master_attribute_filter:
+                            query_poly+= f""" and ({master_attribute_filter})"""
                         base_query.append(query_poly)
                     relation_geom.append(f"""geometrytype(geom)='{type.upper()}'""")
             if len(relation_geom) !=0:
@@ -833,8 +857,10 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
                 if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
                     join_relation_geom=" or ".join(relation_geom)
                     query_relation+=f""" and ( {join_relation_geom} )"""
-                if attribute_filter:
-                    query_relation+= f""" and ({attribute_filter})"""
+                if relations_filter :
+                    query_relation+= f""" and ({relations_filter})"""
+                elif master_attribute_filter:
+                    query_relation+= f""" and ({master_attribute_filter})"""
                 base_query.append(query_relation)
     if ogr_export:
         table_base_query=base_query # since query will be different for ogr exports and geojson exports because for ogr exports we don't need to grab each row in geojson 
@@ -849,4 +875,24 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
 def check_last_updated_rawdata():
     query = f"""select NOW()-importdate as last_updated from planet_osm_replication_status"""
     return query
-    
+
+def create_rawdata_filter(filter):
+    """Generates attribute filter for rawdata extraction"""
+    incoming_filter=[]
+    for key, value in filter.items():
+
+        if len(value)>1:
+            v_l= []
+            for l in value:
+                v_l.append(f""" '{l.strip()}' """)
+            v_l_join= " , ".join(v_l)
+            value_tuple= f"""({v_l_join})"""
+            
+            k=f""" '{key.strip()}' """
+            incoming_filter.append("""tags ->> """+k+"""IN """+value_tuple+"""""")
+        elif len(value)==1:
+            incoming_filter.append(f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+        else: 
+            incoming_filter.append(f"""tags ? '{key.strip()}'""")
+    attribute_filter=" OR ".join(incoming_filter)
+    return attribute_filter
