@@ -668,12 +668,12 @@ def get_query_as_geojson(query_list):
 # Rawdata extraction Block
 
 def create_geom_filter(geom):
-    """generates geometry intersection filter """
+    """generates geometry intersection filter - Rawdata extraction"""
     geometry_dump = dumps(dict(geom))
     return f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
 
 def create_column_filter(columns):
-    """generates column filter , which will be used to filter column in output will be used on select query"""
+    """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
     if len(columns) > 0:
         filter_col=[]
         filter_col.append('osm_id')
@@ -705,7 +705,7 @@ def create_attribute_filter(filter):
     return attribute_filter
 
 def extract_geometry_type_query(params):
-    """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support"""
+    """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
     
     geom_filter = create_geom_filter(params.geometry)
     select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
@@ -794,6 +794,7 @@ def extract_geometry_type_query(params):
 
 
 def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_export=False):
+    """Default function to support current snapshot extraction with all of the feature that galaxy has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query=[]
     relation_geom=[]
