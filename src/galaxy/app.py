@@ -743,6 +743,7 @@ class RawData:
             # Create a exports directory because it does not exist 
             os.makedirs(path)
         dump_temp_file_path = f"""exports/{exportname}.{output_type.lower()}"""
+        extract_geometry_type_query(self.params)
         if output_type is RawDataOutputType.GEOJSON.value: # currently we have only geojson binding function written other than that we have depend on ogr
             RawData.query2geojson(self.con,raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area),dump_temp_file_path) # uses own conversion class
         else:

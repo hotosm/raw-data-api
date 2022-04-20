@@ -493,9 +493,15 @@ class RawDataCurrentParams(BaseModel):
     geometry : Polygon
     osm_tags :  Optional[dict]=None #FIXMYNAME: may be we can rename it as master_filter
 
-    nodes_filter :  Optional[dict]=None #FIXMYNAME
-    ways_filter :  Optional[dict]=None #FIXMYNAME
-    relation_filter :  Optional[dict]=None #FIXMYNAME
+# those blocks are added to support export tool requirement should be standarized
+    point_filter :  Optional[dict]=None 
+    line_filter :  Optional[dict]=None 
+    poly_filter :  Optional[dict]=None 
+
+    point_columns : Optional[List[str]]=None
+    line_columns : Optional[List[str]]=None
+    poly_columns : Optional[List[str]]=None
+# block end
 
     columns : Optional[List[str]]=None
     osm_elements : Optional[List[OsmElementRawData]] = None
