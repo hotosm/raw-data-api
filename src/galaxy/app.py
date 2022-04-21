@@ -18,6 +18,7 @@
 # <info@hotosm.org>
 '''Main page contains class for database mapathon and funtion for error printing  '''
 
+from .config import get_db_connection_params
 from .validation.models import Source
 import sys
 from fastapi import param_functions
@@ -46,9 +47,8 @@ from fiona.crs import from_epsg
 
 import logging
 logging.getLogger("imported_module").setLevel(logging.WARNING)
-logging.getLogger("fiona").propagate = False #disable fiona logging
+logging.getLogger("fiona").propagate = False  # disable fiona logging
 
-from .config import get_db_connection_params
 
 def print_psycopg2_exception(err):
     """ 
@@ -110,7 +110,7 @@ class Database:
         try:
             if self.conn != None:
                 self.cursor = self.cur
-                if query!= None:
+                if query != None:
                     # catch exception for invalid SQL statement
 
                     try:
@@ -227,7 +227,8 @@ class Insight:
         contributors_query = create_users_contributions_query(
             self.params, changeset_query)
         osm_history_result = self.database.executequery(osm_history_query)
-        total_contributors_result = self.database.executequery(contributors_query)
+        total_contributors_result = self.database.executequery(
+            contributors_query)
         return osm_history_result, total_contributors_result
 
 
@@ -242,35 +243,41 @@ class TaskingManager:
     def extract_project_ids(self):
         test_hashtag = "hotosm-project-"
         ids = []
-        
+
         if (len(self.params.project_ids) > 0):
             ids.extend(self.params.project_ids)
-        
+
         if(len(self.params.hashtags) > 0):
             for hashtag in self.params.hashtags:
                 if test_hashtag in hashtag:
-                    if len(hashtag[15:]) > 0: ids.append(hashtag[15:])
+                    if len(hashtag[15:]) > 0:
+                        ids.append(hashtag[15:])
         return ids
 
     def get_tasks_mapped_and_validated_per_user(self):
         project_ids = self.extract_project_ids()
         if len(project_ids) > 0:
             tasks_mapped_query, tasks_validated_query = create_user_tasks_mapped_and_validated_query(project_ids,
-            self.params.from_timestamp, self.params.to_timestamp)
-            tasks_mapped_result = self.database.executequery(tasks_mapped_query)
-            tasks_validated_result = self.database.executequery(tasks_validated_query)
+                                                                                                     self.params.from_timestamp, self.params.to_timestamp)
+            tasks_mapped_result = self.database.executequery(
+                tasks_mapped_query)
+            tasks_validated_result = self.database.executequery(
+                tasks_validated_query)
             return tasks_mapped_result, tasks_validated_result
-        return [],[]
+        return [], []
 
     def get_time_spent_mapping_and_validating_per_user(self):
         project_ids = self.extract_project_ids()
         if len(project_ids) > 0:
             time_spent_mapping_query, time_spent_validating_query = create_user_time_spent_mapping_and_validating_query(project_ids,
-            self.params.from_timestamp, self.params.to_timestamp)
-            time_spent_mapping_result = self.database.executequery(time_spent_mapping_query)
-            time_spent_validating_result = self.database.executequery(time_spent_validating_query)
+                                                                                                                        self.params.from_timestamp, self.params.to_timestamp)
+            time_spent_mapping_result = self.database.executequery(
+                time_spent_mapping_query)
+            time_spent_validating_result = self.database.executequery(
+                time_spent_validating_query)
             return time_spent_mapping_result, time_spent_validating_result
-        return [],[]   
+        return [], []
+
 
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
@@ -314,20 +321,24 @@ class Mapathon:
         if (len(tasks_mapped_results) > 0):
             for r in tasks_mapped_results:
                 r[1] = r[1] if r[1] > 0 else 0
-            tasks_mapped_stats = [MappedTaskStats(**r) for r in tasks_mapped_results]
+            tasks_mapped_stats = [MappedTaskStats(
+                **r) for r in tasks_mapped_results]
         if (len(tasks_validated_results) > 0):
             for r in tasks_validated_results:
                 r[1] = r[1] if r[1] > 0 else 0
-            tasks_validated_stats = [ValidatedTaskStats(**r) for r in tasks_validated_results]
-        if (len(time_mapping_results) > 0): 
+            tasks_validated_stats = [ValidatedTaskStats(
+                **r) for r in tasks_validated_results]
+        if (len(time_mapping_results) > 0):
             for t in time_mapping_results:
                 t[1] = t[1].total_seconds() if t[1] else 0.0
-            time_mapping_stats = [TimeSpentMapping(**r) for r in time_mapping_results]
-        if (len(time_validating_results) > 0): 
+            time_mapping_stats = [TimeSpentMapping(
+                **r) for r in time_mapping_results]
+        if (len(time_validating_results) > 0):
             for t in time_validating_results:
                 t[1] = t[1].total_seconds() if t[1] else 0.0
-            time_validating_stats = [TimeSpentValidating(**r) for r in time_validating_results] 
-        
+            time_validating_stats = [TimeSpentValidating(
+                **r) for r in time_validating_results]
+
         tm_stats = [TMUserStats(tasks_mapped=tasks_mapped_stats,
                                 tasks_validated=tasks_validated_stats,
                                 time_spent_mapping=time_mapping_stats,
@@ -338,6 +349,7 @@ class Mapathon:
                                 tm_stats=tm_stats)
         # print(Output(osm_history_query,self.con).to_list())
         return report
+
 
 class Output:
     """Class to convert sql query result to specific output format. It uses Pandas Dataframe
@@ -641,6 +653,7 @@ class OrganizationHashtags:
         except Exception as err:
             return err
 
+
 class RawData:
     """Class responsible for the Rawdata Extraction from available sources , Currently Works for Underpass source Current Snapshot
     Returns:
@@ -650,11 +663,12 @@ class RawData:
     -A Polygon
     -Osm element type (Optional)
     """
+
     def __init__(self, params: HashtagParams = None):
         self.params = params
         self.db = Database(dict(config.items("RAW_DATA")))
         self.con, self.cur = self.db.connect()
-    
+
     @staticmethod
     def to_geojson(results):
         """Responsible for converting query result to featurecollection , It is absolute now ~ not used anymore
@@ -666,10 +680,11 @@ class RawData:
             _type_: featurecollection
         """
         logging.debug('Geojson Binding Started !')
-        feature_collection = FeatureCollection(features=[orjson.loads(row[0]) for row in results])
+        feature_collection = FeatureCollection(
+            features=[orjson.loads(row[0]) for row in results])
         logging.debug('Geojson Binding Done !')
         return feature_collection
-    
+
     def extract_historical_data(self):
         """Idea is to extract historical data , Currently not maintained
 
@@ -679,37 +694,40 @@ class RawData:
         extraction_query = raw_historical_data_extraction_query(
             self.cur, self.con, self.params)
         results = self.db.executequery(extraction_query)
-        return  RawData.to_geojson(results)
+        return RawData.to_geojson(results)
+
     @staticmethod
-    def ogr_export(query,export_path,outputtype):
+    def ogr_export(query, export_path, outputtype):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
-        db_items=dict(config.items("raw"))
-        formatted_query=query.replace('"','\\"')
-        if outputtype is  RawDataOutputType.MBTILES.value: # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
-            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(outputtype=outputtype, export_path = export_path, host = db_items.get('host'), username = db_items.get('user'), db = db_items.get('dbname'), password = db_items.get('password'), pg_sql_select = formatted_query)
-        else:    
-            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(outputtype=outputtype, export_path = export_path, host = db_items.get('host'), username = db_items.get('user'), db = db_items.get('dbname'), password = db_items.get('password'), pg_sql_select = formatted_query)
+        db_items = dict(config.items("raw"))
+        formatted_query = query.replace('"', '\\"')
+        # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
+        if outputtype is RawDataOutputType.MBTILES.value:
+            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('dbname'), password=db_items.get('password'), pg_sql_select=formatted_query)
+        else:
+            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('dbname'), password=db_items.get('password'), pg_sql_select=formatted_query)
         logging.debug("Calling ogr2ogr")
-        
-        run=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        for c in iter(lambda: run.stdout.read(2), b''): 
+
+        run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        for c in iter(lambda: run.stdout.read(2), b''):
             logging.debug(c.strip())
         # logging.debug(run.stdout.read())
-        
-    
+
     @staticmethod
-    def query2geojson(con,extraction_query,dump_temp_file_path):
+    def query2geojson(con, extraction_query, dump_temp_file_path):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
         # print(extraction_query)
-        pre_geojson="""{"type": "FeatureCollection","features": ["""
-        post_geojson= """]}"""
-        with open(dump_temp_file_path, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
-            f.write(pre_geojson)            
+        pre_geojson = """{"type": "FeatureCollection","features": ["""
+        post_geojson = """]}"""
+        with open(dump_temp_file_path, 'a', encoding='utf-8') as f:  # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
+            f.write(pre_geojson)
             logging.debug('Server side Cursor Query Sent with 1000 Chunk Size')
-            with con.cursor(name='fetch_raw') as cursor: #using server side cursor
-                cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+            with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
+                cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
                 cursor.execute(extraction_query)
-                first=True
+                first = True
                 for row in cursor:
                     if first:
                         first = False
@@ -717,37 +735,34 @@ class RawData:
                     else:
                         f.write(',')
                         f.write(row[0])
-                cursor.close() # closing connection to avoid memory issues
+                cursor.close()  # closing connection to avoid memory issues
                 con.close()
             f.write(post_geojson)
         f.close()
         logging.debug(f"""Server side Query Result  Post Processing Done""")
-    
+
     @staticmethod
-    def query2shapefile(con,point_query,line_query,poly_query,point_schema,line_schema,poly_schema,dump_temp_file_path):
+    def query2shapefile(con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path):
         # schema: it is a simple dictionary with geometry and properties as keys
         # schema = {'geometry': 'LineString','properties': {'test': 'int'}}
-        file_paths=[]
+        file_paths = []
         if point_query:
             logging.debug(f"""Writing Point Shapefile""")
 
-            schema={'geometry': 'Point','properties':point_schema,}
-            print(schema)
+            schema = {'geometry': 'Point', 'properties': point_schema, }
+            point_file_path = f"""{dump_temp_file_path}_point.shp"""
+            # open a fiona object
+            pointShp = fiona.open(point_file_path, mode='w', driver='ESRI Shapefile', encoding='UTF-8',
+                                  schema=schema, crs="EPSG:4326")
 
-            point_file_path=f"""{dump_temp_file_path}_point.shp"""
-            #open a fiona object
-            pointShp = fiona.open(point_file_path, mode='w', driver='ESRI Shapefile',encoding='UTF-8',
-                    schema = schema, crs = "EPSG:4326")
-            
-            with con.cursor(name='fetch_raw') as cursor: #using server side cursor
-                cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+            with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
+                cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
                 cursor.execute(point_query)
                 for row in cursor:
-                    print(orjson.loads(row[0]))
                     pointShp.write(orjson.loads(row[0]))
 
-                cursor.close() # closing connection to avoid memory issues
-                #close fiona object
+                cursor.close()  # closing connection to avoid memory issues
+                # close fiona object
             pointShp.close()
             file_paths.append(point_file_path)
             file_paths.append(f"""{dump_temp_file_path}_point.shx""")
@@ -758,18 +773,18 @@ class RawData:
         if line_query:
             logging.debug(f"""Writing Line Shapefile""")
 
-            schema={'geometry': 'LineString','properties':line_schema,}
+            schema = {'geometry': 'LineString', 'properties': line_schema, }
             print(schema)
-            line_file_path=f"""{dump_temp_file_path}_line.shp"""
-            with fiona.open(line_file_path, 'w',encoding='UTF-8',crs=from_epsg(4326),driver= 'ESRI Shapefile', schema=schema) as layer:
-                with con.cursor(name='fetch_raw') as cursor: #using server side cursor
-                    cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+            line_file_path = f"""{dump_temp_file_path}_line.shp"""
+            with fiona.open(line_file_path, 'w', encoding='UTF-8', crs=from_epsg(4326), driver='ESRI Shapefile', schema=schema) as layer:
+                with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
+                    cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
                     cursor.execute(line_query)
                     for row in cursor:
                         layer.write(orjson.loads(row[0]))
 
-                    cursor.close() # closing connection to avoid memory issues
-                #close fiona object
+                    cursor.close()  # closing connection to avoid memory issues
+                # close fiona object
                 layer.close()
             file_paths.append(line_file_path)
             file_paths.append(f"""{dump_temp_file_path}_line.shx""")
@@ -780,36 +795,31 @@ class RawData:
         if poly_query:
             logging.debug(f"""Writing Poly Shapefile""")
 
-            poly_file_path=f"""{dump_temp_file_path}_poly.shp"""
-            schema={'geometry': 'Polygon','properties':poly_schema,}
+            poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
+            schema = {'geometry': 'Polygon', 'properties': poly_schema, }
             print(schema)
-            
-            with fiona.open(poly_file_path, 'w',encoding='UTF-8',crs=from_epsg(4326),driver= 'ESRI Shapefile', schema=schema) as layer:
-                with con.cursor(name='fetch_raw') as cursor: #using server side cursor
-                    cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+
+            with fiona.open(poly_file_path, 'w', encoding='UTF-8', crs=from_epsg(4326), driver='ESRI Shapefile', schema=schema) as layer:
+                with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
+                    cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
                     cursor.execute(poly_query)
                     for row in cursor:
                         layer.write(orjson.loads(row[0]))
-                     
 
-                    cursor.close() # closing connection to avoid memory issues
-                #close fiona object
-                layer.close()  
+                    cursor.close()  # closing connection to avoid memory issues
+                # close fiona object
+                layer.close()
             file_paths.append(poly_file_path)
             file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
             file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
             file_paths.append(f"""{dump_temp_file_path}_poly.dbf""")
             file_paths.append(f"""{dump_temp_file_path}_poly.prj""")
 
-
-
         con.close()
-        
+
         return file_paths
 
-                
-
-    def extract_current_data(self,exportname):
+    def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump 
         Args:
             exportname: takes filename as argument to create geojson file passed from routers
@@ -818,39 +828,45 @@ class RawData:
             _file_path_: geojson file location path
         """
         geometry_dump = dumps(dict(self.params.geometry))
-        geom_area=int(area(json.loads(self.params.geometry.json()))* 1E-6)
+        geom_area = int(area(json.loads(self.params.geometry.json())) * 1E-6)
         if geom_area > 100000:
-            country_id = self.db.executequery(get_country_id_query(geometry_dump)) # this will be applied only when polygon gets bigger we will be slicing index size to search 
+            # this will be applied only when polygon gets bigger we will be slicing index size to search
+            country_id = self.db.executequery(
+                get_country_id_query(geometry_dump))
         else:
-            country_id=None
+            country_id = None
         if self.params.output_type is None:
-            output_type=RawDataOutputType.GEOJSON.value # if nothing is supplied then default output type will be geojson
+            # if nothing is supplied then default output type will be geojson
+            output_type = RawDataOutputType.GEOJSON.value
         else:
-            output_type=self.params.output_type
+            output_type = self.params.output_type
         path = 'exports/'
         # Check whether the export path exists or not
         isExist = os.path.exists(path)
-        if not isExist:   
-            # Create a exports directory because it does not exist 
+        if not isExist:
+            # Create a exports directory because it does not exist
             os.makedirs(path)
         dump_temp_file_path = f"""exports/{exportname}.{output_type.lower()}"""
-        
-        # extract_geometry_type_query(self.params)
-        if output_type is RawDataOutputType.GEOJSON.value: # currently we have only geojson binding function written other than that we have depend on ogr
-            RawData.query2geojson(self.con,raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area),dump_temp_file_path) # uses own conversion class
+
+        # currently we have only geojson binding function written other than that we have depend on ogr
+        if output_type is RawDataOutputType.GEOJSON.value:
+            RawData.query2geojson(self.con, raw_currentdata_extraction_query(
+                self.params, country_id, geometry_dump, geom_area), dump_temp_file_path)  # uses own conversion class
         elif output_type is RawDataOutputType.SHAPEFILE.value:
-            point_query,line_query,poly_query,point_schema,line_schema,poly_schema=extract_geometry_type_query(self.params)
+            point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
+                self.params)
             dump_temp_file_path = f"""exports/{exportname}"""
-            filepaths=RawData.query2shapefile(self.con,point_query,line_query,poly_query,point_schema,line_schema,poly_schema,dump_temp_file_path)
-            return filepaths,geom_area
-        else:    
-            RawData.ogr_export(raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area,True),dump_temp_file_path,output_type) #uses ogr export to export
-        return [dump_temp_file_path],geom_area
-    
+            filepaths = RawData.query2shapefile(
+                self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path)
+            return filepaths, geom_area
+        else:
+            RawData.ogr_export(raw_currentdata_extraction_query(self.params, country_id, geometry_dump,
+                               geom_area, True), dump_temp_file_path, output_type)  # uses ogr export to export
+        return [dump_temp_file_path], geom_area
+
     def check_status(self):
         """Gives status about DB update, Substracts with current time and last db update time"""
-        status_query=check_last_updated_rawdata()
-        behind_time=self.db.executequery(status_query)
-        behind_time_min=behind_time[0][0].total_seconds()/60
+        status_query = check_last_updated_rawdata()
+        behind_time = self.db.executequery(status_query)
+        behind_time_min = behind_time[0][0].total_seconds()/60
         return behind_time_min
-    
