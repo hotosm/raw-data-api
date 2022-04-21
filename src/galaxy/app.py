@@ -1055,7 +1055,7 @@ class RawData:
                 filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True), export_temp_path=dump_temp_file_path, outputtype=output_type,binding_file_dir=path)  # uses ogr export to export
             return [dump_temp_file_path], geom_area , root_dir_file
         except Exception as ex :
-            logging.Error(ex)
+            logging.error(ex)
             raise ex
         finally :
             #closing connection before leaving class
@@ -1099,7 +1099,7 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
                 logging.debug("Killing ogr2ogr because it exceed 4 GB...")
                 process.kill()
                 shutil.rmtree(binding_file_dir)
-                raise ValueError("Shapefile Exceed 4 GB Limit")     
+                logging.error("Shapefile Exceed 4 GB Limit")     
         logging.debug(process.stdout.read())             
     except Exception as ex:
         logging.error(ex)
