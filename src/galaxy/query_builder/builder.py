@@ -791,8 +791,6 @@ def extract_geometry_type_query(params):
     print("ending geom filter \n")
     return query_point,query_line,query_poly
         
-
-
 def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_export=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""

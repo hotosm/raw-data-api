@@ -83,7 +83,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     background_tasks.add_task(remove_file, dump_temp_file) # # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore  
     client_host = request.client.host #getting client host
     client_port = request.url.port #getting hosting port
-    download_url=f"""{client_host}:{client_port}/raw-data/exports/{exportname}""" # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function ! 
+    download_url=f"""http://{client_host}:{client_port}/raw-data/exports/{exportname}""" # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function ! 
     response_time=time.time() - start_time
     zip_file_size=os.path.getsize(zip_temp_path) #getting file size of zip , units are in bytes converted to mb in response
     logging.debug("-----Raw Data Request Took-- %s seconds -----" % (response_time))
