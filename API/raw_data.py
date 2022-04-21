@@ -19,6 +19,7 @@
 
 """[Router Responsible for Raw data API ]
 """
+from http.client import REQUEST_ENTITY_TOO_LARGE
 from fastapi import APIRouter, Depends,Request
 from src.galaxy.validation.models import RawDataHistoricalParams , RawDataCurrentParams
 from .auth import login_required
@@ -46,12 +47,12 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 #     result= RawData(params).extract_historical_data()
 #     return generate_rawdata_response(result,start_time)
 
-@router.get("/exports/{file_name}")
+@router.get("/exports/{file_name}/")
 def download_export(file_name: str,background_tasks: BackgroundTasks):
     """Used for Delivering our export to user , It will hold the zip file until user downloads or hits the url once it is delivered it gets cleared up, Designed as  a separate function to avoid the condition ( waiting for the api response without knowing what is happening on the background )
     Returns zip file if it is present on our server if not returns null 
     """
-    zip_temp_path=f"""exports/{file_name}.zip"""
+    zip_temp_path=f"""exports/{file_name}"""
     if exists(zip_temp_path):
         response = FileResponse(zip_temp_path,media_type="application/zip")
         response.headers["Content-Disposition"] = f"attachment; filename={file_name}.zip"
@@ -83,7 +84,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     background_tasks.add_task(remove_file, dump_temp_file) # # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore  
     client_host = request.client.host #getting client host
     client_port = request.url.port #getting hosting port
-    download_url=f"""http://{client_host}:{client_port}/raw-data/exports/{exportname}""" # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function ! 
+    download_url=f"""{request.url.scheme}://{client_host}:{client_port}/raw-data/exports/{exportname}.zip/""" # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function ! 
     response_time=time.time() - start_time
     zip_file_size=os.path.getsize(zip_temp_path) #getting file size of zip , units are in bytes converted to mb in response
     logging.debug("-----Raw Data Request Took-- %s seconds -----" % (response_time))

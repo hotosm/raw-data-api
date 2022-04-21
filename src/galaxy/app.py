@@ -695,7 +695,7 @@ class RawData:
     @staticmethod
     def query2geojson(con,extraction_query,dump_temp_file_path):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
-        print(extraction_query)
+        # print(extraction_query)
         pre_geojson="""{"type": "FeatureCollection","features": ["""
         post_geojson= """]}"""
         with open(dump_temp_file_path, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
@@ -743,7 +743,7 @@ class RawData:
             # Create a exports directory because it does not exist 
             os.makedirs(path)
         dump_temp_file_path = f"""exports/{exportname}.{output_type.lower()}"""
-        extract_geometry_type_query(self.params)
+        # extract_geometry_type_query(self.params)
         if output_type is RawDataOutputType.GEOJSON.value: # currently we have only geojson binding function written other than that we have depend on ogr
             RawData.query2geojson(self.con,raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area),dump_temp_file_path) # uses own conversion class
         else:
