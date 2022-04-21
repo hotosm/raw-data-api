@@ -1098,6 +1098,7 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
             if size/1000000 >  4000:
                 logging.debug("Killing ogr2ogr because it exceed 4 GB...")
                 process.kill()
+                os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
                 shutil.rmtree(binding_file_dir)
                 logging.error("Shapefile Exceed 4 GB Limit")     
         logging.debug(process.stdout.read())             
