@@ -18,6 +18,7 @@
 # <info@hotosm.org>
 
 from itertools import filterfalse
+from numpy import poly
 from psycopg2 import sql
 from json import dumps
 from ..validation.models import Frequency,OsmElementRawData,GeometryTypeRawData as geomtype
@@ -658,6 +659,9 @@ def get_country_id_query(geometry_dump):
                         4326))"""
     return base_query
 
+
+# Rawdata extraction Block
+
 def get_query_as_geojson(query_list):
     table_base_query=[]
     for i in range(len(query_list)):
@@ -665,23 +669,28 @@ def get_query_as_geojson(query_list):
     final_query=" UNION ALL ".join(table_base_query)
     return final_query
 
-# Rawdata extraction Block
-
 def create_geom_filter(geom):
     """generates geometry intersection filter - Rawdata extraction"""
     geometry_dump = dumps(dict(geom))
     return f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
 
-def create_column_filter(columns):
+def create_column_filter(columns,create_schema=False):
     """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
     if len(columns) > 0:
         filter_col=[]
         filter_col.append('osm_id')
+        if create_schema :
+            schema={}
+            schema['osm_id']='int64'
         for cl in columns:
             if cl !='':
                 filter_col.append(f"""tags ->> '{cl.strip()}' as {cl.strip()}""")
+                if create_schema:
+                    schema[cl.strip()]='str'
         filter_col.append('geom')
         select_condition=" , ".join(filter_col) 
+    if create_schema:
+        return select_condition,schema
     return select_condition
 
 def create_attribute_filter(filter):
@@ -709,16 +718,18 @@ def extract_geometry_type_query(params):
     
     geom_filter = create_geom_filter(params.geometry)
     select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    schema={'osm_id':'int64','tags':'str','changeset':'int64','timestamp':'str'}
     query_point,query_line,query_poly=None,None,None
     attribute_filter=None
+    point_schema,line_schema,poly_schema = None,None,None
     if params.columns: # if no specific point , line or poly filter is not passed master columns filter will be used , if master columns is also empty then above default select statement will be used
-        select_condition=create_column_filter(params.columns)
+        select_condition,schema=create_column_filter(params.columns,create_schema=True)
     if params.osm_tags:
         attribute_filter=create_attribute_filter(params.osm_tags)
     for type in params.geometry_type:
         if type is geomtype.POINT.value :
             if params.point_columns:
-                select_condition=create_column_filter(params.point_columns)
+                select_condition,schema=create_column_filter(params.point_columns,create_schema=True)
             query_point=f"""select
                         {select_condition}
                         from
@@ -729,11 +740,14 @@ def extract_geometry_type_query(params):
                 attribute_filter = create_attribute_filter(params.point_filter)
             if attribute_filter:
                 query_point+= f""" and ({attribute_filter})"""
+            point_schema=schema
+            query_point=get_query_as_geojson([query_point])
+
 
         if type is geomtype.LINESTRING.value:
             query_line_list=[]
             if params.line_columns:
-                select_condition=create_column_filter(params.line_columns)
+                select_condition,schema=create_column_filter(params.line_columns,create_schema=True)
             query_ways_line=f"""select
                 {select_condition}
                 from
@@ -755,11 +769,12 @@ def extract_geometry_type_query(params):
             query_line_list.append(query_ways_line)
             query_line_list.append(query_relations_line)
             query_line=get_query_as_geojson(query_line_list)
+            line_schema=schema
         
         if type is geomtype.POLYGON.value:
             query_poly_list=[]
             if params.poly_columns:
-                select_condition=create_column_filter(params.poly_columns)
+                select_condition,schema=create_column_filter(params.poly_columns,create_schema=True)
             query_ways_poly=f"""select
                 {select_condition}
                 from
@@ -781,15 +796,16 @@ def extract_geometry_type_query(params):
             query_poly_list.append(query_ways_poly)
             query_poly_list.append(query_relations_poly)
             query_poly=get_query_as_geojson(query_poly_list)
-    print("printing geom query \n")
-    print("point \n")
-    print(query_point)
-    print("line \n")
-    print(query_line)
-    print("polygon \n")
-    print(query_poly)
-    print("ending geom filter \n")
-    return query_point,query_line,query_poly
+            poly_schema=schema
+    # print("printing geom query \n")
+    # print("point \n")
+    # print(query_point)
+    # print("line \n")
+    # print(query_line)
+    # print("polygon \n")
+    # print(query_poly)
+    # print("ending geom filter \n")
+    return query_point,query_line,query_poly,point_schema,line_schema,poly_schema
         
 def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_export=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
@@ -797,6 +813,7 @@ def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_exp
     base_query=[]
     relation_geom=[]
     attribute_filter= None 
+    
     select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     if params.columns :
         if len(params.columns) > 0:

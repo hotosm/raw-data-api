@@ -41,7 +41,12 @@ import orjson
 from area import area
 import subprocess
 from json import dumps
-logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
+import fiona
+from fiona.crs import from_epsg
+
+import logging
+logging.getLogger("imported_module").setLevel(logging.WARNING)
+logging.getLogger("fiona").propagate = False #disable fiona logging
 
 from .config import get_db_connection_params
 
@@ -718,6 +723,92 @@ class RawData:
         f.close()
         logging.debug(f"""Server side Query Result  Post Processing Done""")
     
+    @staticmethod
+    def query2shapefile(con,point_query,line_query,poly_query,point_schema,line_schema,poly_schema,dump_temp_file_path):
+        # schema: it is a simple dictionary with geometry and properties as keys
+        # schema = {'geometry': 'LineString','properties': {'test': 'int'}}
+        file_paths=[]
+        if point_query:
+            logging.debug(f"""Writing Point Shapefile""")
+
+            schema={'geometry': 'Point','properties':point_schema,}
+            print(schema)
+
+            point_file_path=f"""{dump_temp_file_path}_point.shp"""
+            #open a fiona object
+            pointShp = fiona.open(point_file_path, mode='w', driver='ESRI Shapefile',encoding='UTF-8',
+                    schema = schema, crs = "EPSG:4326")
+            
+            with con.cursor(name='fetch_raw') as cursor: #using server side cursor
+                cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+                cursor.execute(point_query)
+                for row in cursor:
+                    print(orjson.loads(row[0]))
+                    pointShp.write(orjson.loads(row[0]))
+
+                cursor.close() # closing connection to avoid memory issues
+                #close fiona object
+            pointShp.close()
+            file_paths.append(point_file_path)
+            file_paths.append(f"""{dump_temp_file_path}_point.shx""")
+            file_paths.append(f"""{dump_temp_file_path}_point.cpg""")
+            file_paths.append(f"""{dump_temp_file_path}_point.dbf""")
+            file_paths.append(f"""{dump_temp_file_path}_point.prj""")
+
+        if line_query:
+            logging.debug(f"""Writing Line Shapefile""")
+
+            schema={'geometry': 'LineString','properties':line_schema,}
+            print(schema)
+            line_file_path=f"""{dump_temp_file_path}_line.shp"""
+            with fiona.open(line_file_path, 'w',encoding='UTF-8',crs=from_epsg(4326),driver= 'ESRI Shapefile', schema=schema) as layer:
+                with con.cursor(name='fetch_raw') as cursor: #using server side cursor
+                    cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+                    cursor.execute(line_query)
+                    for row in cursor:
+                        layer.write(orjson.loads(row[0]))
+
+                    cursor.close() # closing connection to avoid memory issues
+                #close fiona object
+                layer.close()
+            file_paths.append(line_file_path)
+            file_paths.append(f"""{dump_temp_file_path}_line.shx""")
+            file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
+            file_paths.append(f"""{dump_temp_file_path}_line.dbf""")
+            file_paths.append(f"""{dump_temp_file_path}_line.prj""")
+
+        if poly_query:
+            logging.debug(f"""Writing Poly Shapefile""")
+
+            poly_file_path=f"""{dump_temp_file_path}_poly.shp"""
+            schema={'geometry': 'Polygon','properties':poly_schema,}
+            print(schema)
+            
+            with fiona.open(poly_file_path, 'w',encoding='UTF-8',crs=from_epsg(4326),driver= 'ESRI Shapefile', schema=schema) as layer:
+                with con.cursor(name='fetch_raw') as cursor: #using server side cursor
+                    cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+                    cursor.execute(poly_query)
+                    for row in cursor:
+                        layer.write(orjson.loads(row[0]))
+                     
+
+                    cursor.close() # closing connection to avoid memory issues
+                #close fiona object
+                layer.close()  
+            file_paths.append(poly_file_path)
+            file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
+            file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
+            file_paths.append(f"""{dump_temp_file_path}_poly.dbf""")
+            file_paths.append(f"""{dump_temp_file_path}_poly.prj""")
+
+
+
+        con.close()
+        
+        return file_paths
+
+                
+
     def extract_current_data(self,exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump 
         Args:
@@ -743,12 +834,18 @@ class RawData:
             # Create a exports directory because it does not exist 
             os.makedirs(path)
         dump_temp_file_path = f"""exports/{exportname}.{output_type.lower()}"""
+        
         # extract_geometry_type_query(self.params)
         if output_type is RawDataOutputType.GEOJSON.value: # currently we have only geojson binding function written other than that we have depend on ogr
             RawData.query2geojson(self.con,raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area),dump_temp_file_path) # uses own conversion class
-        else:
+        elif output_type is RawDataOutputType.SHAPEFILE.value:
+            point_query,line_query,poly_query,point_schema,line_schema,poly_schema=extract_geometry_type_query(self.params)
+            dump_temp_file_path = f"""exports/{exportname}"""
+            filepaths=RawData.query2shapefile(self.con,point_query,line_query,poly_query,point_schema,line_schema,poly_schema,dump_temp_file_path)
+            return filepaths,geom_area
+        else:    
             RawData.ogr_export(raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area,True),dump_temp_file_path,output_type) #uses ogr export to export
-        return dump_temp_file_path,geom_area
+        return [dump_temp_file_path],geom_area
     
     def check_status(self):
         """Gives status about DB update, Substracts with current time and last db update time"""

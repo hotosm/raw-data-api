@@ -75,13 +75,16 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     #saving file in temp directory instead of memory so that zipping file will not eat memory 
     zip_temp_path=f"""exports/{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w" , zipfile.ZIP_DEFLATED)
+
+
     # Compressing geojson file
     zf.writestr(f"""clipping_boundary.geojson""",orjson.dumps(dict(params.geometry)))
-    zf.write(dump_temp_file)
+    for temp_file in dump_temp_file:
+        zf.write(temp_file)
     zf.close()
-    Binded_file_size=os.path.getsize(dump_temp_file) # getting file size which is binded into zip
     logging.debug('Zip Binding Done !')
-    background_tasks.add_task(remove_file, dump_temp_file) # # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore  
+    for temp_file in dump_temp_file:
+        background_tasks.add_task(remove_file, temp_file) # # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore  
     client_host = request.client.host #getting client host
     client_port = request.url.port #getting hosting port
     download_url=f"""{request.url.scheme}://{client_host}:{client_port}/raw-data/exports/{exportname}.zip/""" # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function ! 
@@ -93,7 +96,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     else : 
         minute=int(response_time/60)
         response_time_str=f"""{minute} Minute"""
-    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area" : f"""{geom_area} Sq Km ""","binded_file_size":f"""{Binded_file_size/1000000} MB""" , "zip_file_size":zip_file_size}
+    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area" : f"""{geom_area} Sq Km ""","binded_file_size":f"""{zip_file_size/1000000} MB""" , "zip_file_size":zip_file_size}
 
 @router.get("/status/")    
 def check_current_db_status():

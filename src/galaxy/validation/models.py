@@ -416,6 +416,7 @@ class OrganizationHashtag(BaseModel):
 class RawDataOutputType ( Enum):
     GEOJSON ="GeoJSON"
     KML = "KML"
+    SHAPEFILE = "shp"
     MBTILES ="MBTILES" # fully experimental for now 
 
 class HashtagParams(BaseModel):
