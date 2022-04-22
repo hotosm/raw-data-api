@@ -36,3 +36,15 @@ user=
 password=
 database=galaxy
 port=
+
+[TM]
+host=
+user=
+password=
+host=
+port=
+
+[SENTRY]
+url=https://apikey.ingest.sentry.io/appid
+rate=1.0
+

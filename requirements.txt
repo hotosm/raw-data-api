@@ -20,6 +20,7 @@ numpy == 1.19.3
 geojson == 2.5.0
 # Used for new relic monitoring
 newrelic == 7.2.4.171
+sentry-sdk == 1.15.10
 # '''required for generating documentations '''
 sphinx_rtd_theme==1.0.0
 sphinx==4.2.0
