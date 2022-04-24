@@ -21,6 +21,7 @@ from itertools import filterfalse
 from numpy import poly
 from psycopg2 import sql
 from json import dumps
+import re
 from ..validation.models import Frequency, OsmElementRawData, GeometryTypeRawData as geomtype
 HSTORE_COLUMN = "tags"
 
@@ -653,7 +654,7 @@ def raw_historical_data_extraction_query(cur, conn, params):
             t2.uid as user_id,
             t2."version" ,
             t2."action" ,
-            t2.country ,
+            t2.grid ,
             t2.geometry
         from
             t2"""
@@ -669,16 +670,15 @@ def raw_historical_data_extraction_query(cur, conn, params):
     return query
 
 
-def get_country_id_query(geometry_dump):
+def get_grid_id_query(geometry_dump):
 
     base_query = f"""select
-                        b.id
+                        b.poly_id
                     from
-                        boundaries b
+                        grid b
                     where
                         ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
-                        ST_SetSRID(b.boundary,
-                        4326))"""
+                        b.geom)"""
     return base_query
 
 
@@ -698,6 +698,12 @@ def create_geom_filter(geom):
     geometry_dump = dumps(dict(geom))
     return f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
 
+def check_special_char(input_str):
+    # Fixme I need to check every possible special character that can comeup on osm tags
+    input_str=re.sub("\s", "_", input_str) # putting _ in every space
+    input_str=re.sub(":", "_", input_str) # putting _ in every : value
+    return input_str
+
 
 def create_column_filter(columns, create_schema=False):
     """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
@@ -710,9 +716,9 @@ def create_column_filter(columns, create_schema=False):
         for cl in columns:
             if cl != '':
                 filter_col.append(
-                    f"""tags ->> '{cl.strip()}' as {cl.strip()}""")
+                    f"""tags ->> '{cl.strip()}' as {check_special_char(cl.strip())}""")
                 if create_schema:
-                    schema[cl.strip()] = 'str'
+                    schema[check_special_char(cl.strip())] = 'str'
         filter_col.append('geom')
         select_condition = " , ".join(filter_col)
     if create_schema:
@@ -910,11 +916,11 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
             base_query.append(query_ways_line)
 
         if geomtype.POLYGON.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
-            if c_id:  # country logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for
-                country_filter_base = [
-                    f"""country = {ind[0]}""" for ind in c_id]
-                country_filter = " OR ".join(country_filter_base)
-                where_clause = f"""({country_filter}) and {geom_filter}"""
+            if c_id:  # grid logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for
+                grid_filter_base = [
+                    f"""grid = {ind[0]}""" for ind in c_id]
+                grid_filter = " OR ".join(grid_filter_base)
+                where_clause = f"""({grid_filter}) and {geom_filter}"""
             else:
                 where_clause = f"""{geom_filter}"""
             query_poly = f"""select
@@ -954,10 +960,10 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
 
             for type in params.osm_elements:
                 if type == 'ways_poly' and c_id:
-                    country_filter_base = [
-                        f"""country = {ind[0]}""" for ind in c_id]
-                    country_filter = " OR ".join(country_filter_base)
-                    where_clause = f"""({country_filter}) and {geom_filter}"""
+                    grid_filter_base = [
+                        f"""grid = {ind[0]}""" for ind in c_id]
+                    grid_filter = " OR ".join(grid_filter_base)
+                    where_clause = f"""({grid_filter}) and {geom_filter}"""
                 else:
                     where_clause = f"""{geom_filter}"""
                 query = f"""select
@@ -997,11 +1003,11 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
                     base_query.append(query_ways_line)
                 else:
                     if type is geomtype.POLYGON.value:
-                        if c_id:  # country logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for
-                            country_filter_base = [
-                                f"""country = {ind[0]}""" for ind in c_id]
-                            country_filter = " OR ".join(country_filter_base)
-                            where_clause = f"""({country_filter}) and {geom_filter}"""
+                        if c_id:  # grid logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for
+                            grid_filter_base = [
+                                f"""grid = {ind[0]}""" for ind in c_id]
+                            grid_filter = " OR ".join(grid_filter_base)
+                            where_clause = f"""({grid_filter}) and {geom_filter}"""
                         else:
                             where_clause = f"""{geom_filter}"""
                         query_poly = f"""select

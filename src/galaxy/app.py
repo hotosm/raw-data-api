@@ -718,7 +718,7 @@ class RawData:
     @staticmethod
     def query2geojson(con, extraction_query, dump_temp_file_path):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
-        # print(extraction_query)
+        print(extraction_query)
         pre_geojson = """{"type": "FeatureCollection","features": ["""
         post_geojson = """]}"""
         with open(dump_temp_file_path, 'a', encoding='utf-8') as f:  # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
@@ -797,7 +797,6 @@ class RawData:
 
             poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
             schema = {'geometry': 'Polygon', 'properties': poly_schema, }
-            print(schema)
 
             with fiona.open(poly_file_path, 'w', encoding='UTF-8', crs=from_epsg(4326), driver='ESRI Shapefile', schema=schema) as layer:
                 with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
@@ -829,10 +828,10 @@ class RawData:
         """
         geometry_dump = dumps(dict(self.params.geometry))
         geom_area = int(area(json.loads(self.params.geometry.json())) * 1E-6)
-        if geom_area > 100000:
+        if geom_area > 50000:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
             country_id = self.db.executequery(
-                get_country_id_query(geometry_dump))
+                get_grid_id_query(geometry_dump))
         else:
             country_id = None
         if self.params.output_type is None:
