@@ -828,7 +828,7 @@ class RawData:
         """
         geometry_dump = dumps(dict(self.params.geometry))
         geom_area = int(area(json.loads(self.params.geometry.json())) * 1E-6)
-        if geom_area > 50000:
+        if geom_area > 5000:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
             country_id = self.db.executequery(
                 get_grid_id_query(geometry_dump))

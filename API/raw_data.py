@@ -87,8 +87,10 @@ def get_current_data(params: RawDataCurrentParams, background_tasks: BackgroundT
         zf.write(temp_file)
     zf.close()
     logging.debug('Zip Binding Done !')
+    inside_file_size = 0
     for temp_file in dump_temp_file:
         # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore
+        inside_file_size += os.path.getsize(temp_file)
         background_tasks.add_task(remove_file, temp_file)
     client_host = request.client.host  # getting client host
     client_port = request.url.port  # getting hosting port
@@ -96,14 +98,19 @@ def get_current_data(params: RawDataCurrentParams, background_tasks: BackgroundT
     response_time = time.time() - start_time
     # getting file size of zip , units are in bytes converted to mb in response
     zip_file_size = os.path.getsize(zip_temp_path)
-    logging.debug("-----Raw Data Request Took-- %s seconds -----" %
-                  (response_time))
+    response_time_str=""
     if int(response_time) < 60:
         response_time_str = f"""{int(response_time)} Seconds"""
     else:
         minute = int(response_time/60)
-        response_time_str = f"""{minute} Minute"""
-    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{zip_file_size/1000000} MB""", "zip_file_size": zip_file_size}
+        if minute >= 60 :
+            Hour = int(response_time/60)
+            response_time_str= f"""{int(Hour)} Hour"""
+            minute=minute-60*int(Hour)
+        response_time_str += f"""{minute} Minute"""
+    logging.debug("-------Raw Data Request Took - %s for area of %s Sqkm Producing %s MB of file-------" %
+                  (response_time_str,geom_area,round(inside_file_size/1000000)))
+    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000)} MB""", "zip_file_size": {round(zip_file_size/1000000)}}
 
 
 @router.get("/status/")
