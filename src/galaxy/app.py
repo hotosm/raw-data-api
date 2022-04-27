@@ -33,6 +33,7 @@ import os
 from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
+from csv import DictWriter
 
 from .config import get_db_connection_params
 
@@ -254,6 +255,58 @@ class TaskingManager:
             time_spent_validating_result = self.database.executequery(time_spent_validating_query)
             return time_spent_mapping_result, time_spent_validating_result
         return [],[]   
+
+    def get_validators_stats(self):
+        query = generate_tm_validators_stats_query(self.cur, self.params)
+        result = [dict(r) for r in self.database.executequery(query)]
+
+        indexes = ['user_id', 'username']
+        columns = ['project_id', 'country', 'total_tasks', 'tasks_mapped', 'tasks_validated']
+
+        df = pandas.DataFrame(result)
+        out = pandas.pivot_table(df,
+            values='cnt',
+            index=indexes,
+            columns=columns,
+            fill_value=0
+        ).swaplevel(0, 1).reset_index()
+
+        stream = StringIO()
+        out.to_csv(stream)
+
+        return iter(stream.getvalue())
+
+    def list_teams(self):
+        query = generate_tm_teams_list()
+        results_dicts = [dict(r) for r in self.database.executequery(query)]
+
+        stream = StringIO()
+
+        csv_keys: List[str] = list(results_dicts[0].keys())
+        writer = DictWriter(stream, fieldnames=csv_keys)
+        writer.writeheader()
+
+        [writer.writerow(row) for row in results_dicts]
+
+        return iter(stream.getvalue())
+
+    def list_teams_metadata(self):
+        query = generate_list_teams_metadata()
+        results_dicts = [dict(r) for r in self.database.executequery(query)]
+
+        results_dicts = [{**r, "function": TeamMemberFunction(r["function"]).name.lower()}
+            for r in results_dicts]
+
+        stream = StringIO()
+
+        csv_keys: List[str] = list(results_dicts[0].keys())
+        writer = DictWriter(stream, fieldnames=csv_keys)
+        writer.writeheader()
+
+        [writer.writerow(row) for row in results_dicts]
+
+        return iter(stream.getvalue())
+
 
 class Mapathon:
     """Class for mapathon detail report and summary report this is the class that self connects to database and provide you summary and detail report."""
@@ -591,6 +644,7 @@ class Training :
         # print(Trainings_list)
         return Trainings_list
 
+
 class OrganizationHashtags :
     """[Class responsible for Organization Hashtag data API]
     """
@@ -612,6 +666,3 @@ class OrganizationHashtags :
             return result
         except Exception as err:
             return err  
-
-
-    

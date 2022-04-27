@@ -413,3 +413,9 @@ class OrganizationHashtag(BaseModel):
     total_unique_contributors : int
     total_new_road_meters : int 
 
+
+class TeamMemberFunction(Enum):
+    """Describes the function a member can hold within a team"""
+
+    MANAGER = 1
+    MEMBER = 2
