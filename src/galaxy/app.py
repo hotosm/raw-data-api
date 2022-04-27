@@ -172,6 +172,17 @@ class Underpass:
         return query_result
 
 
+    def get_user_role(self, user_id: int):
+        query = f"select role from users_roles where user_id = {user_id}"
+        query_result = self.database.executequery(query)
+
+        if len(query_result) == 0:
+            return UserRole.NONE
+
+        role_int = query_result[0]["role"]
+        user_role = UserRole(role_int)
+        
+        return user_role
 
 
 class Insight:

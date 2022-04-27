@@ -413,3 +413,8 @@ class OrganizationHashtag(BaseModel):
     total_unique_contributors : int
     total_new_road_meters : int 
 
+
+class UserRole(Enum):
+    ADMIN = 1
+    STAFF = 2
+    NONE = 3
