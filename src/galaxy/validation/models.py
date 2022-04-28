@@ -35,6 +35,8 @@ from enum import Enum
 from area import area
 import re
 
+from ..config import config 
+
 MAX_POLYGON_AREA = 5000 # km^2
 
 # this as argument in compile method
@@ -540,7 +542,7 @@ class RawDataCurrentParams(BaseModel):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1E-6
         try :
-            RAWDATA_CURRENT_POLYGON_AREA=config.get("EXPORT_CONFIG", "max_area")
+            RAWDATA_CURRENT_POLYGON_AREA=int(config.get("EXPORT_CONFIG", "max_area"))
         except: 
             RAWDATA_CURRENT_POLYGON_AREA=100000 
         output_type = values.get("output_type")
