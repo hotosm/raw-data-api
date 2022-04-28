@@ -839,7 +839,11 @@ class RawData:
             output_type = RawDataOutputType.GEOJSON.value
         else:
             output_type = self.params.output_type
-        path = config.get("EXPORT_CONFIG", "path")
+        try:
+            path = config.get("EXPORT_CONFIG", "path")
+        except : 
+            path = 'exports/' # first tries to import from config, if not defined creates exports in home directory 
+        
         # print(path)
         # Check whether the export path exists or not
         isExist = os.path.exists(path)
