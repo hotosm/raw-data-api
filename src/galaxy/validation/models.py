@@ -539,7 +539,7 @@ class RawDataCurrentParams(BaseModel):
     def check_geometry_area(cls, value, values):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1E-6
-        RAWDATA_CURRENT_POLYGON_AREA=1500000
+        RAWDATA_CURRENT_POLYGON_AREA=3500000
         output_type = values.get("output_type")
         if output_type:
             if output_type is RawDataOutputType.MBTILES.value: # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
