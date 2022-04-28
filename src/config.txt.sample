@@ -45,3 +45,4 @@ port=5432
 path=exports/
 api_host=127.0.0.1
 api_port=8000
+max_area=100000

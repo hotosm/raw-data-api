@@ -539,12 +539,15 @@ class RawDataCurrentParams(BaseModel):
     def check_geometry_area(cls, value, values):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1E-6
-        RAWDATA_CURRENT_POLYGON_AREA=3500000
+        try :
+            RAWDATA_CURRENT_POLYGON_AREA=config.get("EXPORT_CONFIG", "max_area")
+        except: 
+            RAWDATA_CURRENT_POLYGON_AREA=100000 
         output_type = values.get("output_type")
         if output_type:
             if output_type is RawDataOutputType.MBTILES.value: # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
                 RAWDATA_CURRENT_POLYGON_AREA=2 # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it 
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
-                raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
+                raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
         return value
 
