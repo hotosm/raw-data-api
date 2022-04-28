@@ -52,7 +52,7 @@ def download_export(file_name: str, background_tasks: BackgroundTasks):
     """Used for Delivering our export to user , It will hold the zip file until user downloads or hits the url once it is delivered it gets cleared up, Designed as  a separate function to avoid the condition ( waiting for the api response without knowing what is happening on the background )
     Returns zip file if it is present on our server if not returns null 
     """
-    zip_temp_path = f"""exports/{file_name}"""
+    zip_temp_path = f"""{config.get("EXPORT_CONFIG", "path")}{file_name}"""
     if exists(zip_temp_path):
         response = FileResponse(zip_temp_path, media_type="application/zip")
         response.headers["Content-Disposition"] = f"attachment; filename={file_name}.zip"
@@ -77,7 +77,7 @@ def get_current_data(params: RawDataCurrentParams, background_tasks: BackgroundT
         params).extract_current_data(exportname)
     logging.debug('Zip Binding Started !')
     # saving file in temp directory instead of memory so that zipping file will not eat memory
-    zip_temp_path = f"""exports/{exportname}.zip"""
+    zip_temp_path = f"""{config.get("EXPORT_CONFIG", "path")}/{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
 
     # Compressing geojson file
@@ -92,8 +92,11 @@ def get_current_data(params: RawDataCurrentParams, background_tasks: BackgroundT
         # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore
         inside_file_size += os.path.getsize(temp_file)
         background_tasks.add_task(remove_file, temp_file)
-    client_host = request.client.host  # getting client host
-    client_port = request.url.port  # getting hosting port
+    # client_host = request.client.host  # getting client host
+    # client_port = request.url.port  # getting client hosting port
+    client_host = config.get("EXPORT_CONFIG", "api_host")  # getting from config in case api and frontend is not hosted on same url
+    client_port = config.get("EXPORT_CONFIG", "api_port")
+    
     download_url = f"""{request.url.scheme}://{client_host}:{client_port}/raw-data/exports/{exportname}.zip/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
     response_time = time.time() - start_time
     # getting file size of zip , units are in bytes converted to mb in response

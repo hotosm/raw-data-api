@@ -38,5 +38,10 @@ port=
 host=localhost
 user=admin
 password=admin
-database=raw
+database=postgres
 port=5432
+
+[EXPORT_CONFIG]
+path=exports/
+api_host=127.0.0.1
+api_port=8000

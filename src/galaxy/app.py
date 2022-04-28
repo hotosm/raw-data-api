@@ -839,13 +839,13 @@ class RawData:
             output_type = RawDataOutputType.GEOJSON.value
         else:
             output_type = self.params.output_type
-        path = 'exports/'
+        path = config.get("EXPORT_CONFIG", "path"),
         # Check whether the export path exists or not
         isExist = os.path.exists(path)
         if not isExist:
             # Create a exports directory because it does not exist
             os.makedirs(path)
-        dump_temp_file_path = f"""exports/{exportname}.{output_type.lower()}"""
+        dump_temp_file_path = f"""{path}{exportname}.{output_type.lower()}"""
 
         # currently we have only geojson binding function written other than that we have depend on ogr
         if output_type is RawDataOutputType.GEOJSON.value:
@@ -854,7 +854,7 @@ class RawData:
         elif output_type is RawDataOutputType.SHAPEFILE.value:
             point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
                 self.params)
-            dump_temp_file_path = f"""exports/{exportname}"""
+            dump_temp_file_path = f"""{path}{exportname}"""
             filepaths = RawData.query2shapefile(
                 self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path)
             return filepaths, geom_area
