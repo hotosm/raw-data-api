@@ -80,9 +80,13 @@ def get_current_data(params: RawDataCurrentParams, background_tasks: BackgroundT
     # unique id for zip file and geojson for each export
     if params.file_name :
         formatted_file_name=remove_spaces(params.file_name) # need to format string from space to _ because it is filename , may be we need to filter special character as well later on
-        exportname = f"{formatted_file_name}_{datetime.now().isoformat()}_{str(uuid4())}"
+        # exportname = f"{formatted_file_name}_{datetime.now().isoformat()}_{str(uuid4())}"
+        exportname = f"{formatted_file_name}_{str(uuid4())}" #disabled date for now
+
     else:
-        exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}"
+        # exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}"
+        exportname = f"Raw_Export_{str(uuid4())}"
+
 
     dump_temp_file, geom_area = RawData(
         params).extract_current_data(exportname)
