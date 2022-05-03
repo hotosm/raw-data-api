@@ -698,7 +698,7 @@ def create_geom_filter(geom):
     geometry_dump = dumps(dict(geom))
     return f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
 
-def check_special_char(input_str):
+def remove_spaces(input_str):
     # Fixme I need to check every possible special character that can comeup on osm tags
     input_str=re.sub("\s", "_", input_str) # putting _ in every space
     input_str=re.sub(":", "_", input_str) # putting _ in every : value
@@ -716,9 +716,9 @@ def create_column_filter(columns, create_schema=False):
         for cl in columns:
             if cl != '':
                 filter_col.append(
-                    f"""tags ->> '{cl.strip()}' as {check_special_char(cl.strip())}""")
+                    f"""tags ->> '{cl.strip()}' as {remove_spaces(cl.strip())}""")
                 if create_schema:
-                    schema[check_special_char(cl.strip())] = 'str'
+                    schema[remove_spaces(cl.strip())] = 'str'
         filter_col.append('geom')
         select_condition = " , ".join(filter_col)
     if create_schema:

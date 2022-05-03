@@ -493,6 +493,7 @@ class OsmElementRawData(Enum):
 
 class RawDataCurrentParams(BaseModel):
     output_type : Optional[RawDataOutputType]=None
+    file_name : Optional[str]=None
     geometry : Polygon
     osm_tags :  Optional[dict]=None #FIXMYNAME: may be we can rename it as master_filter
 

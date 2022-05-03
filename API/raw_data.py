@@ -29,6 +29,7 @@ import orjson
 import logging
 from http.client import REQUEST_ENTITY_TOO_LARGE
 from fastapi import APIRouter, Depends, Request
+from src.galaxy.query_builder.builder import remove_spaces
 from src.galaxy.validation.models import RawDataHistoricalParams, RawDataCurrentParams
 from .auth import login_required
 from src.galaxy.app import RawData
@@ -77,7 +78,12 @@ def get_current_data(params: RawDataCurrentParams, background_tasks: BackgroundT
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
     # unique id for zip file and geojson for each export
-    exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}"
+    if params.file_name :
+        formatted_file_name=remove_spaces(params.file_name) # need to format string from space to _ because it is filename
+        exportname = f"{formatted_file_name}_{datetime.now().isoformat()}_{str(uuid4())}"
+    else:
+        exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}"
+
     dump_temp_file, geom_area = RawData(
         params).extract_current_data(exportname)
     logging.debug('Zip Binding Started !')
