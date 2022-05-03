@@ -61,7 +61,7 @@ def download_export(file_name: str, background_tasks: BackgroundTasks):
     zip_temp_path = f"""{path}{file_name}"""
     if exists(zip_temp_path):
         response = FileResponse(zip_temp_path, media_type="application/zip")
-        response.headers["Content-Disposition"] = f"attachment; filename={file_name}.zip"
+        response.headers["Content-Disposition"] = f"attachment; filename={file_name}"
         # background_tasks.add_task(remove_file, zip_temp_path) #clearing the tmp zip file
         return response
 
