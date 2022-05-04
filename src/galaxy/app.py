@@ -697,24 +697,68 @@ class RawData:
         return RawData.to_geojson(results)
 
     @staticmethod
-    def ogr_export(query, export_path, outputtype):
+    def ogr_export(outputtype,query=None, export_path=None ,point_query=None, line_query=None, poly_query=None,dump_temp_file_path=None):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
         db_items = dict(config.items("RAW_DATA"))
-        formatted_query = query.replace('"', '\\"')
+        if query:
+            formatted_query = query.replace('"', '\\"')
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype is RawDataOutputType.MBTILES.value:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                 outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+
+        elif outputtype is RawDataOutputType.SHAPEFILE.value: 
+            file_paths = []
+            if point_query:
+                formatted_query = point_query.replace('"', '\\"')
+                point_file_path = f"""{dump_temp_file_path}_point.shp"""
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                logging.debug("Calling ogr2ogr-Point Shapefile")
+                run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+                logging.debug(run.stdout.read())
+                file_paths.append(point_file_path)
+                file_paths.append(f"""{dump_temp_file_path}_point.shx""")
+                file_paths.append(f"""{dump_temp_file_path}_point.cpg""")
+                file_paths.append(f"""{dump_temp_file_path}_point.dbf""")
+                file_paths.append(f"""{dump_temp_file_path}_point.prj""")
+            if line_query:
+                formatted_query = line_query.replace('"', '\\"')
+
+                line_file_path = f"""{dump_temp_file_path}_line.shp"""
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                logging.debug("Calling ogr2ogr-Line Shapefile")
+                run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+                logging.debug(run.stdout.read())
+                file_paths.append(line_file_path)
+                file_paths.append(f"""{dump_temp_file_path}_line.shx""")
+                file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
+                file_paths.append(f"""{dump_temp_file_path}_line.dbf""")
+                file_paths.append(f"""{dump_temp_file_path}_line.prj""")
+            if poly_query:
+                formatted_query = poly_query.replace('"', '\\"')
+
+                poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                logging.debug("Calling ogr2ogr-Poly Shapefile")
+                run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+                logging.debug(run.stdout.read())
+                file_paths.append(poly_file_path)
+                file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
+                file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
+                file_paths.append(f"""{dump_temp_file_path}_poly.dbf""")
+                file_paths.append(f"""{dump_temp_file_path}_poly.prj""")
+            return file_paths
         else:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                 outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
         # print(cmd)
         logging.debug("Calling ogr2ogr")
-
         run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        # for c in iter(lambda: run.stdout.read(2), b''):
-        #     logging.debug(c.strip())
         logging.debug(run.stdout.read())
+        return export_path
 
     @staticmethod
     def query2geojson(con, extraction_query, dump_temp_file_path):
@@ -775,7 +819,7 @@ class RawData:
             logging.debug(f"""Writing Line Shapefile""")
 
             schema = {'geometry': 'LineString', 'properties': line_schema, }
-            print(schema)
+            # print(schema)
             line_file_path = f"""{dump_temp_file_path}_line.shp"""
             with fiona.open(line_file_path, 'w', encoding='UTF-8', crs=from_epsg(4326), driver='ESRI Shapefile', schema=schema) as layer:
                 with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
@@ -861,12 +905,13 @@ class RawData:
             point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
                 self.params)
             dump_temp_file_path = f"""{path}{exportname}"""
-            filepaths = RawData.query2shapefile(
-                self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path)
+            filepaths = RawData.ogr_export(outputtype=output_type,point_query=point_query, line_query=line_query, poly_query=poly_query,dump_temp_file_path=dump_temp_file_path) #using ogr2ogr
+            # filepaths = RawData.query2shapefile(self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path) #using fiona
             return filepaths, geom_area
         else:
-            RawData.ogr_export(raw_currentdata_extraction_query(self.params, country_id, geometry_dump,
-                               geom_area, True), dump_temp_file_path, output_type)  # uses ogr export to export
+            filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, country_id, geometry_dump,
+                               geom_area, True), export_path=dump_temp_file_path, outputtype=output_type)  # uses ogr export to export
+            
         return [dump_temp_file_path], geom_area
 
     def check_status(self):
