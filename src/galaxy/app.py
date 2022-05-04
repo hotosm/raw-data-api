@@ -708,7 +708,7 @@ class RawData:
         else:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                 outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
-        print(cmd)
+        # print(cmd)
         logging.debug("Calling ogr2ogr")
 
         run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
