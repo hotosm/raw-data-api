@@ -684,11 +684,14 @@ def get_grid_id_query(geometry_dump):
 
 # Rawdata extraction Block
 
-def get_query_as_geojson(query_list):
+def get_query_as_geojson(query_list,ogr_export=None):
     table_base_query = []
-    for i in range(len(query_list)):
-        table_base_query.append(
-            f"""select ST_AsGeoJSON(t{i}.*) from ({query_list[i]}) t{i}""")
+    if ogr_export:
+        table_base_query=query_list
+    else:
+        for i in range(len(query_list)):
+            table_base_query.append(
+                f"""select ST_AsGeoJSON(t{i}.*) from ({query_list[i]}) t{i}""")
     final_query = " UNION ALL ".join(table_base_query)
     return final_query
 
@@ -749,7 +752,7 @@ def create_attribute_filter(filter):
     return attribute_filter
 
 
-def extract_geometry_type_query(params):
+def extract_geometry_type_query(params,ogr_export=False):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
 
     geom_filter = create_geom_filter(params.geometry)
@@ -780,7 +783,8 @@ def extract_geometry_type_query(params):
             if attribute_filter:
                 query_point += f""" and ({attribute_filter})"""
             point_schema = schema
-            query_point = get_query_as_geojson([query_point])
+
+            query_point = get_query_as_geojson([query_point],ogr_export=ogr_export)
 
         if type is geomtype.LINESTRING.value:
             query_line_list = []
@@ -807,7 +811,7 @@ def extract_geometry_type_query(params):
             query_relations_line += f""" and (geometrytype(geom)='MULTILINESTRING')"""
             query_line_list.append(query_ways_line)
             query_line_list.append(query_relations_line)
-            query_line = get_query_as_geojson(query_line_list)
+            query_line = get_query_as_geojson(query_line_list,ogr_export=ogr_export)
             line_schema = schema
 
         if type is geomtype.POLYGON.value:
@@ -835,16 +839,8 @@ def extract_geometry_type_query(params):
             query_relations_poly += f""" and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
             query_poly_list.append(query_ways_poly)
             query_poly_list.append(query_relations_poly)
-            query_poly = get_query_as_geojson(query_poly_list)
+            query_poly = get_query_as_geojson(query_poly_list,ogr_export=ogr_export)
             poly_schema = schema
-    # print("printing geom query \n")
-    # print("point \n")
-    # print(query_point)
-    # print("line \n")
-    # print(query_line)
-    # print("polygon \n")
-    # print(query_poly)
-    # print("ending geom filter \n")
     return query_point, query_line, query_poly, point_schema, line_schema, poly_schema
 
 

@@ -709,6 +709,8 @@ class RawData:
 
         elif outputtype is RawDataOutputType.SHAPEFILE.value: 
             file_paths = []
+            outputtype="ESRI Shapefile"
+            # print(point_query)
             if point_query:
                 formatted_query = point_query.replace('"', '\\"')
                 point_file_path = f"""{dump_temp_file_path}_point.shp"""
@@ -719,7 +721,7 @@ class RawData:
                 logging.debug(run.stdout.read())
                 file_paths.append(point_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_point.shx""")
-                file_paths.append(f"""{dump_temp_file_path}_point.cpg""")
+                # file_paths.append(f"""{dump_temp_file_path}_point.cpg""")
                 file_paths.append(f"""{dump_temp_file_path}_point.dbf""")
                 file_paths.append(f"""{dump_temp_file_path}_point.prj""")
             if line_query:
@@ -733,12 +735,12 @@ class RawData:
                 logging.debug(run.stdout.read())
                 file_paths.append(line_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_line.shx""")
-                file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
+                # file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
                 file_paths.append(f"""{dump_temp_file_path}_line.dbf""")
                 file_paths.append(f"""{dump_temp_file_path}_line.prj""")
             if poly_query:
                 formatted_query = poly_query.replace('"', '\\"')
-
+                # print(poly_query)
                 poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
@@ -747,7 +749,7 @@ class RawData:
                 logging.debug(run.stdout.read())
                 file_paths.append(poly_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
-                file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
+                # file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
                 file_paths.append(f"""{dump_temp_file_path}_poly.dbf""")
                 file_paths.append(f"""{dump_temp_file_path}_poly.prj""")
             return file_paths
@@ -903,7 +905,7 @@ class RawData:
                 self.params, country_id, geometry_dump, geom_area), dump_temp_file_path)  # uses own conversion class
         elif output_type is RawDataOutputType.SHAPEFILE.value:
             point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
-                self.params)
+                self.params,ogr_export=True)
             dump_temp_file_path = f"""{path}{exportname}"""
             filepaths = RawData.ogr_export(outputtype=output_type,point_query=point_query, line_query=line_query, poly_query=poly_query,dump_temp_file_path=dump_temp_file_path) #using ogr2ogr
             # filepaths = RawData.query2shapefile(self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path) #using fiona
