@@ -46,7 +46,7 @@ import fiona
 from fiona.crs import from_epsg
 
 import logging
-logging.getLogger("imported_module").setLevel(logging.WARNING)
+# logging.getLogger("imported_module").setLevel(logging.WARNING)
 logging.getLogger("fiona").propagate = False  # disable fiona logging
 
 
@@ -699,21 +699,22 @@ class RawData:
     @staticmethod
     def ogr_export(query, export_path, outputtype):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
-        db_items = dict(config.items("raw"))
+        db_items = dict(config.items("RAW_DATA"))
         formatted_query = query.replace('"', '\\"')
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype is RawDataOutputType.MBTILES.value:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
-                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('dbname'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
         else:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
-                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('dbname'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+        print(cmd)
         logging.debug("Calling ogr2ogr")
 
         run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        for c in iter(lambda: run.stdout.read(2), b''):
-            logging.debug(c.strip())
-        # logging.debug(run.stdout.read())
+        # for c in iter(lambda: run.stdout.read(2), b''):
+        #     logging.debug(c.strip())
+        logging.debug(run.stdout.read())
 
     @staticmethod
     def query2geojson(con, extraction_query, dump_temp_file_path):
