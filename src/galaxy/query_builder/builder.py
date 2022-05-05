@@ -17,22 +17,22 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+from itertools import filterfalse
 from psycopg2 import sql
 from json import dumps
-from ..validation.models import Frequency
-
+from ..validation.models import Frequency,OsmElementRawData,GeometryTypeRawData as geomtype
 HSTORE_COLUMN = "tags"
 
 
 def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     '''returns hastag filter query '''
 
-    merged_items = [*project_ids, *hashtags]
+    # merged_items = [*project_ids , *hashtags]
 
     filter_query = "({hstore_column} -> %s) ~~* %s"
 
     hashtag_filter_values = [
-        *[f"%hotosm-project-{i};%" for i in project_ids],
+        *[f"%hotosm-project-{i};%" if project_ids is not None else '' for i in project_ids],
         *[f"%{i};%" for i in hashtags],
     ]
     hashtag_tags_filters = [
@@ -41,7 +41,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     ]
 
     comment_filter_values = [
-        *[f"%hotosm-project-{i} %" for i in project_ids],
+        *[f"%hotosm-project-{i} %" if project_ids is not None else '' for i in project_ids],
         *[f"%{i} %" for i in hashtags],
     ]
     comment_tags_filters = [
@@ -51,7 +51,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     # Include cases for hasthags and comments found at the end of the string.
     no_char_filter_values = [
-        *[f"%hotosm-project-{i}" for i in project_ids],
+        *[f"%hotosm-project-{i}" if project_ids is not None else '' for i in project_ids],
         *[f"%{i}" for i in hashtags],
     ]
     no_char_filter_values = [
@@ -579,3 +579,274 @@ def generate_organization_hashtag_reports(cur,params):
             order by hashtag"""
     # print(query)
     return query
+
+def raw_historical_data_extraction_query(cur,conn,params):
+    geometry_dump = dumps(dict(params.geometry))
+    geom_filter = f"ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"
+    timestamp_filter = cur.mogrify(sql.SQL("created_at BETWEEN %s AND %s"), (params.from_timestamp, params.to_timestamp)).decode()
+    t1= f"""select
+        id as changeset_id
+    from
+        osm_changeset
+    where
+        {geom_filter}
+        and ({timestamp_filter})"""
+    if params.hashtags :
+        hashtag_filter= create_hashtag_filter_query("",params.hashtags,cur,conn)
+        t1+=f"""and ({hashtag_filter})""" 
+    query= f"""with t1 as(
+            {t1}
+        ),
+        t2 as (
+        select
+            *,
+            case
+                when oeh.nds is not null then ST_AsGeoJSON(public.construct_geometry(oeh.nds,
+                oeh.id,
+                oeh."timestamp"))
+                else ST_AsGeoJSON(ST_MakePoint(oeh.lon,oeh.lat))
+            end as geometry
+        from
+            osm_element_history oeh,
+            t1
+        where
+            oeh.changeset = t1.changeset_id
+	        and oeh."action" != 'delete'
+            and oeh."type" != 'relation'
+         	and oeh.version = (
+                select
+                    max("version")
+                from
+                    public.osm_element_history i
+                where
+                    i.id = oeh.id and i.type = oeh.type
+                    and i."timestamp"< '{params.to_timestamp}'::timestamptz )  
+            )
+        select
+            t2.id,
+            t2."type",
+            t2.tags::text as tags,
+            t2.changeset as changeset_id,
+            t2."timestamp"::text as created_at,
+            t2.uid as user_id,
+            t2."version" ,
+            t2."action" ,
+            t2.country ,
+            t2.geometry
+        from
+            t2"""
+    if params.geometry_type :
+        geometry_type=[]
+        for p in params.geometry_type:
+            geometry_type.append(f"""t2.tags?'{p}'""" )
+        filter_geometry_type = " or ".join(geometry_type)
+        query+= f"""
+        where
+            {filter_geometry_type}"""
+    # print(query)
+    return query
+ 
+def get_country_id_query(geometry_dump):
+    
+    base_query=f"""select
+                        b.id
+                    from
+                        boundaries b
+                    where
+                        ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
+                        ST_SetSRID(b.boundary,
+                        4326))"""
+    return base_query
+                        
+
+def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_export=False):
+    geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
+    base_query=[]
+    relation_geom=[]
+    attribute_filter= None 
+    select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    if params.columns :
+        if len(params.columns) > 0:
+            filter_col=[]
+            filter_col.append('osm_id')
+            for cl in params.columns:
+                if cl !='':
+                    filter_col.append(f"""tags ->> '{cl.strip()}' as {cl.strip()}""")
+            filter_col.append('geom')
+            select_condition=" , ".join(filter_col) 
+    if params.osm_tags :
+        filter= params.osm_tags
+
+        incoming_filter=[]
+        for key, value in filter.items():
+
+            if len(value)>1:
+                v_l= []
+                for l in value:
+                    v_l.append(f""" '{l.strip()}' """)
+                v_l_join= " , ".join(v_l)
+                value_tuple= f"""({v_l_join})"""
+                
+                k=f""" '{key.strip()}' """
+                incoming_filter.append("""tags ->> """+k+"""IN """+value_tuple+"""""")
+            elif len(value)==1:
+                incoming_filter.append(f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+            else: 
+                incoming_filter.append(f"""tags ? '{key.strip()}'""")
+        attribute_filter=" OR ".join(incoming_filter)
+    
+    if params.osm_elements is None and params.geometry_type is None:
+        params.osm_elements= ['nodes','ways_line','ways_poly','relations']
+    
+    if params.osm_elements is not None and params.geometry_type is not None:
+        if geomtype.POINT.value in params.geometry_type and OsmElementRawData.NODES.value in params.osm_elements:
+            query_point=f"""select
+                        {select_condition}
+                        from
+                            nodes
+                        where
+                            {geom_filter}"""
+            if attribute_filter:
+                query_point+= f""" and ({attribute_filter})"""
+            base_query.append(query_point)
+     
+        if geomtype.LINESTRING.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
+            query_ways_line=f"""select
+                {select_condition}
+                from
+                    ways_line
+                where
+                    {geom_filter}"""
+            if attribute_filter:
+                query_ways_line+= f""" and ({attribute_filter})"""
+            base_query.append(query_ways_line)
+
+        if geomtype.POLYGON.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
+            if geom_area > 100000 : # country logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for 
+                country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                country_filter=" OR ".join(country_filter_base)
+                where_clause=f"""({country_filter}) and {geom_filter}"""
+            else:
+                where_clause=f"""{geom_filter}"""
+            query_poly=f"""select
+                {select_condition}
+                from
+                    ways_poly
+                where
+                {where_clause}"""
+            if attribute_filter:
+                query_poly+= f""" and ({attribute_filter})"""
+            base_query.append(query_poly)
+
+        if OsmElementRawData.RELATIONS.value in params.osm_elements:
+
+            for tp in params.geometry_type:
+                relation_geom.append(f"""geometrytype(geom)='{tp.upper()}'""")
+            query_relation=f"""select
+                {select_condition}
+                from
+                    relations
+                where
+                    {geom_filter}"""
+            # if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
+            join_relation_geom=" or ".join(relation_geom)
+            query_relation+=f""" and ( {join_relation_geom} )"""
+            if attribute_filter:
+                query_relation+= f""" and ({attribute_filter})"""
+            base_query.append(query_relation)
+ 
+        
+    if params.osm_elements and params.geometry_type is None :
+        if len(params.osm_elements)>0:
+            if OsmElementRawData.WAYS.value in params.osm_elements : # converting ways to ways_line and ways_poly since we store them in two different tables 
+                params.osm_elements.remove( OsmElementRawData.WAYS.value)
+                params.osm_elements.append( 'ways_poly')
+                params.osm_elements.append( 'ways_line')
+
+            for type in params.osm_elements:
+                if type == 'ways_poly' and  geom_area > 100000 :
+                    country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                    country_filter=" OR ".join(country_filter_base)
+                    where_clause=f"""({country_filter}) and {geom_filter}"""
+                else :
+                    where_clause=f"""{geom_filter}"""
+                query=f"""select
+                    {select_condition}
+                    from
+                        {type}
+                    where
+                        {where_clause}"""
+                if attribute_filter:
+                    query+= f""" and ({attribute_filter})"""
+                base_query.append(query) 
+                     
+    if params.geometry_type and  params.osm_elements is None:
+        if len(params.geometry_type)>0:
+            for type in params.geometry_type:
+                
+                if type is geomtype.POINT.value :      
+                    query_point=f"""select
+                        {select_condition}
+                        from
+                            nodes
+                        where
+                            {geom_filter}"""
+                    if attribute_filter:
+                        query_point+= f""" and ({attribute_filter})"""
+                    base_query.append(query_point)
+
+                elif type is geomtype.LINESTRING.value :       
+                    query_ways_line=f"""select
+                        {select_condition}
+                        from
+                            ways_line
+                        where
+                            {geom_filter}"""
+                    if attribute_filter:
+                        query_ways_line+= f""" and ({attribute_filter})"""
+                    base_query.append(query_ways_line)
+                else:
+                    if type is geomtype.POLYGON.value : 
+                        if geom_area > 100000 : # country logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for 
+                            country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                            country_filter=" OR ".join(country_filter_base)
+                            where_clause=f"""({country_filter}) and {geom_filter}"""
+                        else:
+                            where_clause=f"""{geom_filter}"""
+                        query_poly=f"""select
+                            {select_condition}
+                            from
+                                ways_poly
+                            where
+                            {where_clause}"""
+                        if attribute_filter:
+                            query_poly+= f""" and ({attribute_filter})"""
+                        base_query.append(query_poly)
+                    relation_geom.append(f"""geometrytype(geom)='{type.upper()}'""")
+            if len(relation_geom) !=0:
+                query_relation=f"""select
+                    {select_condition}
+                    from
+                        relations
+                    where
+                        {geom_filter}"""
+                if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
+                    join_relation_geom=" or ".join(relation_geom)
+                    query_relation+=f""" and ( {join_relation_geom} )"""
+                if attribute_filter:
+                    query_relation+= f""" and ({attribute_filter})"""
+                base_query.append(query_relation)
+    if ogr_export:
+        table_base_query=base_query # since query will be different for ogr exports and geojson exports because for ogr exports we don't need to grab each row in geojson 
+    else:
+        table_base_query=[]
+        for i in range(len(base_query)):
+            table_base_query.append(f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")             
+    final_query=" UNION ALL ".join(table_base_query)       
+        
+    return final_query
+
+def check_last_updated_rawdata():
+    query = f"""select NOW()-importdate as last_updated from planet_osm_replication_status"""
+    return query
+    
