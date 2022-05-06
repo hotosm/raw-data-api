@@ -133,8 +133,8 @@ def get_current_data(params: RawDataCurrentParams, background_tasks: BackgroundT
             response_time_str= f"""{int(Hour)} Hour"""
             minute=minute-60*int(Hour)
         response_time_str += f"""{minute} Minute"""
-    logging.debug("-------Raw Data Request Took - %s for area of %s Sqkm Producing %s MB of file-------" %
-                  (response_time_str,geom_area,round(inside_file_size/1000000)))
+    logging.debug("-------Raw Data Request Took - %s for area of %s Sqkm Producing %s MB: %s-------" %
+                  (response_time_str,geom_area,round(inside_file_size/1000000),params.output_type))
     return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000)} MB""", "zip_file_size": {round(zip_file_size/1000000)}}
 
 

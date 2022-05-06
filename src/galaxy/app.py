@@ -765,7 +765,7 @@ class RawData:
     @staticmethod
     def query2geojson(con, extraction_query, dump_temp_file_path):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
-        print(extraction_query)
+        # print(extraction_query)
         pre_geojson = """{"type": "FeatureCollection","features": ["""
         post_geojson = """]}"""
         with open(dump_temp_file_path, 'a', encoding='utf-8') as f:  # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory

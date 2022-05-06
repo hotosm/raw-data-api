@@ -767,6 +767,9 @@ def extract_geometry_type_query(params,ogr_export=False):
             params.columns, create_schema=True)
     if params.osm_tags:
         attribute_filter = create_attribute_filter(params.osm_tags)
+    if params.geometry_type is None : # fix me 
+        params.geometry_type=['point', 'linestring', 'polygon']
+
     for type in params.geometry_type:
         if type is geomtype.POINT.value:
             if params.point_columns:
