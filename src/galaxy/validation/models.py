@@ -25,7 +25,7 @@ from pydantic import validator
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel as PydanticModel
 
-from pydantic import conlist
+from pydantic import conlist , Json
 from geojson_pydantic import Feature, FeatureCollection, Point, Polygon , MultiPolygon
 
 from datetime import datetime
@@ -413,8 +413,131 @@ class OrganizationHashtag(BaseModel):
     total_unique_contributors : int
     total_new_road_meters : int 
 
+class RawDataOutputType ( Enum):
+    GEOJSON ="GeoJSON"
+    KML = "KML"
+    MBTILES ="MBTILES" # fully experimental for now 
+
+class HashtagParams(BaseModel):
+    hashtags : Optional[List[str]]
+    @validator("hashtags",allow_reuse=True)
+    def check_hashtag_string(cls, value, values, **kwargs):
+        regex = re.compile(SPECIAL_CHARACTER)
+        for v in value :
+            v= v.strip()
+            if len(v) < 2 :
+                raise ValueError(
+                   "Hash tag value " +v+" is not allowed")
+                
+            if(regex.search(v) != None):
+                raise ValueError(
+                   "Hash tag contains special character or space : " +v+" ,Which is not allowed")
+        return value 
+
+
+
+RAWDATA_HISTORICAL_POLYGON_AREA = 100
+class RawDataHistoricalParams(HashtagParams):
+    from_timestamp :datetime
+    to_timestamp : datetime
+    geometry : MultiPolygon
+    output_type : Optional[RawDataOutputType]
+    # geometry_type : Optional[List[FeatureTypeRawData]] = None
+    
+
+    @validator("geometry", allow_reuse=True)
+    def check_geometry_area(cls, value, values):
+        cd=json.loads(value.json())["coordinates"]
+        for x in range(len(cd)):
+            geom_cd='{"type":"Polygon","coordinates":%s}'% cd[x]  
+            area_m2 = area(geom_cd)
+            
+            area_km2 = area_m2 * 1E-6
+            print(area_km2)
+            if area_km2 > RAWDATA_HISTORICAL_POLYGON_AREA:
+                raise ValueError("Polygon Area %s km^2 is higher than 100 km^2"%area_km2)
+        return value
+    
+    @validator("to_timestamp",allow_reuse=True)
+    def check_date_difference(cls, value, values, **kwargs):
+        start_date = values.get("from_timestamp")
+        hashtags = values.get("hashtags")
+        difference= value-start_date
+        if start_date > value :
+            raise ValueError(f"""From and To timestamps are not in order""")
+        if hashtags != None or len(hashtags) != 0:
+            acceptedday=365
+        else:
+            acceptedday=180
+        if difference > timedelta(days = acceptedday):
+                raise ValueError(f"""You can pass date interval up to maximum {acceptedday} Months""")
+        return value
+
+class GeometryTypeRawData ( Enum):
+    POINT="point"
+    LINESTRING = "linestring"
+    POLYGON = "polygon"
+    MULTILINESTRING = "multilinestring"
+    MULTIPOLYGON = "multipolygon"
+    
+
+class OsmElementRawData(Enum):
+    NODES = "nodes"
+    WAYS = "ways"
+    RELATIONS = "relations"
+
+
+
+class RawDataCurrentParams(BaseModel):
+    output_type : Optional[RawDataOutputType]=None
+    geometry : Polygon
+    osm_tags :  Optional[dict]=None
+    columns : Optional[List[str]]=None
+    osm_elements : Optional[List[OsmElementRawData]] = None
+    geometry_type : Optional[List[GeometryTypeRawData]] = None
+    
+    @validator("osm_tags", allow_reuse=True)
+    def check_value(cls, value, values):
+        for key, v in value.items():
+            if isinstance(v, list):   
+                pass
+            else :
+                raise ValueError("Value should be of List Type")
+        return value
+
+    @validator("geometry_type", always=True)    
+    def check_not_defined_fields(cls, value, values):
+        osm_elements = values.get("osm_elements")
+        if (value is None or len(value) == 0):
+                return None
+        if osm_elements:  
+            if (GeometryTypeRawData.POINT.value in value and OsmElementRawData.NODES.value in osm_elements) or (GeometryTypeRawData.LINESTRING.value in value and OsmElementRawData.WAYS.value in osm_elements) or (GeometryTypeRawData.POLYGON.value in value and OsmElementRawData.WAYS.value in osm_elements) or (OsmElementRawData.RELATIONS.value in osm_elements):
+                pass
+            else:
+                raise ValueError("Mapping between osm_elements and geometry_type is invalid") # since you can pass both we need validation for mapping between osm elements and geometry type . for eg : you can not search points in ways or in relation which does not make sense 
+        return value
+
+    @validator("osm_elements", always=True)    
+    def check_null_list(cls, value, values):
+        if (value is None or len(value) == 0):
+                return None
+        return value
+    
+    @validator("geometry", always=True)
+    def check_geometry_area(cls, value, values):
+        area_m2 = area(json.loads(value.json()))
+        area_km2 = area_m2 * 1E-6
+        RAWDATA_CURRENT_POLYGON_AREA=1500000
+        output_type = values.get("output_type")
+        if output_type:
+            if output_type is RawDataOutputType.MBTILES.value: # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
+                RAWDATA_CURRENT_POLYGON_AREA=2 # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it 
+        if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
+                raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
+        return value
 
 class UserRole(Enum):
     ADMIN = 1
     STAFF = 2
     NONE = 3
+    

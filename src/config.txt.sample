@@ -5,6 +5,10 @@ password=
 dbname=
 port=
 
+[HOST]
+host=localhost
+port=8000
+
 [OAUTH]
 client_id=
 client_secret=
@@ -31,11 +35,4 @@ host=
 user=
 password=
 database=galaxy
-port=
-
-[TM]
-host=
-user=
-password=
-host=
 port=
