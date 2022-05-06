@@ -580,6 +580,59 @@ def generate_organization_hashtag_reports(cur,params):
     # print(query)
     return query
 
+
+def generate_tm_validators_stats_query(cur, params):
+    stmt = """WITH t1 as (SELECT user_id, project_id, count(id) AS cnt from task_history
+    where action_text = 'VALIDATED' AND date_part('year', action_date) = %s group by user_id, project_id order by project_id)
+    """
+
+    sub_query = cur.mogrify(sql.SQL(stmt), (params.year,)).decode()
+
+    query = f"""
+    {sub_query}
+    SELECT t1.user_id,
+        u.username,
+        t1.project_id,
+        t1.cnt,
+        p.total_tasks,
+        p.tasks_mapped,
+        p.tasks_validated,
+        unnest(p.country) AS country
+    from t1, projects as p, users as u
+    where t1.project_id = p.id AND u.id = t1.user_id
+    ORDER BY u.username, t1.project_id
+    """
+
+    return query
+
+
+def generate_tm_teams_list():
+    query = """with vt AS (SELECT distinct team_id as id from project_teams where role = 1 order by id),
+            mu AS (SELECT tm.team_id, ARRAY_AGG(users.username) AS managers from team_members AS tm, vt, users WHERE users.id = tm.user_id AND tm.team_id = vt.id AND tm.function = 1 GROUP BY tm.team_id),
+            uc AS (SELECT tm.team_id, count(tm.user_id) AS members_count from team_members AS tm, vt WHERE tm.team_id = vt.id GROUP BY tm.team_id)
+            SELECT t.id, t.organisation_id, orgs.name AS organisation_name, t.name AS team_name, mu.managers, uc.members_count from teams AS t, mu, uc, organisations AS orgs where orgs.id = t.organisation_id AND t.id = mu.team_id AND t.id = uc.team_id"""
+
+    return query
+
+
+def generate_list_teams_metadata():
+    query = """
+        with vt AS (SELECT distinct team_id as id from project_teams where role = 1 order by id),
+        m AS (SELECT tm.team_id, tm.user_id, users.username, tm.function FROM team_members AS tm, vt, users WHERE users.id = tm.user_id AND tm.team_id = vt.id)
+        SELECT m.team_id AS team_id,
+            t.name AS team_name,
+            orgs.id AS organisation_id,
+            orgs.name AS organisation_name,
+            m.user_id,
+            m.username,
+            m.function from m, teams as t, organisations as orgs
+        where
+            orgs.id = t.organisation_id AND
+            t.id = m.team_id
+        ORDER BY team_id, function, username;
+    """
+
+    return query
 def raw_historical_data_extraction_query(cur,conn,params):
     geometry_dump = dumps(dict(params.geometry))
     geom_filter = f"ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"
