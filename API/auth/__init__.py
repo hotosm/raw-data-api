@@ -6,12 +6,13 @@ from itsdangerous import BadSignature, SignatureExpired
 from fastapi import Header, HTTPException, status
 
 from src.galaxy import config
-
+from src.galaxy.validation.models import UserRole
 
 class AuthUser(BaseModel):
     id: int
     username: str
     img_url: str
+    role: str
 
 
 class Login(BaseModel):
@@ -22,7 +23,7 @@ class Token(BaseModel):
     access_token: str
 
 
-def login_required(access_token: str = Header(...)):
+def deserialize_access_token(access_token: str):
     deserializer = URLSafeSerializer(config.get("OAUTH", "secret_key"))
 
     try:
@@ -41,3 +42,19 @@ def login_required(access_token: str = Header(...)):
         )
 
     return user_data
+
+
+def login_required(access_token: str = Header(...)):
+    return deserialize_access_token(access_token)
+
+
+def is_staff_member(access_token: str = Header(...)):
+    user_data = deserialize_access_token(access_token)
+
+    if UserRole[user_data["role"]] not in (UserRole.STAFF, UserRole.ADMIN):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User is not staff member"
+        )
+
+    return user_data
+

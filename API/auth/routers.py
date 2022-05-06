@@ -5,7 +5,8 @@ from itsdangerous.url_safe import URLSafeSerializer
 from requests_oauthlib import OAuth2Session
 
 from src.galaxy import config
-from . import AuthUser, Login, Token, login_required
+from src.galaxy.app import Underpass
+from . import AuthUser, Login, Token, login_required, is_staff_member
 
 router = APIRouter(prefix="/auth")
 
@@ -56,10 +57,14 @@ def callback(request: Request):
 
     serializer = URLSafeSerializer(config.get("OAUTH", "secret_key"))
 
+    user_id = data.get("id")
+    user_role =Underpass().get_user_role(user_id)
+
     user_data = {
-        "id": data.get("id"),
+        "id": user_id,
         "username": data.get("display_name"),
         "img_url": data.get("img").get("href") if data.get("img") else None,
+        "role": user_role.name,
     }
 
     token = serializer.dumps(user_data)
@@ -71,5 +76,5 @@ def callback(request: Request):
 
 
 @router.get("/me", response_model=AuthUser)
-def my_data(user_data: AuthUser = Depends(login_required)):
+def my_data(user_data: AuthUser = Depends(is_staff_member)):
     return user_data
