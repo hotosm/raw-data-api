@@ -13,6 +13,7 @@ router = APIRouter(prefix="/auth")
 
 @router.get("/login", response_model=Login)
 def login_url(request: Request):
+    """Login URL generates Login URL for Authorization , In Simple Meaning It will make request to osm Using Galaxy API Client ID and login redirect URL and gets Login URL using which user can enter their credentials and redirected to redirection URL. During Local setup You can register Galaxy as application in Osm oauth2 , get Client ID and redirect URL followed by sample config.txt , so that osm will provide correct login URL for you. This endpoint will act as bridge translating user request to osm for login URL ( as Galaxy as registered APP of OSM Oauth2) , The provided response will be osm login URL but encoded with galaxy API redirectURL since galaxy is registered on osm as oauth2 osm will know in which endpoint to redirect once login is successful with the token to desearilze : osm link will call /auth/callback"""
     osm_url = config.get("OAUTH", "url")
     authorize_url = f"{osm_url}/oauth2/authorize/"
     scope = config.get("OAUTH", "scope").split(",")
@@ -30,6 +31,7 @@ def login_url(request: Request):
 
 @router.get("/callback", response_model=Token)
 def callback(request: Request):
+    """This endpoint will perform token exchange Between osm ~ Galaxy API,When osm makes callback. Core will use Oauth Secret Key from configuration while deserializing token , Provides access token that can be used on authorized endpoint"""
     # Perform token exchange.
     osm_url = config.get("OAUTH", "url")
     token_url = f"{osm_url}/oauth2/token"
@@ -77,4 +79,5 @@ def callback(request: Request):
 
 @router.get("/me", response_model=AuthUser)
 def my_data(user_data: AuthUser = Depends(is_staff_member)):
+    """This is the simple endpoint which will read the access token and provides the user details from osm user’s api endpoint , also now integrated with underpass : provides admin or non admin option for hot staff defined in table"""
     return user_data
