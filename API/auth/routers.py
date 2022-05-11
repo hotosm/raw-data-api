@@ -94,5 +94,11 @@ def callback(request: Request):
 
 @router.get("/me", response_model=AuthUser)
 def my_data(user_data: AuthUser = Depends(is_staff_member)):
-    """This is the simple endpoint which will read the access token and provides the user details from osm user’s api endpoint , also now integrated with underpass : provides admin or non admin option for hot staff defined in table"""
+    """Read the access token and provide  user details from OSM user's API endpoint,
+    also integrated with underpass .
+
+    Parameters:None
+
+    Returns: user_data
+    """
     return user_data
