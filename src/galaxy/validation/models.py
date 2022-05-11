@@ -546,4 +546,12 @@ class UserRole(Enum):
     ADMIN = 1
     STAFF = 2
     NONE = 3
-    
+
+
+class UserStatistics(BaseModel):
+    added_buildings: int
+    modified_buildings: int
+    added_highway :int
+    modified_highway : int  
+    added_highway_meters : float
+    modified_highway_meters : float

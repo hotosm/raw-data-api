@@ -24,12 +24,14 @@ from ..validation.models import Frequency,OsmElementRawData,GeometryTypeRawData 
 HSTORE_COLUMN = "tags"
 
 
-def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
+def create_hashtag_filter_query(project_ids, hashtags, cur, conn,prefix=False):
     '''returns hastag filter query '''
 
     # merged_items = [*project_ids , *hashtags]
-
-    filter_query = "({hstore_column} -> %s) ~~* %s"
+    if prefix : # default prefix is c
+        filter_query = "(c.{hstore_column} -> %s) ~~* %s"
+    else :
+        filter_query = "({hstore_column} -> %s) ~~* %s"
 
     hashtag_filter_values = [
         *[f"%hotosm-project-{i};%" if project_ids is not None else '' for i in project_ids],
@@ -73,13 +75,17 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     return hashtag_filter
 
 
-def create_timestamp_filter_query(column_name,from_timestamp, to_timestamp, cur):
+def create_timestamp_filter_query(column_name,from_timestamp, to_timestamp, cur,prefix=False):
     '''returns timestamp filter query '''
 
     timestamp_column = column_name
     # Subquery to filter changesets matching hashtag and dates.
-    timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
-        timestamp_column=sql.Identifier(timestamp_column))
+    if prefix:
+        timestamp_filter = sql.SQL("c.{timestamp_column} between %s AND %s").format(
+            timestamp_column=sql.Identifier(timestamp_column))
+    else :
+        timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
+            timestamp_column=sql.Identifier(timestamp_column))
     timestamp_filter = cur.mogrify(timestamp_filter,
                                    (from_timestamp, to_timestamp)).decode()
 
@@ -135,41 +141,42 @@ def create_osm_history_query(changeset_query, with_username):
 
 
 def create_userstats_get_statistics_with_hashtags_query(params,con,cur):
-        changeset_query, _, _ = create_changeset_query(params, con, cur)
-
-        # Include user_id filter.
-        changeset_query = f"{changeset_query} AND user_id = {params.user_id}"
-
-        base_query = """
-            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)
-            FROM osm_element_history AS osh, T1
-            WHERE osh.timestamp BETWEEN %s AND %s
-            AND osh.uid = %s
-            AND osh.type in ('way','relation')
-            AND T1.changeset_id = osh.changeset
-            GROUP BY feature, action
-        """
-        items = (params.from_timestamp, params.to_timestamp, params.user_id)
-        base_query = cur.mogrify(base_query, items).decode()
-
+        hashtag_filter = create_hashtag_filter_query(params.project_ids,
+                                                 params.hashtags, cur, con,prefix=True)
+        timestamp_filter=create_timestamp_filter_query("created_at",params.from_timestamp, params.to_timestamp,cur,prefix=True)
         query = f"""
-            WITH T1 AS (
-                {changeset_query}
-            )
-            {base_query}
-        """
+        select
+            sum(added_buildings)::int as added_buildings,
+            sum(modified_buildings)::int as  modified_buildings,
+            sum(added_highway)::int as added_highway,
+            sum(modified_highway)::int as modified_highway,
+            sum(added_highway_meters)::float as added_highway_meters,
+            sum(modified_highway_meters)::float as modified_highway_meters
+        from
+            public.all_changesets_stats s
+        join public.osm_changeset c on
+            c.id = s.changeset
+        where
+            {timestamp_filter}
+            and c.user_id = {params.user_id} and ({hashtag_filter})"""
         return query
 
 def create_UserStats_get_statistics_query(params,con,cur):
         query = """
-            SELECT (each(tags)).key as feature, action, count(distinct id)
-            FROM osm_element_history
-            WHERE timestamp BETWEEN %s AND %s
-            AND uid = %s
-            AND type in ('way','relation')
-            GROUP BY feature, action
-        """
-
+        select
+            sum(added_buildings)::int as added_buildings,
+            sum(modified_buildings)::int as  modified_buildings,
+            sum(added_highway)::int as added_highway,
+            sum(modified_highway)::int as modified_highway,
+            sum(added_highway_meters)::float as added_highway_meters,
+            sum(modified_highway_meters)::float as modified_highway_meters
+        from
+            public.all_changesets_stats s
+        join public.osm_changeset c on
+            c.id = s.changeset
+        where
+            c.created_at between %s and %s
+            and c.user_id = %s"""
         items = (params.from_timestamp, params.to_timestamp, params.user_id)
         query = cur.mogrify(query, items)
         return query
