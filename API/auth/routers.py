@@ -13,7 +13,14 @@ router = APIRouter(prefix="/auth")
 
 @router.get("/login", response_model=Login)
 def login_url(request: Request):
-    """Login URL generates Login URL for Authorization , In Simple Meaning It will make request to osm Using Galaxy API Client ID and login redirect URL and gets Login URL using which user can enter their credentials and redirected to redirection URL. During Local setup You can register Galaxy as application in Osm oauth2 , get Client ID and redirect URL followed by sample config.txt , so that osm will provide correct login URL for you. This endpoint will act as bridge translating user request to osm for login URL ( as Galaxy as registered APP of OSM Oauth2) , The provided response will be osm login URL but encoded with galaxy API redirectURL since galaxy is registered on osm as oauth2 osm will know in which endpoint to redirect once login is successful with the token to desearilze : osm link will call /auth/callback"""
+    """Generate Login URL for authentication using OAuth2 Application registered to OpenStreetMap
+
+    Parameters: None
+
+    Returns:
+    - login_url (string) - URL to authorize user to the application via. Openstreetmap 
+        OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters  
+    """
     osm_url = config.get("OAUTH", "url")
     authorize_url = f"{osm_url}/oauth2/authorize/"
     scope = config.get("OAUTH", "scope").split(",")
@@ -31,8 +38,16 @@ def login_url(request: Request):
 
 @router.get("/callback", response_model=Token)
 def callback(request: Request):
-    """This endpoint will perform token exchange Between osm ~ Galaxy API,When osm makes callback. Core will use Oauth Secret Key from configuration while deserializing token , Provides access token that can be used on authorized endpoint"""
-    # Perform token exchange.
+    """Performs token exchange between OpenStreetMap and Galaxy API
+
+    Core will use Oauth secret key from configuration while deserializing token, 
+    provides access token that can be used on authorized endpoint
+
+    Parameters: None 
+
+    Returns:
+    - access_token (string)
+    """
     osm_url = config.get("OAUTH", "url")
     token_url = f"{osm_url}/oauth2/token"
 
