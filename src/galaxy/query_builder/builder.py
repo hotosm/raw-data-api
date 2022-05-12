@@ -948,16 +948,7 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query = []
     
-    tags = None
-    attributes = None 
-    point_tag_filter = None
-    poly_tag_filter= None
-    line_tag_filter = None
-    master_tag_filter= None
-    point_attribute_filter=None
-    poly_attribute_filter= None
-    line_attribute_filter=None
-    master_attribute_filter=None
+    tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter=None,None,None,None,None,None,None,None,None,None
 
     point_select_condition=None
     line_select_condition=None
@@ -967,6 +958,8 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
     line_tag=None
     poly_tag=None
     master_tag=None
+    use_geomtype_in_relation=True
+
 
     query_table=[]
 
@@ -974,6 +967,7 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
     point_select_condition=select_condition #initializing default
     line_select_condition=select_condition
     poly_select_condition=select_condition
+
     if params.filters :
         tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter=extract_attributes_tags(params.filters)
     if attributes:
@@ -1035,16 +1029,21 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
             query_ways_line += f""" and ({line_tag})"""
         base_query.append(query_ways_line)
 
-        query_relations_line = f"""select
-            {line_select_condition}
-            from
-                relations
-            where
-                {geom_filter}"""
-        if line_tag:
-            query_relations_line += f""" and ({line_tag})"""
-        query_relations_line += f""" and (geometrytype(geom)='MULTILINESTRING')"""
-        base_query.append(query_relations_line)
+        if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
+            if poly_select_condition == line_select_condition and poly_tag == line_tag :
+                use_geomtype_in_relation=False
+                    
+        if use_geomtype_in_relation:
+            query_relations_line = f"""select
+                {line_select_condition}
+                from
+                    relations
+                where
+                    {geom_filter}"""
+            if line_tag:
+                query_relations_line += f""" and ({line_tag})"""
+            query_relations_line += f""" and (geometrytype(geom)='MULTILINESTRING')""" 
+            base_query.append(query_relations_line)
     
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
         if c_id:
@@ -1073,7 +1072,8 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
                 {geom_filter}"""
         if poly_tag:
             query_relations_poly += f""" and ({poly_tag})"""
-        query_relations_poly += f""" and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
+        if use_geomtype_in_relation:
+            query_relations_poly += f""" and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
         base_query.append(query_relations_poly)
 
     if ogr_export:
