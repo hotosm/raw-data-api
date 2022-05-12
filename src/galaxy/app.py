@@ -946,6 +946,7 @@ class RawData:
                 get_grid_id_query(geometry_dump))
         else:
             country_id = None
+        print(country_id)
         if self.params.output_type is None:
             # if nothing is supplied then default output type will be geojson
             output_type = RawDataOutputType.GEOJSON.value
