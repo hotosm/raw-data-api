@@ -601,10 +601,6 @@ def generate_organization_hashtag_reports(cur, params):
     # print(query)
     return query
 
-
-<<<<<<< HEAD
-def raw_historical_data_extraction_query(cur, conn, params):
-=======
 def generate_tm_validators_stats_query(cur, params):
     stmt = """WITH t1 as (SELECT user_id, project_id, count(id) AS cnt from task_history
     where action_text = 'VALIDATED' AND date_part('year', action_date) = %s group by user_id, project_id order by project_id)
@@ -657,8 +653,8 @@ def generate_list_teams_metadata():
     """
 
     return query
+
 def raw_historical_data_extraction_query(cur,conn,params):
->>>>>>> master
     geometry_dump = dumps(dict(params.geometry))
     geom_filter = f"ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"
     timestamp_filter = cur.mogrify(sql.SQL(
@@ -727,6 +723,8 @@ def raw_historical_data_extraction_query(cur,conn,params):
     return query
 
 
+# Rawdata extraction Block
+
 def get_grid_id_query(geometry_dump):
 
     base_query = f"""select
@@ -738,8 +736,6 @@ def get_grid_id_query(geometry_dump):
                         b.geom)"""
     return base_query
 
-
-# Rawdata extraction Block
 
 def get_query_as_geojson(query_list,ogr_export=None):
     table_base_query = []
@@ -1103,7 +1099,4 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
 def check_last_updated_rawdata():
     query = f"""select NOW()-importdate as last_updated from planet_osm_replication_status"""
     return query
-<<<<<<< HEAD
-=======
     
->>>>>>> master
