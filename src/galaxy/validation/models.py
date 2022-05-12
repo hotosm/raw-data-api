@@ -512,7 +512,7 @@ class RawDataCurrentParams(BaseModel):
     file_name : Optional[str]=None
     geometry : Polygon
     filters : Optional[dict]=None
-    geometry_type : Optional[List[GeometryTypeRawData]] = None
+    geometry_type : Optional[List[SupportedGeometryFilters]] = None
     
     @validator("filters", allow_reuse=True)
     def check_value(cls, value, values):
@@ -561,66 +561,66 @@ class RawDataCurrentParams(BaseModel):
         return value
 
 
-class RawDataCurrentoldParams(BaseModel):
-    output_type : Optional[RawDataOutputType]=None
-    file_name : Optional[str]=None
-    geometry : Polygon
-    osm_tags :  Optional[dict]=None #FIXMYNAME: may be we can rename it as master_filter
+# class RawDataCurrentoldParams(BaseModel):
+#     output_type : Optional[RawDataOutputType]=None
+#     file_name : Optional[str]=None
+#     geometry : Polygon
+#     osm_tags :  Optional[dict]=None #FIXMYNAME: may be we can rename it as master_filter
 
-# those blocks are added to support export tool requirement should be standarized
-    point_filter :  Optional[dict]=None 
-    line_filter :  Optional[dict]=None 
-    poly_filter :  Optional[dict]=None 
+# # those blocks are added to support export tool requirement should be standarized
+#     point_filter :  Optional[dict]=None 
+#     line_filter :  Optional[dict]=None 
+#     poly_filter :  Optional[dict]=None 
 
-    point_columns : Optional[List[str]]=None
-    line_columns : Optional[List[str]]=None
-    poly_columns : Optional[List[str]]=None
-# block end
+#     point_columns : Optional[List[str]]=None
+#     line_columns : Optional[List[str]]=None
+#     poly_columns : Optional[List[str]]=None
+# # block end
 
-    columns : Optional[List[str]]=None
-    osm_elements : Optional[List[OsmElementRawData]] = None
-    geometry_type : Optional[List[GeometryTypeRawData]] = None
+#     columns : Optional[List[str]]=None
+#     osm_elements : Optional[List[OsmElementRawData]] = None
+#     geometry_type : Optional[List[GeometryTypeRawData]] = None
     
-    @validator("osm_tags", allow_reuse=True)
-    def check_value(cls, value, values):
-        for key, v in value.items():
-            if isinstance(v, list):   
-                pass
-            else :
-                raise ValueError("Value should be of List Type")
-        return value
+#     @validator("osm_tags", allow_reuse=True)
+#     def check_value(cls, value, values):
+#         for key, v in value.items():
+#             if isinstance(v, list):   
+#                 pass
+#             else :
+#                 raise ValueError("Value should be of List Type")
+#         return value
 
-    @validator("geometry_type", always=True)    
-    def check_not_defined_fields(cls, value, values):
-        osm_elements = values.get("osm_elements")
-        if (value is None or len(value) == 0):
-                return None
-        if osm_elements:  
-            if (GeometryTypeRawData.POINT.value in value and OsmElementRawData.NODES.value in osm_elements) or (GeometryTypeRawData.LINESTRING.value in value and OsmElementRawData.WAYS.value in osm_elements) or (GeometryTypeRawData.POLYGON.value in value and OsmElementRawData.WAYS.value in osm_elements) or (OsmElementRawData.RELATIONS.value in osm_elements):
-                pass
-            else:
-                raise ValueError("Mapping between osm_elements and geometry_type is invalid") # since you can pass both we need validation for mapping between osm elements and geometry type . for eg : you can not search points in ways or in relation which does not make sense 
-        return value
+#     @validator("geometry_type", always=True)    
+#     def check_not_defined_fields(cls, value, values):
+#         osm_elements = values.get("osm_elements")
+#         if (value is None or len(value) == 0):
+#                 return None
+#         if osm_elements:  
+#             if (GeometryTypeRawData.POINT.value in value and OsmElementRawData.NODES.value in osm_elements) or (GeometryTypeRawData.LINESTRING.value in value and OsmElementRawData.WAYS.value in osm_elements) or (GeometryTypeRawData.POLYGON.value in value and OsmElementRawData.WAYS.value in osm_elements) or (OsmElementRawData.RELATIONS.value in osm_elements):
+#                 pass
+#             else:
+#                 raise ValueError("Mapping between osm_elements and geometry_type is invalid") # since you can pass both we need validation for mapping between osm elements and geometry type . for eg : you can not search points in ways or in relation which does not make sense 
+#         return value
 
-    @validator("osm_elements", always=True)    
-    def check_null_list(cls, value, values):
-        if (value is None or len(value) == 0):
-                return None
-        return value
+#     @validator("osm_elements", always=True)    
+#     def check_null_list(cls, value, values):
+#         if (value is None or len(value) == 0):
+#                 return None
+#         return value
     
-    @validator("geometry", always=True)
-    def check_geometry_area(cls, value, values):
-        area_m2 = area(json.loads(value.json()))
-        area_km2 = area_m2 * 1E-6
-        try :
-            RAWDATA_CURRENT_POLYGON_AREA=int(config.get("EXPORT_CONFIG", "max_area"))
-        except: 
-            RAWDATA_CURRENT_POLYGON_AREA=100000 
-        output_type = values.get("output_type")
-        if output_type:
-            if output_type is RawDataOutputType.MBTILES.value: # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
-                RAWDATA_CURRENT_POLYGON_AREA=2 # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it 
-        if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
-                raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
-        return value
+#     @validator("geometry", always=True)
+#     def check_geometry_area(cls, value, values):
+#         area_m2 = area(json.loads(value.json()))
+#         area_km2 = area_m2 * 1E-6
+#         try :
+#             RAWDATA_CURRENT_POLYGON_AREA=int(config.get("EXPORT_CONFIG", "max_area"))
+#         except: 
+#             RAWDATA_CURRENT_POLYGON_AREA=100000 
+#         output_type = values.get("output_type")
+#         if output_type:
+#             if output_type is RawDataOutputType.MBTILES.value: # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
+#                 RAWDATA_CURRENT_POLYGON_AREA=2 # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it 
+#         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
+#                 raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
+#         return value
 

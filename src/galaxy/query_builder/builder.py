@@ -17,12 +17,13 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+from doctest import master
 from itertools import filterfalse
 from numpy import poly
 from psycopg2 import sql
 from json import dumps
 import re
-from ..validation.models import Frequency, OsmElementRawData, GeometryTypeRawData as geomtype
+from ..validation.models import Frequency, OsmElementRawData, GeometryTypeRawData as geomtype , SupportedFilters, SupportedGeometryFilters
 HSTORE_COLUMN = "tags"
 
 
@@ -729,27 +730,27 @@ def create_column_filter(columns, create_schema=False):
     return select_condition
 
 
-def create_attribute_filter(filter):
-    """Generates attribute filter for rawdata extraction"""
-    incoming_filter = []
-    for key, value in filter.items():
-        if len(value) > 1:
-            v_l = []
-            for l in value:
-                v_l.append(f""" '{l.strip()}' """)
-            v_l_join = " , ".join(v_l)
-            value_tuple = f"""({v_l_join})"""
+def generate_tag_filter_query(filter):
+        incoming_filter = []
+        for key, value in filter.items():
 
-            k = f""" '{key.strip()}' """
-            incoming_filter.append(
-                """tags ->> """+k+"""IN """+value_tuple+"""""")
-        elif len(value) == 1:
-            incoming_filter.append(
-                f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
-        else:
-            incoming_filter.append(f"""tags ? '{key.strip()}'""")
-    attribute_filter = " OR ".join(incoming_filter)
-    return attribute_filter
+            if len(value) > 1:
+                v_l = []
+                for l in value:
+                    v_l.append(f""" '{l.strip()}' """)
+                v_l_join = " , ".join(v_l)
+                value_tuple = f"""({v_l_join})"""
+
+                k = f""" '{key.strip()}' """
+                incoming_filter.append(
+                    """tags ->> """+k+"""IN """+value_tuple+"""""")
+            elif len(value) == 1:
+                incoming_filter.append(
+                    f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+            else:
+                incoming_filter.append(f"""tags ? '{key.strip()}'""")
+        tag_filter = " OR ".join(incoming_filter)
+        return tag_filter
 
 
 def extract_geometry_type_query(params,ogr_export=False):
@@ -766,7 +767,7 @@ def extract_geometry_type_query(params,ogr_export=False):
         select_condition, schema = create_column_filter(
             params.columns, create_schema=True)
     if params.osm_tags:
-        attribute_filter = create_attribute_filter(params.osm_tags)
+        attribute_filter = generate_tag_filter_query(params.osm_tags)
     if params.geometry_type is None : # fix me 
         params.geometry_type=['point', 'linestring', 'polygon']
 
@@ -782,7 +783,7 @@ def extract_geometry_type_query(params,ogr_export=False):
                         where
                             {geom_filter}"""
             if params.point_filter:
-                attribute_filter = create_attribute_filter(params.point_filter)
+                attribute_filter = generate_tag_filter_query(params.point_filter)
             if attribute_filter:
                 query_point += f""" and ({attribute_filter})"""
             point_schema = schema
@@ -807,7 +808,7 @@ def extract_geometry_type_query(params,ogr_export=False):
                 where
                     {geom_filter}"""
             if params.line_filter:
-                attribute_filter = create_attribute_filter(params.line_filter)
+                attribute_filter = generate_tag_filter_query(params.line_filter)
             if attribute_filter:
                 query_ways_line += f""" and ({attribute_filter})"""
                 query_relations_line += f""" and ({attribute_filter})"""
@@ -835,7 +836,7 @@ def extract_geometry_type_query(params,ogr_export=False):
                 where
                     {geom_filter}"""
             if params.poly_filter:
-                attribute_filter = create_attribute_filter(params.poly_filter)
+                attribute_filter = generate_tag_filter_query(params.poly_filter)
             if attribute_filter:
                 query_ways_poly += f""" and ({attribute_filter})"""
                 query_relations_poly += f""" and ({attribute_filter})"""
@@ -846,193 +847,189 @@ def extract_geometry_type_query(params,ogr_export=False):
             poly_schema = schema
     return query_point, query_line, query_poly, point_schema, line_schema, poly_schema
 
+def extract_attributes_tags(filters):
+    tags = None
+    attributes = None 
+    point_tag_filter = None
+    poly_tag_filter= None
+    line_tag_filter = None
+    master_tag_filter= None
+    point_attribute_filter=None
+    poly_attribute_filter= None
+    line_attribute_filter=None
+    master_attribute_filter=None
+    if filters :
+        for key,value in filters.items():
+            if key == SupportedFilters.TAGS.value:
+                if value :
+                    tags=value
+                    for k,v in value.items() :
+                        if k ==SupportedGeometryFilters.POINT.value:
+                            point_tag_filter=v
+                        if k == SupportedGeometryFilters.LINE.value:
+                            line_tag_filter=v
+                        if k == SupportedGeometryFilters.POLYGON.value:
+                            poly_tag_filter = v
+                        if k == SupportedGeometryFilters.ALLGEOM.value:
+                            master_tag_filter=v
+            if key == SupportedFilters.ATTRIBUTES.value:
+                if value :
+                    attributes=value
+                    for k,v in value.items():
+                        if k ==SupportedGeometryFilters.POINT.value:
+                            point_attribute_filter=v
+                        if k == SupportedGeometryFilters.LINE.value:
+                            line_attribute_filter=v
+                        if k == SupportedGeometryFilters.POLYGON.value:
+                            poly_attribute_filter = v
+                        if k == SupportedGeometryFilters.ALLGEOM.value:
+                            master_attribute_filter=v
+        
+    return tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter
+
 
 def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr_export=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query = []
-    relation_geom = []
-    attribute_filter = None
+    
+    tags = None
+    attributes = None 
+    point_tag_filter = None
+    poly_tag_filter= None
+    line_tag_filter = None
+    master_tag_filter= None
+    point_attribute_filter=None
+    poly_attribute_filter= None
+    line_attribute_filter=None
+    master_attribute_filter=None
+
+    point_select_condition=None
+    line_select_condition=None
+    poly_select_condition=None 
+
+    point_tag=None
+    line_tag=None
+    poly_tag=None
+
+    query_table=[]
 
     select_condition = f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
-    if params.columns:
-        if len(params.columns) > 0:
-            filter_col = []
-            filter_col.append('osm_id')
-            for cl in params.columns:
-                if cl != '':
-                    filter_col.append(
-                        f"""tags ->> '{cl.strip()}' as {cl.strip()}""")
-            filter_col.append('geom')
-            select_condition = " , ".join(filter_col)
-    if params.osm_tags:
-        filter = params.osm_tags
+    point_select_condition=select_condition #initializing default
+    line_select_condition=select_condition
+    poly_select_condition=select_condition
+    if params.filters :
+        tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter=extract_attributes_tags(params.filters)
+    if attributes:
+        if master_attribute_filter :
+            if len(master_attribute_filter) > 0:
+                select_condition=create_column_filter(master_attribute_filter)
+                point_select_condition=select_condition # if master attribute is supplied it will be applied to other geom type as well even though value is supplied they will be ignored
+                line_select_condition=select_condition
+                poly_select_condition=select_condition
+        else :
+            if point_attribute_filter:
+                if len(point_attribute_filter)>0:
+                    point_select_condition=create_column_filter(point_attribute_filter)
+            if line_attribute_filter:
+                if len(line_attribute_filter)>0:
+                    line_select_condition=create_column_filter(line_attribute_filter)
+            if poly_attribute_filter:
+                if len(line_attribute_filter)>0:
+                    poly_select_condition=create_column_filter(point_attribute_filter)
+    if tags:
+        if master_tag_filter: # if master tag is supplied then other tags should be ignored and master tag will be used
+            master_tag=generate_tag_filter_query(master_tag_filter)
+            point_tag=master_tag
+            line_tag=master_tag
+            poly_tag=master_tag
+        else:
+            if point_tag_filter:
+                point_tag=generate_tag_filter_query(point_tag_filter)
+            if line_tag_filter:
+                line_tag=generate_tag_filter_query(line_tag_filter)
+            if poly_tag_filter:
+                poly_tag=generate_tag_filter_query(poly_tag_filter)
 
-        incoming_filter = []
-        for key, value in filter.items():
-
-            if len(value) > 1:
-                v_l = []
-                for l in value:
-                    v_l.append(f""" '{l.strip()}' """)
-                v_l_join = " , ".join(v_l)
-                value_tuple = f"""({v_l_join})"""
-
-                k = f""" '{key.strip()}' """
-                incoming_filter.append(
-                    """tags ->> """+k+"""IN """+value_tuple+"""""")
-            elif len(value) == 1:
-                incoming_filter.append(
-                    f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
-            else:
-                incoming_filter.append(f"""tags ? '{key.strip()}'""")
-        attribute_filter = " OR ".join(incoming_filter)
-
-    if params.osm_elements is None and params.geometry_type is None:
-        params.osm_elements = ['nodes', 'ways_line', 'ways_poly', 'relations']
-
-    if params.osm_elements is not None and params.geometry_type is not None:
-        if geomtype.POINT.value in params.geometry_type and OsmElementRawData.NODES.value in params.osm_elements:
+# condition for geometry types 
+    if params.geometry_type is None :
+        params.geometry_type=["all_geometry"]
+    if SupportedGeometryFilters.ALLGEOM.value in params.geometry_type:
+        query_table=["nodes","ways_line","ways_poly","relations"]
+        for table in query_table:
+            query = f"""select
+                            {select_condition}
+                            from
+                                {table}
+                            where
+                                {geom_filter}"""
+            if master_tag:
+                query += f""" and ({master_tag})"""
+            base_query.append(query)
+    else:
+        if SupportedGeometryFilters.POINT.value in params.geometry_type :
             query_point = f"""select
-                        {select_condition}
+                        {point_select_condition}
                         from
                             nodes
                         where
                             {geom_filter}"""
-            if attribute_filter:
-                query_point += f""" and ({attribute_filter})"""
+            if point_tag:
+                query_point += f""" and ({point_tag})"""
             base_query.append(query_point)
 
-        if geomtype.LINESTRING.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
+        if SupportedGeometryFilters.LINE.value in params.geometry_type:
             query_ways_line = f"""select
-                {select_condition}
+                {line_select_condition}
                 from
                     ways_line
                 where
                     {geom_filter}"""
-            if attribute_filter:
-                query_ways_line += f""" and ({attribute_filter})"""
+            if line_tag:
+                query_ways_line += f""" and ({line_tag})"""
             base_query.append(query_ways_line)
 
-        if geomtype.POLYGON.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
-            if c_id:  # grid logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for
+            query_relations_line = f"""select
+                {line_select_condition}
+                from
+                    relations
+                where
+                    {geom_filter}"""
+            if line_tag:
+                query_relations_line += f""" and ({line_tag})"""
+            query_relations_line += f""" and (geometrytype(geom)='MULTILINESTRING')"""
+            base_query.append(query_relations_line)
+        
+        if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
+            if c_id:
                 grid_filter_base = [
                     f"""grid = {ind[0]}""" for ind in c_id]
                 grid_filter = " OR ".join(grid_filter_base)
                 where_clause = f"""({grid_filter}) and {geom_filter}"""
             else:
                 where_clause = f"""{geom_filter}"""
-            query_poly = f"""select
-                {select_condition}
+            query_ways_poly = f"""select
+                {poly_select_condition}
                 from
                     ways_poly
                 where
-                {where_clause}"""
-            if attribute_filter:
-                query_poly += f""" and ({attribute_filter})"""
-            base_query.append(query_poly)
-
-        if OsmElementRawData.RELATIONS.value in params.osm_elements:
-
-            for tp in params.geometry_type:
-                relation_geom.append(f"""geometrytype(geom)='{tp.upper()}'""")
-            query_relation = f"""select
+                    {where_clause}"""
+            if poly_tag :
+                query_ways_poly += f""" and ({poly_tag})"""
+            base_query.append(query_ways_poly)
+            
+            
+            query_relations_poly = f"""select
                 {select_condition}
                 from
                     relations
                 where
                     {geom_filter}"""
-            if all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value, geomtype.POLYGON.value]) is False:
-                join_relation_geom = " or ".join(relation_geom)
-                query_relation += f""" and ( {join_relation_geom} )"""
-            if attribute_filter:
-                query_relation += f""" and ({attribute_filter})"""
-            base_query.append(query_relation)
+            if poly_tag:
+                query_relations_poly += f""" and ({poly_tag})"""
+            query_relations_poly += f""" and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
+            base_query.append(query_relations_poly)
 
-    if params.osm_elements and params.geometry_type is None:
-        if len(params.osm_elements) > 0:
-            # converting ways to ways_line and ways_poly since we store them in two different tables
-            if OsmElementRawData.WAYS.value in params.osm_elements:
-                params.osm_elements.remove(OsmElementRawData.WAYS.value)
-                params.osm_elements.append('ways_poly')
-                params.osm_elements.append('ways_line')
-
-            for type in params.osm_elements:
-                if type == 'ways_poly' and c_id:
-                    grid_filter_base = [
-                        f"""grid = {ind[0]}""" for ind in c_id]
-                    grid_filter = " OR ".join(grid_filter_base)
-                    where_clause = f"""({grid_filter}) and {geom_filter}"""
-                else:
-                    where_clause = f"""{geom_filter}"""
-                query = f"""select
-                    {select_condition}
-                    from
-                        {type}
-                    where
-                        {where_clause}"""
-                if attribute_filter:
-                    query += f""" and ({attribute_filter})"""
-                base_query.append(query)
-
-    if params.geometry_type and params.osm_elements is None:
-        if len(params.geometry_type) > 0:
-            for type in params.geometry_type:
-
-                if type is geomtype.POINT.value:
-                    query_point = f"""select
-                        {select_condition}
-                        from
-                            nodes
-                        where
-                            {geom_filter}"""
-                    if attribute_filter:
-                        query_point += f""" and ({attribute_filter})"""
-                    base_query.append(query_point)
-
-                elif type is geomtype.LINESTRING.value:
-                    query_ways_line = f"""select
-                        {select_condition}
-                        from
-                            ways_line
-                        where
-                            {geom_filter}"""
-                    if attribute_filter:
-                        query_ways_line += f""" and ({attribute_filter})"""
-                    base_query.append(query_ways_line)
-                else:
-                    if type is geomtype.POLYGON.value:
-                        if c_id:  # grid logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for
-                            grid_filter_base = [
-                                f"""grid = {ind[0]}""" for ind in c_id]
-                            grid_filter = " OR ".join(grid_filter_base)
-                            where_clause = f"""({grid_filter}) and {geom_filter}"""
-                        else:
-                            where_clause = f"""{geom_filter}"""
-                        query_poly = f"""select
-                            {select_condition}
-                            from
-                                ways_poly
-                            where
-                            {where_clause}"""
-                        if attribute_filter:
-                            query_poly += f""" and ({attribute_filter})"""
-                        base_query.append(query_poly)
-                    relation_geom.append(
-                        f"""geometrytype(geom)='{type.upper()}'""")
-            if len(relation_geom) != 0:
-                query_relation = f"""select
-                    {select_condition}
-                    from
-                        relations
-                    where
-                        {geom_filter}"""
-                if all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value, geomtype.POLYGON.value]) is False:
-                    join_relation_geom = " or ".join(relation_geom)
-                    query_relation += f""" and ( {join_relation_geom} )"""
-                if attribute_filter:
-                    query_relation += f""" and ({attribute_filter})"""
-                base_query.append(query_relation)
     if ogr_export:
         # since query will be different for ogr exports and geojson exports because for ogr exports we don't need to grab each row in geojson
         table_base_query = base_query
@@ -1042,9 +1039,7 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
             table_base_query.append(
                 f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")
     final_query = " UNION ALL ".join(table_base_query)
-
-    return final_query
-
+    return final_query         
 
 def check_last_updated_rawdata():
     query = f"""select NOW()-importdate as last_updated from planet_osm_replication_status"""
