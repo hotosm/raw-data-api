@@ -827,7 +827,7 @@ def extract_geometry_type_query(params,ogr_export=False):
         params.geometry_type=['point', 'line', 'polygon']
 
     for type in params.geometry_type:
-        if type is SupportedGeometryFilters.POINT.value:
+        if type == SupportedGeometryFilters.POINT.value:
             if point_attribute_filter:
                 select_condition, schema = create_column_filter(
                     point_attribute_filter, create_schema=True)
@@ -845,7 +845,7 @@ def extract_geometry_type_query(params,ogr_export=False):
 
             query_point = get_query_as_geojson([query_point],ogr_export=ogr_export)
 
-        if type is SupportedGeometryFilters.LINE.value:
+        if type == SupportedGeometryFilters.LINE.value:
             query_line_list = []
             if line_attribute_filter:
                 select_condition, schema = create_column_filter(
@@ -873,7 +873,7 @@ def extract_geometry_type_query(params,ogr_export=False):
             query_line = get_query_as_geojson(query_line_list,ogr_export=ogr_export)
             line_schema = schema
 
-        if type is SupportedGeometryFilters.POLYGON.value:
+        if type == SupportedGeometryFilters.POLYGON.value:
             query_poly_list = []
             if poly_attribute_filter:
                 select_condition, schema = create_column_filter(
