@@ -763,38 +763,41 @@ def extract_geometry_type_query(params,ogr_export=False):
     query_point, query_line, query_poly = None, None, None
     attribute_filter = None
     point_schema, line_schema, poly_schema = None, None, None
-    if params.columns:  # if no specific point , line or poly filter is not passed master columns filter will be used , if master columns is also empty then above default select statement will be used
+    if params.filters:
+        tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter=extract_attributes_tags(params.filters)
+
+    if master_attribute_filter:  # if no specific point , line or poly filter is not passed master columns filter will be used , if master columns is also empty then above default select statement will be used
         select_condition, schema = create_column_filter(
-            params.columns, create_schema=True)
-    if params.osm_tags:
-        attribute_filter = generate_tag_filter_query(params.osm_tags)
+            master_attribute_filter, create_schema=True)
+    if master_tag_filter :
+        attribute_filter = generate_tag_filter_query(master_tag_filter)
     if params.geometry_type is None : # fix me 
-        params.geometry_type=['point', 'linestring', 'polygon']
+        params.geometry_type=['point', 'line', 'polygon']
 
     for type in params.geometry_type:
-        if type is geomtype.POINT.value:
-            if params.point_columns:
+        if type is SupportedGeometryFilters.POINT.value:
+            if point_attribute_filter:
                 select_condition, schema = create_column_filter(
-                    params.point_columns, create_schema=True)
+                    point_attribute_filter, create_schema=True)
             query_point = f"""select
                         {select_condition}
                         from
                             nodes
                         where
                             {geom_filter}"""
-            if params.point_filter:
-                attribute_filter = generate_tag_filter_query(params.point_filter)
+            if point_tag_filter:
+                attribute_filter = generate_tag_filter_query(point_tag_filter)
             if attribute_filter:
                 query_point += f""" and ({attribute_filter})"""
             point_schema = schema
 
             query_point = get_query_as_geojson([query_point],ogr_export=ogr_export)
 
-        if type is geomtype.LINESTRING.value:
+        if type is SupportedGeometryFilters.LINE.value:
             query_line_list = []
-            if params.line_columns:
+            if line_attribute_filter:
                 select_condition, schema = create_column_filter(
-                    params.line_columns, create_schema=True)
+                    line_attribute_filter, create_schema=True)
             query_ways_line = f"""select
                 {select_condition}
                 from
@@ -807,8 +810,8 @@ def extract_geometry_type_query(params,ogr_export=False):
                     relations
                 where
                     {geom_filter}"""
-            if params.line_filter:
-                attribute_filter = generate_tag_filter_query(params.line_filter)
+            if line_tag_filter:
+                attribute_filter = generate_tag_filter_query(line_tag_filter)
             if attribute_filter:
                 query_ways_line += f""" and ({attribute_filter})"""
                 query_relations_line += f""" and ({attribute_filter})"""
@@ -818,11 +821,11 @@ def extract_geometry_type_query(params,ogr_export=False):
             query_line = get_query_as_geojson(query_line_list,ogr_export=ogr_export)
             line_schema = schema
 
-        if type is geomtype.POLYGON.value:
+        if type is SupportedGeometryFilters.POLYGON.value:
             query_poly_list = []
-            if params.poly_columns:
+            if poly_attribute_filter:
                 select_condition, schema = create_column_filter(
-                    params.poly_columns, create_schema=True)
+                    poly_attribute_filter, create_schema=True)
             query_ways_poly = f"""select
                 {select_condition}
                 from
@@ -835,8 +838,8 @@ def extract_geometry_type_query(params,ogr_export=False):
                     relations
                 where
                     {geom_filter}"""
-            if params.poly_filter:
-                attribute_filter = generate_tag_filter_query(params.poly_filter)
+            if poly_tag_filter:
+                attribute_filter = generate_tag_filter_query(poly_tag_filter)
             if attribute_filter:
                 query_ways_poly += f""" and ({attribute_filter})"""
                 query_relations_poly += f""" and ({attribute_filter})"""
