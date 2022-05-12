@@ -1,38 +1,31 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from configparser import ConfigParser
-import os
-import json
+
+CONFIG_FILE_PATH = "src/config.txt"
+
 config = ConfigParser()
-config.read("src/config.txt")
+config.read(CONFIG_FILE_PATH)
 
-def get_db_connection_params(dbIdentifier) -> dict:
-    if dbIdentifier == "INSIGHTS":
-        return dict(config.items("INSIGHTS"))
-    
-    if dbIdentifier == "TM":
-        return dict(config.items("TM"))
+def get_db_connection_params(dbIdentifier: str) -> dict:
+    """Return a python dict that can be passed to psycopg2 connections
+    to authenticate to Postgres Databases
 
-    json_env = os.getenv("POSTGRES_CONNECTION_PARAMS")
-#     del json_env["dbinstanceidentifier"] # disabled for now to get it working , need to find it's relevance and better way to use it 
-#     del json_env["engine"]
+    Params: dbIdentifier: Section name of the INI config file containing
+            database connection parameters
 
-    if json_env is not None:
-        return json.loads(json_env)
+    Returns: connection_params (dict): PostgreSQL connection parameters
+             corresponding to the configuration section.
 
-    """TODO: Use libpq friendly envvars
-    https://www.postgresql.org/docs/current/static/libpq-envars.html
-
-    PGHOST, PGUSER, PGPASSWORD, PGPORT, PGDATABASE
     """
 
-    connection_params = {
-        "POSTGRES_USER": os.getenv("POSTGRES_USER"),
-        "POSTGRES_PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "POSTGRES_HOST": os.getenv("POSTGRES_HOST"),
-        "POSTGRES_PORT": os.getenv("POSTGRES_PORT"),
-        "POSTGRES_DATABASE": os.getenv("POSTGRES_DATABASE")
-    }
+    ALLOWED_SECTION_NAMES = ('INSIGHTS', 'TM', 'UNDERPASS')
 
-    if None in connection_params.values():
-        return dict(config.items("UNDERPASS"))
+    if dbIdentifier not in ALLOWED_SECTION_NAMES:
+        print(f"Invalid dbIdentifier. Pick one of {ALLOWED_SECTION_NAMES}")
+        return None
+
+    connection_params = dict(config.items(dbIdentifier))
 
     return connection_params

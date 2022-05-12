@@ -415,6 +415,12 @@ class OrganizationHashtag(BaseModel):
     total_unique_contributors : int
     total_new_road_meters : int 
 
+
+class TeamMemberFunction(Enum):
+    """Describes the function a member can hold within a team"""
+
+    MANAGER = 1
+    MEMBER = 2
 class RawDataOutputType ( Enum):
     GEOJSON ="GeoJSON"
     KML = "KML"
@@ -560,6 +566,7 @@ class RawDataCurrentParams(BaseModel):
                 raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
         return value
 
+<<<<<<< HEAD
 
 # class RawDataCurrentoldParams(BaseModel):
 #     output_type : Optional[RawDataOutputType]=None
@@ -624,3 +631,10 @@ class RawDataCurrentParams(BaseModel):
 #                 raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
 #         return value
 
+=======
+class UserRole(Enum):
+    ADMIN = 1
+    STAFF = 2
+    NONE = 3
+    
+>>>>>>> master
