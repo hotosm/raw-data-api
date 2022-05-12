@@ -966,6 +966,7 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
     point_tag=None
     line_tag=None
     poly_tag=None
+    master_tag=None
 
     query_table=[]
 
@@ -986,6 +987,7 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
             if point_attribute_filter:
                 if len(point_attribute_filter)>0:
                     point_select_condition=create_column_filter(point_attribute_filter)
+                    print("I am point select condition")           
             if line_attribute_filter:
                 if len(line_attribute_filter)>0:
                     line_select_condition=create_column_filter(line_attribute_filter)
@@ -1007,83 +1009,72 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
                 poly_tag=generate_tag_filter_query(poly_tag_filter)
 
 # condition for geometry types 
-    if params.geometry_type is None :
-        params.geometry_type=["all_geometry"]
+    if params.geometry_type is None : 
+        params.geometry_type=["point","line","polygon"]
     if SupportedGeometryFilters.ALLGEOM.value in params.geometry_type:
-        query_table=["nodes","ways_line","ways_poly","relations"]
-        for table in query_table:
-            query = f"""select
-                            {select_condition}
-                            from
-                                {table}
-                            where
-                                {geom_filter}"""
-            if master_tag:
-                query += f""" and ({master_tag})"""
-            base_query.append(query)
-    else:
-        if SupportedGeometryFilters.POINT.value in params.geometry_type :
-            query_point = f"""select
-                        {point_select_condition}
-                        from
-                            nodes
-                        where
-                            {geom_filter}"""
-            if point_tag:
-                query_point += f""" and ({point_tag})"""
-            base_query.append(query_point)
+        params.geometry_type=["point","line","polygon"]
+    if SupportedGeometryFilters.POINT.value in params.geometry_type :
+        query_point = f"""select
+                    {point_select_condition}
+                    from
+                        nodes
+                    where
+                        {geom_filter}"""
+        if point_tag:
+            query_point += f""" and ({point_tag})"""
+        base_query.append(query_point)
 
-        if SupportedGeometryFilters.LINE.value in params.geometry_type:
-            query_ways_line = f"""select
-                {line_select_condition}
-                from
-                    ways_line
-                where
-                    {geom_filter}"""
-            if line_tag:
-                query_ways_line += f""" and ({line_tag})"""
-            base_query.append(query_ways_line)
+    if SupportedGeometryFilters.LINE.value in params.geometry_type:
+        query_ways_line = f"""select
+            {line_select_condition}
+            from
+                ways_line
+            where
+                {geom_filter}"""
+        if line_tag:
+            query_ways_line += f""" and ({line_tag})"""
+        base_query.append(query_ways_line)
 
-            query_relations_line = f"""select
-                {line_select_condition}
-                from
-                    relations
-                where
-                    {geom_filter}"""
-            if line_tag:
-                query_relations_line += f""" and ({line_tag})"""
-            query_relations_line += f""" and (geometrytype(geom)='MULTILINESTRING')"""
-            base_query.append(query_relations_line)
+        query_relations_line = f"""select
+            {line_select_condition}
+            from
+                relations
+            where
+                {geom_filter}"""
+        if line_tag:
+            query_relations_line += f""" and ({line_tag})"""
+        query_relations_line += f""" and (geometrytype(geom)='MULTILINESTRING')"""
+        base_query.append(query_relations_line)
+    
+    if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
+        if c_id:
+            grid_filter_base = [
+                f"""grid = {ind[0]}""" for ind in c_id]
+            grid_filter = " OR ".join(grid_filter_base)
+            where_clause = f"""({grid_filter}) and {geom_filter}"""
+        else:
+            where_clause = f"""{geom_filter}"""
+        query_ways_poly = f"""select
+            {poly_select_condition}
+            from
+                ways_poly
+            where
+                {where_clause}"""
+        if poly_tag :
+            query_ways_poly += f""" and ({poly_tag})"""
+        base_query.append(query_ways_poly)
         
-        if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
-            if c_id:
-                grid_filter_base = [
-                    f"""grid = {ind[0]}""" for ind in c_id]
-                grid_filter = " OR ".join(grid_filter_base)
-                where_clause = f"""({grid_filter}) and {geom_filter}"""
-            else:
-                where_clause = f"""{geom_filter}"""
-            query_ways_poly = f"""select
-                {poly_select_condition}
-                from
-                    ways_poly
-                where
-                    {where_clause}"""
-            if poly_tag :
-                query_ways_poly += f""" and ({poly_tag})"""
-            base_query.append(query_ways_poly)
-            
-            
-            query_relations_poly = f"""select
-                {select_condition}
-                from
-                    relations
-                where
-                    {geom_filter}"""
-            if poly_tag:
-                query_relations_poly += f""" and ({poly_tag})"""
-            query_relations_poly += f""" and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
-            base_query.append(query_relations_poly)
+        
+        query_relations_poly = f"""select
+            {select_condition}
+            from
+                relations
+            where
+                {geom_filter}"""
+        if poly_tag:
+            query_relations_poly += f""" and ({poly_tag})"""
+        query_relations_poly += f""" and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
+        base_query.append(query_relations_poly)
 
     if ogr_export:
         # since query will be different for ogr exports and geojson exports because for ogr exports we don't need to grab each row in geojson
