@@ -34,6 +34,7 @@ password=
 database=galaxy
 port=
 
+
 [RAW_DATA]
 host=localhost
 user=admin
@@ -46,3 +47,16 @@ path=exports/
 api_host=127.0.0.1
 api_port=8000
 max_area=100000
+
+[TM]
+host=
+user=
+password=
+host=
+port=
+
+[SENTRY]
+url=https://apikey.ingest.sentry.io/appid
+rate=1.0
+
+
