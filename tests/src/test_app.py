@@ -539,7 +539,7 @@ def test_rawdata_current_snapshot_geometry_query() :
                 relations
             where
                 ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t3"""
-    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)),100)
+    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)))
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
 
 def test_rawdata_current_snapshot_normal_query() :
@@ -595,7 +595,7 @@ def test_rawdata_current_snapshot_normal_query() :
                 relations
             where
                 ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t3"""
-    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)),100)
+    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)))
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
      
 def test_attribute_filter_rawdata() :
@@ -622,7 +622,7 @@ def test_attribute_filter_rawdata() :
                 relations
             where
                 ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [83.502574, 27.569073]]], "type": "Polygon"}'), geom) and (tags ->> 'building' = 'yes') and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')) t3"""
-    query_result=raw_currentdata_extraction_query(validated_params,[[1187],[1188]],dumps(dict(validated_params.geometry)),5500)
+    query_result=raw_currentdata_extraction_query(validated_params,[[1187],[1188]],dumps(dict(validated_params.geometry)))
     print("result \n")
     print(query_result)
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
