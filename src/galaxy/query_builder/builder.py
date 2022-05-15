@@ -943,7 +943,7 @@ def extract_attributes_tags(filters):
     return tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter
 
 
-def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr_export=False):
+def raw_currentdata_extraction_query(params, c_id, geometry_dump, ogr_export=False,select_all=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query = []
@@ -962,8 +962,10 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, geom_area, ogr
 
 
     query_table=[]
-
-    select_condition = f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    if select_all:
+        select_condition = f"""*"""
+    else:    
+        select_condition = f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     point_select_condition=select_condition #initializing default
     line_select_condition=select_condition
     poly_select_condition=select_condition
