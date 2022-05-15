@@ -729,10 +729,35 @@ class RawData:
     -Osm element type (Optional)
     """
 
-    def __init__(self, params: HashtagParams = None):
+    def __init__(self, params: RawDataCurrentParams,dbdict=None):
         self.params = params
-        self.db = Database(dict(config.items("RAW_DATA")))
+        if dbdict is None :
+            self.db = Database(dict(config.items("RAW_DATA")))
+        else :
+            self.db = Database(dict(dbdict))
+
         self.con, self.cur = self.db.connect()
+
+    @staticmethod
+    def to_db_table(self,table_query,db_connection_params):
+        """Takes Target table query which could be insert or update based on user requirement and db_connection_param for target table"""
+        target_db = Database(dict(db_connection_params))
+        #options="-c search_path=schema_name" can be used for defining schema in dict
+        target_con, target_cur = target_db.connect()
+        g_id,geom_dump=RawData.get_grid_id(self.params.geometry)
+        
+        extraction_query=raw_currentdata_extraction_query(self.params, g_id, geom_dump,select_all=True)
+        
+        with self.con.cursor(name='fetch_raw_for_target') as cursor:  # using server side cursor
+            cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
+            cursor.execute(extraction_query)
+            for row in cursor:
+                target_cur.execute(table_query)
+                target_con.commit()
+            cursor.close()  # closing connection to avoid memory issues
+        self.con.close()
+        target_cur.close()
+        target_con.close()
 
     @staticmethod
     def to_geojson(results):
@@ -929,6 +954,18 @@ class RawData:
         con.close()
 
         return file_paths
+    
+    @staticmethod
+    def get_grid_id(self,geom):
+        geometry_dump = dumps(dict(geom))
+        geom_area = int(area(json.loads(geom.json())) * 1E-6)
+        if geom_area > 5000:
+            # this will be applied only when polygon gets bigger we will be slicing index size to search
+            grid_id = self.db.executequery(
+                get_grid_id_query(geometry_dump))
+        else:
+            grid_id = None
+        return grid_id, geometry_dump,geom_area
 
     def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump 
@@ -938,15 +975,7 @@ class RawData:
         Returns:
             _file_path_: geojson file location path
         """
-        geometry_dump = dumps(dict(self.params.geometry))
-        geom_area = int(area(json.loads(self.params.geometry.json())) * 1E-6)
-        if geom_area > 5000:
-            # this will be applied only when polygon gets bigger we will be slicing index size to search
-            country_id = self.db.executequery(
-                get_grid_id_query(geometry_dump))
-        else:
-            country_id = None
-        print(country_id)
+        geometry_dump,grid_id,geom_area=RawData.get_grid_id(self.params.geometry)
         if self.params.output_type is None:
             # if nothing is supplied then default output type will be geojson
             output_type = RawDataOutputType.GEOJSON.value
@@ -968,7 +997,7 @@ class RawData:
         # currently we have only geojson binding function written other than that we have depend on ogr
         if output_type is RawDataOutputType.GEOJSON.value:
             RawData.query2geojson(self.con, raw_currentdata_extraction_query(
-                self.params, country_id, geometry_dump, geom_area), dump_temp_file_path)  # uses own conversion class
+                self.params, grid_id, geometry_dump), dump_temp_file_path)  # uses own conversion class
         elif output_type is RawDataOutputType.SHAPEFILE.value:
             point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
                 self.params,ogr_export=True)
@@ -977,8 +1006,7 @@ class RawData:
             # filepaths = RawData.query2shapefile(self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path) #using fiona
             return filepaths, geom_area
         else:
-            filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, country_id, geometry_dump,
-                               geom_area, True), export_path=dump_temp_file_path, outputtype=output_type)  # uses ogr export to export
+            filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True), export_path=dump_temp_file_path, outputtype=output_type)  # uses ogr export to export
             
         return [dump_temp_file_path], geom_area
 
