@@ -729,8 +729,12 @@ class RawData:
     -Osm element type (Optional)
     """
 
-    def __init__(self, params: RawDataCurrentParams,dbdict=None):
-        self.params = params
+    def __init__(self, parameters,dbdict=None):
+        if type(parameters) is not RawDataCurrentParams:
+            self.params = RawDataCurrentParams(**parameters)
+        else :
+            self.params=parameters
+
         if dbdict is None :
             self.db = Database(dict(config.items("RAW_DATA")))
         else :
@@ -738,26 +742,16 @@ class RawData:
 
         self.con, self.cur = self.db.connect()
 
-    @staticmethod
-    def to_db_table(self,table_query,db_connection_params):
-        """Takes Target table query which could be insert or update based on user requirement and db_connection_param for target table"""
-        target_db = Database(dict(db_connection_params))
+    def get_query_con(self):
+        """Provides Query and connection to user so that they can perform query by themselves"""
         #options="-c search_path=schema_name" can be used for defining schema in dict
-        target_con, target_cur = target_db.connect()
-        g_id,geom_dump=RawData.get_grid_id(self.params.geometry)
+      
+        g_id,geom_dump,geom_area=RawData.get_grid_id(self.params.geometry,self.db)
         
-        extraction_query=raw_currentdata_extraction_query(self.params, g_id, geom_dump,select_all=True)
+        extraction_query=raw_currentdata_extraction_query(self.params, g_id, geom_dump,ogr_export=True)
         
-        with self.con.cursor(name='fetch_raw_for_target') as cursor:  # using server side cursor
-            cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
-            cursor.execute(extraction_query)
-            for row in cursor:
-                target_cur.execute(table_query)
-                target_con.commit()
-            cursor.close()  # closing connection to avoid memory issues
-        self.con.close()
-        target_cur.close()
-        target_con.close()
+        return self.con,extraction_query
+
 
     @staticmethod
     def to_geojson(results):
@@ -956,12 +950,12 @@ class RawData:
         return file_paths
     
     @staticmethod
-    def get_grid_id(self,geom):
+    def get_grid_id(geom,db):
         geometry_dump = dumps(dict(geom))
         geom_area = int(area(json.loads(geom.json())) * 1E-6)
         if geom_area > 5000:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
-            grid_id = self.db.executequery(
+            grid_id = db.executequery(
                 get_grid_id_query(geometry_dump))
         else:
             grid_id = None
@@ -975,7 +969,7 @@ class RawData:
         Returns:
             _file_path_: geojson file location path
         """
-        geometry_dump,grid_id,geom_area=RawData.get_grid_id(self.params.geometry)
+        geometry_dump,grid_id,geom_area=RawData.get_grid_id(self.params.geometry,self.db)
         if self.params.output_type is None:
             # if nothing is supplied then default output type will be geojson
             output_type = RawDataOutputType.GEOJSON.value
