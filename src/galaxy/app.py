@@ -969,7 +969,7 @@ class RawData:
         Returns:
             _file_path_: geojson file location path
         """
-        geometry_dump,grid_id,geom_area=RawData.get_grid_id(self.params.geometry,self.db)
+        grid_id,geometry_dump,geom_area=RawData.get_grid_id(self.params.geometry,self.db)
         if self.params.output_type is None:
             # if nothing is supplied then default output type will be geojson
             output_type = RawDataOutputType.GEOJSON.value
@@ -991,7 +991,7 @@ class RawData:
         # currently we have only geojson binding function written other than that we have depend on ogr
         if output_type is RawDataOutputType.GEOJSON.value:
             RawData.query2geojson(self.con, raw_currentdata_extraction_query(
-                self.params, grid_id, geometry_dump), dump_temp_file_path)  # uses own conversion class
+                self.params, g_id=grid_id, geometry_dump=geometry_dump), dump_temp_file_path)  # uses own conversion class
         elif output_type is RawDataOutputType.SHAPEFILE.value:
             point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
                 self.params,ogr_export=True)

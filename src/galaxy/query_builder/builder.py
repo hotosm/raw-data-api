@@ -943,7 +943,7 @@ def extract_attributes_tags(filters):
     return tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter
 
 
-def raw_currentdata_extraction_query(params, c_id, geometry_dump, ogr_export=False,select_all=False):
+def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=False,select_all=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query = []
@@ -1048,9 +1048,9 @@ def raw_currentdata_extraction_query(params, c_id, geometry_dump, ogr_export=Fal
             base_query.append(query_relations_line)
     
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
-        if c_id:
+        if g_id:
             grid_filter_base = [
-                f"""grid = {ind[0]}""" for ind in c_id]
+                f"""grid = {ind[0]}""" for ind in g_id]
             grid_filter = " OR ".join(grid_filter_base)
             where_clause = f"""({grid_filter}) and {geom_filter}"""
         else:
