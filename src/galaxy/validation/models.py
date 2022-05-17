@@ -538,10 +538,11 @@ class RawDataCurrentParams(BaseModel):
                                 else:
                                     raise ValueError(f"""Type of {val} filter in {key} - {k} - {val} should be dictionary""")
                             elif key ==  SupportedFilters.ATTRIBUTES.value:
-                                if isinstance(val, list): # if it is attributes value should be of list
-                                    pass
-                                else:
-                                    raise ValueError(f"""Type of {val} filter in {key} - {k} - {val} should be list""")
+                                for k,v in val.items():
+                                    if isinstance(v, list): # if it is attributes value should be of list
+                                        pass
+                                    else:
+                                        raise ValueError(f"""Type of {val} filter in {key} - {k} - {val} should be list""")
                         else :
                             raise ValueError(f"""Value {k} for filter {key} - {k} is not supported""")
                 else :
