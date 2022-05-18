@@ -428,7 +428,7 @@ def test_organization_hashtag_weekly_query():
             ),
             t2 as (
                 select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters,
-                total_new_amenity as total_new_amenities, total_new_places as total_new_places
+            total_new_amenities as total_new_amenities, total_new_places as total_new_places
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='w' and start_date >= '2020-10-22T12:00:00.000'::timestamp and end_date <= '2020-12-22T12:00:00.000'::timestamp
             )
@@ -457,7 +457,7 @@ def test_organization_hashtag_monthly_query():
             ),
             t2 as (
                 select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters,
-                total_new_amenity as total_new_amenities, total_new_places as total_new_places
+            total_new_amenities as total_new_amenities, total_new_places as total_new_places
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='m' and start_date >= '2020-10-22T00:00:00.000'::timestamp and end_date <= '2020-12-22T00:00:00.000'::timestamp
             )
@@ -465,4 +465,6 @@ def test_organization_hashtag_monthly_query():
             from t2
             order by hashtag"""
     query_result=generate_organization_hashtag_reports(cur,validated_params)
+    print(query_result)
+    print(query_result.encode('utf-8'))
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
