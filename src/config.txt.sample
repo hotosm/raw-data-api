@@ -5,10 +5,13 @@ password=
 dbname=
 port=
 
+[HOST]
+host=localhost
+port=8000
+
 [OAUTH]
 client_id=
 client_secret=
-redirect_uri=http://127.0.0.1:8000/callback
 url=https://www.openstreetmap.org
 scope=read_prefs
 login_redirect_uri=http://127.0.0.1:8000/auth/callback
@@ -16,6 +19,7 @@ secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 
 [DUMP]
 path=
+redirect_uri=http://127.0.0.1:8000/callback
 underpass=underpass.sql
 osmstats=osmstats.sql
 
@@ -32,3 +36,15 @@ user=
 password=
 database=galaxy
 port=
+
+[TM]
+host=
+user=
+password=
+host=
+port=
+
+[SENTRY]
+url=https://apikey.ingest.sentry.io/appid
+rate=1.0
+

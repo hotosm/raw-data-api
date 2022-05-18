@@ -17,22 +17,24 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+from itertools import filterfalse
 from psycopg2 import sql
 from json import dumps
-from ..validation.models import Frequency
-
+from ..validation.models import Frequency,OsmElementRawData,GeometryTypeRawData as geomtype
 HSTORE_COLUMN = "tags"
 
 
-def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
+def create_hashtag_filter_query(project_ids, hashtags, cur, conn,prefix=False):
     '''returns hastag filter query '''
 
-    merged_items = [*project_ids, *hashtags]
-
-    filter_query = "({hstore_column} -> %s) ~~ %s"
+    # merged_items = [*project_ids , *hashtags]
+    if prefix : # default prefix is c
+        filter_query = "(c.{hstore_column} -> %s) ~~* %s"
+    else :
+        filter_query = "({hstore_column} -> %s) ~~* %s"
 
     hashtag_filter_values = [
-        *[f"%hotosm-project-{i};%" for i in project_ids],
+        *[f"%hotosm-project-{i};%" if project_ids is not None else '' for i in project_ids],
         *[f"%{i};%" for i in hashtags],
     ]
     hashtag_tags_filters = [
@@ -41,7 +43,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     ]
 
     comment_filter_values = [
-        *[f"%hotosm-project-{i} %" for i in project_ids],
+        *[f"%hotosm-project-{i} %" if project_ids is not None else '' for i in project_ids],
         *[f"%{i} %" for i in hashtags],
     ]
     comment_tags_filters = [
@@ -51,7 +53,7 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
 
     # Include cases for hasthags and comments found at the end of the string.
     no_char_filter_values = [
-        *[f"%hotosm-project-{i}" for i in project_ids],
+        *[f"%hotosm-project-{i}" if project_ids is not None else '' for i in project_ids],
         *[f"%{i}" for i in hashtags],
     ]
     no_char_filter_values = [
@@ -73,13 +75,17 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     return hashtag_filter
 
 
-def create_timestamp_filter_query(column_name,from_timestamp, to_timestamp, cur):
+def create_timestamp_filter_query(column_name,from_timestamp, to_timestamp, cur,prefix=False):
     '''returns timestamp filter query '''
 
     timestamp_column = column_name
     # Subquery to filter changesets matching hashtag and dates.
-    timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
-        timestamp_column=sql.Identifier(timestamp_column))
+    if prefix:
+        timestamp_filter = sql.SQL("c.{timestamp_column} between %s AND %s").format(
+            timestamp_column=sql.Identifier(timestamp_column))
+    else :
+        timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
+            timestamp_column=sql.Identifier(timestamp_column))
     timestamp_filter = cur.mogrify(timestamp_filter,
                                    (from_timestamp, to_timestamp)).decode()
 
@@ -135,41 +141,42 @@ def create_osm_history_query(changeset_query, with_username):
 
 
 def create_userstats_get_statistics_with_hashtags_query(params,con,cur):
-        changeset_query, _, _ = create_changeset_query(params, con, cur)
-
-        # Include user_id filter.
-        changeset_query = f"{changeset_query} AND user_id = {params.user_id}"
-
-        base_query = """
-            SELECT (each(osh.tags)).key as feature, osh.action, count(distinct osh.id)
-            FROM osm_element_history AS osh, T1
-            WHERE osh.timestamp BETWEEN %s AND %s
-            AND osh.uid = %s
-            AND osh.type in ('way','relation')
-            AND T1.changeset_id = osh.changeset
-            GROUP BY feature, action
-        """
-        items = (params.from_timestamp, params.to_timestamp, params.user_id)
-        base_query = cur.mogrify(base_query, items).decode()
-
+        hashtag_filter = create_hashtag_filter_query(params.project_ids,
+                                                 params.hashtags, cur, con,prefix=True)
+        timestamp_filter=create_timestamp_filter_query("created_at",params.from_timestamp, params.to_timestamp,cur,prefix=True)
         query = f"""
-            WITH T1 AS (
-                {changeset_query}
-            )
-            {base_query}
-        """
+        select
+            sum(added_buildings)::int as added_buildings,
+            sum(modified_buildings)::int as  modified_buildings,
+            sum(added_highway)::int as added_highway,
+            sum(modified_highway)::int as modified_highway,
+            sum(added_highway_meters)::float as added_highway_meters,
+            sum(modified_highway_meters)::float as modified_highway_meters
+        from
+            public.all_changesets_stats s
+        join public.osm_changeset c on
+            c.id = s.changeset
+        where
+            {timestamp_filter}
+            and c.user_id = {params.user_id} and ({hashtag_filter})"""
         return query
 
 def create_UserStats_get_statistics_query(params,con,cur):
         query = """
-            SELECT (each(tags)).key as feature, action, count(distinct id)
-            FROM osm_element_history
-            WHERE timestamp BETWEEN %s AND %s
-            AND uid = %s
-            AND type in ('way','relation')
-            GROUP BY feature, action
-        """
-
+        select
+            sum(added_buildings)::int as added_buildings,
+            sum(modified_buildings)::int as  modified_buildings,
+            sum(added_highway)::int as added_highway,
+            sum(modified_highway)::int as modified_highway,
+            sum(added_highway_meters)::float as added_highway_meters,
+            sum(modified_highway_meters)::float as modified_highway_meters
+        from
+            public.all_changesets_stats s
+        join public.osm_changeset c on
+            c.id = s.changeset
+        where
+            c.created_at between %s and %s
+            and c.user_id = %s"""
         items = (params.from_timestamp, params.to_timestamp, params.user_id)
         query = cur.mogrify(query, items)
         return query
@@ -204,23 +211,57 @@ def create_users_contributions_query(params, changeset_query):
     SELECT user_id,
         username,
         total_buildings,
-        public.tasks_per_user(user_id,
-            '{project_ids}',
-            '{from_timestamp}',
-            '{to_timestamp}',
-            'MAPPED') AS mapped_tasks,
-        public.tasks_per_user(user_id,
-            '{project_ids}',
-            '{from_timestamp}',
-            '{to_timestamp}',
-            'VALIDATED') AS validated_tasks,
         public.editors_per_user(user_id,
-            '{from_timestamp}',
-            '{to_timestamp}') AS editors
+        '{from_timestamp}',
+        '{to_timestamp}') AS editors
     FROM T3;
     """
     return query
 
+def create_user_tasks_mapped_and_validated_query(project_ids, from_timestamp, to_timestamp):
+    tm_project_ids = ",".join([str(p) for p in project_ids])
+    
+    mapped_query = f"""
+        SELECT th.user_id, COUNT(th.task_id) as tasks_mapped
+            FROM PUBLIC.task_history th
+            WHERE th.action_text = 'MAPPED'
+            AND th.action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND th.project_id IN ({tm_project_ids})
+            GROUP BY th.user_id;
+    """
+    validated_query = f"""
+        SELECT th.user_id, COUNT(th.task_id) as tasks_validated
+            FROM PUBLIC.task_history th
+            WHERE th.action_text = 'VALIDATED'
+            AND th.action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND th.project_id IN ({tm_project_ids})
+            GROUP BY th.user_id;
+    """
+    return mapped_query, validated_query
+
+def create_user_time_spent_mapping_and_validating_query(project_ids, from_timestamp, to_timestamp):
+    tm_project_ids = ",".join([str(p) for p in project_ids])
+
+    time_spent_mapping_query = f"""
+        SELECT user_id, SUM(CAST(TO_TIMESTAMP(action_text, 'HH24:MI:SS') AS TIME)) AS time_spent_mapping
+        FROM public.task_history
+        WHERE
+            (action = 'LOCKED_FOR_MAPPING'
+            OR action = 'AUTO_UNLOCKED_FOR_MAPPING')
+            AND action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND project_id IN ({tm_project_ids})
+        GROUP BY user_id;
+    """
+
+    time_spent_validating_query = f"""
+        SELECT user_id, SUM(CAST(TO_TIMESTAMP(action_text, 'HH24:MI:SS') AS TIME)) AS time_spent_validating
+        FROM public.task_history
+        WHERE action = 'LOCKED_FOR_VALIDATION'
+            AND action_date BETWEEN '{from_timestamp}' AND '{to_timestamp}'
+            AND project_id IN ({tm_project_ids})
+        GROUP BY user_id;
+    """
+    return time_spent_mapping_query, time_spent_validating_query;
 
 def generate_data_quality_hashtag_reports(cur, params):
     if params.hashtags is not None and len(params.hashtags) > 0:
@@ -546,3 +587,327 @@ def generate_organization_hashtag_reports(cur,params):
             order by hashtag"""
     # print(query)
     return query
+
+
+def generate_tm_validators_stats_query(cur, params):
+    stmt = """WITH t1 as (SELECT user_id, project_id, count(id) AS cnt from task_history
+    where action_text = 'VALIDATED' AND date_part('year', action_date) = %s group by user_id, project_id order by project_id)
+    """
+
+    sub_query = cur.mogrify(sql.SQL(stmt), (params.year,)).decode()
+
+    query = f"""
+    {sub_query}
+    SELECT t1.user_id,
+        u.username,
+        t1.project_id,
+        t1.cnt,
+        p.total_tasks,
+        p.tasks_mapped,
+        p.tasks_validated,
+        unnest(p.country) AS country
+    from t1, projects as p, users as u
+    where t1.project_id = p.id AND u.id = t1.user_id
+    ORDER BY u.username, t1.project_id
+    """
+
+    return query
+
+
+def generate_tm_teams_list():
+    query = """with vt AS (SELECT distinct team_id as id from project_teams where role = 1 order by id),
+            mu AS (SELECT tm.team_id, ARRAY_AGG(users.username) AS managers from team_members AS tm, vt, users WHERE users.id = tm.user_id AND tm.team_id = vt.id AND tm.function = 1 GROUP BY tm.team_id),
+            uc AS (SELECT tm.team_id, count(tm.user_id) AS members_count from team_members AS tm, vt WHERE tm.team_id = vt.id GROUP BY tm.team_id)
+            SELECT t.id, t.organisation_id, orgs.name AS organisation_name, t.name AS team_name, mu.managers, uc.members_count from teams AS t, mu, uc, organisations AS orgs where orgs.id = t.organisation_id AND t.id = mu.team_id AND t.id = uc.team_id"""
+
+    return query
+
+
+def generate_list_teams_metadata():
+    query = """
+        with vt AS (SELECT distinct team_id as id from project_teams where role = 1 order by id),
+        m AS (SELECT tm.team_id, tm.user_id, users.username, tm.function FROM team_members AS tm, vt, users WHERE users.id = tm.user_id AND tm.team_id = vt.id)
+        SELECT m.team_id AS team_id,
+            t.name AS team_name,
+            orgs.id AS organisation_id,
+            orgs.name AS organisation_name,
+            m.user_id,
+            m.username,
+            m.function from m, teams as t, organisations as orgs
+        where
+            orgs.id = t.organisation_id AND
+            t.id = m.team_id
+        ORDER BY team_id, function, username;
+    """
+
+    return query
+def raw_historical_data_extraction_query(cur,conn,params):
+    geometry_dump = dumps(dict(params.geometry))
+    geom_filter = f"ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"
+    timestamp_filter = cur.mogrify(sql.SQL("created_at BETWEEN %s AND %s"), (params.from_timestamp, params.to_timestamp)).decode()
+    t1= f"""select
+        id as changeset_id
+    from
+        osm_changeset
+    where
+        {geom_filter}
+        and ({timestamp_filter})"""
+    if params.hashtags :
+        hashtag_filter= create_hashtag_filter_query("",params.hashtags,cur,conn)
+        t1+=f"""and ({hashtag_filter})""" 
+    query= f"""with t1 as(
+            {t1}
+        ),
+        t2 as (
+        select
+            *,
+            case
+                when oeh.nds is not null then ST_AsGeoJSON(public.construct_geometry(oeh.nds,
+                oeh.id,
+                oeh."timestamp"))
+                else ST_AsGeoJSON(ST_MakePoint(oeh.lon,oeh.lat))
+            end as geometry
+        from
+            osm_element_history oeh,
+            t1
+        where
+            oeh.changeset = t1.changeset_id
+	        and oeh."action" != 'delete'
+            and oeh."type" != 'relation'
+         	and oeh.version = (
+                select
+                    max("version")
+                from
+                    public.osm_element_history i
+                where
+                    i.id = oeh.id and i.type = oeh.type
+                    and i."timestamp"< '{params.to_timestamp}'::timestamptz )  
+            )
+        select
+            t2.id,
+            t2."type",
+            t2.tags::text as tags,
+            t2.changeset as changeset_id,
+            t2."timestamp"::text as created_at,
+            t2.uid as user_id,
+            t2."version" ,
+            t2."action" ,
+            t2.country ,
+            t2.geometry
+        from
+            t2"""
+    if params.geometry_type :
+        geometry_type=[]
+        for p in params.geometry_type:
+            geometry_type.append(f"""t2.tags?'{p}'""" )
+        filter_geometry_type = " or ".join(geometry_type)
+        query+= f"""
+        where
+            {filter_geometry_type}"""
+    # print(query)
+    return query
+ 
+def get_country_id_query(geometry_dump):
+    
+    base_query=f"""select
+                        b.id
+                    from
+                        boundaries b
+                    where
+                        ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
+                        ST_SetSRID(b.boundary,
+                        4326))"""
+    return base_query
+                        
+
+def raw_currentdata_extraction_query(params,c_id,geometry_dump,geom_area,ogr_export=False):
+    geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
+    base_query=[]
+    relation_geom=[]
+    attribute_filter= None 
+    select_condition=f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom""" # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    if params.columns :
+        if len(params.columns) > 0:
+            filter_col=[]
+            filter_col.append('osm_id')
+            for cl in params.columns:
+                if cl !='':
+                    filter_col.append(f"""tags ->> '{cl.strip()}' as {cl.strip()}""")
+            filter_col.append('geom')
+            select_condition=" , ".join(filter_col) 
+    if params.osm_tags :
+        filter= params.osm_tags
+
+        incoming_filter=[]
+        for key, value in filter.items():
+
+            if len(value)>1:
+                v_l= []
+                for l in value:
+                    v_l.append(f""" '{l.strip()}' """)
+                v_l_join= " , ".join(v_l)
+                value_tuple= f"""({v_l_join})"""
+                
+                k=f""" '{key.strip()}' """
+                incoming_filter.append("""tags ->> """+k+"""IN """+value_tuple+"""""")
+            elif len(value)==1:
+                incoming_filter.append(f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+            else: 
+                incoming_filter.append(f"""tags ? '{key.strip()}'""")
+        attribute_filter=" OR ".join(incoming_filter)
+    
+    if params.osm_elements is None and params.geometry_type is None:
+        params.osm_elements= ['nodes','ways_line','ways_poly','relations']
+    
+    if params.osm_elements is not None and params.geometry_type is not None:
+        if geomtype.POINT.value in params.geometry_type and OsmElementRawData.NODES.value in params.osm_elements:
+            query_point=f"""select
+                        {select_condition}
+                        from
+                            nodes
+                        where
+                            {geom_filter}"""
+            if attribute_filter:
+                query_point+= f""" and ({attribute_filter})"""
+            base_query.append(query_point)
+     
+        if geomtype.LINESTRING.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
+            query_ways_line=f"""select
+                {select_condition}
+                from
+                    ways_line
+                where
+                    {geom_filter}"""
+            if attribute_filter:
+                query_ways_line+= f""" and ({attribute_filter})"""
+            base_query.append(query_ways_line)
+
+        if geomtype.POLYGON.value in params.geometry_type and OsmElementRawData.WAYS.value in params.osm_elements:
+            if geom_area > 100000 : # country logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for 
+                country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                country_filter=" OR ".join(country_filter_base)
+                where_clause=f"""({country_filter}) and {geom_filter}"""
+            else:
+                where_clause=f"""{geom_filter}"""
+            query_poly=f"""select
+                {select_condition}
+                from
+                    ways_poly
+                where
+                {where_clause}"""
+            if attribute_filter:
+                query_poly+= f""" and ({attribute_filter})"""
+            base_query.append(query_poly)
+
+        if OsmElementRawData.RELATIONS.value in params.osm_elements:
+
+            for tp in params.geometry_type:
+                relation_geom.append(f"""geometrytype(geom)='{tp.upper()}'""")
+            query_relation=f"""select
+                {select_condition}
+                from
+                    relations
+                where
+                    {geom_filter}"""
+            # if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
+            join_relation_geom=" or ".join(relation_geom)
+            query_relation+=f""" and ( {join_relation_geom} )"""
+            if attribute_filter:
+                query_relation+= f""" and ({attribute_filter})"""
+            base_query.append(query_relation)
+ 
+        
+    if params.osm_elements and params.geometry_type is None :
+        if len(params.osm_elements)>0:
+            if OsmElementRawData.WAYS.value in params.osm_elements : # converting ways to ways_line and ways_poly since we store them in two different tables 
+                params.osm_elements.remove( OsmElementRawData.WAYS.value)
+                params.osm_elements.append( 'ways_poly')
+                params.osm_elements.append( 'ways_line')
+
+            for type in params.osm_elements:
+                if type == 'ways_poly' and  geom_area > 100000 :
+                    country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                    country_filter=" OR ".join(country_filter_base)
+                    where_clause=f"""({country_filter}) and {geom_filter}"""
+                else :
+                    where_clause=f"""{geom_filter}"""
+                query=f"""select
+                    {select_condition}
+                    from
+                        {type}
+                    where
+                        {where_clause}"""
+                if attribute_filter:
+                    query+= f""" and ({attribute_filter})"""
+                base_query.append(query) 
+                     
+    if params.geometry_type and  params.osm_elements is None:
+        if len(params.geometry_type)>0:
+            for type in params.geometry_type:
+                
+                if type is geomtype.POINT.value :      
+                    query_point=f"""select
+                        {select_condition}
+                        from
+                            nodes
+                        where
+                            {geom_filter}"""
+                    if attribute_filter:
+                        query_point+= f""" and ({attribute_filter})"""
+                    base_query.append(query_point)
+
+                elif type is geomtype.LINESTRING.value :       
+                    query_ways_line=f"""select
+                        {select_condition}
+                        from
+                            ways_line
+                        where
+                            {geom_filter}"""
+                    if attribute_filter:
+                        query_ways_line+= f""" and ({attribute_filter})"""
+                    base_query.append(query_ways_line)
+                else:
+                    if type is geomtype.POLYGON.value : 
+                        if geom_area > 100000 : # country logic will be only used when area is larger because for smaller area normal gist indexes performes better job when area gets larger we need to limit the index size to look for 
+                            country_filter_base=[f"""country = {ind[0]}""" for ind in c_id]
+                            country_filter=" OR ".join(country_filter_base)
+                            where_clause=f"""({country_filter}) and {geom_filter}"""
+                        else:
+                            where_clause=f"""{geom_filter}"""
+                        query_poly=f"""select
+                            {select_condition}
+                            from
+                                ways_poly
+                            where
+                            {where_clause}"""
+                        if attribute_filter:
+                            query_poly+= f""" and ({attribute_filter})"""
+                        base_query.append(query_poly)
+                    relation_geom.append(f"""geometrytype(geom)='{type.upper()}'""")
+            if len(relation_geom) !=0:
+                query_relation=f"""select
+                    {select_condition}
+                    from
+                        relations
+                    where
+                        {geom_filter}"""
+                if  all(x in params.geometry_type for x in [geomtype.MULTILINESTRING.value, geomtype.MULTIPOLYGON.value,geomtype.POLYGON.value]) is False  :
+                    join_relation_geom=" or ".join(relation_geom)
+                    query_relation+=f""" and ( {join_relation_geom} )"""
+                if attribute_filter:
+                    query_relation+= f""" and ({attribute_filter})"""
+                base_query.append(query_relation)
+    if ogr_export:
+        table_base_query=base_query # since query will be different for ogr exports and geojson exports because for ogr exports we don't need to grab each row in geojson 
+    else:
+        table_base_query=[]
+        for i in range(len(base_query)):
+            table_base_query.append(f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")             
+    final_query=" UNION ALL ".join(table_base_query)       
+        
+    return final_query
+
+def check_last_updated_rawdata():
+    query = f"""select NOW()-importdate as last_updated from planet_osm_replication_status"""
+    return query
+    

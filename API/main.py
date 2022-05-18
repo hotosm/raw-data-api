@@ -19,6 +19,8 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import sentry_sdk
+from src.galaxy import config
 
 from .countries.routers import router as countries_router
 from .changesets.routers import router as changesets_router
@@ -29,8 +31,20 @@ from .osm_users import router as osm_users_router
 from .data_quality import router as data_quality_router
 from .trainings import router as training_router
 from .organization import router as organization_router
+from .tasking_manager import router as tm_router
+from .raw_data import router as raw_data_router
 
+sentry_sdk.init(
+    config.get("SENTRY", "url"),
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=config.get("SENTRY", "rate")
+)
 
+# This is used for local setup for auth login
+# import os
+# os.environ['OAUTHLIB_INSECURE_TRANSPORT'] ='1'
 
 app = FastAPI()
 
@@ -53,5 +67,8 @@ app.include_router(osm_users_router)
 app.include_router(data_quality_router)
 app.include_router(training_router)
 app.include_router(organization_router)
+app.include_router(tm_router)
+app.include_router(raw_data_router)
+
 
 
