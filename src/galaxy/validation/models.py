@@ -412,6 +412,8 @@ class OrganizationHashtag(BaseModel):
     total_new_buildings : int
     total_unique_contributors : int
     total_new_road_meters : int 
+    total_new_amenities: int
+    total_new_places: int
 
 
 class TeamMemberFunction(Enum):

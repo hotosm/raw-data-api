@@ -470,7 +470,8 @@ def test_organization_hashtag_weekly_query():
             where name = 'msf'
             ),
             t2 as (
-                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters
+                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters,
+            total_new_amenities as total_new_amenities, total_new_places as total_new_places
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='w' and start_date >= '2020-10-22T12:00:00.000'::timestamp and end_date <= '2020-12-22T12:00:00.000'::timestamp
             )
@@ -498,7 +499,8 @@ def test_organization_hashtag_monthly_query():
             where name = 'msf'
             ),
             t2 as (
-                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters
+                select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters,
+            total_new_amenities as total_new_amenities, total_new_places as total_new_places
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='m' and start_date >= '2020-10-22T00:00:00.000'::timestamp and end_date <= '2020-12-22T00:00:00.000'::timestamp
             )
@@ -625,6 +627,4 @@ def test_rawdata_current_snapshot_osm_elements_query() :
                         ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t3"""
     query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)),100)
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
-     
-    
-    
+
