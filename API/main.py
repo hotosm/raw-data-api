@@ -34,13 +34,14 @@ from .organization import router as organization_router
 from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
 
-sentry_sdk.init(
-    config.get("SENTRY", "url"),
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=config.get("SENTRY", "rate")
-)
+if config.get("SENTRY","url", fallback=None): # only use sentry if it is specified in config blocks
+    sentry_sdk.init(
+        config.get("SENTRY", "url"),
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=config.get("SENTRY", "rate")
+    )
 
 # This is used for local setup for auth login
 # import os

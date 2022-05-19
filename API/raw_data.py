@@ -37,6 +37,7 @@ from src.galaxy import config
 from os.path import exists
 import json
 from uuid import uuid4
+from .auth import login_required
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -64,7 +65,7 @@ def remove_file(path: str) -> None:
     os.unlink(path)
 
 @router.post("/current-snapshot/")
-def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks):  
+def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,user_data=Depends(login_required)):  
 # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
