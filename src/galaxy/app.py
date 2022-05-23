@@ -729,11 +729,12 @@ class RawData:
     -Osm element type (Optional)
     """
 
-    def __init__(self, parameters,dbdict=None):
-        if type(parameters) is not RawDataCurrentParams:
-            self.params = RawDataCurrentParams(**parameters)
-        else :
-            self.params=parameters
+    def __init__(self, parameters=None,dbdict=None):
+        if parameters:
+            if type(parameters) is not RawDataCurrentParams:
+                self.params = RawDataCurrentParams(**parameters)
+            else :
+                self.params=parameters
 
         if dbdict is None :
             self.db = Database(dict(config.items("RAW_DATA")))
