@@ -777,9 +777,9 @@ def create_column_filter(columns, create_schema=False):
                     schema[remove_spaces(cl.strip())] = 'str'
         filter_col.append('geom')
         select_condition = " , ".join(filter_col)
-    if create_schema:
-        return select_condition, schema
-    return select_condition
+        if create_schema:
+            return select_condition, schema
+        return select_condition
 
 
 def generate_tag_filter_query(filter):
