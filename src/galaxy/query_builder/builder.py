@@ -780,6 +780,8 @@ def create_column_filter(columns, create_schema=False):
         if create_schema:
             return select_condition, schema
         return select_condition
+    else:
+        return f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
 def generate_tag_filter_query(filter):
