@@ -414,6 +414,8 @@ class OrganizationHashtag(BaseModel):
     total_new_buildings : int
     total_unique_contributors : int
     total_new_road_meters : int 
+    total_new_amenities: int
+    total_new_places: int
 
 
 class TeamMemberFunction(Enum):
@@ -570,4 +572,16 @@ class UserRole(Enum):
     ADMIN = 1
     STAFF = 2
     NONE = 3
+<<<<<<< HEAD
     
+=======
+
+
+class UserStatistics(BaseModel):
+    added_buildings: int
+    modified_buildings: int
+    added_highway :int
+    modified_highway : int  
+    added_highway_meters : float
+    modified_highway_meters : float
+>>>>>>> master

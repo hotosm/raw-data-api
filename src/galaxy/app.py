@@ -536,16 +536,14 @@ class UserStats:
         query = create_UserStats_get_statistics_query(params, self.con,
                                                       self.cur)
         result = self.db.executequery(query)
-        summary = [MappedFeature(**r) for r in result]
+        summary = [UserStatistics(**r) for r in result]
         return summary
 
     def get_statistics_with_hashtags(self, params):
         query = create_userstats_get_statistics_with_hashtags_query(
             params, self.con, self.cur)
         result = self.db.executequery(query)
-
-        summary = [MappedFeature(**r) for r in result]
-
+        summary = [UserStatistics(**r) for r in result]
         return summary
 
 

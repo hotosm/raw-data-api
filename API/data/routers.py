@@ -15,7 +15,7 @@ def login_url(db_name: str, request: Request):
     authorize_url = f"{osm_url}/oauth2/authorize/"
     scope = config.get("OAUTH", "scope").split(",")
 
-    redirect_path = config.get("OAUTH", "redirect_uri")
+    redirect_path = config.get("DUMP", "redirect_uri")
     redirect_uri = f"{redirect_path}/{db_name}"
 
     oauth = OAuth2Session(
@@ -34,7 +34,7 @@ def callback(db_name: str, request: Request):
     # Perform token exchange.
     osm_url = config.get("OAUTH", "url")
     token_url = f"{osm_url}/oauth2/token"
-    redirect_path = config.get("OAUTH", "redirect_uri")
+    redirect_path = config.get("DUMP", "redirect_uri")
     redirect_uri = f"{redirect_path}/{db_name}"
 
     oauth = OAuth2Session(

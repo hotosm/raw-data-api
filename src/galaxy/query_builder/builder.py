@@ -27,12 +27,14 @@ from ..validation.models import Frequency, OsmElementRawData, GeometryTypeRawDat
 HSTORE_COLUMN = "tags"
 
 
-def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
+def create_hashtag_filter_query(project_ids, hashtags, cur, conn,prefix=False):
     '''returns hastag filter query '''
 
     # merged_items = [*project_ids , *hashtags]
-
-    filter_query = "({hstore_column} -> %s) ~~* %s"
+    if prefix : # default prefix is c
+        filter_query = "(c.{hstore_column} -> %s) ~~* %s"
+    else :
+        filter_query = "({hstore_column} -> %s) ~~* %s"
 
     hashtag_filter_values = [
         *[f"%hotosm-project-{i};%" if project_ids is not None else '' for i in project_ids],
@@ -79,13 +81,17 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn):
     return hashtag_filter
 
 
-def create_timestamp_filter_query(column_name, from_timestamp, to_timestamp, cur):
+def create_timestamp_filter_query(column_name,from_timestamp, to_timestamp, cur,prefix=False):
     '''returns timestamp filter query '''
 
     timestamp_column = column_name
     # Subquery to filter changesets matching hashtag and dates.
-    timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
-        timestamp_column=sql.Identifier(timestamp_column))
+    if prefix:
+        timestamp_filter = sql.SQL("c.{timestamp_column} between %s AND %s").format(
+            timestamp_column=sql.Identifier(timestamp_column))
+    else :
+        timestamp_filter = sql.SQL("{timestamp_column} between %s AND %s").format(
+            timestamp_column=sql.Identifier(timestamp_column))
     timestamp_filter = cur.mogrify(timestamp_filter,
                                    (from_timestamp, to_timestamp)).decode()
 
@@ -180,6 +186,46 @@ def create_UserStats_get_statistics_query(params, con, cur):
     items = (params.from_timestamp, params.to_timestamp, params.user_id)
     query = cur.mogrify(query, items)
     return query
+def create_userstats_get_statistics_with_hashtags_query(params,con,cur):
+        hashtag_filter = create_hashtag_filter_query(params.project_ids,
+                                                 params.hashtags, cur, con,prefix=True)
+        timestamp_filter=create_timestamp_filter_query("created_at",params.from_timestamp, params.to_timestamp,cur,prefix=True)
+        query = f"""
+        select
+            sum(added_buildings)::int as added_buildings,
+            sum(modified_buildings)::int as  modified_buildings,
+            sum(added_highway)::int as added_highway,
+            sum(modified_highway)::int as modified_highway,
+            sum(added_highway_meters)::float as added_highway_meters,
+            sum(modified_highway_meters)::float as modified_highway_meters
+        from
+            public.all_changesets_stats s
+        join public.osm_changeset c on
+            c.id = s.changeset
+        where
+            {timestamp_filter}
+            and c.user_id = {params.user_id} and ({hashtag_filter})"""
+        return query
+
+def create_UserStats_get_statistics_query(params,con,cur):
+        query = """
+        select
+            sum(added_buildings)::int as added_buildings,
+            sum(modified_buildings)::int as  modified_buildings,
+            sum(added_highway)::int as added_highway,
+            sum(modified_highway)::int as modified_highway,
+            sum(added_highway_meters)::float as added_highway_meters,
+            sum(modified_highway_meters)::float as modified_highway_meters
+        from
+            public.all_changesets_stats s
+        join public.osm_changeset c on
+            c.id = s.changeset
+        where
+            c.created_at between %s and %s
+            and c.user_id = %s"""
+        items = (params.from_timestamp, params.to_timestamp, params.user_id)
+        query = cur.mogrify(query, items)
+        return query
 
 
 def create_users_contributions_query(params, changeset_query):
@@ -571,7 +617,8 @@ def generate_organization_hashtag_reports(cur, params):
         hashtags.append("name = '"+str(p.strip()).lower()+"'")
     filter_hashtags = " or ".join(hashtags)
     # filter_hashtags = cur.mogrify(sql.SQL(filter_hashtags), params.hashtags).decode()
-    t2_query = f"""select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters
+    t2_query= f"""select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters,
+            total_new_amenities as total_new_amenities, total_new_places as total_new_places
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='{params.frequency}'"""
     month_time = f"""0:00:00"""
