@@ -519,14 +519,14 @@ class UserStats:
         query = create_UserStats_get_statistics_query(params, self.con,
                                                       self.cur)
         result = self.db.executequery(query)
-        summary = [UserStatistics(**r) for r in result]
+        summary = [UserStatistics(**r) for r in result if any(elem is None for elem in r) is False]
         return summary
 
     def get_statistics_with_hashtags(self, params):
         query = create_userstats_get_statistics_with_hashtags_query(
             params, self.con, self.cur)
         result = self.db.executequery(query)
-        summary = [UserStatistics(**r) for r in result]
+        summary = [UserStatistics(**r) for r in result if any(elem is None for elem in r) is False]
         return summary
 
 
@@ -552,7 +552,7 @@ class DataQualityHashtags:
         writer = DictWriter(stream, fieldnames=csv_keys)
         writer.writeheader()
 
-        for row in features:
+        for item in features:
             longitude, latitude = item.get("geometry").get("coordinates")
             row = {**item.get("properties"),
                    'latitude': latitude, 'longitude': longitude}
