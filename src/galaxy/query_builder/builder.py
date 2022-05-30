@@ -1031,8 +1031,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         else :
             if point_attribute_filter:
                 if len(point_attribute_filter)>0:
-                    point_select_condition=create_column_filter(point_attribute_filter)
-                    print("I am point select condition")           
+                    point_select_condition=create_column_filter(point_attribute_filter)           
             if line_attribute_filter:
                 if len(line_attribute_filter)>0:
                     line_select_condition=create_column_filter(line_attribute_filter)
