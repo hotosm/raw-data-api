@@ -126,10 +126,11 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
         client_host = config.get("EXPORT_CONFIG", "api_host")  # getting from config in case api and frontend is not hosted on same url
         client_port = config.get("EXPORT_CONFIG", "api_port")
     except:
-        client_host = request.client.host  # getting client host
+        client_host = f"""{request.url.scheme}://{request.client.host}"""  # getting client host
         client_port = request.url.port  # getting client hosting port
 
-    download_url = f"""{request.url.scheme}://{client_host}:{client_port}/raw-data/exports/{exportname}.zip/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+    download_url = f"""{client_host}:{client_port}/raw-data/exports/{exportname}.zip/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+
     response_time = time.time() - start_time
     # getting file size of zip , units are in bytes converted to mb in response
     zip_file_size = os.path.getsize(zip_temp_path)
@@ -145,8 +146,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
         response_time_str += f"""{minute} Minute"""
     logging.debug("-------Raw Data Request Took - %s for area of %s Sqkm Producing %s MB: %s-------" %
                   (response_time_str,geom_area,round(inside_file_size/1000000),params.output_type))
-    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000)} MB""", "zip_file_size": {round(zip_file_size/1000000)}}
-
+    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000)} MB""", "zip_file_size_bytes": {zip_file_size}}
 
 @router.get("/status/")
 def check_current_db_status():
