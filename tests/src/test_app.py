@@ -444,6 +444,7 @@ def test_data_quality_username_query():
     query_result=generate_data_quality_username_query(validated_params,cur)
     # print(query_result.encode('utf-8'))
     query_hashtag_result=generate_data_quality_username_query(validated_hashtag_params,cur)
+    print(query_hashtag_result.encode('utf-8'))
     assert query_result.encode('utf-8') == expected_result.encode('utf-8')
     # assert query_hashtag_result.encode('utf-8') == expected_hashtag_result.encode('utf-8')
 
