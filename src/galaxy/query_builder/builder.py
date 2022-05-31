@@ -368,41 +368,26 @@ def generate_data_quality_username_query(params,cur):
     
     '''returns data quality username query with filters and parameteres provided'''
     # print(params)
-    
-    issue_types = ", ".join(["%s"] * len(params.issue_types))
-    issue_types_str = [i for i in params.issue_types]
-    issue_types = cur.mogrify(sql.SQL(issue_types), issue_types_str).decode()
-    
+    if ('all' in params.issue_types) ==False :
+        issue_types = ", ".join(["%s"] * len(params.issue_types))
+        issue_types_str = [i for i in params.issue_types]
+        issue_types = cur.mogrify(sql.SQL(issue_types), issue_types_str).decode()
+        issue_type_filter=f"""and unnest_status in ({issue_types})"""   
+
+    else:
+        issue_type_filter=f""""""
+
+    if params.hashtags is not None and len(params.hashtags) > 0:
+        hashtag_filt=create_hashtagfilter_underpass(params.hashtags,"hashtags")
+        filter_hashtags=f""" and {hashtag_filt}"""
+    else:
+        filter_hashtags = ""
     osm_usernames=[]
     for p in params.osm_usernames:
         osm_usernames.append(p) 
 
     username_filter=create_hashtagfilter_underpass(osm_usernames,"username")
-
-    '''Normal Query to feed our OUTPUT Class '''
-    # query =f"""   with t1 as (
-    #     select id,username as username
-    #             From users 
-    #             WHERE
-    #               {username_filter}
-    #         ),
-    #     t2 AS (
-    #          SELECT osm_id as Osm_id,
-    #             change_id as Changeset_id,
-    #             timestamp::text as Changeset_timestamp,
-    #             status::text as Issue_type,
-    #             t1.username as username,
-    #             ST_X(location::geometry) as lng,
-    #             ST_Y(location::geometry) as lat
-                
-    #     FROM validation join t1 on user_id = t1.id  
-    #     WHERE
-    #     ({status_filter}) AND (timestamp between '{params.from_timestamp}' and  '{params.to_timestamp}')
-    #             )
-    #     select *
-    #     from t2
-    #     order by username
-    #     """
+    
     query= f"""with t1 as (
         select
             id,
@@ -430,7 +415,7 @@ def generate_data_quality_username_query(params,cur):
         from
             changesets
         where
-            created_at between '{params.from_timestamp}' and  '{params.to_timestamp}')
+            (created_at between '{params.from_timestamp}' and  '{params.to_timestamp}'){filter_hashtags} )
         select
             t2.osm_id as Osm_id ,
             t2.change_id as Changeset_id,
@@ -445,7 +430,7 @@ def generate_data_quality_username_query(params,cur):
             t3
         where
             t2.change_id = t3.id
-            and unnest_status in ({issue_types})
+            {issue_type_filter}
         group by
             t2.osm_id,
             t1.username,

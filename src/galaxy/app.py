@@ -626,6 +626,7 @@ class DataQuality:
             query = generate_data_quality_TM_query(self.params)
         elif self.inputtype == "username":
             query = generate_data_quality_username_query(self.params, self.cur)
+            print(query)
         try:
             result = Output(query, self.con).to_GeoJSON('lat', 'lng')
             return result
