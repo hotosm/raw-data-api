@@ -335,7 +335,7 @@ def test_data_quality_username_query():
         ],
         "outputType": "geojson"
         }
-    hashtag_params = {{"fromTimestamp":"2022-04-25T18:15:00.994Z","toTimestamp":"2022-04-30T18:14:59.994Z","osmUsernames":["Riyadi IRM-ED"],"issueTypes":["all"],"hashtags":["Indonesia"],"outputType":"geojson"}}
+    hashtag_params ={"fromTimestamp":"2022-04-25T18:15:00.994Z","toTimestamp":"2022-04-30T18:14:59.994Z","osmUsernames":["Riyadi IRM-ED"],"issueTypes":["all"],"hashtags":["Indonesia"],"outputType":"geojson"}
 
     validated_params=DataQuality_username_RequestParams(**data_quality_params)
     validated_hashtag_params=DataQuality_username_RequestParams(**hashtag_params)
