@@ -417,7 +417,7 @@ def test_data_quality_username_query():
         from
             changesets
         where
-            (created_at between '2022-04-25 18:15:00.994000+00:00' and  '2022-04-30 18:14:59.994000+00:00') and 'Indonesia'=ANY(hashtags) )
+            (created_at between '2022-04-25 18:15:00.994000+00:00' and  '2022-04-30 18:14:59.994000+00:00') and 'Indonesia'=ANY(hashtags) )     
         select
             t2.osm_id as Osm_id ,
             t2.change_id as Changeset_id,
@@ -445,7 +445,7 @@ def test_data_quality_username_query():
     # print(query_result.encode('utf-8'))
     query_hashtag_result=generate_data_quality_username_query(validated_hashtag_params,cur)
     assert query_result.encode('utf-8') == expected_result.encode('utf-8')
-    # assert query_hashtag_result.encode('utf-8') == expected_hashtag_result.encode('utf-8')
+    assert query_hashtag_result.encode('utf-8') == expected_hashtag_result.encode('utf-8')
 
 def test_userstats_get_statistics_with_hashtags_query():
     """Function to  test userstats class's get_statistics query generator """
