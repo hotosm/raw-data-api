@@ -335,7 +335,11 @@ def test_data_quality_username_query():
         ],
         "outputType": "geojson"
         }
+    hashtag_params ={"fromTimestamp":"2022-04-25T18:15:00.994Z","toTimestamp":"2022-04-30T18:14:59.994Z","osmUsernames":["Riyadi IRM-ED"],"issueTypes":["all"],"hashtags":["Indonesia"],"outputType":"geojson"}
+
     validated_params=DataQuality_username_RequestParams(**data_quality_params)
+    validated_hashtag_params=DataQuality_username_RequestParams(**hashtag_params)
+    
     expected_result = f"""with t1 as (
         select
             id,
@@ -363,7 +367,7 @@ def test_data_quality_username_query():
         from
             changesets
         where
-            created_at between '2021-07-01 00:30:00' and  '2021-07-02 00:15:00')
+            (created_at between '2021-07-01 00:30:00' and  '2021-07-02 00:15:00') )
         select
             t2.osm_id as Osm_id ,
             t2.change_id as Changeset_id,
@@ -386,9 +390,62 @@ def test_data_quality_username_query():
             t2.lon,
             t3.created_at,
             t2.change_id;"""
+    expected_hashtag_result=f"""with t1 as (
+        select
+            id,
+            username as username
+        from
+            users
+        where
+            'Riyadi IRM-ED'=username ),
+        t2 as (
+        select
+            osm_id,
+            change_id,
+            st_x(location) as lat,
+            st_y(location) as lon,
+            unnest(status) as unnest_status
+        from
+            validation,
+            t1
+        where
+            user_id = t1.id),
+        t3 as (
+        select
+            id,
+            created_at
+        from
+            changesets
+        where
+            (created_at between '2022-04-25 18:15:00.994000+00:00' and  '2022-04-30 18:14:59.994000+00:00') and 'Indonesia'=ANY(hashtags) )
+        select
+            t2.osm_id as Osm_id ,
+            t2.change_id as Changeset_id,
+            t3.created_at as Changeset_timestamp,
+            ARRAY_TO_STRING(ARRAY_AGG(t2.unnest_status), ',') as Issue_type,
+            t1.username as username,
+            t2.lat,
+            t2.lon as lng
+        from
+            t1,
+            t2,
+            t3
+        where
+            t2.change_id = t3.id
+            
+        group by
+            t2.osm_id,
+            t1.username,
+            t2.lat,
+            t2.lon,
+            t3.created_at,
+            t2.change_id;"""
+
     query_result=generate_data_quality_username_query(validated_params,cur)
     # print(query_result.encode('utf-8'))
+    query_hashtag_result=generate_data_quality_username_query(validated_hashtag_params,cur)
     assert query_result.encode('utf-8') == expected_result.encode('utf-8')
+    assert query_hashtag_result.encode('utf-8') == expected_hashtag_result.encode('utf-8')
 
 def test_userstats_get_statistics_with_hashtags_query():
     """Function to  test userstats class's get_statistics query generator """
