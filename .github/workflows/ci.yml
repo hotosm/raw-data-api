@@ -33,6 +33,7 @@ jobs:
           postgresql version: '12'
       - name: Install Postgis 3 for Psql 12
         run: |
+          sudo apt-get update
           sudo apt install postgis postgresql-12-postgis-3
           
       - name: Install Dependencies
