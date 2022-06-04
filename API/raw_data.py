@@ -123,8 +123,9 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     inside_file_size = 0
     for temp_file in dump_temp_file:
         # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore
-        inside_file_size += os.path.getsize(temp_file)
-        background_tasks.add_task(remove_file, temp_file)
+        if os.path.exists(temp_file):      
+            inside_file_size += os.path.getsize(temp_file)
+            background_tasks.add_task(remove_file, temp_file)
     try:
         client_host = config.get("EXPORT_CONFIG", "api_host")  # getting from config in case api and frontend is not hosted on same url
         client_port = config.get("EXPORT_CONFIG", "api_port")
