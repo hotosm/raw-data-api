@@ -83,10 +83,12 @@ def remove_file(path: str) -> None:
 
 
 @router.post("/current-snapshot/")
-def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,request: Request,user_data=Depends(login_required)):  
+def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,request: Request):  
 # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
+    logging.debug(params)
+
     # unique id for zip file and geojson for each export
     if params.file_name :
         formatted_file_name=remove_spaces(params.file_name) # need to format string from space to _ because it is filename , may be we need to filter special character as well later on
@@ -114,7 +116,8 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     zf.writestr(f"""clipping_boundary.geojson""",
                 orjson.dumps(dict(params.geometry)))
     for temp_file in dump_temp_file:
-        zf.write(temp_file)
+        if os.path.exists(temp_file):
+            zf.write(temp_file)
     zf.close()
     logging.debug('Zip Binding Done !')
     inside_file_size = 0
