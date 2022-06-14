@@ -31,6 +31,7 @@ from geojson_pydantic import Feature, FeatureCollection, Point, Polygon , MultiP
 from datetime import datetime
 
 from enum import Enum
+from dateutil import relativedelta
 
 from area import area
 import re
@@ -184,11 +185,12 @@ class DateStampParams(BaseModel):
         # if from_timestamp > datetime.now() or value > datetime.now():
         #     raise ValueError(
         #         "Can not exceed current date and time")
-        timestamp_diff = value - from_timestamp
+        # Get the relativedelta between two dates
+        delta = relativedelta.relativedelta(value, from_timestamp)
         if from_timestamp > value :
             raise ValueError(
                 "Timestamp difference should be in order")
-        if timestamp_diff > timedelta(days=30):
+        if delta.months > 0:
             raise ValueError(
                 "Statistics is available for a maximum period of 1 month")
 
