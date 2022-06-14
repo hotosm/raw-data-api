@@ -192,7 +192,7 @@ class DateStampParams(BaseModel):
                 "Timestamp difference should be in order")
         if delta.months > 0:
             raise ValueError(
-                "Statistics is available for a maximum period of 1 month")
+                "Statistics is available for a maximum period of 1 month.")
 
         return value
 class UserStatsParams(DateStampParams):
