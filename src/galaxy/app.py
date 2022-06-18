@@ -519,16 +519,31 @@ class UserStats:
         query = create_UserStats_get_statistics_query(params, self.con,
                                                       self.cur)
         result = self.db.executequery(query)
-        summary = [UserStatistics(**r) for r in result if any(elem is None for elem in r) is False]
+        final_result=[]
+        for r in result :
+            clean_result=dict_none_clean(dict(r))
+            final_result.append(clean_result)
+        summary=[UserStatistics(**r) for r in final_result]
         return summary
 
     def get_statistics_with_hashtags(self, params):
         query = create_userstats_get_statistics_with_hashtags_query(
             params, self.con, self.cur)
         result = self.db.executequery(query)
-        summary = [UserStatistics(**r) for r in result if any(elem is None for elem in r) is False]
+        final_result=[]
+        for r in result :
+            clean_result=dict_none_clean(dict(r))
+            final_result.append(clean_result)
+        summary=[UserStatistics(**r) for r in final_result]
         return summary
 
+def dict_none_clean(to_clean):
+    result = {}
+    for key, value in to_clean.items():
+        if value is None:
+            value = 0
+        result[key] = value
+    return result
 
 class DataQualityHashtags:
     def __init__(self, params: DataQualityHashtagParams):
