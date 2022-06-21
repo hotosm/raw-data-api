@@ -128,12 +128,17 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
             background_tasks.add_task(remove_file, temp_file)
     try:
         client_host = config.get("EXPORT_CONFIG", "api_host")  # getting from config in case api and frontend is not hosted on same url
-        client_port = config.get("EXPORT_CONFIG", "api_port")
     except:
         client_host = f"""{request.url.scheme}://{request.client.host}"""  # getting client host
-        client_port = request.url.port  # getting client hosting port
-
-    download_url = f"""{client_host}:{client_port}/raw-data/exports/{exportname}.zip/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+    
+    try :
+        client_port = config.get("EXPORT_CONFIG", "api_port")
+    except:
+        client_port = None
+    if client_port :
+        download_url = f"""{client_host}:{client_port}/raw-data/exports/{exportname}.zip/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+    else :
+        download_url = f"""{client_host}/raw-data/exports/{exportname}.zip/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
 
     response_time = time.time() - start_time
     # getting file size of zip , units are in bytes converted to mb in response
