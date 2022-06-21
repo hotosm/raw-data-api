@@ -1029,7 +1029,6 @@ class RawData:
         return behind_time_min
 
 def run_ogr2ogr_cmd(cmd):
-    logging.debug("Calling ogr2ogr")
     try:
         process = subprocess.Popen(
             cmd,
