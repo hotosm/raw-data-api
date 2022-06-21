@@ -215,7 +215,8 @@ class IssueType(Enum):
     COMPLETE = "complete"
     ORPHAN = "orphan"
     OVERLAPPING = "overlaping"
-    DUPLICATE = "duplicate" 
+    DUPLICATE = "duplicate"
+    ALL="all" # if all is supplied rest of others will be ignored
 
 
 class OutputType(Enum):
@@ -244,14 +245,29 @@ class DataQuality_username_RequestParams(DateStampParams):
     
     Parameters:
             osm_usernames:[str],
-            “issue_type”: ["badgeom", "badvalue", "all"]
+            “issue_type”: List[issuetypes]
             from_timestamp and to_timestamp
     '''
     #using conlist of pydantic to refuse empty list
 
     osm_usernames: conlist(str, min_items=1)
     issue_types: List[IssueType]
+    hashtags: Optional[List[str]]
     output_type: OutputType
+
+    @validator("hashtags",allow_reuse=True)
+    def check_hashtag_string(cls, value, values, **kwargs):
+        regex = re.compile(SPECIAL_CHARACTER)
+        for v in value :
+            v= v.strip()
+            if len(v) < 2 :
+                raise ValueError(
+                   "Hash tag value " +v+" is not allowed")
+                
+            if(regex.search(v) != None):
+                raise ValueError(
+                   "Hash tag contains special character or space : " +v+" ,Which is not allowed")
+        return value 
 
 
 class DataQualityProp(BaseModel):
