@@ -815,8 +815,9 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Point Shapefile")
-                run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-                logging.debug(run.stdout.read())
+                run_ogr2ogr_cmd(cmd)
+                # run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+                # logging.debug(run.stdout.read())
                 file_paths.append(point_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_point.shx""")
                 # file_paths.append(f"""{dump_temp_file_path}_point.cpg""")
@@ -829,8 +830,9 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Line Shapefile")
-                run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-                logging.debug(run.stdout.read())
+                run_ogr2ogr_cmd(cmd)
+                # run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+                # logging.debug(run.stdout.read())
                 file_paths.append(line_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_line.shx""")
                 # file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
@@ -843,8 +845,9 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Poly Shapefile")
-                run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-                logging.debug(run.stdout.read())
+                run_ogr2ogr_cmd(cmd)
+                # run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+                # logging.debug(run.stdout.read())
                 file_paths.append(poly_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
                 # file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
@@ -855,9 +858,9 @@ class RawData:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                 outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
         # print(cmd)
-        logging.debug("Calling ogr2ogr")
-        run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        logging.debug(run.stdout.read())
+        run_ogr2ogr_cmd(cmd)
+        # run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        # logging.debug(run.stdout.read())
         return export_path
 
     @staticmethod
@@ -1024,3 +1027,23 @@ class RawData:
         behind_time = self.db.executequery(status_query)
         behind_time_min = behind_time[0][0].total_seconds()/60
         return behind_time_min
+
+def run_ogr2ogr_cmd(cmd):
+    logging.debug("Calling ogr2ogr")
+    try:
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True
+        )
+        try:
+            outs, errs = process.communicate(timeout=3600) # will raise error and kill any process that runs longer than 360 seconds
+            logging.debug(outs)
+        except subprocess.TimeoutExpired as e:
+            logging.debug("Timeout for ogr2ogr , Killing...")
+            process.kill()
+    except KeyboardInterrupt:
+        logging.debug('Error :: Killing ogr2ogr...')
+        process.kill()
+        
