@@ -48,6 +48,8 @@ from os.path import exists
 import json
 from uuid import uuid4
 from .auth import login_required
+import pathlib
+import shutil
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -67,7 +69,7 @@ def download_export(file_name: str, background_tasks: BackgroundTasks):
         path = config.get("EXPORT_CONFIG", "path")
     except : 
         path = 'exports/' # first tries to import from config, if not defined creates exports in home directory 
-    path=f"""{path}{file_name}/"""
+    # path=f"""{path}{file_name}/"""
     binding_file=f"""{file_name}.zip"""
     zip_temp_path = f"""{path}{binding_file}"""
     if exists(zip_temp_path):
@@ -80,9 +82,13 @@ def download_export(file_name: str, background_tasks: BackgroundTasks):
 
 
 def remove_file(path: str) -> None:
-    """Used for removing temp file after zip file is delivered to user
+    """Used for removing temp file dir and its all content after zip file is delivered to user
     """
-    os.unlink(path)
+    # os.unlink(path)
+    try:
+        shutil.rmtree(path)
+    except OSError as e:
+        logging.error("Error: %s - %s." % (e.filename, e.strerror))
 
 
 @router.post("/current-snapshot/")
@@ -110,7 +116,6 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
         path = config.get("EXPORT_CONFIG", "path")
     except : 
         path = 'exports/' # first tries to import from config, if not defined creates exports in home directory 
-    path=f"""{path}{exportname}/"""
     # saving file in temp directory instead of memory so that zipping file will not eat memory
     zip_temp_path = f"""{path}{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
@@ -118,9 +123,15 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     # Compressing geojson file
     zf.writestr(f"""clipping_boundary.geojson""",
                 orjson.dumps(dict(params.geometry)))
-    for temp_file in dump_temp_file:
-        if os.path.exists(temp_file):
-            zf.write(temp_file)
+
+    path=f"""{path}{exportname}/"""
+    directory = pathlib.Path(path)
+    for file_path in directory.iterdir():
+        zf.write(file_path, arcname=file_path.name)
+    # for temp_file in dump_temp_file:
+    #     if os.path.exists(temp_file):
+    #         zf.write(temp_file)
+            
     zf.close()
     logging.debug('Zip Binding Done !')
     inside_file_size = 0
@@ -128,7 +139,8 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
         # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore
         if os.path.exists(temp_file):      
             inside_file_size += os.path.getsize(temp_file)
-            background_tasks.add_task(remove_file, temp_file)
+    
+    background_tasks.add_task(remove_file, path)
     try:
         client_host = config.get("EXPORT_CONFIG", "api_host")  # getting from config in case api and frontend is not hosted on same url
     except:
