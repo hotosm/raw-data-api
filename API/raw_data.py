@@ -120,18 +120,16 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     zip_temp_path = f"""{path}{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
 
-    # Compressing geojson file
-    zf.writestr(f"""clipping_boundary.geojson""",
-                orjson.dumps(dict(params.geometry)))
 
     path=f"""{path}{exportname}/"""
     directory = pathlib.Path(path)
     for file_path in directory.iterdir():
         zf.write(file_path, arcname=file_path.name)
-    # for temp_file in dump_temp_file:
-    #     if os.path.exists(temp_file):
-    #         zf.write(temp_file)
-            
+
+    # Compressing geojson file
+    zf.writestr(f"""clipping_boundary.geojson""",
+                orjson.dumps(dict(params.geometry)))
+
     zf.close()
     logging.debug('Zip Binding Done !')
     inside_file_size = 0
