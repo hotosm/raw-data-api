@@ -107,7 +107,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
         path = config.get("EXPORT_CONFIG", "path")
     except : 
         path = 'exports/' # first tries to import from config, if not defined creates exports in home directory 
-    
+    path=f"""{path}{exportname}/"""
     # saving file in temp directory instead of memory so that zipping file will not eat memory
     zip_temp_path = f"""{path}{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)

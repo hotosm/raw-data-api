@@ -46,10 +46,11 @@ from json import dumps
 import fiona
 from fiona.crs import from_epsg
 
+import time
+
 import logging
 # logging.getLogger("imported_module").setLevel(logging.WARNING)
 logging.getLogger("fiona").propagate = False  # disable fiona logging
-
 
 def print_psycopg2_exception(err):
     """ 
@@ -795,7 +796,7 @@ class RawData:
         return RawData.to_geojson(results)
 
     @staticmethod
-    def ogr_export(outputtype,query=None, export_path=None ,point_query=None, line_query=None, poly_query=None,dump_temp_file_path=None):
+    def ogr_export(outputtype,query=None, export_path=None ,point_query=None, line_query=None, poly_query=None,dump_temp_file_path=None,binding_file_dir=None):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
         db_items = dict(config.items("RAW_DATA"))
         if query:
@@ -815,7 +816,7 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Point Shapefile")
-                run_ogr2ogr_cmd(cmd)
+                run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir)
                 # run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
                 # logging.debug(run.stdout.read())
                 file_paths.append(point_file_path)
@@ -830,7 +831,7 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Line Shapefile")
-                run_ogr2ogr_cmd(cmd)
+                run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir)
                 # run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
                 # logging.debug(run.stdout.read())
                 file_paths.append(line_file_path)
@@ -845,7 +846,7 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Poly Shapefile")
-                run_ogr2ogr_cmd(cmd)
+                run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir)
                 # run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
                 # logging.debug(run.stdout.read())
                 file_paths.append(poly_file_path)
@@ -858,7 +859,7 @@ class RawData:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                 outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
         # print(cmd)
-        run_ogr2ogr_cmd(cmd)
+        run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir)
         # run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         # logging.debug(run.stdout.read())
         return export_path
@@ -1003,6 +1004,9 @@ class RawData:
         if not isExist:
             # Create a exports directory because it does not exist
             os.makedirs(path)
+        path=f"""{path}{exportname}/"""
+        os.makedirs(path)
+        
         dump_temp_file_path = f"""{path}{exportname}.{output_type.lower()}"""
 
         # currently we have only geojson binding function written other than that we have depend on ogr
@@ -1013,11 +1017,11 @@ class RawData:
             point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
                 self.params,ogr_export=True)
             dump_temp_file_path = f"""{path}{exportname}"""
-            filepaths = RawData.ogr_export(outputtype=output_type,point_query=point_query, line_query=line_query, poly_query=poly_query,dump_temp_file_path=dump_temp_file_path) #using ogr2ogr
+            filepaths = RawData.ogr_export(outputtype=output_type,point_query=point_query, line_query=line_query, poly_query=poly_query,dump_temp_file_path=dump_temp_file_path,binding_file_dir=path) #using ogr2ogr
             # filepaths = RawData.query2shapefile(self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path) #using fiona
             return filepaths, geom_area
         else:
-            filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True), export_path=dump_temp_file_path, outputtype=output_type)  # uses ogr export to export
+            filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True), export_path=dump_temp_file_path, outputtype=output_type,binding_file_dir=path)  # uses ogr export to export
             
         return [dump_temp_file_path], geom_area
 
@@ -1028,7 +1032,18 @@ class RawData:
         behind_time_min = behind_time[0][0].total_seconds()/60
         return behind_time_min
 
-def run_ogr2ogr_cmd(cmd):
+def run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir):
+    """Runs command and monitors the file size until the process runs
+
+    Args:
+        cmd (_type_): Command to run for subprocess
+        dump_temp_file_path (_type_): _description_
+        binding_file_dir (_type_): _description_
+
+    Raises:
+        ValueError: Shapefile exceed 4GB limit
+        ValueError: Binding failed
+    """
     try:
         process = subprocess.Popen(
             cmd,
@@ -1036,13 +1051,19 @@ def run_ogr2ogr_cmd(cmd):
             stderr=subprocess.PIPE,
             shell=True
         )
-        try:
-            outs, errs = process.communicate(timeout=3600) # will raise error and kill any process that runs longer than 360 seconds
-            logging.debug(outs)
-        except subprocess.TimeoutExpired as e:
-            logging.debug("Timeout for ogr2ogr , Killing...")
-            process.kill()
-    except KeyboardInterrupt:
+        while process.poll() is None:
+            size=0
+            for ele in os.scandir(binding_file_dir):
+                size+=os.path.getsize(ele)
+            # print(size/1000000) # in MB
+            if size/1000000 >  4000:
+                logging.debug("Killing ogr2ogr because it exceed 4 GB...")
+                process.kill()
+                raise ValueError("Shapefile Exceed 4 GB Limit")     
+        logging.debug(process.stdout.read())             
+    except :
         logging.debug('Error :: Killing ogr2ogr...')
         process.kill()
+        raise ValueError("Shapefile binding failed")     
+
         
