@@ -67,13 +67,16 @@ def download_export(file_name: str, background_tasks: BackgroundTasks):
         path = config.get("EXPORT_CONFIG", "path")
     except : 
         path = 'exports/' # first tries to import from config, if not defined creates exports in home directory 
-    
-    zip_temp_path = f"""{path}{file_name}"""
+    path=f"""{path}{file_name}/"""
+    binding_file=f"""{file_name}.zip"""
+    zip_temp_path = f"""{path}{binding_file}"""
     if exists(zip_temp_path):
         response = FileResponse(zip_temp_path, media_type="application/zip")
-        response.headers["Content-Disposition"] = f"attachment; filename={file_name}"
+        response.headers["Content-Disposition"] = f"attachment; filename={binding_file}"
         # background_tasks.add_task(remove_file, zip_temp_path) #clearing the tmp zip file
         return response
+    else:
+        raise ValueError("File Doesn't Exist")
 
 
 def remove_file(path: str) -> None:
@@ -136,9 +139,9 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     except:
         client_port = None
     if client_port :
-        download_url = f"""{client_host}:{client_port}/raw-data/exports/{exportname}.zip/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+        download_url = f"""{client_host}:{client_port}/raw-data/exports/{exportname}/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
     else :
-        download_url = f"""{client_host}/raw-data/exports/{exportname}.zip/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+        download_url = f"""{client_host}/raw-data/exports/{exportname}/"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
 
     response_time = time.time() - start_time
     # getting file size of zip , units are in bytes converted to mb in response
