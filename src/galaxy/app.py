@@ -49,6 +49,7 @@ from fiona.crs import from_epsg
 import time
 
 import logging
+import shutil
 # logging.getLogger("imported_module").setLevel(logging.WARNING)
 logging.getLogger("fiona").propagate = False  # disable fiona logging
 
@@ -1059,11 +1060,13 @@ def run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir):
             if size/1000000 >  4000:
                 logging.debug("Killing ogr2ogr because it exceed 4 GB...")
                 process.kill()
+                shutil.rmtree(binding_file_dir)
                 raise ValueError("Shapefile Exceed 4 GB Limit")     
         logging.debug(process.stdout.read())             
     except :
         logging.debug('Error :: Killing ogr2ogr...')
         process.kill()
+        shutil.rmtree(binding_file_dir)
         raise ValueError("Shapefile binding failed")     
 
         
