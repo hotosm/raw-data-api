@@ -8,6 +8,7 @@ class QuickstartUser(HttpUser):
     def raw_data_request_geojson(self):
       """payload is of kathmandu area , Produces 146 MB of file. Usually takes 15-19 Sec to Generate. Does not uses ogr2ogr"""
       payload = {
+            "fileName": "load_test",
             'geometry': {
         "type": "Polygon",
         "coordinates": [
@@ -45,6 +46,7 @@ class QuickstartUser(HttpUser):
     def raw_data_request_shapefile(self):
       """payload is of Big kathmandu area , Produces 340 MB of file. Usually takes 45 Sec to Generate.Uses ogr2ogr"""
       payload = {
+        "fileName": "load_test",
         "outputType": "shp",
         "geometry":{
               "type": "Polygon",
