@@ -31,5 +31,5 @@ jobs:
       - name: Start locust
         run: |
           cd tests/src/load
-          locust --headless --run-time 30s --users 1 --spawn-rate 1 --host http://52.203.15.233:8000 
+          locust --headless --run-time 40s --users 1 --spawn-rate 1 --host http://52.203.15.233:8000 
         
