@@ -1,7 +1,6 @@
+# GALAXY API
 ![example workflow](https://github.com/hotosm/galaxy-api/actions/workflows/Unit-Test.yml/badge.svg)
 ![example workflow](https://github.com/hotosm/galaxy-api/actions/workflows/locust.yml/badge.svg)
-
-# GALAXY API
 
 ## Install
 
