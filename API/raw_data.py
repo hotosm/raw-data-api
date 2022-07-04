@@ -90,7 +90,6 @@ def remove_file(path: str) -> None:
     except OSError as e:
         logging.error("Error: %s - %s." % (e.filename, e.strerror))
 
-
 @router.post("/current-snapshot/")
 def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,request: Request):  
 # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
@@ -108,9 +107,8 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
         # exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}"
         exportname = f"Raw_Export_{str(uuid4())}"
 
+    dump_temp_file, geom_area=RawData(params).extract_current_data(exportname)
 
-    dump_temp_file, geom_area = RawData(
-        params).extract_current_data(exportname)
     logging.debug('Zip Binding Started !')
     try:
         path = config.get("EXPORT_CONFIG", "path")
