@@ -1,8 +1,7 @@
 import time, json
-from locust import HttpUser, task, between
+from locust import HttpUser, task
 
-class QuickstartUser(HttpUser):
-    wait_time = between(3, 5)
+class Raw(HttpUser):
 
     @task(1)
     def raw_data_request_geojson(self):
@@ -47,7 +46,7 @@ class QuickstartUser(HttpUser):
       """payload is of Big kathmandu area , Produces 340 MB of file. Usually takes 45 Sec to Generate.Uses ogr2ogr"""
       payload = {
         "fileName": "load_test",
-        "outputType": "dsf",
+        "outputType": "shp",
         "geometry":{
         "type": "Polygon",
         "coordinates": [
@@ -80,3 +79,4 @@ class QuickstartUser(HttpUser):
       headers = {'content-type': 'application/json'}
         
       response = self.client.post("/raw-data/current-snapshot/", data=json.dumps(payload), headers=headers)
+
