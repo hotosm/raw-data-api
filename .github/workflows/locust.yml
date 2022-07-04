@@ -4,7 +4,6 @@ on:
     branches:
       - master
       - develop
-      - feature/locust
   pull_request:
     branches:
       - master
@@ -18,8 +17,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: feature/locust
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
