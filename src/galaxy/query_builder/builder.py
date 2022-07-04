@@ -849,6 +849,7 @@ def extract_geometry_type_query(params,ogr_export=False):
     query_point, query_line, query_poly = None, None, None
     attribute_filter,master_attribute_filter,master_tag_filter,poly_attribute_filter,poly_tag_filter = None,None,None,None,None 
     point_schema, line_schema, poly_schema = None, None, None
+    tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter=None,None,None,None,None,None,None,None,None,None
     if params.filters:
         tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter=extract_attributes_tags(params.filters)
 
