@@ -61,7 +61,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 
 @router.get("/exports/{file_name}/")
-def download_export(file_name: str, background_tasks: BackgroundTasks):
+def download_export(file_name: str):
     """Used for Delivering our export to user , It will hold the zip file until user downloads or hits the url once it is delivered it gets cleared up, Designed as  a separate function to avoid the condition ( waiting for the api response without knowing what is happening on the background )
     Returns zip file if it is present on our server if not returns null 
     """
@@ -75,10 +75,9 @@ def download_export(file_name: str, background_tasks: BackgroundTasks):
     if exists(zip_temp_path):
         response = FileResponse(zip_temp_path, media_type="application/zip")
         response.headers["Content-Disposition"] = f"attachment; filename={binding_file}"
-        # background_tasks.add_task(remove_file, zip_temp_path) #clearing the tmp zip file
         return response
     else:
-        raise ValueError("File Doesn't Exist")
+        raise ValueError("File Doesn't Exist or have been cleared up from system")
 
 
 def remove_file(path: str) -> None:
