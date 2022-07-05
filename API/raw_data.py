@@ -62,8 +62,8 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 @router.get("/exports/{file_name}/")
 def download_export(file_name: str):
-    """Used for Delivering our export to user , It will hold the zip file until user downloads or hits the url once it is delivered it gets cleared up, Designed as  a separate function to avoid the condition ( waiting for the api response without knowing what is happening on the background )
-    Returns zip file if it is present on our server if not returns null 
+    """Used for Delivering our export to user.
+    Returns zip file if it is present on our server if not returns error 
     """
     try:
         path = config.get("EXPORT_CONFIG", "path")
