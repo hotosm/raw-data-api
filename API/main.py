@@ -35,6 +35,7 @@ from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
 from fastapi import  Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 
 
@@ -53,6 +54,8 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 # os.environ['OAUTHLIB_INSECURE_TRANSPORT'] ='1'
 
 app = FastAPI()
+
+app.mount("/exports", StaticFiles(directory="exports"), name="exports")
 
 @app.exception_handler(ValueError)
 async def value_error_exception_handler(request: Request, exc: ValueError):
