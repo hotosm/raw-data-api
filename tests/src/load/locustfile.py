@@ -43,7 +43,7 @@ class Raw(HttpUser):
     
     @task(2)
     def raw_data_request_shapefile(self):
-      """payload is of same area with shapefile option.Uses ogr2ogr"""
+      """payload is of same area with shapefile option.Uses ogr2ogr , Produces 202MB of file and 25-30 Sec on single request"""
       payload = {
         "fileName": "load_test",
         "outputType": "shp",
