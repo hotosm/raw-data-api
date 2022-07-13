@@ -37,9 +37,9 @@ from fastapi import  Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 import time
-import logging
+from src.galaxy.config import logger as logging
 from src.galaxy.db_session import database_instance
-from src.galaxy.config import use_connection_pooling
+from src.galaxy.config import use_connection_pooling , use_s3_to_upload
 
 
 if config.get("SENTRY","url", fallback=None): # only use sentry if it is specified in config blocks
@@ -57,7 +57,8 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 
 app = FastAPI()
 
-app.mount("/exports", StaticFiles(directory="exports"), name="exports")
+if use_s3_to_upload is False : # only mount the disk if config is set to disk 
+    app.mount("/exports", StaticFiles(directory="exports"), name="exports")
 
 # @app.exception_handler(ValueError)
 # async def value_error_exception_handler(request: Request, exc: ValueError):

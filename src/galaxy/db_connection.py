@@ -18,7 +18,7 @@
 # <info@hotosm.org>
 
 from .config import config
-import logging
+from .config import logger as logging
 import psycopg2
 from psycopg2 import pool
 from .config import get_db_connection_params
@@ -42,7 +42,7 @@ class Database:
                 self.threaded_postgreSQL_pool = psycopg2.pool.ThreadedConnectionPool(3, 20,**self.db_params)
                 logging.debug("Connection pooling has been established")
                 if (self.threaded_postgreSQL_pool):
-                    logging.debug("Connection pool created successfully using ThreadedConnectionPool")
+                    logging.info("Connection pool created successfully using ThreadedConnectionPool")
             except Exception as e:
                 logging.error(e)
     
@@ -80,5 +80,5 @@ class Database:
         # use closeall() method to close all the active connection if you want to turn of the application
         if self.threaded_postgreSQL_pool:
             await self.threaded_postgreSQL_pool.closeall
-        logging.debug("Threaded PostgreSQL connection pool is closed")
+        logging.info("Threaded PostgreSQL connection pool is closed")
 

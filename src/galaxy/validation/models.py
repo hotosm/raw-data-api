@@ -575,7 +575,7 @@ class RawDataCurrentParams(BaseModel):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1E-6
         try :
-            RAWDATA_CURRENT_POLYGON_AREA=int(config.get("EXPORT_CONFIG", "max_area"))
+            RAWDATA_CURRENT_POLYGON_AREA=int(config.get("API_CONFIG", "max_area"))
         except: 
             RAWDATA_CURRENT_POLYGON_AREA=100000 
         output_type = values.get("output_type")

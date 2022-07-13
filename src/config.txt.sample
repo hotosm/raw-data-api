@@ -42,12 +42,13 @@ password=admin
 database=postgres
 port=5432
 
-[EXPORT_CONFIG]
-path=exports/
+[API_CONFIG]
+export_path=exports/ # used to store export path
 api_host=http://127.0.0.1
 api_port=8000
-max_area=100000
+max_area=100000 # max area to support for rawdata input 
 use_connection_pooling=true # to use connection pooling , remove this block if you don't need connection pooling , value doesn't matter
+log_level=info #options are info,debug,warning,error
 
 [TM]
 host=
@@ -60,4 +61,10 @@ port=
 url=https://apikey.ingest.sentry.io/appid
 rate=1.0
 
+[EXPORT_UPLOAD]
+FILE_UPLOAD_METHOD=disk # options are s3,disk 
+#only for s3 option **remove this line**
+AWS_ACCESS_KEY_ID= your id 
+AWS_SECRET_ACCESS_KEY= yourkey 
+BUCKET_NAME= your bucket name 
 

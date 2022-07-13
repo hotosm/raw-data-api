@@ -18,7 +18,8 @@
 # <info@hotosm.org>
 '''Main page contains class for database mapathon and funtion for error printing  '''
 
-from .config import get_db_connection_params
+from threading import excepthook
+from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME
 from .validation.models import Source
 import sys
 from fastapi import param_functions
@@ -46,17 +47,16 @@ from json import dumps
 import fiona
 from fiona.crs import from_epsg
 import time
-import logging
 import shutil
+import boto3
+from .config import logger as logging
+import requests
 
 #import instance for pooling 
 if use_connection_pooling:
     from src.galaxy.db_session import database_instance
 else:
     database_instance=None
-
-logging.getLogger("imported_module").setLevel(logging.DEBUG)
-logging.getLogger("fiona").propagate = False  # disable fiona logging
 
 #assigning global variable of pooling so that it will be accessible from any function within this script
 global LOCAL_CON_POOL
@@ -1021,7 +1021,7 @@ class RawData:
             output_type = self.params.output_type
         try:
             # first try to get configuration from config if it is available or not 
-            path = config.get("EXPORT_CONFIG", "path")
+            path = config.get("API_CONFIG", "export_path")
         except : 
             # if not create default path 
             path = 'exports/' # first tries to import from config, if not defined creates exports in home directory 
@@ -1103,3 +1103,79 @@ def run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir):
         process.kill()
         shutil.rmtree(binding_file_dir)
         raise ValueError("Shapefile binding failed")     
+
+class S3FileTransfer :
+    """Responsible for the file transfer to s3 from API maachine """
+    def __init__(self):
+        #responsible for the connection 
+        try:
+            self.aws_session = boto3.Session(
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            )
+        except Exception as ex:
+            logging.error(ex)
+            raise ex
+        self.s3 = self.aws_session.client('s3')
+        logging.debug("Connection has been successful to s3")
+        
+    def list_buckets(self):
+        """used to list all the buckets available on s3"""
+        buckets=self.s3.list_buckets()
+        return buckets 
+
+    def get_bucket_location(self,bucket_name):
+        """Provides the bucket location on aws, takes bucket_name as string -- name of repo on s3"""
+        bucket_location = self.s3.get_bucket_location(Bucket=bucket_name)
+        return bucket_location['LocationConstraint'] or "us-east-1"
+
+    def upload(self,file_path, file_prefix):
+        """Used for transferring file to s3 after reading path from the user , It will only start the upload but doesn't wait for upload to complete
+        Parameters :file_path --- your local file path to upload , file_prefix -- prefix for the filename which is stored
+        sample function call : S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test") """
+        self.file_path = file_path
+        self.file_prefix = file_prefix
+        file_name=f"{self.file_prefix}.zip"
+        #instantiate upload 
+        start_time=time.time()
+        try:
+            self.s3.upload_file(self.file_path, 
+                BUCKET_NAME, 
+                file_name,Callback=ProgressPercentage(self.file_path)
+                )
+        except Exception as ex:
+            logging.error(ex)
+            raise ex
+        logging.info(f"Uploaded {self.file_prefix} in {time.time()-start_time} sec")
+        #generate the download url 
+        bucket_location = self.get_bucket_location(bucket_name=BUCKET_NAME)
+        object_url = f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
+        return object_url 
+    
+import os
+import sys
+import threading
+
+class ProgressPercentage(object):
+    """Determines the project percentage of aws s3 upload file call
+
+    Args:
+        object (_type_): _description_
+    """
+
+    def __init__(self, filename):
+        self._filename = filename
+        self._size = float(os.path.getsize(filename))
+        self._seen_so_far = 0
+        self._lock = threading.Lock()
+
+    def __call__(self, bytes_amount):
+        # To simplify, assume this is hooked up to a single filename
+        with self._lock:
+            self._seen_so_far += bytes_amount
+            percentage = (self._seen_so_far / self._size) * 100
+            logging.debug(
+                "\r%s  %s / %s  (%.2f%%)" % (
+                    self._filename, self._seen_so_far, self._size,
+                    percentage))
+            sys.stdout.flush()
