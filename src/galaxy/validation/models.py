@@ -36,6 +36,8 @@ from dateutil import relativedelta
 from area import area
 import re
 
+from ..config import config 
+
 MAX_POLYGON_AREA = 5000 # km^2
 
 # this as argument in compile method
@@ -442,6 +444,7 @@ class TeamMemberFunction(Enum):
 class RawDataOutputType ( Enum):
     GEOJSON ="GeoJSON"
     KML = "KML"
+    SHAPEFILE = "shp"
     MBTILES ="MBTILES" # fully experimental for now 
 
 class HashtagParams(BaseModel):
@@ -512,54 +515,75 @@ class OsmElementRawData(Enum):
     WAYS = "ways"
     RELATIONS = "relations"
 
+class SupportedFilters(Enum):
+    TAGS = "tags"
+    ATTRIBUTES = "attributes" 
+    
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_ 
 
+class SupportedGeometryFilters(Enum):
+    POINT='point'
+    LINE='line'
+    POLYGON='polygon'
+    ALLGEOM='all_geometry'
+
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_ 
 
 class RawDataCurrentParams(BaseModel):
     output_type : Optional[RawDataOutputType]=None
+    file_name : Optional[str]=None
     geometry : Polygon
-    osm_tags :  Optional[dict]=None
-    columns : Optional[List[str]]=None
-    osm_elements : Optional[List[OsmElementRawData]] = None
-    geometry_type : Optional[List[GeometryTypeRawData]] = None
+    filters : Optional[dict]=None
+    geometry_type : Optional[List[SupportedGeometryFilters]] = None
     
-    @validator("osm_tags", allow_reuse=True)
+    @validator("filters", allow_reuse=True)
     def check_value(cls, value, values):
         for key, v in value.items():
-            if isinstance(v, list):   
-                pass
+            if SupportedFilters.has_value(key): # check for tags or attributes
+                if isinstance(v, dict):  # check if value is of dict type or not for tags and attributes 
+                    for k, val in v.items():
+                        if SupportedGeometryFilters.has_value(k):# now checking either point line or polygon
+                            if key == SupportedFilters.TAGS.value: # if it is tag then value should be of dictionary
+                                if isinstance(val, dict):
+                                    # if it is dictionary it should be of type key:['value']
+                                    for osmkey,osmvalue in val.items():
+                                        if isinstance(osmvalue, list):
+                                            pass
+                                        else:
+                                            raise ValueError(f"""Osm value --{osmvalue}-- should be inside List : {key}-{k}-{val}-{osmvalue}""")
+                                else:
+                                    raise ValueError(f"""Type of {val} filter in {key} - {k} - {val} should be dictionary""")
+                            elif key ==  SupportedFilters.ATTRIBUTES.value:
+                                if isinstance(val, list): # if it is attributes then value should be of list i.e. "point":[]
+                                    pass
+                                else:
+                                        raise ValueError(f"""Type of {val} filter in {key} - {k} - {val} should be list""")
+                        else :
+                            raise ValueError(f"""Value {k} for filter {key} - {k} is not supported""")
+                else :
+                    raise ValueError(f"""Value for filter {key} should be of dict Type""")
             else :
-                raise ValueError("Value should be of List Type")
+                raise ValueError(f"""Filter {key} is not supported. Supported filters are 'tags' and 'attributes'""")
         return value
 
-    @validator("geometry_type", always=True)    
-    def check_not_defined_fields(cls, value, values):
-        osm_elements = values.get("osm_elements")
-        if (value is None or len(value) == 0):
-                return None
-        if osm_elements:  
-            if (GeometryTypeRawData.POINT.value in value and OsmElementRawData.NODES.value in osm_elements) or (GeometryTypeRawData.LINESTRING.value in value and OsmElementRawData.WAYS.value in osm_elements) or (GeometryTypeRawData.POLYGON.value in value and OsmElementRawData.WAYS.value in osm_elements) or (OsmElementRawData.RELATIONS.value in osm_elements):
-                pass
-            else:
-                raise ValueError("Mapping between osm_elements and geometry_type is invalid") # since you can pass both we need validation for mapping between osm elements and geometry type . for eg : you can not search points in ways or in relation which does not make sense 
-        return value
-
-    @validator("osm_elements", always=True)    
-    def check_null_list(cls, value, values):
-        if (value is None or len(value) == 0):
-                return None
-        return value
-    
     @validator("geometry", always=True)
     def check_geometry_area(cls, value, values):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1E-6
-        RAWDATA_CURRENT_POLYGON_AREA=1500000
+        try :
+            RAWDATA_CURRENT_POLYGON_AREA=int(config.get("EXPORT_CONFIG", "max_area"))
+        except: 
+            RAWDATA_CURRENT_POLYGON_AREA=100000 
         output_type = values.get("output_type")
         if output_type:
             if output_type is RawDataOutputType.MBTILES.value: # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
                 RAWDATA_CURRENT_POLYGON_AREA=2 # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it 
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
-                raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
+                raise ValueError(f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
         return value
 
 class UserRole(Enum):

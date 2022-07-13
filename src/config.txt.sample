@@ -5,9 +5,6 @@ password=
 dbname=
 port=
 
-[HOST]
-host=localhost
-port=8000
 
 [OAUTH]
 client_id=
@@ -37,6 +34,20 @@ password=
 database=galaxy
 port=
 
+
+[RAW_DATA]
+host=localhost
+user=admin
+password=admin
+database=postgres
+port=5432
+
+[EXPORT_CONFIG]
+path=exports/
+api_host=http://127.0.0.1
+api_port=8000
+max_area=100000
+
 [TM]
 host=
 user=
@@ -47,4 +58,5 @@ port=
 [SENTRY]
 url=https://apikey.ingest.sentry.io/appid
 rate=1.0
+
 
