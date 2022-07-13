@@ -36,8 +36,10 @@ from .raw_data import router as raw_data_router
 from fastapi import  Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-
-
+import time
+import logging
+from src.galaxy.db_session import database_instance
+from src.galaxy.config import use_connection_pooling
 
 
 if config.get("SENTRY","url", fallback=None): # only use sentry if it is specified in config blocks
@@ -57,14 +59,32 @@ app = FastAPI()
 
 app.mount("/exports", StaticFiles(directory="exports"), name="exports")
 
-@app.exception_handler(ValueError)
-async def value_error_exception_handler(request: Request, exc: ValueError):
-    return JSONResponse(
-        status_code=400,
-        content={"Error": str(exc)},
-    )
+# @app.exception_handler(ValueError)
+# async def value_error_exception_handler(request: Request, exc: ValueError):
+#     return JSONResponse(
+#         status_code=400,
+#         content={"Error": str(exc)},
+#     )
+
 
 origins = ["*"]
+
+@app.middleware("http")
+async def add_process_time_header(request, call_next):
+    """Times request and knows response time and pass it to header in every request
+
+    Args:
+        request (_type_): _description_
+        call_next (_type_): _description_
+
+    Returns:
+        header with process time
+    """
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(f'{process_time:0.4f} sec')
+    return response
 
 app.add_middleware(
     CORSMiddleware,
@@ -73,6 +93,29 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def on_startup():
+    """Fires up 5 threads on Postgresql with threading pooling before starting the API
+
+    Raises:
+        e: if connection is rejected to database
+    """
+    try:
+        if use_connection_pooling:
+            database_instance.connect()
+    except Exception as e:
+        logging.error(e)
+        raise e
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    """Closing all the threads connection from pooling before shuting down the api 
+    """
+    if use_connection_pooling:
+        logging.debug("Shutting down connection pool")
+        await database_instance.close_all_connection_pool()
+
 
 app.include_router(countries_router)
 app.include_router(changesets_router)
