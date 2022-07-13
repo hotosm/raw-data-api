@@ -1135,3 +1135,10 @@ def check_last_updated_rawdata():
     query = f"""select NOW()-importdate as last_updated from planet_osm_replication_status"""
     return query
     
+def check_last_updated_insights():
+    query = f"""SELECT (NOW() - last_timestamp) AS "last_updated" FROM public.osm_element_history_state;"""
+    return query
+
+def check_last_updated_underpass():
+    query = f"""SELECT (NOW() - MAX(updated_at)) AS "last_updated" FROM public.changesets;"""
+    return query

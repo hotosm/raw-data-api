@@ -747,6 +747,31 @@ class OrganizationHashtags:
             return err  
 
 
+class Status:
+    """Class to show how recent the data is from different data sources"""
+
+    # constructor
+    def __init__(self, source):
+        if source == DataSource.UNDERPASS.value:
+            self.database = Database(get_db_connection_params("UNDERPASS"))
+        elif source == DataSource.INSIGHTS.value:
+            self.database = Database(get_db_connection_params("INSIGHTS"))
+        else:
+            raise ValueError("Source is not Supported")
+        
+        self.con, self.cur = self.database.connect()
+
+    def check_insights_status(self):
+        status_query = check_last_updated_insights()
+        result = self.database.executequery(status_query)
+        return result[0][0].total_seconds()
+
+    def check_underpass_status(self):
+        status_query = check_last_updated_underpass()
+        result = self.database.executequery(status_query)
+        return result[0][0].total_seconds()
+
+
 class RawData:
     """Class responsible for the Rawdata Extraction from available sources ,
         Currently Works for Underpass source Current Snapshot
@@ -1184,3 +1209,4 @@ class ProgressPercentage(object):
             self._seen_so_far += bytes_amount
             percentage = (self._seen_so_far / self._size) * 100
             logging.debug("\r%s  %s / %s  (%.2f%%)" ,self._filename, self._seen_so_far, self._size,percentage)
+

@@ -600,3 +600,7 @@ class UserStatistics(BaseModel):
     modified_highway : int  
     added_highway_meters : float
     modified_highway_meters : float
+
+class DataSource(str, Enum):
+    UNDERPASS = "underpass"
+    INSIGHTS = "insights"
