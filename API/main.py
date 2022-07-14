@@ -95,7 +95,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def on_startup():
-    """Fires up 5 threads on Postgresql with threading pooling before starting the API
+    """Fires up 3 idle conenction with threaded connection pooling before starting the API
 
     Raises:
         e: if connection is rejected to database
