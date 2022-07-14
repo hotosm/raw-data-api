@@ -55,13 +55,13 @@ if export_path.endswith("/") is False :
 
 AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY , BUCKET_NAME =None , None , None
 #check either to use connection pooling or not 
-if config.get('API_CONFIG', 'use_connection_pooling', fallback=None): 
+if config.get('API_CONFIG', 'use_connection_pooling', fallback=None) == "true" or "True": 
     use_connection_pooling=True
 else:
     use_connection_pooling=False
 
 #check either to use s3 raw data exports file uploading or not 
-if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "s3":
+if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "s3" or "S3":
     use_s3_to_upload=True
     try :
         AWS_ACCESS_KEY_ID=config.get("EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID") 
@@ -71,7 +71,7 @@ if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "s3":
     BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback=None)
     if BUCKET_NAME is None : 
         BUCKET_NAME="exports-stage.hotosm.org" # default 
-elif config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "disk":
+elif config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "disk" or "DISK" or "Disk":
     use_s3_to_upload=False
 else:
     logging.error("value not supported for file_upload_method , switching to default disk method")
