@@ -20,45 +20,32 @@
 """[Router Responsible for Raw data API ]
 """
 import os
+from datetime import datetime as dt
 from uuid import uuid4
-import json
-from os.path import exists
-from src.galaxy import config
-from starlette.background import BackgroundTasks
-import orjson
-from http.client import REQUEST_ENTITY_TOO_LARGE
-from fastapi import APIRouter, Depends, Request
-from src.galaxy.query_builder.builder import remove_spaces
-from src.galaxy.validation.models import RawDataHistoricalParams, RawDataCurrentParams,RawDataOutputType
-from .auth import login_required
-from src.galaxy.app import RawData,S3FileTransfer
-from fastapi.responses import FileResponse, StreamingResponse
-from datetime import datetime
 import time
 import zipfile
-router = APIRouter(prefix="/raw-data")
-from src.galaxy.config import logger as logging
-import orjson
-import os 
-from starlette.background import BackgroundTasks
-from .auth import login_required
-from src.galaxy import config
-from os.path import exists
-import json
-from uuid import uuid4
-from .auth import login_required
+import requests
+# from .auth import login_required
 import pathlib
 import shutil
-from src.galaxy.config import use_s3_to_upload , export_path
-import requests
-from datetime import datetime as dt
+from starlette.background import BackgroundTasks
+import orjson
+
+from fastapi import APIRouter, Request
+# from fastapi import APIRouter, Depends, Request
+from src.galaxy.query_builder.builder import remove_spaces
+from src.galaxy.validation.models import  RawDataCurrentParams,RawDataOutputType
+from src.galaxy.app import RawData,S3FileTransfer
+
+from src.galaxy.config import use_s3_to_upload,logger as logging , config
+
+router = APIRouter(prefix="/raw-data")
+
 # @router.post("/historical-snapshot/")
 # def get_historical_data(params:RawDataHistoricalParams):
 #     start_time = time.time()
 #     result= RawData(params).extract_historical_data()
 #     return generate_rawdata_response(result,start_time)
-
-
 
 @router.post("/current-snapshot/")
 def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,request: Request):
@@ -225,13 +212,13 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     if params.file_name :
         formatted_file_name=remove_spaces(params.file_name) # need to format string from space to _ because it is filename , may be we need to filter special character as well later on
         # exportname = f"{formatted_file_name}_{datetime.now().isoformat()}_{str(uuid4())}"
-        exportname = f"{formatted_file_name}_{str(uuid4())}_{params.output_type}" #disabled date for now
+        exportname = f"""{formatted_file_name}_{str(uuid4())}_{params.output_type}""" #disabled date for now
 
     else:
         # exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}"
         exportname = f"Raw_Export_{str(uuid4())}_{params.output_type}"
     
-    logging.info(f"Request {exportname} received ")
+    logging.info("Request %s received",exportname)
 
     dump_temp_file, geom_area , root_dir_file=RawData(params).extract_current_data(exportname)
 
@@ -246,7 +233,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
         zf.write(file_path, arcname=file_path.name)
 
     # Compressing geojson file
-    zf.writestr(f"""clipping_boundary.geojson""",
+    zf.writestr("clipping_boundary.geojson",
                 orjson.dumps(dict(params.geometry)))
 
     zf.close()
@@ -292,7 +279,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
 def check_current_db_status():
     """Gives status about DB update, Substracts with current time and last db update time"""
     result = RawData().check_status()
-    response = f"""{result} ago"""
+    response ="%s ago",result
     return {"last_updated": response}
 
 def remove_file(path: str) -> None:
@@ -300,8 +287,8 @@ def remove_file(path: str) -> None:
     """
     try:
         shutil.rmtree(path)
-    except OSError as e:
-        logging.error("Error: %s - %s." % (e.filename, e.strerror))
+    except OSError as ex:
+        logging.error("Error: %s - %s." , ex.filename, ex.strerror)
 
 def watch_s3_upload(url : str,path : str) -> None:
     """Watches upload of s3 either it is completed or not and removes the temp file after completion
@@ -318,13 +305,13 @@ def watch_s3_upload(url : str,path : str) -> None:
         while check_call !=200 :# check until status is not green
             check_call=requests.get(url).status_code
             if time.time() - start_time >300 :
-                logging.error(f"""Upload time took more than 5 min , Killing watch : {path} , URL : {url}""")
+                logging.error("Upload time took more than 5 min , Killing watch : %s , URL : %s",path,url)
                 remove_temp_file=False # don't remove the file if upload fails
                 break
             time.sleep(3) # check each 3 second
     #once it is verfied file is uploaded finally remove the file
     if remove_temp_file :
-        logging.debug(f"""File is uploaded at {url} , flushing out from {path}""")  
+        logging.debug("File is uploaded at %s , flushing out from %s",url,path)  
         os.unlink(path)
 
 

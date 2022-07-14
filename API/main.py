@@ -16,11 +16,11 @@
 # Humanitarian OpenStreetmap Team
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
+import time
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import sentry_sdk
-from src.galaxy import config
 
 from .countries.routers import router as countries_router
 from .changesets.routers import router as changesets_router
@@ -34,13 +34,11 @@ from .organization import router as organization_router
 from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
 from .download_export import router as download_router
-from fastapi import  Request
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
-import time
-from src.galaxy.config import logger as logging
+# from fastapi import  Request
+# from fastapi.responses import JSONResponse
+
 from src.galaxy.db_session import database_instance
-from src.galaxy.config import use_connection_pooling , use_s3_to_upload
+from src.galaxy.config import use_connection_pooling , use_s3_to_upload ,logger as logging,config
 
 
 if config.get("SENTRY","url", fallback=None): # only use sentry if it is specified in config blocks

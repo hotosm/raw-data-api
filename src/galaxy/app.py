@@ -17,6 +17,9 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 '''Main page contains class for database mapathon and funtion for error printing  '''
+import os
+import sys
+import threading
 
 from threading import excepthook
 from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME
@@ -748,33 +751,37 @@ class OrganizationHashtags:
 
 
 class RawData:
-    """Class responsible for the Rawdata Extraction from available sources , Currently Works for Underpass source Current Snapshot
+    """Class responsible for the Rawdata Extraction from available sources ,
+        Currently Works for Underpass source Current Snapshot
     Returns:
-    Geojson Zip file 
+    Geojson Zip file
     Supports:
-    -Any Key value pair of osm tags 
+    -Any Key value pair of osm tags
     -A Polygon
     -Osm element type (Optional)
     """
 
     def __init__(self, parameters=None,dbdict=None):
         if parameters:
-            #validation for the parameters if it is already validated with pydantic model or not , people coming from package they will not have api valdiation so to make sure they will be validated before accessing the class
-            if type(parameters) is not RawDataCurrentParams:
+            # validation for the parameters if it is already validated with
+            # pydantic model or not , people coming from package they
+            # will not have api valdiation so to make sure they will be validated
+            # before accessing the class
+            if isinstance(parameters,RawDataCurrentParams) is False:
                 self.params = RawDataCurrentParams(**parameters)
             else :
                 self.params=parameters
-        # only use connection pooling if it is configured in config file 
+        # only use connection pooling if it is configured in config file
         if use_connection_pooling :
             #if database credentials directly from class is not passed grab from pool
             pool_conn=LOCAL_CON_POOL.get_conn_from_pool()
             self.con,self.cur= pool_conn,pool_conn.cursor(cursor_factory=DictCursor)
-        else : 
-            #else use our default db class 
+        else :
+            #else use our default db class
             if not dbdict:
                 dbdict=get_db_connection_params("RAW_DATA")
-            self.db = Database(dict(dbdict))
-            self.con, self.cur = self.db.connect()
+            self.d_b = Database(dict(dbdict))
+            self.con, self.cur = self.d_b.connect()
     @staticmethod
     def close_con(con):
         """Closes connection if exists"""
@@ -810,11 +817,11 @@ class RawData:
         """
         extraction_query = raw_historical_data_extraction_query(
             self.cur, self.con, self.params)
-        results = self.db.executequery(extraction_query)
+        results = self.d_b.executequery(extraction_query)
         return RawData.to_geojson(results)
 
     @staticmethod
-    def ogr_export(outputtype,query=None, export_path=None ,point_query=None, line_query=None, poly_query=None,dump_temp_file_path=None,binding_file_dir=None):
+    def ogr_export(outputtype,query=None, export_temp_path=None ,point_query=None, line_query=None, poly_query=None,dump_temp_file_path=None,binding_file_dir=None):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
         db_items = get_db_connection_params("RAW_DATA")
         #format query if it has " in string"
@@ -823,7 +830,7 @@ class RawData:
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype is RawDataOutputType.MBTILES.value:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
-                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                outputtype=outputtype, export_path=export_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
 
         elif outputtype is RawDataOutputType.SHAPEFILE.value: 
             #if it is shapefile it needs different logic for point,line and polygon
@@ -837,7 +844,7 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Point Shapefile")
-                run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir)
+                run_ogr2ogr_cmd(cmd,binding_file_dir)
                 file_paths.append(point_file_path)
                 #need filepath to zip in to file and clear them after zipping 
                 file_paths.append(f"""{dump_temp_file_path}_point.shx""")
@@ -851,7 +858,7 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Line Shapefile")
-                run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir)
+                run_ogr2ogr_cmd(cmd,binding_file_dir)
                 file_paths.append(line_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_line.shx""")
                 # file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
@@ -863,7 +870,7 @@ class RawData:
                 cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                     outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
                 logging.debug("Calling ogr2ogr-Poly Shapefile")
-                run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir)
+                run_ogr2ogr_cmd(cmd,binding_file_dir)
                 file_paths.append(poly_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
                 # file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
@@ -874,7 +881,7 @@ class RawData:
             #if it is not shapefile use standard ogr2ogr with their output format , will be useful for kml 
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                 outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
-        run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir)
+        run_ogr2ogr_cmd(cmd,binding_file_dir)
         return export_path
 
     @staticmethod
@@ -903,7 +910,7 @@ class RawData:
             f.write(post_geojson)
             #close the file
         f.close()
-        logging.debug(f"""Server side Query Result  Post Processing Done""")
+        logging.debug("Server side Query Result  Post Processing Done")
 
     @staticmethod
     def query2shapefile(con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path):
@@ -911,7 +918,7 @@ class RawData:
         # schema = {'geometry': 'LineString','properties': {'test': 'int'}}
         file_paths = []
         if point_query:
-            logging.debug(f"""Writing Point Shapefile""")
+            logging.debug("Writing Point Shapefile")
 
             schema = {'geometry': 'Point', 'properties': point_schema, }
             point_file_path = f"""{dump_temp_file_path}_point.shp"""
@@ -935,7 +942,7 @@ class RawData:
             file_paths.append(f"""{dump_temp_file_path}_point.prj""")
 
         if line_query:
-            logging.debug(f"""Writing Line Shapefile""")
+            logging.debug("Writing Line Shapefile")
 
             schema = {'geometry': 'LineString', 'properties': line_schema, }
             # print(schema)
@@ -957,7 +964,7 @@ class RawData:
             file_paths.append(f"""{dump_temp_file_path}_line.prj""")
 
         if poly_query:
-            logging.debug(f"""Writing Poly Shapefile""")
+            logging.debug("Writing Poly Shapefile")
 
             poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
             schema = {'geometry': 'Polygon', 'properties': poly_schema, }
@@ -1038,12 +1045,14 @@ class RawData:
             elif output_type is RawDataOutputType.SHAPEFILE.value:
                 point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
                     self.params,ogr_export=True)
+                # point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
+                #     self.params,ogr_export=True)
                 dump_temp_file_path = f"""{path}{exportname}"""
                 filepaths = RawData.ogr_export(outputtype=output_type,point_query=point_query, line_query=line_query, poly_query=poly_query,dump_temp_file_path=dump_temp_file_path,binding_file_dir=path) #using ogr2ogr
                 # filepaths = RawData.query2shapefile(self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path) #using fiona
                 return filepaths, geom_area , root_dir_file
             else:
-                filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True), export_path=dump_temp_file_path, outputtype=output_type,binding_file_dir=path)  # uses ogr export to export
+                filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True), export_temp_path=dump_temp_file_path, outputtype=output_type,binding_file_dir=path)  # uses ogr export to export
             return [dump_temp_file_path], geom_area , root_dir_file
         except Exception as ex :
             logging.Error(ex)
@@ -1063,12 +1072,11 @@ class RawData:
         RawData.close_con(self.con)
         return str(behind_time[0][0])
 
-def run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir):
+def run_ogr2ogr_cmd(cmd,binding_file_dir):
     """Runs command and monitors the file size until the process runs
 
     Args:
         cmd (_type_): Command to run for subprocess
-        dump_temp_file_path (_type_): _description_
         binding_file_dir (_type_): _description_
 
     Raises:
@@ -1093,11 +1101,11 @@ def run_ogr2ogr_cmd(cmd,dump_temp_file_path,binding_file_dir):
                 shutil.rmtree(binding_file_dir)
                 raise ValueError("Shapefile Exceed 4 GB Limit")     
         logging.debug(process.stdout.read())             
-    except :
-        logging.debug('Error :: Killing ogr2ogr...')
+    except Exception as ex:
+        logging.error(ex)
         process.kill()
         shutil.rmtree(binding_file_dir)
-        raise ValueError("Shapefile binding failed")     
+        raise ex    
 
 class S3FileTransfer :
     """Responsible for the file transfer to s3 from API maachine """
@@ -1111,45 +1119,41 @@ class S3FileTransfer :
         except Exception as ex:
             logging.error(ex)
             raise ex
-        self.s3 = self.aws_session.client('s3')
+        self.s_3 = self.aws_session.client('s3')
         logging.debug("Connection has been successful to s3")
         
     def list_buckets(self):
         """used to list all the buckets available on s3"""
-        buckets=self.s3.list_buckets()
+        buckets=self.s_3.list_buckets()
         return buckets 
 
     def get_bucket_location(self,bucket_name):
         """Provides the bucket location on aws, takes bucket_name as string -- name of repo on s3"""
-        bucket_location = self.s3.get_bucket_location(Bucket=bucket_name)
+        bucket_location = self.s_3.get_bucket_location(Bucket=bucket_name)
         return bucket_location['LocationConstraint'] or "us-east-1"
 
     def upload(self,file_path, file_prefix):
-        """Used for transferring file to s3 after reading path from the user , It will only start the upload but doesn't wait for upload to complete
-        Parameters :file_path --- your local file path to upload , file_prefix -- prefix for the filename which is stored
-        sample function call : S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test") """
-        self.file_path = file_path
-        self.file_prefix = file_prefix
-        file_name=f"{self.file_prefix}.zip"
+        """Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
+        Parameters :file_path --- your local file path to upload ,
+            file_prefix -- prefix for the filename which is stored
+        sample function call : 
+            S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test") """
+        file_name=f"{file_prefix}.zip"
         #instantiate upload 
         start_time=time.time()
         try:
-            self.s3.upload_file(self.file_path, 
+            self.s_3.upload_file(file_path, 
                 BUCKET_NAME, 
-                file_name,Callback=ProgressPercentage(self.file_path)
+                file_name,Callback=ProgressPercentage(file_path)
                 )
         except Exception as ex:
             logging.error(ex)
             raise ex
-        logging.info(f"Uploaded {self.file_prefix} in {time.time()-start_time} sec")
+        logging.info("Uploaded %s in %s sec" ,file_prefix,time.time()-start_time)
         #generate the download url 
         bucket_location = self.get_bucket_location(bucket_name=BUCKET_NAME)
         object_url = f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
         return object_url 
-    
-import os
-import sys
-import threading
 
 class ProgressPercentage(object):
     """Determines the project percentage of aws s3 upload file call
@@ -1169,8 +1173,4 @@ class ProgressPercentage(object):
         with self._lock:
             self._seen_so_far += bytes_amount
             percentage = (self._seen_so_far / self._size) * 100
-            logging.debug(
-                "\r%s  %s / %s  (%.2f%%)" % (
-                    self._filename, self._seen_so_far, self._size,
-                    percentage))
-            sys.stdout.flush()
+            logging.debug("\r%s  %s / %s  (%.2f%%)" ,self._filename, self._seen_so_far, self._size,percentage)
