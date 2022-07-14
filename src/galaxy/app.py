@@ -49,7 +49,7 @@ from fiona.crs import from_epsg
 import time
 import shutil
 import boto3
-from .config import logger as logging
+from .config import logger as logging , export_path
 import requests
 
 #import instance for pooling 
@@ -1019,19 +1019,14 @@ class RawData:
             output_type = RawDataOutputType.GEOJSON.value
         else:
             output_type = self.params.output_type
-        try:
-            # first try to get configuration from config if it is available or not 
-            path = config.get("API_CONFIG", "export_path")
-        except : 
-            # if not create default path 
-            path = 'exports/' # first tries to import from config, if not defined creates exports in home directory 
-        
+
         # Check whether the export path exists or not
-        isExist = os.path.exists(path)
+        isExist = os.path.exists(export_path)
         if not isExist:
             # Create a exports directory because it does not exist
-            os.makedirs(path)
-        path=f"""{path}{exportname}/"""
+            os.makedirs(export_path)
+        root_dir_file=export_path
+        path=f"""{export_path}{exportname}/"""
         os.makedirs(path)
         #create file path with respect to of output type 
         dump_temp_file_path = f"""{path}{exportname}.{output_type.lower()}"""
@@ -1046,10 +1041,10 @@ class RawData:
                 dump_temp_file_path = f"""{path}{exportname}"""
                 filepaths = RawData.ogr_export(outputtype=output_type,point_query=point_query, line_query=line_query, poly_query=poly_query,dump_temp_file_path=dump_temp_file_path,binding_file_dir=path) #using ogr2ogr
                 # filepaths = RawData.query2shapefile(self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path) #using fiona
-                return filepaths, geom_area
+                return filepaths, geom_area , root_dir_file
             else:
                 filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True), export_path=dump_temp_file_path, outputtype=output_type,binding_file_dir=path)  # uses ogr export to export
-            return [dump_temp_file_path], geom_area
+            return [dump_temp_file_path], geom_area , root_dir_file
         except Exception as ex :
             logging.Error(ex)
             raise ex

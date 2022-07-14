@@ -47,6 +47,11 @@ logging.getLogger('boto3').propagate = False # disable boto3 logging
 
 logger = logging.getLogger('galaxy')
 
+export_path=config.get('API_CONFIG', 'export_path', fallback=None)
+if export_path is None : 
+    export_path = "exports/"
+if export_path.endswith("/") is False : 
+    export_path=f"""{export_path}/"""
 
 AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY , BUCKET_NAME =None , None , None
 #check either to use connection pooling or not 
@@ -66,8 +71,12 @@ if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "s3":
     BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback=None)
     if BUCKET_NAME is None : 
         BUCKET_NAME="exports-stage.hotosm.org" # default 
-else:
+elif config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "disk":
     use_s3_to_upload=False
+else:
+    logging.error("value not supported for file_upload_method , switching to default disk method")
+    use_s3_to_upload=False
+
 
 def get_db_connection_params(dbIdentifier: str) -> dict:
     """Return a python dict that can be passed to psycopg2 connections

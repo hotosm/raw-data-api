@@ -49,7 +49,7 @@ from uuid import uuid4
 from .auth import login_required
 import pathlib
 import shutil
-from src.galaxy.config import use_s3_to_upload
+from src.galaxy.config import use_s3_to_upload , export_path
 import requests
 from datetime import datetime as dt
 # @router.post("/historical-snapshot/")
@@ -57,6 +57,8 @@ from datetime import datetime as dt
 #     start_time = time.time()
 #     result= RawData(params).extract_historical_data()
 #     return generate_rawdata_response(result,start_time)
+
+
 
 @router.post("/current-snapshot/")
 def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,request: Request):
@@ -231,18 +233,14 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     
     logging.info(f"Request {exportname} received ")
 
-    dump_temp_file, geom_area=RawData(params).extract_current_data(exportname)
+    dump_temp_file, geom_area , root_dir_file=RawData(params).extract_current_data(exportname)
 
     logging.debug('Zip Binding Started !')
-    try:
-        path = config.get("API_CONFIG", "path")
-    except : 
-        path = 'exports/' # first tries to import from config, if not defined creates exports in home directory 
     # saving file in temp directory instead of memory so that zipping file will not eat memory
-    zip_temp_path = f"""{path}{exportname}.zip"""
+    zip_temp_path = f"""{root_dir_file}{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
 
-    path=f"""{path}{exportname}/"""
+    path=f"""{root_dir_file}{exportname}/"""
     directory = pathlib.Path(path)
     for file_path in directory.iterdir():
         zf.write(file_path, arcname=file_path.name)
@@ -265,7 +263,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     #check if download url will be generated from s3 or not from config
     if use_s3_to_upload :
         file_transfer_obj=S3FileTransfer()
-        download_url=file_transfer_obj.upload(f"""exports/{exportname}.zip""",exportname)
+        download_url=file_transfer_obj.upload(zip_temp_path,exportname)
         background_tasks.add_task(watch_s3_upload,download_url,zip_temp_path) # watches the status code of the link provided and deletes the file if it is 200
     else:
         try:
