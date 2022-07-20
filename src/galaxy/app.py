@@ -218,6 +218,18 @@ class Underpass:
         
         return user_role
 
+    def get_osm_last_updated(self):
+        """OSM synchronisation"""
+        status_query = check_last_updated_osm_underpass()
+        result = self.database.executequery(status_query)
+        return result
+
+    def get_user_data_quality_last_updated(self):
+        """ Recency of user data quality reports"""
+        status_query = check_last_updated_user_data_quality_underpass()
+        result = self.database.executequery(status_query)
+        return result
+
 
 class Insight:
     """This class connects to Insight database and responsible for all the Insight related functionality"""
@@ -259,6 +271,24 @@ class Insight:
         total_contributors_result = self.database.executequery(
             contributors_query)
         return osm_history_result, total_contributors_result
+
+    def get_osm_last_updated(self):
+        """OSM synchronisation"""
+        status_query = check_last_updated_osm_insights()
+        result = self.database.executequery(status_query)
+        return result
+
+    def get_mapathon_statistics_last_updated(self):
+        """Recency of mapathon statistics"""
+        status_query = check_last_updated_mapathon_insights()
+        result = self.database.executequery(status_query)
+        return result
+
+    def get_user_statistics_last_updated(self):
+        """Recency of user statistics"""
+        status_query = check_last_updated_user_statistics_insights()
+        result = self.database.executequery(status_query)
+        return result
 
 
 class TaskingManager:
@@ -751,25 +781,35 @@ class Status:
     """Class to show how recent the data is from different data sources"""
 
     # constructor
-    def __init__(self, source):
-        if source == DataSource.UNDERPASS.value:
-            self.database = Database(get_db_connection_params("UNDERPASS"))
-        elif source == DataSource.INSIGHTS.value:
-            self.database = Database(get_db_connection_params("INSIGHTS"))
+    def __init__(self, parameters):
+        # parameter validation using pydantic model
+        if type(parameters) is DataRecencyParams:
+            self.params = parameters
+        else:
+            self.params = DataRecencyParams(**parameters)
+
+        if self.params.data_source == "underpass":
+            self.database = Underpass(self.params)
+        elif self.params.data_source == "insight":
+            self.database = Insight(self.params)
         else:
             raise ValueError("Source is not Supported")
+
+    def get_osm_recency(self):
+        result = self.database.get_osm_last_updated()
+        return result[0][0]
         
-        self.con, self.cur = self.database.connect()
+    def get_mapathon_statistics_recency(self):
+        result = self.database.get_mapathon_statistics_last_updated()
+        return result[0][0]
 
-    def check_insights_status(self):
-        status_query = check_last_updated_insights()
-        result = self.database.executequery(status_query)
-        return result[0][0].total_seconds()
+    def get_user_statistics_recency(self):
+        result =  self.database.get_user_statistics_last_updated()
+        return result[0][0]   
 
-    def check_underpass_status(self):
-        status_query = check_last_updated_underpass()
-        result = self.database.executequery(status_query)
-        return result[0][0].total_seconds()
+    def get_user_data_quality_recency(self):
+        result =  self.database.get_user_data_quality_last_updated()
+        return result[0][0]
 
 
 class RawData:
@@ -1209,4 +1249,3 @@ class ProgressPercentage(object):
             self._seen_so_far += bytes_amount
             percentage = (self._seen_so_far / self._size) * 100
             logging.debug("\r%s  %s / %s  (%.2f%%)" ,self._filename, self._seen_so_far, self._size,percentage)
-

@@ -22,31 +22,29 @@
 """
 
 from fastapi import APIRouter
-from src.galaxy.validation.models import DataSource
+from src.galaxy.validation.models import DataOutput, DataSource, DataRecencyParams
 from src.galaxy.app import Status
 
 router = APIRouter(prefix="/status")
 
-@router.get("/{data_source}")
-def get_current_database_status(data_source: DataSource):
-    """Gives the database update status depending on the source"""
-    status = Status(data_source)
-    result = None
+@router.post("/")
+def data_recency_status(params: DataRecencyParams):
+  """Gives the time lapse since the last update per data source per data output"""
+  result = None
+  db = Status(params)
 
-    if data_source == DataSource.INSIGHTS.value:
-      result = status.check_insights_status()
+  if (params.data_source == DataSource.INSIGHTS.value):
+    if (params.data_output == DataOutput.OSM.value):
+      result = db.get_osm_recency()
+    elif(params.data_output == DataOutput.mapathon_statistics.value):
+      result = db.get_mapathon_statistics_recency()
+    elif(params.data_output == DataOutput.user_statistics.value):
+      result = db.get_user_statistics_recency()
 
-    if data_source == DataSource.UNDERPASS.value:
-      result = status.check_underpass_status()
+  if (params.data_source == DataSource.UNDERPASS.value):
+    if (params.data_output == DataOutput.OSM.value):
+      result = db.get_osm_recency()
+    elif(params.data_output == DataOutput.data_quality.value):
+      result = db.get_user_data_quality_recency()
 
-    # result = result/60 #convert to minutes
-
-    # if int(result) == 0:
-    #   response = "less than a minute ago"
-    # elif int(result) == 1:
-    #    response = "1 minute ago"
-    # else:
-    #   response = f"""{int(result)} minutes ago"""
-
-    # return { "last_updated": response }
-    return { "last_updated_seconds": result }
+  return { "time_difference": str(result) if result else None }

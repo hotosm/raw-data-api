@@ -603,4 +603,15 @@ class UserStatistics(BaseModel):
 
 class DataSource(str, Enum):
     UNDERPASS = "underpass"
-    INSIGHTS = "insights"
+    INSIGHTS = "insight"
+
+class DataOutput(str, Enum):
+    OSM = "osm"
+    mapathon_statistics = "mapathon statistics"
+    data_quality = "data quality"
+    user_statistics = "user statistics"
+    raw_data = "raw data"
+
+class DataRecencyParams(BaseModel):
+    data_source: DataSource
+    data_output: DataOutput
