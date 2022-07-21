@@ -32,6 +32,7 @@ from starlette.background import BackgroundTasks
 import orjson
 
 from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 # from fastapi import APIRouter, Depends, Request
 from src.galaxy.query_builder.builder import remove_spaces
 from src.galaxy.validation.models import  RawDataCurrentParams,RawDataOutputType
@@ -221,13 +222,19 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     logging.info("Request %s received",exportname)
 
     dump_temp_file, geom_area , root_dir_file=RawData(params).extract_current_data(exportname)
+    path=f"""{root_dir_file}{exportname}/"""
+
+    if os.path.exists(path) is False:
+        return JSONResponse(
+                status_code=400,
+                content={"Error": "Request went too big"}
+            ) 
 
     logging.debug('Zip Binding Started !')
     # saving file in temp directory instead of memory so that zipping file will not eat memory
     zip_temp_path = f"""{root_dir_file}{exportname}.zip"""
     zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
 
-    path=f"""{root_dir_file}{exportname}/"""
     directory = pathlib.Path(path)
     for file_path in directory.iterdir():
         zf.write(file_path, arcname=file_path.name)
@@ -279,7 +286,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
 def check_current_db_status():
     """Gives status about DB update, Substracts with current time and last db update time"""
     result = RawData().check_status()
-    response ="%s ago",result
+    response =f"{result} ago"
     return {"last_updated": response}
 
 def remove_file(path: str) -> None:

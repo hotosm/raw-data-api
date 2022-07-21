@@ -54,7 +54,7 @@ import shutil
 import boto3
 from .config import logger as logging , export_path
 import requests
-
+import signal
 #import instance for pooling 
 if use_connection_pooling:
     from src.galaxy.db_session import database_instance
@@ -1096,11 +1096,11 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
                 size+=os.path.getsize(ele)
             # print(size/1000000) # in MB
             if size/1000000 >  4000:
-                logging.debug("Killing ogr2ogr because it exceed 4 GB...")
+                logging.warn("Killing ogr2ogr because it exceed 4 GB...")
                 process.kill()
                 os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
-                shutil.rmtree(binding_file_dir)
-                logging.error("Shapefile Exceed 4 GB Limit")     
+                shutil.rmtree(binding_file_dir)  
+                raise ValueError("Shapefile Exceed 4 GB Limit")
         logging.debug(process.stdout.read())             
     except Exception as ex:
         logging.error(ex)
@@ -1150,7 +1150,7 @@ class S3FileTransfer :
         except Exception as ex:
             logging.error(ex)
             raise ex
-        logging.info("Uploaded %s in %s sec" ,file_prefix,time.time()-start_time)
+        logging.debug("Uploaded %s in %s sec" ,file_prefix,time.time()-start_time)
         #generate the download url 
         bucket_location = self.get_bucket_location(bucket_name=BUCKET_NAME)
         object_url = f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
