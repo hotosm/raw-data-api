@@ -795,8 +795,9 @@ class Status:
         else:
             raise ValueError("Source is not Supported")
 
+
     def get_osm_recency(self):
-        return self.database.get_osm_last_updated() if getattr(self.database, "get_osm_last_updated", None) else None # checks either that method is supported by the database supplied or not without making call to database if yes will make a call else it will return None without calling class
+        return self.database.get_osm_last_updated() if getattr(self.database, "get_osm_last_updated", None) else None # checks either that method is supported by the database supplied or not without making call to database class if yes will make a call else it will return None 
 
     def get_mapathon_statistics_recency(self):
         return self.database.get_mapathon_statistics_last_updated() if getattr(self.database, "get_mapathon_statistics_last_updated", None) else None 
