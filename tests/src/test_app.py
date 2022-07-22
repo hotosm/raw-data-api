@@ -23,7 +23,7 @@ import testing.postgresql
 import pytest
 from src.galaxy.validation import models as mapathon_validation
 from src.galaxy.query_builder import builder as mapathon_query_builder
-from src.galaxy.query_builder.builder import generate_organization_hashtag_reports,create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports,raw_currentdata_extraction_query
+from src.galaxy.query_builder.builder import check_last_updated_osm_insights, check_last_updated_osm_underpass, check_last_updated_user_data_quality_underpass, check_last_updated_user_statistics_insights, generate_organization_hashtag_reports,create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports,raw_currentdata_extraction_query
 from src.galaxy.validation.models import OrganizationHashtagParams, UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams,RawDataCurrentParams
 from src.galaxy import Output
 import os.path
@@ -711,3 +711,16 @@ def test_attribute_filter_rawdata() :
     print(query_result)
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
 
+def test_osm_recency_query():
+    expected_insights_query = 'SELECT (NOW() - last_timestamp) AS "last_updated" FROM public.osm_element_history_state;'
+    assert check_last_updated_osm_insights() == expected_insights_query
+    expected_underpass_query = 'SELECT (NOW() - MAX(updated_at)) AS "last_updated" FROM public.changesets;'
+    assert check_last_updated_osm_underpass() == expected_underpass_query
+
+def test_user_statistics_recency_query():
+    expected_insights_query = 'SELECT (now() - max(timestamp)) FROM public.osm_element_history where changeset = (SELECT max(changeset) FROM public.all_changesets_stats);'
+    assert check_last_updated_user_statistics_insights() == expected_insights_query
+
+def test_user_data_quality_recency_query():
+    expected_underpass_query = 'SELECT (now() - max(updated_at)) FROM public.changesets;'
+    assert check_last_updated_user_data_quality_underpass() == expected_underpass_query
