@@ -607,10 +607,10 @@ class DataSource(str, Enum):
 
 class DataOutput(str, Enum):
     OSM = "osm"
-    mapathon_statistics = "mapathon statistics"
-    data_quality = "data quality"
-    user_statistics = "user statistics"
-    raw_data = "raw data"
+    mapathon_statistics = "mapathon_statistics"
+    data_quality = "data_quality"
+    user_statistics = "user_statistics"
+    raw_data = "raw_data"
 
 class DataRecencyParams(BaseModel):
     data_source: DataSource

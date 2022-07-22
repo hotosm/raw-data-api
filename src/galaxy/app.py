@@ -222,13 +222,13 @@ class Underpass:
         """OSM synchronisation"""
         status_query = check_last_updated_osm_underpass()
         result = self.database.executequery(status_query)
-        return result
+        return result[0][0]
 
     def get_user_data_quality_last_updated(self):
         """ Recency of user data quality reports"""
         status_query = check_last_updated_user_data_quality_underpass()
         result = self.database.executequery(status_query)
-        return result
+        return result[0][0]
 
 
 class Insight:
@@ -282,13 +282,13 @@ class Insight:
         """Recency of mapathon statistics"""
         status_query = check_last_updated_mapathon_insights()
         result = self.database.executequery(status_query)
-        return result
+        return result[0][0]
 
     def get_user_statistics_last_updated(self):
         """Recency of user statistics"""
         status_query = check_last_updated_user_statistics_insights()
         result = self.database.executequery(status_query)
-        return result
+        return result[0][0]
 
 
 class TaskingManager:
@@ -795,21 +795,20 @@ class Status:
         else:
             raise ValueError("Source is not Supported")
 
-    def get_osm_recency(self):
-        result = self.database.get_osm_last_updated()
-        return result[0][0]
-        
+     def get_osm_recency(self):
+        return self.database.get_osm_last_updated() if getattr(self.database, "get_osm_last_updated", None) else None 
+
     def get_mapathon_statistics_recency(self):
-        result = self.database.get_mapathon_statistics_last_updated()
-        return result[0][0]
+        return self.database.get_mapathon_statistics_last_updated() if getattr(self.database, "get_mapathon_statistics_last_updated", None) else None 
 
     def get_user_statistics_recency(self):
-        result =  self.database.get_user_statistics_last_updated()
-        return result[0][0]   
+        return self.database.get_user_statistics_last_updated() if getattr(self.database, "get_user_statistics_last_updated", None) else None 
 
     def get_user_data_quality_recency(self):
-        result =  self.database.get_user_data_quality_last_updated()
-        return result[0][0]
+        return self.database.get_user_data_quality_last_updated() if getattr(self.database, "get_user_data_quality_last_updated", None) else None
+
+    def get_raw_data_recency(self):
+        return RawData.check_status()
 
 
 class RawData:
@@ -1249,3 +1248,4 @@ class ProgressPercentage(object):
             self._seen_so_far += bytes_amount
             percentage = (self._seen_so_far / self._size) * 100
             logging.debug("\r%s  %s / %s  (%.2f%%)" ,self._filename, self._seen_so_far, self._size,percentage)
+
