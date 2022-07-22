@@ -795,8 +795,8 @@ class Status:
         else:
             raise ValueError("Source is not Supported")
 
-     def get_osm_recency(self):
-        return self.database.get_osm_last_updated() if getattr(self.database, "get_osm_last_updated", None) else None 
+    def get_osm_recency(self):
+        return self.database.get_osm_last_updated() if getattr(self.database, "get_osm_last_updated", None) else None # checks either that method is supported by the database supplied or not without making call to database if yes will make a call else it will return None without calling class
 
     def get_mapathon_statistics_recency(self):
         return self.database.get_mapathon_statistics_last_updated() if getattr(self.database, "get_mapathon_statistics_last_updated", None) else None 
@@ -1188,7 +1188,6 @@ class S3FileTransfer :
         except Exception as ex:
             logging.error(ex)
             raise ex
-
         
     def list_buckets(self):
         """used to list all the buckets available on s3"""
