@@ -276,7 +276,7 @@ class Insight:
         """OSM synchronisation"""
         status_query = check_last_updated_osm_insights()
         result = self.database.executequery(status_query)
-        return result
+        return result[0][0]
 
     def get_mapathon_statistics_last_updated(self):
         """Recency of mapathon statistics"""
@@ -808,7 +808,7 @@ class Status:
     def get_user_data_quality_recency(self):
         return self.database.get_user_data_quality_last_updated() if getattr(self.database, "get_user_data_quality_last_updated", None) else None
 
-    def get_raw_data_recency(self):
+    def get_raw_data_recency(self): 
         return RawData().check_status()
 
 
@@ -1249,3 +1249,4 @@ class ProgressPercentage(object):
             percentage = (self._seen_so_far / self._size) * 100
             logging.debug("\r%s  %s / %s  (%.2f%%)" ,self._filename, self._seen_so_far, self._size,percentage)
 
+        

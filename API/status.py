@@ -32,14 +32,14 @@ def data_recency_status(params: DataRecencyParams):
     result = None
     db = Status(params)
     if (params.data_output == DataOutput.OSM.value):
-        result = db.get_osm_recency()
+      result = db.get_osm_recency()
     elif(params.data_output == DataOutput.mapathon_statistics.value):
-        result = db.get_mapathon_statistics_recency()
+      result = db.get_mapathon_statistics_recency()
     elif(params.data_output == DataOutput.user_statistics.value):
-        result = db.get_user_statistics_recency()
+      result = db.get_user_statistics_recency()
     elif(params.data_output == DataOutput.data_quality.value):
-        result = db.get_user_data_quality_recency()
+      result = db.get_user_data_quality_recency()
     elif params.data_output == DataOutput.raw_data.value:
-        result = db.get_raw_data_recency() if params.data_source is DataSource.UNDERPASS.value else None
+      result = db.get_raw_data_recency() if params.data_source is DataSource.UNDERPASS.value else None
 
     return { "time_difference": str(result) if result else None }
