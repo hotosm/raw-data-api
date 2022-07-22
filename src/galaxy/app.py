@@ -809,7 +809,7 @@ class Status:
         return self.database.get_user_data_quality_last_updated() if getattr(self.database, "get_user_data_quality_last_updated", None) else None
 
     def get_raw_data_recency(self):
-        return RawData.check_status()
+        return RawData().check_status()
 
 
 class RawData:
