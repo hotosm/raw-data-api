@@ -1088,24 +1088,28 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            shell=True
+            shell=True,
+            preexec_fn=os.setsid
         )
         while process.poll() is None:
             size=0
             for ele in os.scandir(binding_file_dir):
                 size+=os.path.getsize(ele)
             # print(size/1000000) # in MB
-            if size/1000000 >  4000:
+            if size/1000000 >  4:
                 logging.warn("Killing ogr2ogr because it exceed 4 GB...")
-                process.kill()
-                os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
-                shutil.rmtree(binding_file_dir)  
+                # process.kill()
+                # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+                # shutil.rmtree(binding_file_dir)  
                 raise ValueError("Shapefile Exceed 4 GB Limit")
+
         logging.debug(process.stdout.read())             
     except Exception as ex:
         logging.error(ex)
         process.kill()
-        shutil.rmtree(binding_file_dir)
+        os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+        if  os.path.exists(binding_file_dir):
+            shutil.rmtree(binding_file_dir)
         raise ex    
 
 class S3FileTransfer :

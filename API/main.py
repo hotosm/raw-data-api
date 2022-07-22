@@ -35,7 +35,7 @@ from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
 from .download_export import router as download_router
 # from fastapi import  Request
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse
 
 from src.galaxy.db_session import database_instance
 from src.galaxy.config import use_connection_pooling , use_s3_to_upload ,logger as logging,config
@@ -56,14 +56,12 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 
 app = FastAPI()
 
-async def catch_exceptions_middleware(request: Request, call_next):
-    try:
-        return await call_next(request)
-    except Exception as ex:
-        logging.error(ex)
-        # you probably want some kind of logging here
-        return Response("Can't process your request at the moment", status_code=400)
-app.middleware('http')(catch_exceptions_middleware)
+@app.exception_handler(ValueError)
+async def value_error_exception_handler(request: Request, exc: ValueError):
+    return JSONResponse(
+        status_code=400,
+        content={"Error": str(exc)},
+    )
 
 origins = ["*"]
 
@@ -107,12 +105,12 @@ async def on_startup():
         raise e
 
 @app.on_event("shutdown")
-async def on_shutdown():
+def on_shutdown():
     """Closing all the threads connection from pooling before shuting down the api 
     """
     if use_connection_pooling:
         logging.debug("Shutting down connection pool")
-        await database_instance.close_all_connection_pool()
+        database_instance.close_all_connection_pool()
 
 
 app.include_router(countries_router)

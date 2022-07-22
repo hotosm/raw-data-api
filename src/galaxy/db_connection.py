@@ -71,12 +71,12 @@ class Database:
         except Exception as ex:
             logging.error(ex)
     
-    async def close_all_connection_pool(self):
+    def close_all_connection_pool(self):
         """Closes the connection thread created by thread pooling all at once 
         """
         # closing database connection.
         # use closeall() method to close all the active connection if you want to turn of the application
         if self.threaded_postgresql_pool:
-            await self.threaded_postgresql_pool.closeall
+            self.threaded_postgresql_pool.closeall
         logging.info("Threaded PostgreSQL connection pool is closed")
 
