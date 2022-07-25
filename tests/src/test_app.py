@@ -608,17 +608,17 @@ def test_rawdata_current_snapshot_geometry_query() :
                         nodes
                     where
                         ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) and (tags ->>  'amenity' IN ( 'shop'  ,  'toilet' ))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
-            osm_id ,tags::text as tags,changeset,timestamp::text,geom
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
             from
                 ways_line
             where
                 ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
-            osm_id ,tags::text as tags,changeset,timestamp::text,geom
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
             from
                 ways_poly
             where
                 ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
-            osm_id ,tags::text as tags,changeset,timestamp::text,geom
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
             from
                 relations
             where
@@ -659,22 +659,22 @@ def test_rawdata_current_snapshot_normal_query() :
             }
     validated_params = RawDataCurrentParams(**test_param)
     expected_query = """select ST_AsGeoJSON(t0.*) from (select
-                    osm_id ,tags::text as tags,changeset,timestamp::text,geom
+                    osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
                     from
                         nodes
                     where
                         ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
-            osm_id ,tags::text as tags,changeset,timestamp::text,geom
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
             from
                 ways_line
             where
                 ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
-            osm_id ,tags::text as tags,changeset,timestamp::text,geom
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
             from
                 ways_poly
             where
                 ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
-            osm_id ,tags::text as tags,changeset,timestamp::text,geom
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
             from
                 relations
             where
@@ -696,12 +696,12 @@ def test_attribute_filter_rawdata() :
                     relations
                 where
                     ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [83.502574, 27.569073]]], "type": "Polygon"}'), geom) and (tags ->> 'building' = 'yes') and (geometrytype(geom)='MULTILINESTRING')) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
-            osm_id ,tags::text as tags,changeset,timestamp::text,geom
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
             from
                 ways_poly
             where
                 (grid = 1187 OR grid = 1188) and ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [83.502574, 27.569073]]], "type": "Polygon"}'), geom) and (tags ->> 'building' = 'yes')) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
-            osm_id ,tags::text as tags,changeset,timestamp::text,geom
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
             from
                 relations
             where
