@@ -54,7 +54,7 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 # import os
 # os.environ['OAUTHLIB_INSECURE_TRANSPORT'] ='1'
 
-app = FastAPI()
+app = FastAPI(title="Galaxy API")
 
 @app.exception_handler(ValueError)
 async def value_error_exception_handler(request: Request, exc: ValueError):
