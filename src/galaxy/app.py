@@ -1096,7 +1096,7 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
             for ele in os.scandir(binding_file_dir):
                 size+=os.path.getsize(ele)
             # print(size/1000000) # in MB
-            if size/1000000 >  4:
+            if size/1000000 >  4000:
                 logging.warn("Killing ogr2ogr because it exceed 4 GB...")
                 # process.kill()
                 # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
