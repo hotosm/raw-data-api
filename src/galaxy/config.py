@@ -29,13 +29,13 @@ config.read(CONFIG_FILE_PATH)
 
 log_level = config.get("API_CONFIG", "log_level",fallback=None) # get log level from config
 
-if log_level is None or log_level == 'debug' or log_level == 'DEBUG':  # default will go to debug
+if log_level is None or log_level.lower() == 'debug':  # default will go to debug
     level=logging.DEBUG 
-elif log_level == 'info' or log_level == 'INFO' :
+elif log_level.lower() == 'info' :
     level=logging.INFO
-elif log_level == 'error' or log_level == 'ERROR' :
+elif log_level.lower() == 'error' :
     level= logging.ERROR
-elif log_level == 'warning' or log_level == 'WARNING':
+elif log_level.lower() == 'warning':
     level = logging.WARNING
 else :
     logging.error("logging config is not supported , Supported fields are : debug,error,warning,info , Logging to default :debug")
@@ -55,13 +55,10 @@ if export_path.endswith("/") is False :
 
 AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY , BUCKET_NAME =None , None , None
 #check either to use connection pooling or not 
-if config.get('API_CONFIG', 'use_connection_pooling', fallback=None) == "true" or "True": 
-    use_connection_pooling=True
-else:
-    use_connection_pooling=False
+use_connection_pooling = config["API_CONFIG"].getboolean("use_connection_pooling")
 
 #check either to use s3 raw data exports file uploading or not 
-if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "s3" or "S3":
+if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None).lower() == "s3" :
     use_s3_to_upload=True
     try :
         AWS_ACCESS_KEY_ID=config.get("EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID") 
@@ -71,7 +68,7 @@ if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "s3" or "
     BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback=None)
     if BUCKET_NAME is None : 
         BUCKET_NAME="exports-stage.hotosm.org" # default 
-elif config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "disk" or "DISK" or "Disk":
+elif config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None).lower() == "disk":
     use_s3_to_upload=False
 else:
     logging.error("value not supported for file_upload_method , switching to default disk method")

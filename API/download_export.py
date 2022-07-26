@@ -39,4 +39,4 @@ def download_export(file_name: str):
         response.headers["Content-Disposition"] = f"attachment; filename={file_name}"
         return response
     else:
-        raise ValueError("File Doesn't Exist or have been cleared up from system")
+        raise ValueError("File Doesn't Exist or has been cleared up from system")
