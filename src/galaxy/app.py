@@ -22,7 +22,7 @@ import sys
 import threading
 
 from threading import excepthook
-from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level
+from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level,logger as logging , export_path,config,use_connection_pooling
 from .validation.models import Source
 from fastapi import param_functions
 from psycopg2 import connect, sql
@@ -40,7 +40,6 @@ from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
 from csv import DictWriter
-from .config import config,use_connection_pooling
 import logging
 import orjson
 from area import area
@@ -51,7 +50,6 @@ from fiona.crs import from_epsg
 import time
 import shutil
 import boto3
-from .config import logger as logging , export_path
 import requests
 import signal
 #import instance for pooling 
@@ -1121,11 +1119,12 @@ class S3FileTransfer :
                 )
             else:# if it is not passed on config then api will assume it is configured within machine using credentials file 
                 self.aws_session = boto3.Session()
+                self.s_3 = self.aws_session.client('s3')
+                logging.debug("Connection has been successful to s3")
         except Exception as ex:
             logging.error(ex)
             raise ex
-        self.s_3 = self.aws_session.client('s3')
-        logging.debug("Connection has been successful to s3")
+
         
     def list_buckets(self):
         """used to list all the buckets available on s3"""

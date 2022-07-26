@@ -67,9 +67,7 @@ if   file_upload_method== "s3" :
     except :
         logging.debug("No aws credentials supplied")
     BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback="exports-stage.hotosm.org")
-elif file_upload_method == "disk":
-    use_s3_to_upload=False
-else:
+elif file_upload_method not in ["s3", "disk"]:
     logging.error("value not supported for file_upload_method , switching to default disk method")
     use_s3_to_upload=False
 
