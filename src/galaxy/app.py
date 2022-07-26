@@ -24,7 +24,6 @@ import threading
 from threading import excepthook
 from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level
 from .validation.models import Source
-import sys
 from fastapi import param_functions
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
@@ -55,7 +54,6 @@ import boto3
 from .config import logger as logging , export_path
 import requests
 import signal
-import logging
 #import instance for pooling 
 if use_connection_pooling:
     from src.galaxy.db_session import database_instance
@@ -1116,10 +1114,13 @@ class S3FileTransfer :
     def __init__(self):
         #responsible for the connection 
         try:
-            self.aws_session = boto3.Session(
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-            )
+            if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+                self.aws_session = boto3.Session(
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                )
+            else:# if it is not passed on config then api will assume it is configured within machine using credentials file 
+                self.aws_session = boto3.Session()
         except Exception as ex:
             logging.error(ex)
             raise ex

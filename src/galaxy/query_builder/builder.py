@@ -788,7 +788,7 @@ def create_geom_filter(geom):
 
 def remove_spaces(input_str):
     # Fixme I need to check every possible special character that can comeup on osm tags
-    input_str=re.sub("\s", "_", input_str) # putting _ in every space
+    input_str=re.sub("\s+", "_", input_str) # putting _ in every space
     input_str=re.sub(":", "_", input_str) # putting _ in every : value
     return input_str
 
