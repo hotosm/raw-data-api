@@ -58,17 +58,16 @@ AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY , BUCKET_NAME =None , None , None
 use_connection_pooling = config.getboolean("API_CONFIG","use_connection_pooling", fallback=False)
 
 #check either to use s3 raw data exports file uploading or not 
-if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None).lower() == "s3" :
+file_upload_method=config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback='disk').lower()
+if   file_upload_method== "s3" :
     use_s3_to_upload=True
     try :
         AWS_ACCESS_KEY_ID=config.get("EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID") 
         AWS_SECRET_ACCESS_KEY=config.get("EXPORT_UPLOAD", "AWS_SECRET_ACCESS_KEY")
     except :
         logging.debug("No aws credentials supplied")
-    BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback=None)
-    if BUCKET_NAME is None : 
-        BUCKET_NAME="exports-stage.hotosm.org" # default 
-elif config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None).lower() == "disk":
+    BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback="exports-stage.hotosm.org")
+elif file_upload_method == "disk":
     use_s3_to_upload=False
 else:
     logging.error("value not supported for file_upload_method , switching to default disk method")
