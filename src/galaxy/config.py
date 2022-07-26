@@ -55,7 +55,7 @@ if export_path.endswith("/") is False :
 
 AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY , BUCKET_NAME =None , None , None
 #check either to use connection pooling or not 
-use_connection_pooling = config["API_CONFIG"].getboolean("use_connection_pooling")
+use_connection_pooling = config["API_CONFIG"].getboolean("use_connection_pooling", fallback=False)
 
 #check either to use s3 raw data exports file uploading or not 
 if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None).lower() == "s3" :
