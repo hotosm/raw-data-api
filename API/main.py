@@ -30,7 +30,7 @@ from .mapathon import router as mapathon_router
 from .osm_users import router as osm_users_router
 from .data_quality import router as data_quality_router
 from .trainings import router as training_router
-from .organization import router as organization_router
+from .hashtag_stats import router as hashtag_router
 from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
 from .download_export import router as download_router
@@ -56,7 +56,7 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 app = FastAPI(title="Galaxy API")
 
 app.include_router(test_router)
-# app.include_router(countries_router)
+app.include_router(countries_router)
 # app.include_router(changesets_router)
 app.include_router(auth_router)
 app.include_router(mapathon_router)
@@ -64,7 +64,7 @@ app.include_router(mapathon_router)
 app.include_router(osm_users_router)
 app.include_router(data_quality_router)
 # app.include_router(training_router)
-app.include_router(organization_router)
+app.include_router(hashtag_router)
 app.include_router(tm_router)
 app.include_router(raw_data_router)
 if use_s3_to_upload is False : # only mount the disk if config is set to disk 

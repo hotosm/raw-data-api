@@ -35,7 +35,7 @@ router = APIRouter(prefix="/hashtags")
 @router.post("/statistics",response_model=List[OrganizationHashtag])
 @version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
-def get_ogranization_stat(params:OrganizationHashtagParams):
+def get_hashtag_stats(params:OrganizationHashtagParams):
     organization= OrganizationHashtags(params)
     if params.output_type == OrganizationOutputtype.JSON.value:
         return organization.get_report()

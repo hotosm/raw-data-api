@@ -31,7 +31,7 @@ router = APIRouter(prefix="/data-quality")
 
 @router.post("/hashtag-reports/")
 @version(1)
-def data_quality_hashtag_reports(params: DataQualityHashtagParams):
+def get_hashtag_data_quality_report(params: DataQualityHashtagParams):
     data_quality = DataQualityHashtags(params)
 
     results = data_quality.get_report()
@@ -50,7 +50,7 @@ def data_quality_hashtag_reports(params: DataQualityHashtagParams):
 
 @router.post("/project-reports/")
 @version(1)
-def data_quality_reports(params: DataQuality_TM_RequestParams):
+def get_tasking_manager_project_data_quality_report(params: DataQuality_TM_RequestParams):
     data_quality = DataQuality(params,"TM")
 
     if params.output_type == OutputType.GEOJSON.value:
@@ -67,7 +67,40 @@ def data_quality_reports(params: DataQuality_TM_RequestParams):
 
 @router.post("/user-reports/")
 @version(1)
-def data_quality_reports(params: DataQuality_username_RequestParams):
+def get_user_data_quality_report(params: DataQuality_username_RequestParams):
+    """Returns data quality report for individual user within given timeframe 
+
+    Args:
+        params (DataQuality_username_RequestParams): 
+        
+        {
+            "fromTimestamp": "string",
+            "toTimestamp": "string",
+            "osmUsernames": [
+                "string" # supports username directly here
+            ],
+            "issueTypes": [
+                "badgeom" # those are type of issue : Currently supported :   "badgeom","badvalue","incomplete","notags","complete","orphan","overlaping","duplicate","all" # if all is supplied rest of others will be ignored
+            ],
+            "hashtags": [
+                "string"
+            ],
+            "outputType": "csv" # supported : geojson and csv
+        }
+
+    Returns:
+    
+        file: geojson or csv
+    
+    Example Request : 
+    1. Example request for a user who contributed hashtag
+    
+    {"fromTimestamp":"2022-07-22T13:15:00.461Z","toTimestamp":"2022-07-22T14:15:00.461Z","osmUsernames":["Kshitizraj Sharma"],"issueTypes":["all"],"outputType":"geojson","hashtags":["missingmaps"]}
+    
+    2. Example request for a user with all data quality issues within period of time 
+    
+    {"fromTimestamp":"2022-07-22T13:15:00.461Z","toTimestamp":"2022-07-22T14:15:00.461Z","osmUsernames":["Kshitizraj Sharma"],"issueTypes":["all"],"outputType":"geojson","hashtags":[]}
+    """
     data_quality = DataQuality(params,"username")
     
     if params.output_type == OutputType.GEOJSON.value:
