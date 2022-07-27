@@ -309,11 +309,11 @@ def watch_s3_upload(url : str,path : str) -> None:
     """
     start_time = time.time()
     remove_temp_file=True
-    check_call=requests.get(url).status_code
+    check_call=requests.head(url).status_code
     if check_call !=200 :
         logging.debug("Upload is not done yet waiting ...")
         while check_call !=200 :# check until status is not green
-            check_call=requests.get(url).status_code
+            check_call=requests.head(url).status_code
             if time.time() - start_time >300 :
                 logging.error("Upload time took more than 5 min , Killing watch : %s , URL : %s",path,url)
                 remove_temp_file=False # don't remove the file if upload fails

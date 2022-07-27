@@ -29,13 +29,13 @@ config.read(CONFIG_FILE_PATH)
 
 log_level = config.get("API_CONFIG", "log_level",fallback=None) # get log level from config
 
-if log_level is None or log_level == 'debug' or log_level == 'DEBUG':  # default will go to debug
+if log_level is None or log_level.lower() == 'debug':  # default will go to debug
     level=logging.DEBUG 
-elif log_level == 'info' or log_level == 'INFO' :
+elif log_level.lower() == 'info' :
     level=logging.INFO
-elif log_level == 'error' or log_level == 'ERROR' :
+elif log_level.lower() == 'error' :
     level= logging.ERROR
-elif log_level == 'warning' or log_level == 'WARNING':
+elif log_level.lower() == 'warning':
     level = logging.WARNING
 else :
     logging.error("logging config is not supported , Supported fields are : debug,error,warning,info , Logging to default :debug")
@@ -55,25 +55,19 @@ if export_path.endswith("/") is False :
 
 AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY , BUCKET_NAME =None , None , None
 #check either to use connection pooling or not 
-if config.get('API_CONFIG', 'use_connection_pooling', fallback=None) == "true" or "True": 
-    use_connection_pooling=True
-else:
-    use_connection_pooling=False
+use_connection_pooling = config.getboolean("API_CONFIG","use_connection_pooling", fallback=False)
 
 #check either to use s3 raw data exports file uploading or not 
-if  config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "s3" or "S3":
+file_upload_method=config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback='disk').lower()
+if   file_upload_method== "s3" :
     use_s3_to_upload=True
     try :
         AWS_ACCESS_KEY_ID=config.get("EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID") 
         AWS_SECRET_ACCESS_KEY=config.get("EXPORT_UPLOAD", "AWS_SECRET_ACCESS_KEY")
     except :
         logging.debug("No aws credentials supplied")
-    BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback=None)
-    if BUCKET_NAME is None : 
-        BUCKET_NAME="exports-stage.hotosm.org" # default 
-elif config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback=None) == "disk" or "DISK" or "Disk":
-    use_s3_to_upload=False
-else:
+    BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback="exports-stage.hotosm.org")
+elif file_upload_method not in ["s3", "disk"]:
     logging.error("value not supported for file_upload_method , switching to default disk method")
     use_s3_to_upload=False
 

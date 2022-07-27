@@ -22,9 +22,8 @@ import sys
 import threading
 
 from threading import excepthook
-from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME
+from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level,logger as logging , export_path,config,use_connection_pooling
 from .validation.models import Source
-import sys
 from fastapi import param_functions
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
@@ -41,7 +40,6 @@ from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
 from csv import DictWriter
-from .config import config,use_connection_pooling
 import logging
 import orjson
 from area import area
@@ -52,7 +50,6 @@ from fiona.crs import from_epsg
 import time
 import shutil
 import boto3
-from .config import logger as logging , export_path
 import requests
 import signal
 #import instance for pooling 
@@ -908,8 +905,6 @@ class RawData:
                 cursor.close()  # closing connection to avoid memory issues
                 #close the writing geojson with last part 
             f.write(post_geojson)
-            #close the file
-        f.close()
         logging.debug("Server side Query Result  Post Processing Done")
 
     @staticmethod
@@ -1117,15 +1112,19 @@ class S3FileTransfer :
     def __init__(self):
         #responsible for the connection 
         try:
-            self.aws_session = boto3.Session(
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-            )
+            if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+                self.aws_session = boto3.Session(
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                )
+            else:# if it is not passed on config then api will assume it is configured within machine using credentials file 
+                self.aws_session = boto3.Session()
+                self.s_3 = self.aws_session.client('s3')
+                logging.debug("Connection has been successful to s3")
         except Exception as ex:
             logging.error(ex)
             raise ex
-        self.s_3 = self.aws_session.client('s3')
-        logging.debug("Connection has been successful to s3")
+
         
     def list_buckets(self):
         """used to list all the buckets available on s3"""
@@ -1147,10 +1146,17 @@ class S3FileTransfer :
         #instantiate upload 
         start_time=time.time()
         try:
-            self.s_3.upload_file(file_path, 
-                BUCKET_NAME, 
-                file_name,Callback=ProgressPercentage(file_path)
-                )
+            if level is logging.DEBUG:
+                self.s_3.upload_file(file_path, 
+                    BUCKET_NAME, 
+                    file_name,Callback=ProgressPercentage(file_path)
+                    )
+            else:
+                self.s_3.upload_file(file_path, 
+                    BUCKET_NAME, 
+                    file_name
+                    )
+                
         except Exception as ex:
             logging.error(ex)
             raise ex

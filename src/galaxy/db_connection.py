@@ -38,11 +38,11 @@ class Database:
             try:
                 #creating pool through psycopg2 with threaded connection so that there will support from 3 users to 20 users 
                 self.threaded_postgresql_pool = pool.ThreadedConnectionPool(3, 20,**self.db_params)
-                logging.debug("Connection pooling has been established")
                 if (self.threaded_postgresql_pool):
                     logging.info("Connection pool created successfully using ThreadedConnectionPool")
             except Exception as ex:
                 logging.error(ex)
+                raise ex
     
     def get_conn_from_pool(self):
         """Function to get connection from the pool instead of new connection
@@ -70,13 +70,14 @@ class Database:
             logging.debug("Putting back postgresql connection to thread")
         except Exception as ex:
             logging.error(ex)
+            raise ex
     
     def close_all_connection_pool(self):
         """Closes the connection thread created by thread pooling all at once 
         """
         # closing database connection.
-        # use closeall() method to close all the active connection if you want to turn of the application
+        # use closeall() method to close all 
         if self.threaded_postgresql_pool:
-            self.threaded_postgresql_pool.closeall
+            self.threaded_postgresql_pool.closeall()
         logging.info("Threaded PostgreSQL connection pool is closed")
 
