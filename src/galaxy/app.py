@@ -57,7 +57,7 @@ if use_connection_pooling:
     from src.galaxy.db_session import database_instance
 else:
     database_instance=None
-
+import logging as log
 #assigning global variable of pooling so that it will be accessible from any function within this script
 global LOCAL_CON_POOL
 
@@ -1119,8 +1119,8 @@ class S3FileTransfer :
                 )
             else:# if it is not passed on config then api will assume it is configured within machine using credentials file 
                 self.aws_session = boto3.Session()
-                self.s_3 = self.aws_session.client('s3')
-                logging.debug("Connection has been successful to s3")
+            self.s_3 = self.aws_session.client('s3')
+            logging.debug("Connection has been successful to s3")
         except Exception as ex:
             logging.error(ex)
             raise ex
@@ -1146,16 +1146,10 @@ class S3FileTransfer :
         #instantiate upload 
         start_time=time.time()
         try:
-            if level is logging.DEBUG:
-                self.s_3.upload_file(file_path, 
-                    BUCKET_NAME, 
-                    file_name,Callback=ProgressPercentage(file_path)
-                    )
+            if level is log.DEBUG:
+                self.s_3.upload_file(file_path,BUCKET_NAME,file_name,Callback=ProgressPercentage(file_path))
             else:
-                self.s_3.upload_file(file_path, 
-                    BUCKET_NAME, 
-                    file_name
-                    )
+                self.s_3.upload_file(file_path,BUCKET_NAME,file_name)
                 
         except Exception as ex:
             logging.error(ex)
