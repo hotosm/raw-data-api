@@ -27,13 +27,102 @@ router = APIRouter(prefix="/osm-users")
 
 @router.post("/ids", response_model=List[User])
 @version(1)
-def list_users(params: UsersListParams):
+def get_user_id(params: UsersListParams):
+    """Provides user id of usernames, It is possible same user id can be taken by two different users at two different time hence this endpoint takes from and to timestamp
+
+    Args:
+        params (UsersListParams): 
+        
+        {
+        "userNames": [
+            "string"
+        ],
+        "fromTimestamp": "string",
+        "toTimestamp": "string"
+        }
+
+    Returns:
+        json: 
+        
+        {
+            "userId": 0,
+            "userName": "string"
+        }
+    
+    Example Request : 
+    
+        {
+        "userNames":[
+            "Kshitizraj Sharma"
+        ],
+        "fromTimestamp":"2022-06-28T14:15:12.947Z",
+        "toTimestamp":"2022-07-27T14:15:12.947Z"
+        }
+        
+    Example Response :
+    
+        [{"userId":7004124,"userName":"Kshitizraj Sharma"}]
+    """
+
     return UserStats().list_users(params)
 
 
 @router.post("/statistics", response_model=List[UserStatistics])
 @version(1)
-def user_statistics(params: UserStatsParams):
+def get_user_statistics(params: UserStatsParams):
+    """Returns Statistics for specified usernames over period of time
+
+    Args:
+        params (UserStatsParams): 
+        
+                {
+                "fromTimestamp": "string",
+                "toTimestamp": "string",
+                "userId": 0, # this will take only user id not user name , those userid should be derived from /ids and only one user at a time
+                "hashtags": [ 
+                    "string" # you can get user statistics to some specific hashtag or
+                ],
+                "projectIds": []  # you can get user statistics to some specific tasking  manger project id
+                }
+
+    Returns:
+    
+        {
+            "addedBuildings": 0, #count
+            "modifiedBuildings": 0, #count
+            "addedHighway": 0, #count
+            "modifiedHighway": 0, #count
+            "addedHighwayMeters": 0, #meters
+            "modifiedHighwayMeters": 0 #meters
+        }
+    
+    Example Request : 
+    1. To get user stats within time period 
+    
+        {
+            "userId":7004124,
+            "fromTimestamp":"2022-06-28T14:25:33.277Z",
+            "toTimestamp":"2022-07-27T14:25:33.277Z",
+            "projectIds":[],
+            "hashtags":[]
+        }
+    
+    2. To get stats contributed by user for particular hashtag :
+    
+        {
+            "userId":7004124,
+            "fromTimestamp":"2022-06-28T14:25:33.277Z",
+            "toTimestamp":"2022-07-27T14:25:33.277Z",
+            "projectIds":[],
+            "hashtags":[
+                "missingmaps"
+            ]
+        }
+
+    3. To get stats contributed by user for specific tasking manager project:
+    
+        {"userId":7004124,"fromTimestamp":"2022-06-28T14:25:33.277Z","toTimestamp":"2022-07-27T14:25:33.277Z","projectIds":[123],"hashtags":[]}
+    """
     user_stats = UserStats()
 
     if len(params.hashtags) > 0:
