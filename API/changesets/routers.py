@@ -14,7 +14,7 @@ router = APIRouter(prefix="/changesets")
 
 
 @router.post("/", response_model=ChangesetResult)
-@version(1,0)
+@version(1)
 def get_changesets(params: FilterParams):
     geom_filter_sq = geom_filter_subquery(params.dict())
 

@@ -33,7 +33,7 @@ router = APIRouter(prefix="/hashtags")
 
 
 @router.post("/statistics",response_model=List[OrganizationHashtag])
-@version(1,0)
+@version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_ogranization_stat(params:OrganizationHashtagParams):
     organization= OrganizationHashtags(params)

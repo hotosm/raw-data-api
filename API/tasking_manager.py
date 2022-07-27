@@ -34,7 +34,7 @@ from datetime import datetime
 router = APIRouter(prefix="/tasking-manager")
 
 @router.post("/validators")
-@version(1,0)
+@version(1)
 def get_validator_stats(request: ValidatorStatsRequest):
     tm = TaskingManager(request)
     csv_stream = tm.get_validators_stats()
@@ -47,7 +47,7 @@ def get_validator_stats(request: ValidatorStatsRequest):
 
 
 @router.get("/teams")
-@version(1,0)
+@version(1)
 def get_teams():
     csv_stream = TaskingManager().list_teams()
 
@@ -59,7 +59,7 @@ def get_teams():
 
 
 @router.get("/teams/individual")
-@version(1,0)
+@version(1)
 def get_teams():
     csv_stream = TaskingManager().list_teams_metadata()
 

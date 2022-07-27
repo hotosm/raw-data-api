@@ -26,13 +26,13 @@ router = APIRouter(prefix="/osm-users")
 
 
 @router.post("/ids", response_model=List[User])
-@version(1,0)
+@version(1)
 def list_users(params: UsersListParams):
     return UserStats().list_users(params)
 
 
 @router.post("/statistics", response_model=List[UserStatistics])
-@version(1,0)
+@version(1)
 def user_statistics(params: UserStatsParams):
     user_stats = UserStats()
 

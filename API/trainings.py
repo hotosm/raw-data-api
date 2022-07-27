@@ -29,14 +29,14 @@ router = APIRouter(prefix="/training")
 
 
 @router.get("/organisations", response_model=List[TrainingOrganisations])
-@version(1,0)
+@version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_organisations_list():
     training = Training("underpass")
     return training.get_all_organisations()
 
 @router.post("",response_model=List[Trainings])
-@version(1,0)
+@version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_trainings_list(params:TrainingParams):
     training= Training("underpass")

@@ -30,7 +30,7 @@ router = APIRouter(prefix="/data-quality")
 
 
 @router.post("/hashtag-reports/")
-@version(1,0)
+@version(1)
 def data_quality_hashtag_reports(params: DataQualityHashtagParams):
     data_quality = DataQualityHashtags(params)
 
@@ -49,7 +49,7 @@ def data_quality_hashtag_reports(params: DataQualityHashtagParams):
     return response
 
 @router.post("/project-reports/")
-@version(1,0)
+@version(1)
 def data_quality_reports(params: DataQuality_TM_RequestParams):
     data_quality = DataQuality(params,"TM")
 
@@ -66,7 +66,7 @@ def data_quality_reports(params: DataQuality_TM_RequestParams):
     return response
 
 @router.post("/user-reports/")
-@version(1,0)
+@version(1)
 def data_quality_reports(params: DataQuality_username_RequestParams):
     data_quality = DataQuality(params,"username")
     

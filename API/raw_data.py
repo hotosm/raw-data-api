@@ -50,7 +50,7 @@ router = APIRouter(prefix="/raw-data")
 #     return generate_rawdata_response(result,start_time)
 
 @router.post("/current-snapshot/")
-@version(1,0)
+@version(1)
 def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,request: Request):
     """Generates the recent raw osm data available on database based on the user's geometry , query and spatial features
 
@@ -285,7 +285,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
     return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000)} MB""", "zip_file_size_bytes": {zip_file_size}}
 
 @router.get("/status/")
-@version(1,0)
+@version(1)
 def check_current_db_status():
     """Gives status about DB update, Substracts with current time and last db update time"""
     result = RawData().check_status()

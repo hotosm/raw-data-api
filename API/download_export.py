@@ -30,7 +30,7 @@ from os.path import exists
 router = APIRouter(prefix="")
 
 @router.get("/exports/{file_name}")
-@version(1,0)
+@version(1)
 def download_export(file_name: str):
     """Used for Delivering our export to user.
     Returns zip file if it is present on our server if not returns error 
