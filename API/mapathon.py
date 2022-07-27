@@ -18,32 +18,30 @@
 # <info@hotosm.org>
 
 from fastapi import APIRouter, Depends
+from fastapi_versioning import  version
 from src.galaxy.app import Mapathon
 from src.galaxy.validation.models import (
     MapathonSummary,
     MapathonRequestParams,
     MapathonDetail,
 )
-
-
 from .auth import login_required
 
 router = APIRouter(prefix="/mapathon")
 
-
 @router.post("/detail", response_model=MapathonDetail)
+@version(1,0)
 def get_mapathon_detailed_report(params: MapathonRequestParams,
                                  user_data=Depends(login_required)):
     mapathon = Mapathon(params,"insight")
     return mapathon.get_detailed_report()
 
-
 @router.post("/summary", response_model=MapathonSummary)
+@version(1,0)
 def get_mapathon_summary(params: MapathonRequestParams):
    
     if params.source == "underpass":
         mapathon = Mapathon(params,"underpass")
     else:
         mapathon = Mapathon(params,"insight")
-    
     return mapathon.get_summary()

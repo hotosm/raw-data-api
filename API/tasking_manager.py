@@ -20,8 +20,8 @@
 """[Router Responsible for Organizational data API ]
 """
 from fastapi import APIRouter, Depends
-
-from .auth import login_required
+from fastapi_versioning import  version
+# from .auth import login_required
 
 from src.galaxy.tasking_manager.models import ValidatorStatsRequest
 from src.galaxy.app import TaskingManager
@@ -34,6 +34,7 @@ from datetime import datetime
 router = APIRouter(prefix="/tasking-manager")
 
 @router.post("/validators")
+@version(1,0)
 def get_validator_stats(request: ValidatorStatsRequest):
     tm = TaskingManager(request)
     csv_stream = tm.get_validators_stats()
@@ -46,6 +47,7 @@ def get_validator_stats(request: ValidatorStatsRequest):
 
 
 @router.get("/teams")
+@version(1,0)
 def get_teams():
     csv_stream = TaskingManager().list_teams()
 
@@ -57,6 +59,7 @@ def get_teams():
 
 
 @router.get("/teams/individual")
+@version(1,0)
 def get_teams():
     csv_stream = TaskingManager().list_teams_metadata()
 

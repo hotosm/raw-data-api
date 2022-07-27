@@ -20,6 +20,7 @@
 """[Router Responsible for Organizational data API ]
 """
 from fastapi import APIRouter, Depends
+from fastapi_versioning import  version
 from src.galaxy.app import OrganizationHashtags
 from src.galaxy.validation.models import OrganizationHashtag, OrganizationOutputtype,OrganizationHashtagParams
 from .auth import login_required
@@ -31,8 +32,8 @@ from datetime import datetime
 router = APIRouter(prefix="/hashtags")
 
 
-
 @router.post("/statistics",response_model=List[OrganizationHashtag])
+@version(1,0)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_ogranization_stat(params:OrganizationHashtagParams):
     organization= OrganizationHashtags(params)

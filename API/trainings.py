@@ -20,6 +20,7 @@
 """[Router Responsible for training data API ]
 """
 from fastapi import APIRouter, Depends
+from fastapi_versioning import  version
 from src.galaxy.app import Training
 from src.galaxy.validation.models import TrainingOrganisations, TrainingParams , Trainings
 from .auth import login_required
@@ -28,12 +29,14 @@ router = APIRouter(prefix="/training")
 
 
 @router.get("/organisations", response_model=List[TrainingOrganisations])
+@version(1,0)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_organisations_list():
     training = Training("underpass")
     return training.get_all_organisations()
 
 @router.post("",response_model=List[Trainings])
+@version(1,0)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_trainings_list(params:TrainingParams):
     training= Training("underpass")

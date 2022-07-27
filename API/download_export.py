@@ -20,6 +20,7 @@
 """[Router Responsible for downloading exports ]
 """
 from fastapi import APIRouter
+from fastapi_versioning import  version
 from src.galaxy.config import export_path
 from fastapi.responses import FileResponse
 from os.path import exists
@@ -29,6 +30,7 @@ from os.path import exists
 router = APIRouter(prefix="")
 
 @router.get("/exports/{file_name}")
+@version(1,0)
 def download_export(file_name: str):
     """Used for Delivering our export to user.
     Returns zip file if it is present on our server if not returns error 

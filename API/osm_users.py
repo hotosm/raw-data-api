@@ -18,22 +18,21 @@
 # <info@hotosm.org>
 
 from fastapi import APIRouter
+from fastapi_versioning import  version
 from typing import List
-
-
 from src.galaxy.validation.models import UsersListParams, User, UserStatsParams,UserStatistics
 from src.galaxy.app import UserStats
-
-
 router = APIRouter(prefix="/osm-users")
 
 
 @router.post("/ids", response_model=List[User])
+@version(1,0)
 def list_users(params: UsersListParams):
     return UserStats().list_users(params)
 
 
 @router.post("/statistics", response_model=List[UserStatistics])
+@version(1,0)
 def user_statistics(params: UserStatsParams):
     user_stats = UserStats()
 

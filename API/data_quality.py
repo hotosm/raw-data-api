@@ -19,6 +19,7 @@
 
 from csv import DictWriter
 from fastapi import APIRouter
+from fastapi_versioning import  version
 from src.galaxy.validation.models import DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams,OutputType
 from src.galaxy.app import DataQuality, DataQualityHashtags
 from fastapi.responses import StreamingResponse
@@ -29,6 +30,7 @@ router = APIRouter(prefix="/data-quality")
 
 
 @router.post("/hashtag-reports/")
+@version(1,0)
 def data_quality_hashtag_reports(params: DataQualityHashtagParams):
     data_quality = DataQualityHashtags(params)
 
@@ -46,8 +48,8 @@ def data_quality_hashtag_reports(params: DataQualityHashtagParams):
 
     return response
 
-
 @router.post("/project-reports/")
+@version(1,0)
 def data_quality_reports(params: DataQuality_TM_RequestParams):
     data_quality = DataQuality(params,"TM")
 
@@ -63,8 +65,8 @@ def data_quality_reports(params: DataQuality_TM_RequestParams):
     response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
     return response
 
-
 @router.post("/user-reports/")
+@version(1,0)
 def data_quality_reports(params: DataQuality_username_RequestParams):
     data_quality = DataQuality(params,"username")
     

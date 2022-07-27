@@ -2,15 +2,19 @@ import psycopg2
 
 from psycopg2 import sql
 from psycopg2.extras import DictCursor
+from fastapi import APIRouter
+from fastapi_versioning import  version
+from .utils import geom_filter_subquery
 from src.galaxy.config import get_db_connection_params
 from . import ChangesetResult, FilterParams
-from .utils import geom_filter_subquery
-from fastapi import APIRouter
+
+
 
 router = APIRouter(prefix="/changesets")
 
 
 @router.post("/", response_model=ChangesetResult)
+@version(1,0)
 def get_changesets(params: FilterParams):
     geom_filter_sq = geom_filter_subquery(params.dict())
 
