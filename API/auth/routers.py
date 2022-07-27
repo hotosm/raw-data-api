@@ -13,13 +13,14 @@ router = APIRouter(prefix="/auth")
 
 @router.get("/login", response_model=Login)
 def login_url(request: Request):
-    """Generate Login URL for authentication using OAuth2 Application registered to OpenStreetMap
+    """Generate Login URL for authentication using OAuth2 Application registered to OpenStreetMap.
+    Hit the download url returned to get access_token
 
     Parameters: None
 
     Returns:
     - login_url (string) - URL to authorize user to the application via. Openstreetmap 
-        OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters  
+        OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters   
     """
     osm_url = config.get("OAUTH", "url")
     authorize_url = f"{osm_url}/oauth2/authorize/"
@@ -41,7 +42,7 @@ def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Galaxy API
 
     Core will use Oauth secret key from configuration while deserializing token, 
-    provides access token that can be used on authorized endpoint
+    provides access token that can be used on authorized endpoint.
 
     Parameters: None 
 
