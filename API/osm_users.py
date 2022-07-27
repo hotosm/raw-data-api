@@ -75,15 +75,15 @@ def get_user_statistics(params: UserStatsParams):
     Args:
         params (UserStatsParams): 
         
-                {
-                "fromTimestamp": "string",
-                "toTimestamp": "string",
-                "userId": 0, # this will take only user id not user name , those userid should be derived from /ids and only one user at a time
-                "hashtags": [ 
-                    "string" # you can get user statistics to some specific hashtag or
-                ],
-                "projectIds": []  # you can get user statistics to some specific tasking  manger project id
-                }
+        {
+        "fromTimestamp": "string",
+        "toTimestamp": "string",
+        "userId": 0, # this will take only user id not user name , those userid should be derived from /ids and only one user at a time
+        "hashtags": [ 
+            "string" # you can get user statistics to some specific hashtag or
+        ],
+        "projectIds": []  # you can get user statistics to some specific tasking  manger project id
+        }
 
     Returns:
     
