@@ -55,7 +55,7 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 
 app = FastAPI(title="Galaxy API")
 
-app.include_router(test_router)
+# app.include_router(test_router)
 app.include_router(countries_router)
 # app.include_router(changesets_router)
 app.include_router(auth_router)

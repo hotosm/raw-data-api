@@ -9,7 +9,8 @@ router = APIRouter(prefix="/countries")
 @router.get("/", response_model=FeatureCollection)
 @version(1)
 def get_countries():
-    db_params = get_db_connection_params()
+    """Gives geojson list of countries covered by underpass as priority countries"""
+    db_params = get_db_connection_params('UNDERPASS')
     with psycopg2.connect(**db_params) as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(
