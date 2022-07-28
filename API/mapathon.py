@@ -29,7 +29,7 @@ from .auth import login_required
 
 router = APIRouter(prefix="/mapathon")
 
-@router.post("/detail", response_model=MapathonDetail)
+@router.post("/detail/", response_model=MapathonDetail)
 @version(1)
 def get_mapathon_detailed_report(params: MapathonRequestParams,
                                  user_data=Depends(login_required)):
@@ -255,7 +255,7 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
     mapathon = Mapathon(params,"insight")
     return mapathon.get_detailed_report()
 
-@router.post("/summary", response_model=MapathonSummary)
+@router.post("/summary/", response_model=MapathonSummary)
 @version(1)
 def get_mapathon_summary(params: MapathonRequestParams):
     """Returns summary of Mapathon , It doesn't require authorization

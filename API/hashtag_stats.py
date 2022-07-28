@@ -32,7 +32,7 @@ from datetime import datetime
 router = APIRouter(prefix="/hashtags")
 
 
-@router.post("/statistics",response_model=List[OrganizationHashtag])
+@router.post("/statistics/",response_model=List[OrganizationHashtag])
 @version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_hashtag_stats(params:OrganizationHashtagParams):

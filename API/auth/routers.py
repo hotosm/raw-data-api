@@ -11,7 +11,7 @@ from . import AuthUser, Login, Token, login_required, is_staff_member
 router = APIRouter(prefix="/auth")
 
 
-@router.get("/login", response_model=Login)
+@router.get("/login/", response_model=Login)
 def login_url(request: Request):
     """Generate Login URL for authentication using OAuth2 Application registered to OpenStreetMap.
     Hit the download url returned to get access_token
@@ -37,7 +37,7 @@ def login_url(request: Request):
     return Login(url=login_url)
 
 
-@router.get("/callback", response_model=Token)
+@router.get("/callback/", response_model=Token)
 def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Galaxy API
 
@@ -93,7 +93,7 @@ def callback(request: Request):
     return token
 
 
-@router.get("/me", response_model=AuthUser)
+@router.get("/me/", response_model=AuthUser)
 def my_data(user_data: AuthUser = Depends(is_staff_member)):
     """Read the access token and provide  user details from OSM user's API endpoint,
     also integrated with underpass .

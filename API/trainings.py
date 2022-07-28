@@ -28,7 +28,7 @@ from typing import List
 router = APIRouter(prefix="/training")
 
 
-@router.get("/organisations", response_model=List[TrainingOrganisations])
+@router.get("/organisations/", response_model=List[TrainingOrganisations])
 @version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_organisations_list():

@@ -25,7 +25,7 @@ from src.galaxy.app import UserStats
 router = APIRouter(prefix="/osm-users")
 
 
-@router.post("/ids", response_model=List[User])
+@router.post("/ids/", response_model=List[User])
 @version(1)
 def get_user_id(params: UsersListParams):
     """Provides user id of usernames, It is possible same user id can be taken by two different users at two different time hence this endpoint takes from and to timestamp
@@ -67,7 +67,7 @@ def get_user_id(params: UsersListParams):
     return UserStats().list_users(params)
 
 
-@router.post("/statistics", response_model=List[UserStatistics])
+@router.post("/statistics/", response_model=List[UserStatistics])
 @version(1)
 def get_user_statistics(params: UserStatsParams):
     """Returns Statistics for specified usernames over period of time
