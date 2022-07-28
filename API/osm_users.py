@@ -52,11 +52,11 @@ def get_user_id(params: UsersListParams):
     Example Request : 
     
         {
-        "userNames":[
-            "Kshitizraj Sharma"
-        ],
-        "fromTimestamp":"2022-06-28T14:15:12.947Z",
-        "toTimestamp":"2022-07-27T14:15:12.947Z"
+            "userNames":[
+                "Kshitizraj Sharma"
+            ],
+            "fromTimestamp":"2022-04-26T00:00:00Z",
+            "toTimestamp":"2022-04-27T00:00:00Z"
         }
         
     Example Response :
@@ -101,8 +101,8 @@ def get_user_statistics(params: UserStatsParams):
     
         {
             "userId":7004124,
-            "fromTimestamp":"2022-06-28T14:25:33.277Z",
-            "toTimestamp":"2022-07-27T14:25:33.277Z",
+            "fromTimestamp":"2022-03-02T00:00:00Z",
+            "toTimestamp":"2022-03-03T00:00:00Z",
             "projectIds":[],
             "hashtags":[]
         }
