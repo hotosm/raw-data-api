@@ -603,7 +603,7 @@ def generate_organization_hashtag_reports(cur, params):
     filter_hashtags = " or ".join(hashtags)
     # filter_hashtags = cur.mogrify(sql.SQL(filter_hashtags), params.hashtags).decode()
     t2_query= f"""select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters,
-            total_new_amenities as total_new_amenities, total_new_places as total_new_places
+            total_new_amenity as total_new_amenities, total_new_places as total_new_places
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='{params.frequency}'"""
     month_time = f"""0:00:00"""

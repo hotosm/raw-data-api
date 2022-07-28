@@ -36,6 +36,153 @@ router = APIRouter(prefix="/hashtags")
 @version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_hashtag_stats(params:OrganizationHashtagParams):
+    """Monitors the statistics made in some speciifc set of hashtag periodically , Provides statistics frequency weekly quarterly monthly ! For this you need to request tech team to get you hashtag registered for monitoring 
+
+    Args:
+            {
+            "hashtags": [
+                "string" # list of hashtags statistics you want 
+            ],
+            "frequency": "w", # based on this counts will be aggregated and displayed , supported :     WEEKLY = "w",MONTHLY = "m",QUARTERLY = "q",YEARLY = "y"
+            "outputType": "json", # supoprted json and csv 
+            "startDate": "2022-07-28",
+            "endDate": "2022-07-28"
+            }
+
+    Returns:
+
+    Based on the frequency it will have following set of  result for each frequency
+            [
+            {
+                "hashtag": "string",
+                "frequency": "string",
+                "startDate": "2022-07-28",
+                "endDate": "2022-07-28",
+                "totalNewBuildings": 0,
+                "totalUniqueContributors": 0,
+                "totalNewRoadMeters": 0,
+                "totalNewAmenities": 0,
+                "totalNewPlaces": 0
+            }
+            ]
+    
+    Example Request : 
+    1. To get weekly stats 
+
+        {
+            "hashtags": [
+                "msf"
+            ],
+            "frequency": "w",
+            "outputType": "json",
+            "startDate": "2020-10-22",
+            "endDate": "2020-12-22"
+        }
+    2. To get monthly stats
+
+        {
+            "hashtags": [
+                "msf"
+            ],
+            "frequency": "m",
+            "outputType": "json",
+            "startDate": "2020-10-22",
+            "endDate": "2020-12-22"
+        }
+    
+    Example Response :
+    
+        [
+        {
+            "hashtag": "msf",
+            "frequency": "w",
+            "startDate": "2020-10-23",
+            "endDate": "2020-10-30",
+            "totalNewBuildings": 7937,
+            "totalUniqueContributors": 80,
+            "totalNewRoadMeters": 15376,
+            "totalNewAmenities": 33,
+            "totalNewPlaces": 3
+        },
+        {
+            "hashtag": "msf",
+            "frequency": "w",
+            "startDate": "2020-10-30",
+            "endDate": "2020-11-06",
+            "totalNewBuildings": 12744,
+            "totalUniqueContributors": 116,
+            "totalNewRoadMeters": 38274,
+            "totalNewAmenities": 2,
+            "totalNewPlaces": 0
+        },
+        {
+            "hashtag": "msf",
+            "frequency": "w",
+            "startDate": "2020-11-06",
+            "endDate": "2020-11-13",
+            "totalNewBuildings": 9147,
+            "totalUniqueContributors": 52,
+            "totalNewRoadMeters": 31882,
+            "totalNewAmenities": 0,
+            "totalNewPlaces": 1
+        },
+        {
+            "hashtag": "msf",
+            "frequency": "w",
+            "startDate": "2020-11-13",
+            "endDate": "2020-11-20",
+            "totalNewBuildings": 41900,
+            "totalUniqueContributors": 371,
+            "totalNewRoadMeters": 19981,
+            "totalNewAmenities": 79,
+            "totalNewPlaces": 16
+        },
+        {
+            "hashtag": "msf",
+            "frequency": "w",
+            "startDate": "2020-11-20",
+            "endDate": "2020-11-27",
+            "totalNewBuildings": 26645,
+            "totalUniqueContributors": 152,
+            "totalNewRoadMeters": 85923,
+            "totalNewAmenities": 6,
+            "totalNewPlaces": 1
+        },
+        {
+            "hashtag": "msf",
+            "frequency": "w",
+            "startDate": "2020-11-27",
+            "endDate": "2020-12-04",
+            "totalNewBuildings": 31186,
+            "totalUniqueContributors": 228,
+            "totalNewRoadMeters": 27537,
+            "totalNewAmenities": 54,
+            "totalNewPlaces": 0
+        },
+        {
+            "hashtag": "msf",
+            "frequency": "w",
+            "startDate": "2020-12-04",
+            "endDate": "2020-12-11",
+            "totalNewBuildings": 35996,
+            "totalUniqueContributors": 206,
+            "totalNewRoadMeters": 83153,
+            "totalNewAmenities": 0,
+            "totalNewPlaces": 1
+        },
+        {
+            "hashtag": "msf",
+            "frequency": "w",
+            "startDate": "2020-12-11",
+            "endDate": "2020-12-18",
+            "totalNewBuildings": 27088,
+            "totalUniqueContributors": 70,
+            "totalNewRoadMeters": 261235,
+            "totalNewAmenities": 0,
+            "totalNewPlaces": 0
+        }
+        ]
+    """
     organization= OrganizationHashtags(params)
     if params.output_type == OrganizationOutputtype.JSON.value:
         return organization.get_report()
