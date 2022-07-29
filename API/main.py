@@ -16,11 +16,11 @@
 # Humanitarian OpenStreetmap Team
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI , Request
 from fastapi.middleware.cors import CORSMiddleware
 import sentry_sdk
-from src.galaxy import config
 
 from .countries.routers import router as countries_router
 from .changesets.routers import router as changesets_router
@@ -33,13 +33,12 @@ from .trainings import router as training_router
 from .organization import router as organization_router
 from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
-from fastapi import  Request
+from .download_export import router as download_router
+# from fastapi import  Request
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
-import time
-import logging
+
 from src.galaxy.db_session import database_instance
-from src.galaxy.config import use_connection_pooling
+from src.galaxy.config import use_connection_pooling , use_s3_to_upload ,logger as logging,config
 
 
 if config.get("SENTRY","url", fallback=None): # only use sentry if it is specified in config blocks
@@ -57,15 +56,12 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 
 app = FastAPI()
 
-app.mount("/exports", StaticFiles(directory="exports"), name="exports")
-
-# @app.exception_handler(ValueError)
-# async def value_error_exception_handler(request: Request, exc: ValueError):
-#     return JSONResponse(
-#         status_code=400,
-#         content={"Error": str(exc)},
-#     )
-
+@app.exception_handler(ValueError)
+async def value_error_exception_handler(request: Request, exc: ValueError):
+    return JSONResponse(
+        status_code=400,
+        content={"Error": str(exc)},
+    )
 
 origins = ["*"]
 
@@ -96,7 +92,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def on_startup():
-    """Fires up 5 threads on Postgresql with threading pooling before starting the API
+    """Fires up 3 idle conenction with threaded connection pooling before starting the API
 
     Raises:
         e: if connection is rejected to database
@@ -109,12 +105,12 @@ async def on_startup():
         raise e
 
 @app.on_event("shutdown")
-async def on_shutdown():
+def on_shutdown():
     """Closing all the threads connection from pooling before shuting down the api 
     """
     if use_connection_pooling:
         logging.debug("Shutting down connection pool")
-        await database_instance.close_all_connection_pool()
+        database_instance.close_all_connection_pool()
 
 
 app.include_router(countries_router)
@@ -128,6 +124,9 @@ app.include_router(training_router)
 app.include_router(organization_router)
 app.include_router(tm_router)
 app.include_router(raw_data_router)
+
+if use_s3_to_upload is False : # only mount the disk if config is set to disk 
+    app.include_router(download_router)
 
 
 

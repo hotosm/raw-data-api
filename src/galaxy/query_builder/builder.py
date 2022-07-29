@@ -788,7 +788,7 @@ def create_geom_filter(geom):
 
 def remove_spaces(input_str):
     # Fixme I need to check every possible special character that can comeup on osm tags
-    input_str=re.sub("\s", "_", input_str) # putting _ in every space
+    input_str=re.sub("\s+", "_", input_str) # putting _ in every space
     input_str=re.sub(":", "_", input_str) # putting _ in every : value
     return input_str
 
@@ -998,9 +998,9 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
 
     query_table=[]
     if select_all:
-        select_condition = f"""*"""
+        select_condition = """osm_id,version,tags::text as tags,changeset,timestamp::text,geom""" #FIXme have condition for displaying userinfo after user authentication 
     else:    
-        select_condition = f"""osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        select_condition = """osm_id ,version,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     point_select_condition=select_condition #initializing default
     line_select_condition=select_condition
     poly_select_condition=select_condition
