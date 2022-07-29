@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Humanitarian OpenStreetmap Team
+# Copyright (C) 2021 Humanitarian OpenStreetMap Team
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Humanitarian OpenStreetap Team
+# Humanitarian OpenStreetMap Team
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
