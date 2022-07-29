@@ -1,11 +1,3 @@
-[DATABASE]
-host=localhost
-user=
-password=
-dbname=
-port=
-
-
 [OAUTH]
 client_id=
 client_secret=
