@@ -74,7 +74,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
 # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)):
     start_time = time.time()
     logging.debug('Request Received from Raw Data API ')
-    logging.debug(params)
+    # logging.debug(params)
 
     # unique id for zip file and geojson for each export
     if params.file_name :
@@ -143,16 +143,17 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
             response_time_str= f"""{int(Hour)} Hour"""
             minute=minute-60*int(Hour)
         response_time_str += f"""{minute} Minute"""
-    logging.debug("-------Raw Data Request Took - %s for area of %s Sqkm Producing %s MB: %s , %s-------" %
-                  (response_time_str,geom_area,round(inside_file_size/1000000),params.output_type,params.file_name))
+    logging.debug("-------Raw : %s MB, %s :-: %s, %s Sqkm, format-%s-------" %
+                  (round(inside_file_size/1000000), response_time_str,params.file_name,geom_area,params.output_type))
     return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000)} MB""", "zip_file_size_bytes": {zip_file_size}}
 
 @router.get("/status/")
 def check_current_db_status():
     """Gives status about DB update, Substracts with current time and last db update time"""
     result = RawData().check_status()
-    if int(result) == 0:
-        response = "Less than a Minute ago"
-    else:
-        response = f"""{int(result)} Minute ago"""
+    response = f"""{result} ago"""
     return {"last_updated": response}
+
+
+
+
