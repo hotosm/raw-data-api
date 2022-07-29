@@ -373,7 +373,7 @@ class Mapathon:
 
         if source == "underpass":
             self.database = Underpass(self.params)
-        elif source == "insight":
+        elif source == "insights":
             self.database = Insight(self.params)
         else:
             raise ValueError("Source is not Supported")

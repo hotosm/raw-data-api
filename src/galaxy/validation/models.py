@@ -164,7 +164,7 @@ class MapathonRequestParams(TimeStampParams):
     @validator("source", allow_reuse=True)
     def check_source(cls, value, **kwargs):
         '''checks the either source  is supported or not '''
-        if value is None or value == "insight" or value == "underpass":
+        if value is None or value == "insights" or value == "underpass":
             return value
         else:
             raise ValueError('Source '+str(value)+" does not exist")   
@@ -320,7 +320,7 @@ class DataQualityHashtagParams(TimeStampParams):
 
 class Source(Enum):
     UNDERPASS ="underpass"
-    INSIGHT = "insight"
+    INSIGHT = "insights"
 
 
 class TrainingOrganisations(BaseModel):
