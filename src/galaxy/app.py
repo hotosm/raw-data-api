@@ -1133,8 +1133,12 @@ class S3FileTransfer :
 
     def get_bucket_location(self,bucket_name):
         """Provides the bucket location on aws, takes bucket_name as string -- name of repo on s3"""
-        bucket_location = self.s_3.get_bucket_location(Bucket=bucket_name)
-        return bucket_location['LocationConstraint'] or "us-east-1"
+        try:
+            bucket_location = self.s_3.get_bucket_location(Bucket=bucket_name)['LocationConstraint']
+        except Exception as ex :
+            logging.debug("Can't access bucket location")
+            bucket_location="us-east-1"
+        return bucket_location
 
     def upload(self,file_path, file_prefix):
         """Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
