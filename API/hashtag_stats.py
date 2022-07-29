@@ -36,22 +36,23 @@ router = APIRouter(prefix="/hashtags")
 @version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
 def get_hashtag_stats(params:OrganizationHashtagParams):
-    """Monitors the statistics made in some speciifc set of hashtag periodically , Provides statistics frequency weekly quarterly monthly ! For this you need to request tech team to get you hashtag registered for monitoring 
+    """Monitors specific OpenStreetMap hashtag statistics for weekly/quarterly/monthly frequency. Please send requests to tech@hotosm.org to register your hashatags for statistics monitoring.
 
     Args:
             {
             "hashtags": [
-                "string" # list of hashtags statistics you want 
+                "string" # list of OpenStreetMap hashtags separated by comma
             ],
-            "frequency": "w", # based on this counts will be aggregated and displayed , supported :     WEEKLY = "w",MONTHLY = "m",QUARTERLY = "q",YEARLY = "y"
-            "outputType": "json", # supoprted json and csv 
+            "frequency": "w", # supported :  WEEKLY = "w",MONTHLY = "m",QUARTERLY = "q",YEARLY = "y"
+            "outputType": "json", # supported json and csv 
             "startDate": "2022-07-28",
             "endDate": "2022-07-28"
             }
 
     Returns:
 
-    Based on the frequency it will have following set of  result for each frequency
+    Based on the frequency, outputs vary:
+
             [
             {
                 "hashtag": "string",
@@ -67,7 +68,7 @@ def get_hashtag_stats(params:OrganizationHashtagParams):
             ]
     
     Example Request : 
-    1. To get weekly stats 
+    1. To get weekly stats
 
         {
             "hashtags": [

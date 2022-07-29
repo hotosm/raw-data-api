@@ -68,7 +68,7 @@ def get_tasking_manager_project_data_quality_report(params: DataQuality_TM_Reque
 @router.post("/user-reports/")
 @version(1)
 def get_user_data_quality_report(params: DataQuality_username_RequestParams):
-    """Returns data quality report for individual user within given timeframe 
+    """Returns data quality report for a OpenStreetMap user in a given time period.
 
     Args:
         params (DataQuality_username_RequestParams): 
@@ -77,15 +77,15 @@ def get_user_data_quality_report(params: DataQuality_username_RequestParams):
             "fromTimestamp": "string",
             "toTimestamp": "string",
             "osmUsernames": [
-                "string" # supports username directly here
+                "string" # list of OpenStreetMap usernames separated by comma
             ],
             "issueTypes": [
-                "badgeom" # those are type of issue : Currently supported :   "badgeom","badvalue","incomplete","notags","complete","orphan","overlaping","duplicate","all" # if all is supplied rest of others will be ignored
+                "badgeom" # Types of Data Quality issues : Currently supported :   "badgeom","badvalue","incomplete","notags","complete","orphan","overlaping","duplicate","all"; "all" returns every issue type
             ],
             "hashtags": [
                 "string"
             ],
-            "outputType": "csv" # supported : geojson and csv
+            "outputType": "csv" # supported formats : geojson and csv
         }
 
     Returns:

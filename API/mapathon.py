@@ -33,7 +33,7 @@ router = APIRouter(prefix="/mapathon")
 @version(1)
 def get_mapathon_detailed_report(params: MapathonRequestParams,
                                  user_data=Depends(login_required)):
-    """End point to return detailed Mapathon report with the user information with their contribution
+    """End point to return detailed Mapathon statistics with a list of users and their contribution.
 
     Args:
     
@@ -42,14 +42,14 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
                                 "fromTimestamp": "from when you want to have data",
                                 "toTimestamp": "until when you want to have data ",
                                 "projectIds": [
-                                    tasking manager project id (only integer) 
+                                    Tasking Manager Project ids (only integer) separated by comma 
                                 ],
                                 "hashtags": [
-                                    "list of hashtags you want to use without # sign"
+                                    "list of OpenStreetMap hashtags you want to use without # sign separated by comma"
                                 ],
-                                "source": "Define source of data : Options are insight,underpass -  currently supports : insight only"
+                                "source": "Define source of data : Options are insights,underpass - current support : insights only"
                                 }
-        user_data (_type_, optional): _description_. Defaults to Depends(login_required). Authentication will be required , access token can be generated from /auth/login
+        user_data (_type_, optional): _description_. Defaults to Depends(login_required). Authentication required , access token can be generated from /auth/login
 
 
     Returns:
@@ -117,7 +117,7 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
             ]
         }
     
-    2. Example with tasking manager project id : 
+    2. Example with Tasking Manager Project id : 
     
         {
             "fromTimestamp":"2022-07-21T18:15:00.461",
@@ -129,7 +129,7 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
             ]
         }
         
-    Note : Passing both tasking manager id and hashtag will work as OR condition for the query
+    Note : Passing both Tasking Manager Project ID and hashtag will work as OR condition for the query
     
     Example Response : 
     
@@ -252,7 +252,7 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
         ]
         }
     """
-    mapathon = Mapathon(params,"insight")
+    mapathon = Mapathon(params,"insights")
     return mapathon.get_detailed_report()
 
 @router.post("/summary/", response_model=MapathonSummary)
@@ -266,12 +266,12 @@ def get_mapathon_summary(params: MapathonRequestParams):
                                 "fromTimestamp": "from when you want to have data",
                                 "toTimestamp": "until when you want to have data ",
                                 "projectIds": [
-                                    tasking manager project id (only integer) 
+                                    Tasking Manager Project ID (only integer) separated by comma
                                 ],
                                 "hashtags": [
-                                    "list of hashtags you want to use without # sign"
+                                    "list of hashtags you want to use without # sign separate by comma"
                                 ],
-                                "source": "Define source of data : Options are insight,underpass"
+                                "source": "Define source of data : Options are insights,underpass - current support : insights only"
                                 }
 
     Returns:
@@ -354,5 +354,5 @@ def get_mapathon_summary(params: MapathonRequestParams):
     if params.source == "underpass":
         mapathon = Mapathon(params,"underpass")
     else:
-        mapathon = Mapathon(params,"insight")
+        mapathon = Mapathon(params,"insights")
     return mapathon.get_summary()

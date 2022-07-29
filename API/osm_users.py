@@ -28,7 +28,7 @@ router = APIRouter(prefix="/osm-users")
 @router.post("/ids/", response_model=List[User])
 @version(1)
 def get_user_id(params: UsersListParams):
-    """Provides user id of usernames, It is possible same user id can be taken by two different users at two different time hence this endpoint takes from and to timestamp
+    """Provides OpenStreetMap user id of usernames, It is possible same username can be taken by different users at different times hence this endpoint takes from and to timestamps.
 
     Args:
         params (UsersListParams): 
@@ -61,7 +61,7 @@ def get_user_id(params: UsersListParams):
         
     Example Response :
     
-        [{"userId":7004124,"userName":"Kshitizraj Sharma"}]
+        [{"userId":123456,"userName":"Kshitizraj Sharma"}]
     """
 
     return UserStats().list_users(params)
@@ -70,7 +70,7 @@ def get_user_id(params: UsersListParams):
 @router.post("/statistics/", response_model=List[UserStatistics])
 @version(1)
 def get_user_statistics(params: UserStatsParams):
-    """Returns Statistics for specified usernames over period of time
+    """Returns Statistics for specified OpenStreetMap usernames over a period of time.
 
     Args:
         params (UserStatsParams): 
@@ -78,11 +78,11 @@ def get_user_statistics(params: UserStatsParams):
         {
         "fromTimestamp": "string",
         "toTimestamp": "string",
-        "userId": 0, # this will take only user id not user name , those userid should be derived from /ids and only one user at a time
+        "userId": 0, # this will take only OpenStreetMap user id not user name; userId can be derived from /ids/ for one user at a time.
         "hashtags": [ 
-            "string" # you can get user statistics to some specific hashtag or
+            "string" # you can get user statistics for specific OpenStreetMap hashtag or
         ],
-        "projectIds": []  # you can get user statistics to some specific tasking  manger project id
+        "projectIds": []  # you can get user statistics for specific Tasking Manger Project IDs
         }
 
     Returns:
@@ -107,7 +107,7 @@ def get_user_statistics(params: UserStatsParams):
             "hashtags":[]
         }
     
-    2. To get stats contributed by user for particular hashtag :
+    2. To get stats contributed by user for particular OpenStreetMap hashtag :
     
         {
             "userId":7004124,
@@ -119,7 +119,7 @@ def get_user_statistics(params: UserStatsParams):
             ]
         }
 
-    3. To get stats contributed by user for specific tasking manager project:
+    3. To get stats contributed by user for specific Tasking Manager Project:
     
         {"userId":7004124,"fromTimestamp":"2022-06-28T14:25:33.277Z","toTimestamp":"2022-07-27T14:25:33.277Z","projectIds":[123],"hashtags":[]}
     """

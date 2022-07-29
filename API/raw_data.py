@@ -52,7 +52,7 @@ router = APIRouter(prefix="/raw-data")
 @router.post("/current-snapshot/")
 @version(1)
 def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks,request: Request):
-    """Generates the recent raw osm data available on database based on the user's geometry , query and spatial features
+    """Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features
 
     Args:
     
@@ -60,7 +60,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
                 {
                 "outputType": "GeoJSON",
                 "fileName": "string",
-                "geometry": { # only polygon is supported ** only required field on request , everything else is optional **
+                "geometry": { # only polygon is supported ** required field **
                     "coordinates": [
                     [
                         [
@@ -78,13 +78,13 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
                     "point" : {"amenity":["shop"]},
                     "line" : {},
                     "polygon" : {"key":["value1","value2"],"key2":["value1"]},
-                    "all_geometry" : {"building":['yes']} # will work as master filter will be applied to all of the geom selected on geom type 
+                    "all_geometry" : {"building":['yes']} # master filter applied to all of the geometries selected on geometryType 
                     },
-                    "attributes": { # attribute column controls no of columns / name returned
+                    "attributes": { # attribute column controls associated k-v pairs returned
                     "point": [], column 
                     "line" : [],
                     "polygon" : [],
-                    "all_geometry" : ["name","address"], # this will work as master controller will be applied to all of the geom  type returned
+                    "all_geometry" : ["name","address"], # master field applied to all geometries selected on geometryType
                     }
                     },
                 "geometryType": [
@@ -100,13 +100,13 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
             "file_name": name_of_export + unique_id + outputformat,
             "response_time": time taken to generate the export,
             "query_area": area in sq km ,
-            "binded_file_size": actual inside file size in MB,
+            "binded_file_size": actual zipped file size in MB,
             "zip_file_size_bytes": [
                 zip file size in bytes
             ]
         }
         Sample Query : 
-        1. Sample query to extract point and polygon building within my area which have building = * (i.e.anything) with name attribute 
+        1. Sample query to extract point and polygon features that are marked building=*  with name attribute 
         {
             "outputType": "GeoJSON",
             "fileName": "Pokhara_buildings",
@@ -142,10 +142,10 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
                 "point","polygon"
             ]
         }
-        2. Query to extract everything inside my area in shapefile output: 
+        2. Query to extract all OpenStreetMap features in a polygon in shapefile format: 
         {
             "outputType": "shp",
-            "fileName": "Pokhara_buildings_everything",
+            "fileName": "Pokhara_all_features",
             "geometry": {
                     "type": "Polygon",
                     "coordinates": [
@@ -174,7 +174,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
                     ]
                 }
         }
-        3. Clean query to extract all in default : output will be same as 2 but name will be default and geojson will be selected as default format 
+        3. Clean query to extract all features by deafult; output will be same as 2nd query but in GeoJSON format and output name will be `default`
         {
             "geometry": {
                     "type": "Polygon",
