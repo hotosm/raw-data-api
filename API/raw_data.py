@@ -35,7 +35,7 @@ from fastapi import APIRouter, Request
 from fastapi_versioning import  version
 from fastapi.responses import JSONResponse
 # from fastapi import APIRouter, Depends, Request
-from src.galaxy.query_builder.builder import remove_spaces
+from src.galaxy.query_builder.builder import format_file_name_str
 from src.galaxy.validation.models import  RawDataCurrentParams,RawDataOutputType
 from src.galaxy.app import RawData,S3FileTransfer
 
@@ -213,7 +213,7 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
 
     # unique id for zip file and geojson for each export
     if params.file_name :
-        formatted_file_name=remove_spaces(params.file_name) # need to format string from space to _ because it is filename , may be we need to filter special character as well later on
+        formatted_file_name=format_file_name_str(params.file_name) # need to format string from space to _ because it is filename , may be we need to filter special character as well later on
         # exportname = f"{formatted_file_name}_{datetime.now().isoformat()}_{str(uuid4())}"
         exportname = f"""{formatted_file_name}_{str(uuid4())}_{params.output_type}""" #disabled date for now
 

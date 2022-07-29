@@ -1145,6 +1145,7 @@ class S3FileTransfer :
         file_name=f"{file_prefix}.zip"
         #instantiate upload 
         start_time=time.time()
+        
         try:
             if level is log.DEBUG:
                 self.s_3.upload_file(file_path,BUCKET_NAME,file_name,Callback=ProgressPercentage(file_path))
