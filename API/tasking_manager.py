@@ -60,7 +60,7 @@ def get_teams():
 
 @router.get("/teams/individual/")
 @version(1)
-def get_teams():
+def get_specific_team():
     csv_stream = TaskingManager().list_teams_metadata()
 
     response = StreamingResponse(csv_stream)
