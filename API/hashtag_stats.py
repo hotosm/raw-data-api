@@ -39,6 +39,7 @@ def get_hashtag_stats(params:OrganizationHashtagParams):
     """Monitors specific OpenStreetMap hashtag statistics for weekly/quarterly/monthly frequency. Please send requests to tech@hotosm.org to register your hashatags for statistics monitoring.
 
     Args:
+    
             {
             "hashtags": [
                 "string" # list of OpenStreetMap hashtags separated by comma
