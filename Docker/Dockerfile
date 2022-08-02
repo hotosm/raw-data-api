@@ -1,4 +1,4 @@
-FROM python:3.9-bullseye as python
+FROM python:3.9-bullseye
 
 ENV PIP_NO_CACHE_DIR=1
 RUN apt-get update && apt-get -y upgrade && \
