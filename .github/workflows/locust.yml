@@ -4,14 +4,10 @@ on:
     branches:
       - master
       - develop
-  pull_request:
-    branches:
-      - master
-      - develop
   schedule:
     - cron: "0 0 * * *"
 jobs:
-  deploy:
+  Locust_test:
     runs-on:
       ubuntu-latest
 
