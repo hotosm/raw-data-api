@@ -24,7 +24,7 @@ import pytest
 from src.galaxy.validation import models as mapathon_validation
 from src.galaxy.query_builder import builder as mapathon_query_builder
 from src.galaxy.query_builder.builder import check_last_updated_osm_insights, check_last_updated_osm_underpass, check_last_updated_user_data_quality_underpass, check_last_updated_user_statistics_insights, generate_organization_hashtag_reports,create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports,raw_currentdata_extraction_query
-from src.galaxy.validation.models import OrganizationHashtagParams, UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams,RawDataCurrentParams
+from src.galaxy.validation.models import DataRecencyParams, OrganizationHashtagParams, UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams,RawDataCurrentParams
 from src.galaxy import Output
 import os.path
 from json import dumps
@@ -708,7 +708,7 @@ def test_attribute_filter_rawdata() :
                 ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [83.502574, 27.569073]]], "type": "Polygon"}'), geom) and (tags ->> 'building' = 'yes') and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')) t3"""
     query_result=raw_currentdata_extraction_query(validated_params,[[1187],[1188]],dumps(dict(validated_params.geometry)))
     print("result \n")
-    print(query_result)
+    # print(query_result)
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
 
 def test_osm_recency_query():
@@ -716,6 +716,16 @@ def test_osm_recency_query():
     assert check_last_updated_osm_insights() == expected_insights_query
     expected_underpass_query = 'SELECT (NOW() - MAX(updated_at)) AS "last_updated" FROM public.changesets;'
     assert check_last_updated_osm_underpass() == expected_underpass_query
+
+    test_incorrect_params = {
+        "dataSource": "random",
+        "dataOutput": "statistics"
+    }
+
+    with pytest.raises(PydanticError) as error:
+        DataRecencyParams(**test_incorrect_params)
+    assert error.type is PydanticError
+    
 
 def test_user_statistics_recency_query():
     expected_insights_query = 'SELECT (now() - max(timestamp)) FROM public.osm_element_history where changeset = (SELECT max(changeset) FROM public.all_changesets_stats);'
