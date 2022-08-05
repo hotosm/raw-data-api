@@ -55,6 +55,16 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 
 app = FastAPI(title="Galaxy API")
 
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        logging.error(e)
+        # you probably want some kind of logging here
+        return Response("Server Error", status_code=500)
+
+app.middleware('http')(catch_exceptions_middleware)
+
 # app.include_router(test_router)
 app.include_router(countries_router)
 # app.include_router(changesets_router)
@@ -73,12 +83,6 @@ if use_s3_to_upload is False : # only mount the disk if config is set to disk
 
 app = VersionedFastAPI(app,enable_latest=True,version_format='{major}',prefix_format='/v{major}')
 
-@app.exception_handler(ValueError)
-async def value_error_exception_handler(request: Request, exc: ValueError):
-    return JSONResponse(
-        status_code=400,
-        content={"Error": str(exc)},
-    )
 
 origins = ["*"]
 
