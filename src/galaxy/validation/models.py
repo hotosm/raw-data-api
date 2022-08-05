@@ -32,6 +32,7 @@ from datetime import datetime
 
 from enum import Enum
 from dateutil import relativedelta
+from datetime import timedelta
 
 from area import area
 import re
@@ -183,16 +184,16 @@ class DateStampParams(BaseModel):
         '''checks the timestap difference '''
 
         from_timestamp = values.get("from_timestamp")
+        timestamp_diff = value - from_timestamp
 
         # if from_timestamp > datetime.now() or value > datetime.now():
         #     raise ValueError(
         #         "Can not exceed current date and time")
         # Get the relativedelta between two dates
-        delta = relativedelta.relativedelta(value, from_timestamp)
         if from_timestamp > value :
             raise ValueError(
                 "Timestamp difference should be in order")
-        if delta.months > 0:
+        if timestamp_diff > timedelta(days=31):
             raise ValueError(
                 "Statistics is available for a maximum period of 1 month.")
 
