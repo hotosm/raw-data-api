@@ -22,13 +22,43 @@
 """
 
 from fastapi import APIRouter
+from fastapi_versioning import version
 from src.galaxy.validation.models import DataOutput, DataSource, DataRecencyParams
 from src.galaxy.app import Status
 router = APIRouter(prefix="/status")
 
 @router.post("/")
+@version(1)
 def data_recency_status(params: DataRecencyParams):
-    """Gives the time lapse since the last update per data source per data output"""
+    """Gives the time lapse since the last update per data source per data output
+
+    Args:
+        params (DataRecencyParams):
+
+        {
+          "dataSource": "string" #the database from which the stats/data are got,
+          "dataOutput": "string" #the kind of stats/data
+        }
+
+    Returns:
+      
+        {
+          "time_difference": "1 day, 00:03:20" #time
+        }
+                        
+    Example Request:
+
+        {
+          "dataSource": "underpass",
+          "dataOutput": "mapathon_statistics"
+        }
+
+    Example Response :
+    
+        {
+          "time_difference": "00:00:10"     
+        }    
+    """
     result = None
     db = Status(params)
     if (params.data_output == DataOutput.OSM.value):
