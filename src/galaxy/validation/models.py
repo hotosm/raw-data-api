@@ -606,7 +606,7 @@ class DataSource(str, Enum):
     INSIGHTS = "insight"
 
 class DataOutput(str, Enum):
-    OSM = "osm"
+    osm = "osm"
     mapathon_statistics = "mapathon_statistics"
     data_quality = "data_quality"
     user_statistics = "user_statistics"

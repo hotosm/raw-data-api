@@ -61,7 +61,7 @@ def data_recency_status(params: DataRecencyParams):
     """
     result = None
     db = Status(params)
-    if (params.data_output == DataOutput.OSM.value):
+    if (params.data_output == DataOutput.osm.value):
       result = db.get_osm_recency()
     elif(params.data_output == DataOutput.mapathon_statistics.value):
       result = db.get_mapathon_statistics_recency()
