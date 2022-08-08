@@ -40,9 +40,9 @@ from src.galaxy.db_session import database_instance
 from src.galaxy.config import use_connection_pooling , use_s3_to_upload ,logger as logging,config
 from fastapi_versioning import VersionedFastAPI
 
-if config.get("SENTRY","url", fallback=None): # only use sentry if it is specified in config blocks
+if config.get("SENTRY", "dsn", fallback=None): # only use sentry if it is specified in config blocks
     sentry_sdk.init(
-        config.get("SENTRY", "url"),
+        dsn=config.get("SENTRY", "dsn"),
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.

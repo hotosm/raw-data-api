@@ -50,7 +50,7 @@ host=
 port=
 
 [SENTRY]
-url=https://apikey.ingest.sentry.io/appid
+dsn=https://apikey.ingest.sentry.io/appid
 rate=1.0
 
 [EXPORT_UPLOAD]
