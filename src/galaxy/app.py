@@ -1094,7 +1094,7 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
         ValueError: Binding failed
     """
     try:
-        start_time=time.time()
+        # start_time=time.time()
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -1103,19 +1103,19 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
             preexec_fn=os.setsid
         )
         while process.poll() is None:
-            if (time.time()-start_time)/60 > 25 :
-                raise ValueError("Shapefile Exceed Limit export")
+            # if (time.time()-start_time)/60 > 25 :
+            #     raise ValueError("Shapefile Exceed Limit export")
 
-            # size=0
-            # for ele in os.scandir(binding_file_dir):
-            #     size+=os.path.getsize(ele)
-            # # print(size/1000000) # in MB
-            # if size/1000000 >  4000:
-            #     logging.warn("Killing ogr2ogr because it exceed 4 GB...")
-            #     # process.kill()
-            #     # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
-            #     # shutil.rmtree(binding_file_dir)  
-            #     raise ValueError("Shapefile Exceed 4 GB Limit")
+            size=0
+            for ele in os.scandir(binding_file_dir):
+                size+=os.path.getsize(ele)
+            # print(size/1000000) # in MB
+            if size/1000000 >  12000:
+                logging.warn("Killing ogr2ogr because it exceed 12 GB...")
+                # process.kill()
+                # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+                # shutil.rmtree(binding_file_dir)  
+                raise ValueError("Shapefile Exceed 12 GB Limit")
 
         logging.debug(process.stdout.read())             
     except Exception as ex:
