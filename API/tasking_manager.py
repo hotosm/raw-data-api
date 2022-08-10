@@ -82,8 +82,7 @@ def get_validator_stats(request: ValidatorStatsRequest):
                 "status": 0
             }
             
-            
-    Note : API returns 404 No data available if no data is found on database !
+    Note : API returns 404 No data available if no data is found on database for the request !
         
     """
     tm = TaskingManager(request)
