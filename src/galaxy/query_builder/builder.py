@@ -636,16 +636,19 @@ def generate_organization_hashtag_reports(cur, params):
 def generate_tm_validators_stats_query(cur, params):
     stmt = """with t0 as (
         select 
-            id as p_id,total_tasks,tasks_mapped,tasks_validated,country
+            id as p_id,status,total_tasks,tasks_mapped,tasks_validated,country
         from projects
-        where date_part('year', created) = %s
-        order by p_id
-        )"""
+        where date_part('year', created) = %s"""
 
     sub_query = cur.mogrify(sql.SQL(stmt), (params.year,)).decode()
-
+    status_query=""
+    if params.status :
+        status_query=f"""and status ={params.status}""" 
     query = f"""
     {sub_query}
+            {status_query}
+        order by p_id
+            )
     ,t1 as (
         select
         user_id,
@@ -666,6 +669,7 @@ def generate_tm_validators_stats_query(cur, params):
         u.username,
         t1.project_id,
         t1.cnt,
+        p.status as project_status,
         p.total_tasks,
         p.tasks_mapped,
         p.tasks_validated,

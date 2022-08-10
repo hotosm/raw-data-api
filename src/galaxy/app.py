@@ -28,7 +28,7 @@ from fastapi import param_functions
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
-from pydantic import validator
+from pydantic import NoneStrBytes, validator
 from pydantic.types import Json
 from pydantic import parse_obj_as
 from .validation.models import *
@@ -310,23 +310,25 @@ class TaskingManager:
 
     def get_validators_stats(self):
         query = generate_tm_validators_stats_query(self.cur, self.params)
+        print(query)
         result = [dict(r) for r in self.database.executequery(query)]
+        if result :
+            indexes = ['user_id', 'username']
+            columns = ['project_id','country','project_status','total_tasks', 'tasks_mapped', 'tasks_validated']
 
-        indexes = ['user_id', 'username']
-        columns = ['project_id', 'country', 'total_tasks', 'tasks_mapped', 'tasks_validated']
+            df = pandas.DataFrame(result)
+            out = pandas.pivot_table(df,
+                values='cnt',
+                index=indexes,
+                columns=columns,
+                fill_value=0
+            ).swaplevel(0, 1).reset_index()
 
-        df = pandas.DataFrame(result)
-        out = pandas.pivot_table(df,
-            values='cnt',
-            index=indexes,
-            columns=columns,
-            fill_value=0
-        ).swaplevel(0, 1).reset_index()
+            stream = StringIO()
+            out.to_csv(stream)
 
-        stream = StringIO()
-        out.to_csv(stream)
-
-        return iter(stream.getvalue())
+            return iter(stream.getvalue())
+        return None
 
     def list_teams(self):
         query = generate_tm_teams_list()

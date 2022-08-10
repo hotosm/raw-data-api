@@ -19,7 +19,7 @@
 
 """[Router Responsible for Organizational data API ]
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,Response
 from fastapi_versioning import  version
 # from .auth import login_required
 
@@ -38,12 +38,13 @@ router = APIRouter(prefix="/tasking-manager")
 def get_validator_stats(request: ValidatorStatsRequest):
     tm = TaskingManager(request)
     csv_stream = tm.get_validators_stats()
+    if csv_stream:
+        response = StreamingResponse(csv_stream)
+        name =f"ValidatorStats_{datetime.now().isoformat()}"
+        response.headers["Content-Disposition"] = f"attachment; filename={name}.csv"
 
-    response = StreamingResponse(csv_stream)
-    name =f"ValidatorStats_{datetime.now().isoformat()}"
-    response.headers["Content-Disposition"] = f"attachment; filename={name}.csv"
-
-    return response
+        return response
+    return Response("No Data Found", status_code=404)
 
 
 @router.get("/teams/")
