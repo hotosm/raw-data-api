@@ -314,7 +314,7 @@ class TaskingManager:
         result = [dict(r) for r in self.database.executequery(query)]
         if result :
             indexes = ['user_id', 'username']
-            columns = ['project_id','country','project_status','total_tasks', 'tasks_mapped', 'tasks_validated']
+            columns = ['project_id','country','organisation_name','project_status','total_tasks', 'tasks_mapped', 'tasks_validated']
 
             df = pandas.DataFrame(result)
             out = pandas.pivot_table(df,

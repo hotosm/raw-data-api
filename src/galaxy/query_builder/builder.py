@@ -635,8 +635,20 @@ def generate_organization_hashtag_reports(cur, params):
 
 def generate_tm_validators_stats_query(cur, params):
     stmt = """with t0 as (
-        select 
-            id as p_id,status,total_tasks,tasks_mapped,tasks_validated,country
+        select
+            id as p_id,
+            case
+                when status = 0
+                        then 'ARCHIVED'
+                when status = 1
+                        then 'PUBLISHED'
+                when status = 2 then 'DRAFT'
+            end status,
+            total_tasks,
+            tasks_mapped,
+            tasks_validated,
+            organisation_id,
+            country
         from projects
         where date_part('year', created) = %s"""
 
@@ -655,36 +667,45 @@ def generate_tm_validators_stats_query(cur, params):
             )
     ,t1 as (
         select
-        user_id,
-        project_id,
-        count(id) as cnt
-    from
-        task_history,t0
-    where
-        project_id=t0.p_id and action_text = 'VALIDATED' and  "action" ='STATE_CHANGE'
-    group by
-        user_id,
-        project_id,action_text
-    order by
-        project_id
-    )
+            user_id,
+            project_id,
+            count(id) as cnt
+        from
+            task_history,
+            t0
+        where
+            project_id = t0.p_id
+            and action_text = 'VALIDATED'
+            and "action" = 'STATE_CHANGE'
+        group by
+            user_id,
+            project_id,
+            action_text
+        order by
+            project_id
+            )
     select
-        t1.user_id,
-        u.username,
-        t1.project_id,
-        t1.cnt,
+        coalesce(t1.user_id, 0) as user_id,
+        coalesce(u.username, 'N/A') as username,
+        p.p_id as project_id,
+        coalesce(t1.cnt, 0) as cnt,
         p.status as project_status,
+        coalesce(o.name,'N/A') as organisation_name,
         p.total_tasks,
         p.tasks_mapped,
         p.tasks_validated,
         unnest(p.country) as country
     from
-        t1,
-        t0 as p,
-        users as u
-    where
+        t0 as p
+    left join t1
+        on
         t1.project_id = p.p_id
-        and u.id = t1.user_id
+    left join users as u
+        on
+        u.id = t1.user_id
+    left join organisations as o
+        on
+        o.id = p.organisation_id
     order by
         u.username,
         t1.project_id"""
