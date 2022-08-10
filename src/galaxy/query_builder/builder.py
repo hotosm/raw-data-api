@@ -655,14 +655,18 @@ def generate_tm_validators_stats_query(cur, params):
     sub_query = cur.mogrify(sql.SQL(stmt), (params.year,)).decode()
     status_subset=""
     organisation_subset=""
+    country_subset= ""
     if params.status :
         status_subset=f""" and status ={params.status}""" 
     if params.organisation:
         organisation_list=[f"""organisation_id = {id}""" for id in params.organisation]
         organisation_join = " or ".join(organisation_list)
         organisation_subset=f""" and ({organisation_join})"""
+    if params.country:
+        country_subset=f""" and '{params.country}' ~~* any(country)""" 
+        
     query = f"""
-    {sub_query}{status_subset}{organisation_subset}
+    {sub_query}{status_subset}{organisation_subset}{country_subset}
         order by p_id
             )
     ,t1 as (
