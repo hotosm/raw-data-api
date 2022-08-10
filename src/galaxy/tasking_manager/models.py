@@ -1,5 +1,5 @@
 from ..validation.models import BaseModel
-from typing import Optional
+from typing import Optional,List
 from enum import Enum
 
 
@@ -13,5 +13,5 @@ class ProjectStatus(Enum):
 class ValidatorStatsRequest(BaseModel):
     year: int = 2012
     country: Optional[str] = None
-    organisation: Optional[str] = None
+    organisation: Optional[List[int]] = None
     status : Optional[ProjectStatus] = None
