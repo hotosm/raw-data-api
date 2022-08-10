@@ -218,6 +218,18 @@ class Underpass:
         
         return user_role
 
+    def get_osm_last_updated(self):
+        """OSM synchronisation"""
+        status_query = check_last_updated_osm_underpass()
+        result = self.database.executequery(status_query)
+        return result[0][0]
+
+    def get_user_data_quality_last_updated(self):
+        """ Recency of user data quality reports"""
+        status_query = check_last_updated_user_data_quality_underpass()
+        result = self.database.executequery(status_query)
+        return result[0][0]
+
 
 class Insight:
     """This class connects to Insight database and responsible for all the Insight related functionality"""
@@ -259,6 +271,24 @@ class Insight:
         total_contributors_result = self.database.executequery(
             contributors_query)
         return osm_history_result, total_contributors_result
+
+    def get_osm_last_updated(self):
+        """OSM synchronisation"""
+        status_query = check_last_updated_osm_insights()
+        result = self.database.executequery(status_query)
+        return result[0][0]
+
+    def get_mapathon_statistics_last_updated(self):
+        """Recency of mapathon statistics"""
+        status_query = check_last_updated_mapathon_insights()
+        result = self.database.executequery(status_query)
+        return result[0][0]
+
+    def get_user_statistics_last_updated(self):
+        """Recency of user statistics"""
+        status_query = check_last_updated_user_statistics_insights()
+        result = self.database.executequery(status_query)
+        return result[0][0]
 
 
 class TaskingManager:
@@ -747,6 +777,41 @@ class OrganizationHashtags:
             return err  
 
 
+class Status:
+    """Class to show how recent the data is from different data sources"""
+
+    # constructor
+    def __init__(self, parameters):
+        # parameter validation using pydantic model
+        if type(parameters) is DataRecencyParams:
+            self.params = parameters
+        else:
+            self.params = DataRecencyParams(**parameters)
+
+        if self.params.data_source == "underpass":
+            self.database = Underpass(self.params)
+        elif self.params.data_source == "insight":
+            self.database = Insight(self.params)
+        else:
+            raise ValueError("Source is not Supported")
+
+
+    def get_osm_recency(self):
+        return self.database.get_osm_last_updated() if getattr(self.database, "get_osm_last_updated", None) else None # checks either that method is supported by the database supplied or not without making call to database class if yes will make a call else it will return None 
+
+    def get_mapathon_statistics_recency(self):
+        return self.database.get_mapathon_statistics_last_updated() if getattr(self.database, "get_mapathon_statistics_last_updated", None) else None 
+
+    def get_user_statistics_recency(self):
+        return self.database.get_user_statistics_last_updated() if getattr(self.database, "get_user_statistics_last_updated", None) else None 
+
+    def get_user_data_quality_recency(self):
+        return self.database.get_user_data_quality_last_updated() if getattr(self.database, "get_user_data_quality_last_updated", None) else None
+
+    def get_raw_data_recency(self): 
+        return RawData().check_status()
+
+
 class RawData:
     """Class responsible for the Rawdata Extraction from available sources ,
         Currently Works for Underpass source Current Snapshot
@@ -1124,7 +1189,6 @@ class S3FileTransfer :
         except Exception as ex:
             logging.error(ex)
             raise ex
-
         
     def list_buckets(self):
         """used to list all the buckets available on s3"""
@@ -1184,3 +1248,5 @@ class ProgressPercentage(object):
             self._seen_so_far += bytes_amount
             percentage = (self._seen_so_far / self._size) * 100
             logging.debug("\r%s  %s / %s  (%.2f%%)" ,self._filename, self._seen_so_far, self._size,percentage)
+
+        

@@ -324,6 +324,3 @@ def watch_s3_upload(url : str,path : str) -> None:
         logging.debug("File is uploaded at %s , flushing out from %s",url,path)  
         os.unlink(path)
 
-
-
-

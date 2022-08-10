@@ -600,3 +600,18 @@ class UserStatistics(BaseModel):
     modified_highway : int  
     added_highway_meters : float
     modified_highway_meters : float
+
+class DataSource(str, Enum):
+    UNDERPASS = "underpass"
+    INSIGHTS = "insight"
+
+class DataOutput(str, Enum):
+    osm = "osm"
+    mapathon_statistics = "mapathon_statistics"
+    data_quality = "data_quality"
+    user_statistics = "user_statistics"
+    raw_data = "raw_data"
+
+class DataRecencyParams(BaseModel):
+    data_source: DataSource
+    data_output: DataOutput

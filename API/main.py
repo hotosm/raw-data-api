@@ -35,6 +35,8 @@ from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
 from .download_export import router as download_router
 from .test_router import router as test_router
+from .status import router as status_router
+from fastapi import  Request
 from fastapi.responses import JSONResponse
 from src.galaxy.db_session import database_instance
 from src.galaxy.config import use_connection_pooling , use_s3_to_upload ,logger as logging,config
@@ -66,6 +68,7 @@ app.include_router(data_quality_router)
 # app.include_router(training_router)
 app.include_router(hashtag_router)
 app.include_router(tm_router)
+app.include_router(status_router)
 app.include_router(raw_data_router)
 if use_s3_to_upload is False : # only mount the disk if config is set to disk 
     app.include_router(download_router)
@@ -128,5 +131,3 @@ def on_shutdown():
     if use_connection_pooling:
         logging.debug("Shutting down connection pool")
         database_instance.close_all_connection_pool()
-
-
