@@ -670,23 +670,23 @@ def generate_tm_validators_stats_query(cur, params):
         order by p_id
             )
     ,t1 as (
-        select
-            user_id,
-            project_id,
-            count(id) as cnt
-        from
-            task_history,
-            t0
-        where
-            project_id = t0.p_id
-            and action_text = 'VALIDATED'
-            and "action" = 'STATE_CHANGE'
-        group by
-            user_id,
-            project_id,
-            action_text
-        order by
-            project_id
+		select
+			validated_by as user_id,
+			project_id,
+			case
+                when validated_by  is null
+                        then 0
+                else count(distinct id)
+            end cnt
+		from
+			tasks , t0
+		where
+			project_id = t0.p_id
+		group by
+			user_id,
+			 project_id
+		order by
+			project_id
             )
     select
         coalesce(t1.user_id, 0) as user_id,
