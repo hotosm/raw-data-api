@@ -726,9 +726,12 @@ def generate_tm_teams_list():
     return query
 
 
-def generate_list_teams_metadata():
-    query = """
-        with vt AS (SELECT distinct team_id as id from project_teams where role = 1 order by id),
+def generate_list_teams_metadata(team_id):
+    sub_query=""
+    if team_id:
+        sub_query=f"""and team_id = {team_id}"""
+    query = f"""
+        with vt AS (SELECT distinct team_id as id from project_teams where role = 1 {sub_query} order by id),
         m AS (SELECT tm.team_id, tm.user_id, users.username, tm.function FROM team_members AS tm, vt, users WHERE users.id = tm.user_id AND tm.team_id = vt.id)
         SELECT m.team_id AS team_id,
             t.name AS team_name,

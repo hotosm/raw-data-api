@@ -344,8 +344,8 @@ class TaskingManager:
 
         return iter(stream.getvalue())
 
-    def list_teams_metadata(self):
-        query = generate_list_teams_metadata()
+    def list_teams_metadata(self,team_id):
+        query = generate_list_teams_metadata(team_id)
         results_dicts = [dict(r) for r in self.database.executequery(query)]
 
         results_dicts = [{**r, "function": TeamMemberFunction(r["function"]).name.lower()}
