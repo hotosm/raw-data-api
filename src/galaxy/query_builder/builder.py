@@ -691,6 +691,13 @@ def generate_tm_validators_stats_query(cur, params):
     select
         coalesce(t1.user_id, 0) as user_id,
         coalesce(u.username, 'N/A') as username,
+        case
+            when u.mapping_level = 1
+                            then 'BEGINNER'
+            when u.mapping_level = 2
+                            then 'INTERMEDIATE'
+            when u.mapping_level = 3 then 'ADVANCED'
+	    end  mapping_level,
         p.p_id as project_id,
         coalesce(t1.cnt, 0) as cnt,
         p.status as project_status,
