@@ -322,7 +322,8 @@ class TaskingManager:
                 index=indexes,
                 columns=columns,
                 fill_value=0
-            ).swaplevel(0, 1).reset_index()
+            ).swaplevel(0, 1).sort_values(by='username', ascending=True).reset_index()
+            print(out)
 
             stream = StringIO()
             out.to_csv(stream)
