@@ -321,6 +321,8 @@ class TaskingManager:
                 values='cnt',
                 index=indexes,
                 columns=columns,
+                aggfunc= 'sum', 
+                margins = True, margins_name='Total',
                 fill_value=0
             ).swaplevel(0, 1).sort_values(by='username', ascending=True).reset_index()
             print(out)
