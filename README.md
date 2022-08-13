@@ -6,6 +6,16 @@
 
 #### 1. Install requirements.
 
+Install gdal, for example on Ubuntu
+
+```
+sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
+sudo apt-get update
+sudo apt-get install gdal-bin libgdal-dev
+```
+
+Install python dependencies
+
 ```pip install -r requirements.txt```
 
 #### 2. Create ```config.txt``` inside src directory.
@@ -28,9 +38,9 @@ port=
 
 #### 4. Navigate to Fast API Docs to get details about API Endpoint 
 
-After sucessfully running server , Hit [this](http://127.0.0.1:8000/docs) URL on your browser
+After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs) URL on your browser
 
-```http://127.0.0.1:8000/docs```
+```http://127.0.0.1:8000/latest/docs```
 
 ## Run tests 
 
