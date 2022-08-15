@@ -46,7 +46,6 @@ log_level=info #options are info,debug,warning,error
 host=
 user=
 password=
-host=
 port=
 
 [SENTRY]
