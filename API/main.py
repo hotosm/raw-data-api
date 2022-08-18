@@ -55,16 +55,6 @@ if config.get("SENTRY","url", fallback=None): # only use sentry if it is specifi
 
 app = FastAPI(title="Galaxy API")
 
-async def catch_exceptions_middleware(request: Request, call_next):
-    try:
-        return await call_next(request)
-    except Exception as e:
-        logging.error(e)
-        # you probably want some kind of logging here
-        return Response("Server Error", status_code=500)
-
-app.middleware('http')(catch_exceptions_middleware)
-
 # app.include_router(test_router)
 app.include_router(countries_router)
 # app.include_router(changesets_router)
