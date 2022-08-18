@@ -899,14 +899,19 @@ class RawData:
             file_paths = []
             outputtype="ESRI Shapefile"
             if point_query:
-                formatted_query = point_query.replace('"', '\\"')
+                query_path = f"""{dump_temp_file_path}_sql.sql"""
+
+                with open(query_path, 'w') as file: #writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
+                    file.write(point_query)
                 #standard file path for the generation
                 point_file_path = f"""{dump_temp_file_path}_point.shp"""
                 #command for ogr2ogr to generate file 
-                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
-                    outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
                 logging.debug("Calling ogr2ogr-Point Shapefile")
                 run_ogr2ogr_cmd(cmd,binding_file_dir)
+                os.remove(query_path)#clear query file we don't need it anymore
+
                 file_paths.append(point_file_path)
                 #need filepath to zip in to file and clear them after zipping 
                 file_paths.append(f"""{dump_temp_file_path}_point.shx""")
@@ -914,25 +919,35 @@ class RawData:
                 file_paths.append(f"""{dump_temp_file_path}_point.dbf""")
                 file_paths.append(f"""{dump_temp_file_path}_point.prj""")
             if line_query:
-                formatted_query = line_query.replace('"', '\\"')
+                query_path = f"""{dump_temp_file_path}_sql.sql"""
+
+                with open(query_path, 'w') as file: #writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
+                    file.write(line_query)
 
                 line_file_path = f"""{dump_temp_file_path}_line.shp"""
-                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
-                    outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
                 logging.debug("Calling ogr2ogr-Line Shapefile")
                 run_ogr2ogr_cmd(cmd,binding_file_dir)
+                os.remove(query_path)#clear query file we don't need it anymore
+
                 file_paths.append(line_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_line.shx""")
                 # file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
                 file_paths.append(f"""{dump_temp_file_path}_line.dbf""")
                 file_paths.append(f"""{dump_temp_file_path}_line.prj""")
             if poly_query:
-                formatted_query = poly_query.replace('"', '\\"')
+                
                 poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
-                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
-                    outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+                poly_query_path = f"""{dump_temp_file_path}_poly_sql.sql"""
+
+                with open(poly_query_path, 'w') as file: #writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
+                    file.write(poly_query)
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=poly_query_path)
                 logging.debug("Calling ogr2ogr-Poly Shapefile")
                 run_ogr2ogr_cmd(cmd,binding_file_dir)
+                os.remove(poly_query_path)#clear query file we don't need it anymore
                 file_paths.append(poly_file_path)
                 file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
                 # file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
@@ -1144,6 +1159,7 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
         ValueError: Binding failed
     """
     try:
+        # start_time=time.time()
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -1152,16 +1168,19 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
             preexec_fn=os.setsid
         )
         while process.poll() is None:
+            # if (time.time()-start_time)/60 > 25 :
+            #     raise ValueError("Shapefile Exceed Limit export")
+
             size=0
             for ele in os.scandir(binding_file_dir):
                 size+=os.path.getsize(ele)
             # print(size/1000000) # in MB
-            if size/1000000 >  4000:
-                logging.warn("Killing ogr2ogr because it exceed 4 GB...")
+            if size/1000000 >  12000:
+                logging.warn("Killing ogr2ogr because it exceed 12 GB...")
                 # process.kill()
                 # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
                 # shutil.rmtree(binding_file_dir)  
-                raise ValueError("Shapefile Exceed 4 GB Limit")
+                raise ValueError("Shapefile Exceed 12 GB Limit")
 
         logging.debug(process.stdout.read())             
     except Exception as ex:

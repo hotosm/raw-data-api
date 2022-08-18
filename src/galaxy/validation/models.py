@@ -537,7 +537,7 @@ class SupportedGeometryFilters(Enum):
 class RawDataCurrentParams(BaseModel):
     output_type : Optional[RawDataOutputType]=None
     file_name : Optional[str]=None
-    geometry : Polygon
+    geometry : Union[Polygon,MultiPolygon]
     filters : Optional[dict]=None
     geometry_type : Optional[List[SupportedGeometryFilters]] = None
     

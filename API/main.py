@@ -18,7 +18,7 @@
 # <info@hotosm.org>
 import time
 
-from fastapi import FastAPI , Request
+from fastapi import FastAPI , Request ,Response
 from fastapi.middleware.cors import CORSMiddleware
 import sentry_sdk
 
@@ -76,12 +76,6 @@ if use_s3_to_upload is False : # only mount the disk if config is set to disk
 
 app = VersionedFastAPI(app,enable_latest=True,version_format='{major}',prefix_format='/v{major}')
 
-@app.exception_handler(ValueError)
-async def value_error_exception_handler(request: Request, exc: ValueError):
-    return JSONResponse(
-        status_code=400,
-        content={"Error": str(exc)},
-    )
 
 origins = ["*"]
 
