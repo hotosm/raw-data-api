@@ -41,6 +41,7 @@ api_port=8000
 max_area=100000 # max area to support for rawdata input 
 use_connection_pooling=True 
 log_level=info #options are info,debug,warning,error
+env=dev # default is dev , supported values are dev and prod
 
 [TM]
 host=
