@@ -175,6 +175,16 @@ class UsersListParams(BaseModel):
     from_timestamp: Union[datetime, date]
     to_timestamp: Union[datetime, date]
 
+    @validator("user_names",allow_reuse=True)
+    def validate_usernames(cls, value, **kwargs):
+        '''check the length of usernames''' 
+
+        for name in value:
+            osm_username_limit = 3
+            if (len(name) < osm_username_limit):
+                raise ValueError(f"Usernames must have {osm_username_limit} characters or more.")
+        return value
+      
 class DateStampParams(BaseModel):
     from_timestamp: Union[datetime, date]
     to_timestamp: Union[datetime, date]
