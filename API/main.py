@@ -50,7 +50,7 @@ if config.get("SENTRY", "dsn", fallback=None): # only use sentry if it is specif
         # We recommend adjusting this value in production.
         traces_sample_rate=config.get("SENTRY", "rate")
     )
-run_env=config.get("API_CONFIG", "env", fallback='dev')
+run_env=config.get("API_CONFIG", "env", fallback='prod')
 if run_env.lower() == 'dev':
     # This is used for local setup for auth login
     import os

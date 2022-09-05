@@ -95,6 +95,10 @@ url=https://www.openstreetmap.org
 scope=read_prefs
 login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
 secret_key=jnfdsjkfndsjkfnsdkjfnskfn
+
+[API_CONFIG]
+env=dev
+
 ```
 
 #### Optional Configuration
