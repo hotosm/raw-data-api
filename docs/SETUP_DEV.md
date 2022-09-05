@@ -1,6 +1,45 @@
 Dev Setup Guide 
 
 First things first : 
+
+## Install
+
+#### 1. Install requirements.
+
+Install gdal on your machine , for example on Ubuntu
+
+```
+sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
+sudo apt-get update
+sudo apt-get install gdal-bin libgdal-dev
+```
+
+Clone the Repo to your machine 
+
+``` git clone https://github.com/hotosm/galaxy-api.git ```
+
+Navigate to repo 
+
+``` cd galaxy-api ```
+
+Install python dependencies
+
+```pip install -r requirements.txt```
+
+#### 2. Create ```config.txt``` inside src directory.
+
+Following this [config sample](https://github.com/hotosm/galaxy-api/blob/master/src/config.txt.sample) setup your database configuration like this config block 
+
+```
+[SOURCE_NAME]
+host=localhost
+user=
+password=
+dbname=
+port=
+```
+
+
 Create config.txt inside src folder like this 
 
 Run underpass from here , by following the documentation or download dump from here to your database 
