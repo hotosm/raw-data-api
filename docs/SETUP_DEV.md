@@ -97,7 +97,7 @@ client_id= your client id
 client_secret= your client secret
 url=https://www.openstreetmap.org
 scope=read_prefs
-login_redirect_uri=http://127.0.0.1:8000/auth/callback/
+login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
 secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 ```
 #### 9. Run server
@@ -109,6 +109,13 @@ secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs) URL on your browser
 
 ```http://127.0.0.1:8000/latest/docs```
+
+### Check Authetication 
+
+1. Hit /auth/login/
+2. Hit Url returned on response 
+3. You will get access_token 
+4. You can use that access_token in all endpoints that requires authentication , To check token pass token in /auth/me/ It should return your osm profile 
 
 ## Run tests 
 
