@@ -77,7 +77,8 @@ port=
 ```
 
 #### 8. Setup Oauth 
-Login to osm.org , Click on My Settings and register your local galaxy app to Oauth2applications
+Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local galaxy app to Oauth2applications
+
 ![image](https://user-images.githubusercontent.com/36752999/188406664-371e4353-088c-4608-9761-7b652d4e396c.png)
 
 Check on read user preferences and Enter redirect URI as following
