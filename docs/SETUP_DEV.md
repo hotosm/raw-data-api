@@ -1,8 +1,4 @@
-Dev Setup Guide 
-
-First things first : 
-
-## Install
+## Install Galaxy API Locally 
 
 #### 1. Install requirements.
 
