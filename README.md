@@ -104,8 +104,11 @@ scope=read_prefs
 login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
 secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 ```
-#### Optional Configuration
-You can further customize API if you wish with API_CONFIG Block (Optional)
+
+##### Optional Configuration
+<sub>
+
+You can further customize API if you wish with API_CONFIG Block 
 
 ```
 [API_CONFIG]
@@ -117,7 +120,7 @@ use_connection_pooling=True # default it will not use connection pooling but you
 log_level=info #options are info,debug,warning,error
 env=dev # default is dev , supported values are dev and prod
 ```
-Based on your requirement you can also customize rawdata exports parameter using EXPORT_UPLOAD block (Optional)
+Based on your requirement you can also customize rawdata exports parameter using EXPORT_UPLOAD block 
 
 ```
 [EXPORT_UPLOAD]
@@ -126,6 +129,7 @@ AWS_ACCESS_KEY_ID= your id
 AWS_SECRET_ACCESS_KEY= yourkey 
 BUCKET_NAME= your bucket name 
 ```
+</sub>
 
 #### 9. Run server
 
