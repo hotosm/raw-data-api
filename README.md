@@ -104,6 +104,29 @@ scope=read_prefs
 login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
 secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 ```
+#### Optional Configuration
+You can further customize API if you wish with API_CONFIG Block (Optional)
+
+```
+[API_CONFIG]
+export_path=exports/ # used to store export path
+api_host=http://127.0.0.1 # you can define this if you have different host 
+api_port=8000
+max_area=100000 # max area to support for rawdata input 
+use_connection_pooling=True # default it will not use connection pooling but you can configure api to use to for psycopg2 connections
+log_level=info #options are info,debug,warning,error
+env=dev # default is dev , supported values are dev and prod
+```
+Based on your requirement you can also customize rawdata exports parameter using EXPORT_UPLOAD block (Optional)
+
+```
+[EXPORT_UPLOAD]
+FILE_UPLOAD_METHOD=disk # options are s3,disk , default disk
+AWS_ACCESS_KEY_ID= your id 
+AWS_SECRET_ACCESS_KEY= yourkey 
+BUCKET_NAME= your bucket name 
+```
+
 #### 9. Run server
 
 ```uvicorn API.main:app --reload```
@@ -120,6 +143,8 @@ After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs)
 2. Hit Url returned on response 
 3. You will get access_token 
 4. You can use that access_token in all endpoints that requires authentication , To check token pass token in /auth/me/ It should return your osm profile 
+
+##### API has been setup successfully ! 
 
 ## Run tests 
 
