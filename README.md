@@ -57,7 +57,8 @@ Download dump of TM from here and setup in your database
 #### 7. Setup Oauth 
 Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local galaxy app to Oauth2applications
 
-![image](https://user-images.githubusercontent.com/36752999/188406664-371e4353-088c-4608-9761-7b652d4e396c.png)
+![image](https://user-images.githubusercontent.com/36752999/188452619-aababf28-b685-4141-b381-9c25d0367b57.png)
+
 
 Check on read user preferences and Enter redirect URI as following
 ```http://127.0.0.1:8000/latest/auth/callback/```
@@ -148,7 +149,7 @@ After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs)
 3. You will get access_token 
 4. You can use that access_token in all endpoints that requires authentication , To check token pass token in /auth/me/ It should return your osm profile 
 
-##### API has been setup successfully ! 
+#### API has been setup successfully ! 
 
 ## Run tests 
 
