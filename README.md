@@ -4,7 +4,7 @@
 
 ## Getting Started 
 
-#### 1. Install requirements.
+### 1. Install requirements.
 
 Install gdal on your machine , for example on Ubuntu
 
@@ -32,29 +32,26 @@ Install gdal python ( Include your gdal version , if you are using different ver
 
 
 
-#### 2. Create ```config.txt``` inside src directory.
+### 2. Create ```config.txt``` inside src directory.
 ![image](https://user-images.githubusercontent.com/36752999/188402566-80dc9633-5d4e-479c-97dc-9e8a4999b385.png)
 
 
-#### 3. Setup Underpass 
+### 3. Setup Underpass 
   Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md)  OR Create database "underpass" in your local postgres and insert sample dump from  ```/tests/src/fixtures/underpass.sql ```
 
 ```psql -U postgres -h localhost underpass < underpass.sql```
-#### 4. Setup Insights 
+### 4. Setup Insights 
 Setup insights from [here](https://github.com/hotosm/insights) OR Create database "insights" in your local postgres and insert sample dump from  ```/tests/src/fixtures/insights.sql ```
 
 ```psql -U postgres -h localhost insights < insights.sql```
 
-#### 5. Setup Raw Data  
+### 5. Setup Raw Data  
 Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from  ```/tests/src/fixtures/raw_data.sql ```
 
 ```psql -U postgres -h localhost raw < raw_data.sql```
 
 
-#### 6. Setup Tasking Manager Dump 
-Download dump of TM from here and setup in your database 
-
-#### 7. Setup Oauth 
+### 6. Setup Oauth 
 Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local galaxy app to Oauth2applications
 
 ![image](https://user-images.githubusercontent.com/36752999/188452619-aababf28-b685-4141-b381-9c25d0367b57.png)
@@ -66,7 +63,7 @@ Check on read user preferences and Enter redirect URI as following
 Grab Client ID and Client Secret and put it inside config.txt as OAUTH Block , you can generate secret key for your application by yourself
 
 
-#### 8. Put your credentials inside config.txt
+### 7. Put your credentials inside config.txt
 Insert your config blocks with the database credentials where you have underpass ,insight and tm in your database
 
 ```
@@ -106,8 +103,7 @@ login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
 secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 ```
 
-##### Optional Configuration
-<sub>
+#### Optional Configuration
 
 You can further customize API if you wish with API_CONFIG Block 
 
@@ -130,13 +126,21 @@ AWS_ACCESS_KEY_ID= your id
 AWS_SECRET_ACCESS_KEY= yourkey 
 BUCKET_NAME= your bucket name 
 ```
-</sub>
+##### Setup Tasking Manager Database for TM related development  
 
-#### 9. Run server
+You can setup [Tasking manager](https://github.com/hotosm/tasking-manager)  and add those block to config.txt 
+```
+[TM]
+host=
+user=
+password=
+port=
+```
+### 8. Run server
 
 ```uvicorn API.main:app --reload```
 
-#### 10. Navigate to Fast API Docs to get details about API Endpoint 
+### 9. Navigate to Fast API Docs to get details about API Endpoint 
 
 After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs) URL on your browser
 
