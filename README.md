@@ -88,12 +88,6 @@ password=admin
 database=raw
 port=5432
 
-[TM]
-host=
-user=
-password=
-port=
-
 [OAUTH]
 client_id= your client id 
 client_secret= your client secret
