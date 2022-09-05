@@ -33,13 +33,19 @@ Install gdal python ( Include your gdal version , if you are using different ver
 
 
 #### 3. Setup Underpass 
-  Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md) by following the          documentation  or Create database "underpass" in your local postgres and insert sample dump from  ```/tests/src/fixtures/underpass.sql ```
+  Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md)  OR Create database "underpass" in your local postgres and insert sample dump from  ```/tests/src/fixtures/underpass.sql ```
 
+```psql -U postgres -h localhost underpass < underpass.sql```
 #### 4. Setup Insights 
-Setup insights from [here](https://github.com/hotosm/insights) or Create database "insights" in your local postgres and insert sample dump from  ```/tests/src/fixtures/insights.sql ```
+Setup insights from [here](https://github.com/hotosm/insights) OR Create database "insights" in your local postgres and insert sample dump from  ```/tests/src/fixtures/insights.sql ```
+
+```psql -U postgres -h localhost insights < insights.sql```
 
 #### 5. Setup Raw Data  
-Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) or Create database "raw" in your local postgres and insert sample dump from  ```/tests/src/fixtures/raw_data.sql ```
+Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from  ```/tests/src/fixtures/raw_data.sql ```
+
+```psql -U postgres -h localhost raw < raw_data.sql```
+
 
 #### 6. Setup Tasking Manager Dump 
 Download dump of TM from here and setup in your database 
@@ -52,14 +58,14 @@ Insert your config blocks with the database credentials where you have underpass
 host=localhost
 user=postgres
 password=admin
-database=underpass
+database=insights
 port=5432
 
 [UNDERPASS]
 host=localhost
 user=postgres
 password=admin
-database=insight
+database=underpass
 port=5432
 
 [RAW_DATA]
