@@ -28,6 +28,7 @@ config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
 
 log_level = config.get("API_CONFIG", "log_level",fallback=None) # get log level from config
+use_s3_to_upload=False
 
 if log_level is None or log_level.lower() == 'debug':  # default will go to debug
     level=logging.DEBUG 
@@ -94,4 +95,4 @@ def get_db_connection_params(dbIdentifier: str) -> dict:
         return connection_params
     except Exception as ex :
         logging.error(f"""Can't find DB credentials on config :{dbIdentifier}""")
-        return None
+        raise ex

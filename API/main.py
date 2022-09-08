@@ -50,10 +50,11 @@ if config.get("SENTRY", "dsn", fallback=None): # only use sentry if it is specif
         # We recommend adjusting this value in production.
         traces_sample_rate=config.get("SENTRY", "rate")
     )
-
-# This is used for local setup for auth login
-# import os
-# os.environ['OAUTHLIB_INSECURE_TRANSPORT'] ='1'
+run_env=config.get("API_CONFIG", "env", fallback='prod')
+if run_env.lower() == 'dev':
+    # This is used for local setup for auth login
+    import os
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] ='1'
 
 app = FastAPI(title="Galaxy API")
 

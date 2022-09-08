@@ -270,11 +270,11 @@ def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTas
         try :
             client_port = config.get("API_CONFIG", "api_port")
         except:
-            client_port = None
+            client_port = 8000
         if client_port :
-            download_url = f"""{client_host}:{client_port}/exports/{exportname}.zip"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+            download_url = f"""{client_host}:{client_port}/v1/exports/{exportname}.zip"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
         else :
-            download_url = f"""{client_host}/exports/{exportname}.zip"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+            download_url = f"""{client_host}/v1/exports/{exportname}.zip"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
 
     # getting file size of zip , units are in bytes converted to mb in response
     zip_file_size = os.path.getsize(zip_temp_path)
