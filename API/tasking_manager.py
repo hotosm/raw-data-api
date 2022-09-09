@@ -19,7 +19,7 @@
 
 """[Router Responsible for Organizational data API ]
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,Response
 from fastapi_versioning import  version
 # from .auth import login_required
 
@@ -36,14 +36,64 @@ router = APIRouter(prefix="/tasking-manager")
 @router.post("/validators/")
 @version(1)
 def get_validator_stats(request: ValidatorStatsRequest):
+    """Endpoint returns statistics of validators reading tasking manager database 
+
+    Args:
+    
+    
+        year: int =                             Compulsory field , you need to supply year in integer . Applies filter on project creation date within that year and includes mapping activity associated to those projects irrespect of activity date
+        country: Optional[str] =                Optional filter , case insensitive 
+        organisation: Optional[List[int]] =     Takes organisation id to filter output , can support multiple organisation as list organisation id can be retrived from Tasking manager /api/organisations 
+        status : Optional[ProjectStatus] =      Only takes integer which represents : 
+                                                ARCHIVED = 0
+                                                PUBLISHED = 1
+                                                DRAFT = 2
+
+    Returns:
+        csv : Stats
+        404 Error : If no data found for the request 
+    
+    Example Request : 
+
+        1) To extract all stats within year 
+            {
+                "year": 2012
+            }
+            
+        2) To extract data of specific country for that year 
+            {
+                "year": 2012,
+                "country": "indonesia"
+            }
+        3) To extract  data of some organisation 
+            {
+                "year": 2012,
+                "organisation": [
+                    73
+                ]
+            }
+        4) To get data for the projects in indonesia created by organisation : HOT which are archived 
+            {
+                "year": 2012,
+                "country": "indonesia",
+                "organisation": [
+                    73
+                ],
+                "status": 0
+            }
+            
+    Note : API returns 404 No data available if no data is found on database for the request !
+        
+    """
     tm = TaskingManager(request)
     csv_stream = tm.get_validators_stats()
+    if csv_stream:
+        response = StreamingResponse(csv_stream)
+        name =f"ValidatorStats_{datetime.now().isoformat()}"
+        response.headers["Content-Disposition"] = f"attachment; filename={name}.csv"
 
-    response = StreamingResponse(csv_stream)
-    name =f"ValidatorStats_{datetime.now().isoformat()}"
-    response.headers["Content-Disposition"] = f"attachment; filename={name}.csv"
-
-    return response
+        return response
+    return Response("No Data Found", status_code=404)
 
 
 @router.get("/teams/")
@@ -60,8 +110,8 @@ def get_teams():
 
 @router.get("/teams/individual/")
 @version(1)
-def get_specific_team():
-    csv_stream = TaskingManager().list_teams_metadata()
+def get_team_full_metadata(team_id :int =None):
+    csv_stream = TaskingManager().list_teams_metadata(team_id)
 
     response = StreamingResponse(csv_stream)
     name =f"Teams_{datetime.now().isoformat()}"

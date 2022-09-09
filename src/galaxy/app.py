@@ -28,7 +28,7 @@ from fastapi import param_functions
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
-from pydantic import validator
+from pydantic import NoneStrBytes, validator
 from pydantic.types import Json
 from pydantic import parse_obj_as
 from .validation.models import *
@@ -340,23 +340,28 @@ class TaskingManager:
 
     def get_validators_stats(self):
         query = generate_tm_validators_stats_query(self.cur, self.params)
+        print(query)
         result = [dict(r) for r in self.database.executequery(query)]
+        if result :
+            indexes = ['user_id', 'username','mapping_level']
+            columns = ['project_id','country','organisation_name','project_status','total_tasks', 'tasks_mapped', 'tasks_validated']
 
-        indexes = ['user_id', 'username']
-        columns = ['project_id', 'country', 'total_tasks', 'tasks_mapped', 'tasks_validated']
+            df = pandas.DataFrame(result)
+            out = pandas.pivot_table(df,
+                values='cnt',
+                index=indexes,
+                columns=columns,
+                aggfunc= 'sum', 
+                margins = True, margins_name='Total',
+                fill_value=0
+            ).swaplevel(0, 1).sort_values(by='username', ascending=True).reset_index()
+            print(out)
 
-        df = pandas.DataFrame(result)
-        out = pandas.pivot_table(df,
-            values='cnt',
-            index=indexes,
-            columns=columns,
-            fill_value=0
-        ).swaplevel(0, 1).reset_index()
+            stream = StringIO()
+            out.to_csv(stream)
 
-        stream = StringIO()
-        out.to_csv(stream)
-
-        return iter(stream.getvalue())
+            return iter(stream.getvalue())
+        return None
 
     def list_teams(self):
         query = generate_tm_teams_list()
@@ -372,8 +377,8 @@ class TaskingManager:
 
         return iter(stream.getvalue())
 
-    def list_teams_metadata(self):
-        query = generate_list_teams_metadata()
+    def list_teams_metadata(self,team_id):
+        query = generate_list_teams_metadata(team_id)
         results_dicts = [dict(r) for r in self.database.executequery(query)]
 
         results_dicts = [{**r, "function": TeamMemberFunction(r["function"]).name.lower()}

@@ -634,26 +634,92 @@ def generate_organization_hashtag_reports(cur, params):
     return query
 
 def generate_tm_validators_stats_query(cur, params):
-    stmt = """WITH t1 as (SELECT user_id, project_id, count(id) AS cnt from task_history
-    where action_text = 'VALIDATED' AND date_part('year', action_date) = %s group by user_id, project_id order by project_id)
-    """
+    stmt = """with t0 as (
+        select
+            id as p_id,
+            case
+                when status = 0
+                        then 'ARCHIVED'
+                when status = 1
+                        then 'PUBLISHED'
+                when status = 2 then 'DRAFT'
+            end status,
+            total_tasks,
+            tasks_mapped,
+            tasks_validated,
+            organisation_id,
+            country
+        from projects
+        where date_part('year', created) = %s"""
 
     sub_query = cur.mogrify(sql.SQL(stmt), (params.year,)).decode()
-
+    status_subset=""
+    organisation_subset=""
+    country_subset= ""
+    if params.status :
+        status_subset=f""" and status ={params.status}""" 
+    if params.organisation:
+        organisation_list=[f"""organisation_id = {id}""" for id in params.organisation]
+        organisation_join = " or ".join(organisation_list)
+        organisation_subset=f""" and ({organisation_join})"""
+    if params.country:
+        country_subset=f""" and '{params.country}' ~~* any(country)""" 
+        
     query = f"""
-    {sub_query}
-    SELECT t1.user_id,
-        u.username,
-        t1.project_id,
-        t1.cnt,
+    {sub_query}{status_subset}{organisation_subset}{country_subset}
+        order by p_id
+            )
+    ,t1 as (
+		select
+			validated_by as user_id,
+			project_id,
+			case
+                when validated_by  is null
+                        then 0
+                else count(distinct id)
+            end cnt
+		from
+			tasks , t0
+		where
+			project_id = t0.p_id
+		group by
+			user_id,
+			 project_id
+		order by
+			project_id
+            )
+    select
+        coalesce(t1.user_id, 0) as user_id,
+        coalesce(u.username, 'N/A') as username,
+        case
+            when u.mapping_level = 1
+                            then 'BEGINNER'
+            when u.mapping_level = 2
+                            then 'INTERMEDIATE'
+            when u.mapping_level = 3 then 'ADVANCED'
+	    end  mapping_level,
+        p.p_id as project_id,
+        coalesce(t1.cnt, 0) as cnt,
+        p.status as project_status,
+        coalesce(o.name,'N/A') as organisation_name,
         p.total_tasks,
         p.tasks_mapped,
         p.tasks_validated,
-        unnest(p.country) AS country
-    from t1, projects as p, users as u
-    where t1.project_id = p.id AND u.id = t1.user_id
-    ORDER BY u.username, t1.project_id
-    """
+        unnest(p.country) as country
+    from
+        t0 as p
+    left join t1
+        on
+        t1.project_id = p.p_id
+    left join users as u
+        on
+        u.id = t1.user_id
+    left join organisations as o
+        on
+        o.id = p.organisation_id
+    order by
+        u.username,
+        t1.project_id"""
 
     return query
 
@@ -667,9 +733,12 @@ def generate_tm_teams_list():
     return query
 
 
-def generate_list_teams_metadata():
-    query = """
-        with vt AS (SELECT distinct team_id as id from project_teams where role = 1 order by id),
+def generate_list_teams_metadata(team_id):
+    sub_query=""
+    if team_id:
+        sub_query=f"""and team_id = {team_id}"""
+    query = f"""
+        with vt AS (SELECT distinct team_id as id from project_teams where role = 1 {sub_query} order by id),
         m AS (SELECT tm.team_id, tm.user_id, users.username, tm.function FROM team_members AS tm, vt, users WHERE users.id = tm.user_id AND tm.team_id = vt.id)
         SELECT m.team_id AS team_id,
             t.name AS team_name,
