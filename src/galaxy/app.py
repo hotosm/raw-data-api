@@ -52,6 +52,7 @@ import shutil
 import boto3
 import requests
 import signal
+from fastapi import HTTPException
 #import instance for pooling 
 if use_connection_pooling:
     from src.galaxy.db_session import database_instance
@@ -411,8 +412,8 @@ class Mapathon:
         elif source == "insights":
             self.database = Insight(self.params)
         else:
-            raise ValueError("Source is not Supported")
-
+            raise HTTPException(status_code=404, detail="Source is not Supported")  
+        
     # Mapathon class instance method
     def get_summary(self):
         """Function to get summary of your mapathon event """
@@ -1184,8 +1185,8 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
                 logging.warn(f"Killing ogr2ogr because it exceed {shp_limit} MB...")
                 # process.kill()
                 # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
-                # shutil.rmtree(binding_file_dir)  
-                raise ValueError("Shapefile Exceed 12 GB Limit")
+                # shutil.rmtree(binding_file_dir)
+                raise HTTPException(status_code=404, detail="Shapefile Exceed {shp_limit} MB Limit")  
 
         logging.debug(process.stdout.read())             
     except Exception as ex:
