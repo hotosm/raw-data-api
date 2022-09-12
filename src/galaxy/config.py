@@ -54,6 +54,9 @@ if export_path is None :
 if export_path.endswith("/") is False : 
     export_path=f"""{export_path}/"""
 
+shp_limit=int(config.get('API_CONFIG', 'shp_limit', fallback=4096))
+
+
 AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY , BUCKET_NAME =None , None , None
 #check either to use connection pooling or not 
 use_connection_pooling = config.getboolean("API_CONFIG","use_connection_pooling", fallback=False)

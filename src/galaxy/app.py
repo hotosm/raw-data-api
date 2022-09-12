@@ -22,7 +22,7 @@ import sys
 import threading
 
 from threading import excepthook
-from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level,logger as logging , export_path,config,use_connection_pooling
+from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level,logger as logging , export_path,config,use_connection_pooling,shp_limit
 from .validation.models import Source
 from fastapi import param_functions
 from psycopg2 import connect, sql
@@ -1180,8 +1180,8 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
             for ele in os.scandir(binding_file_dir):
                 size+=os.path.getsize(ele)
             # print(size/1000000) # in MB
-            if size/1000000 >  12000:
-                logging.warn("Killing ogr2ogr because it exceed 12 GB...")
+            if size/1000000 >  shp_limit:
+                logging.warn(f"Killing ogr2ogr because it exceed {shp_limit} MB...")
                 # process.kill()
                 # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
                 # shutil.rmtree(binding_file_dir)  
