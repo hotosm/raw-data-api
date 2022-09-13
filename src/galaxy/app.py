@@ -22,7 +22,7 @@ import sys
 import threading
 
 from threading import excepthook
-from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level,logger as logging , export_path,config,use_connection_pooling
+from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level,logger as logging , export_path,config,use_connection_pooling,shp_limit
 from .validation.models import Source
 from fastapi import param_functions
 from psycopg2 import connect, sql
@@ -52,6 +52,7 @@ import shutil
 import boto3
 import requests
 import signal
+from fastapi import HTTPException
 #import instance for pooling 
 if use_connection_pooling:
     from src.galaxy.db_session import database_instance
@@ -411,8 +412,8 @@ class Mapathon:
         elif source == "insights":
             self.database = Insight(self.params)
         else:
-            raise ValueError("Source is not Supported")
-
+            raise HTTPException(status_code=404, detail="Source is not Supported")  
+        
     # Mapathon class instance method
     def get_summary(self):
         """Function to get summary of your mapathon event """
@@ -1180,12 +1181,12 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
             for ele in os.scandir(binding_file_dir):
                 size+=os.path.getsize(ele)
             # print(size/1000000) # in MB
-            if size/1000000 >  12000:
-                logging.warn("Killing ogr2ogr because it exceed 12 GB...")
+            if size/1000000 >  shp_limit:
+                logging.warn(f"Killing ogr2ogr because it exceed {shp_limit} MB...")
                 # process.kill()
                 # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
-                # shutil.rmtree(binding_file_dir)  
-                raise ValueError("Shapefile Exceed 12 GB Limit")
+                # shutil.rmtree(binding_file_dir)
+                raise HTTPException(status_code=404, detail=f"Shapefile Exceed {shp_limit} MB Limit")  
 
         logging.debug(process.stdout.read())             
     except Exception as ex:

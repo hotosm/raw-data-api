@@ -105,6 +105,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 async def on_startup():
     """Fires up 3 idle conenction with threaded connection pooling before starting the API
