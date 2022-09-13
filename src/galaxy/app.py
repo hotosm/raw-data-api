@@ -1186,7 +1186,7 @@ def run_ogr2ogr_cmd(cmd,binding_file_dir):
                 # process.kill()
                 # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
                 # shutil.rmtree(binding_file_dir)
-                raise HTTPException(status_code=404, detail="Shapefile Exceed {shp_limit} MB Limit")  
+                raise HTTPException(status_code=404, detail=f"Shapefile Exceed {shp_limit} MB Limit")  
 
         logging.debug(process.stdout.read())             
     except Exception as ex:
