@@ -1,62 +1,62 @@
+#############
+# MANDATORY #
+#############
+
+[INSIGHTS]
+host=localhost
+user=postgres
+password=admin
+database=insights
+port=5432
+
+[UNDERPASS]
+host=localhost
+user=postgres
+password=admin
+database=underpass
+port=5432
+
+[RAW_DATA]
+host=localhost
+user=postgres
+password=admin
+database=raw
+port=5432
+
 [OAUTH]
 client_id=
 client_secret=
 url=https://www.openstreetmap.org
 scope=read_prefs
-login_redirect_uri=http://127.0.0.1:8000/v1/auth/callback/
-secret_key=
-
-[DUMP]
-path=
-redirect_uri=http://127.0.0.1:8000/callback/
-underpass=underpass.sql
-osmstats=osmstats.sql
-
-[INSIGHTS]
-host=localhost
-user=postgres
-password=changeme
-database=postgres
-port=5433
-
-[UNDERPASS]
-host=
-user=
-password=
-database=galaxy
-port=
-
-
-[RAW_DATA]
-host=localhost
-user=admin
-password=admin
-database=postgres
-port=5432
+login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
+secret_key=PutSomethingRandmHere
 
 [API_CONFIG]
-export_path=exports/ # used to store export path
-api_host=http://127.0.0.1
-api_port=8000
-max_area=100000 # max area to support for rawdata input 
-use_connection_pooling=True 
-log_level=info #options are info,debug,warning,error
-env=dev # default is prod , supported values are dev and prod
-shp_limit=6000 # in mb default is 4096
+env=dev
 
-[TM]
-host=
-user=
-password=
-port=
+#############
+# OPTIONNAL #
+#############
 
-[SENTRY]
-dsn=https://apikey.ingest.sentry.io/appid
-rate=1.0
+# If enable this [API_CONFIG] section, remove the previous one
+#[API_CONFIG]
+#export_path=exports/ # used to store export path
+#api_host=http://127.0.0.1
+#api_port=8000
+#max_area=100000 # max area to support for rawdata input 
+#use_connection_pooling=True 
+#log_level=info #options are info,debug,warning,error
+#env=dev # default is prod , supported values are dev and prod
+#shp_limit=6000 # in mb default is 4096
 
-[EXPORT_UPLOAD]
-FILE_UPLOAD_METHOD=disk # options are s3,disk 
-AWS_ACCESS_KEY_ID= your id 
-AWS_SECRET_ACCESS_KEY= yourkey 
-BUCKET_NAME= your bucket name 
+#[EXPORT_UPLOAD]
+#FILE_UPLOAD_METHOD=disk # options are s3,disk 
+#AWS_ACCESS_KEY_ID= your id 
+#AWS_SECRET_ACCESS_KEY= yourkey 
+#BUCKET_NAME= your bucket name 
 
+#[TM]
+#host=
+#user=
+#password=
+#port=
