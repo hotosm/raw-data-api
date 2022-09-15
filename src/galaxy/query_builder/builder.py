@@ -65,8 +65,8 @@ def create_hashtag_filter_query(project_ids, hashtags, cur, conn, prefix=False):
     no_char_filter_values = [
         item for sublist in no_char_filter_values for item in sublist]
 
-    hashtag_filter = [*hashtag_tags_filters, *
-                      comment_tags_filters, *no_char_filter_values]
+    hashtag_filter = [*hashtag_tags_filters,
+                      *comment_tags_filters, *no_char_filter_values]
 
     hashtag_filter = [
         sql.SQL(f).format(hstore_column=sql.Identifier(HSTORE_COLUMN))
