@@ -1,4 +1,5 @@
 import base64
+from typing import Union
 
 from pydantic import BaseModel
 from itsdangerous.url_safe import URLSafeSerializer
@@ -11,7 +12,7 @@ from src.galaxy.validation.models import UserRole
 class AuthUser(BaseModel):
     id: int
     username: str
-    img_url: str
+    img_url: Union[str, None]
     role: str
 
 
