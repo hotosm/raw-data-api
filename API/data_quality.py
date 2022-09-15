@@ -19,8 +19,8 @@
 
 from csv import DictWriter
 from fastapi import APIRouter
-from fastapi_versioning import  version
-from src.galaxy.validation.models import DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams,OutputType
+from fastapi_versioning import version
+from src.galaxy.validation.models import DataQuality_TM_RequestParams, DataQuality_username_RequestParams, DataQualityHashtagParams, OutputType
 from src.galaxy.app import DataQuality, DataQualityHashtags
 from fastapi.responses import StreamingResponse
 import io
@@ -43,27 +43,30 @@ def get_hashtag_data_quality_report(params: DataQualityHashtagParams):
     csv_stream = DataQualityHashtags.to_csv_stream(results)
 
     response = StreamingResponse(csv_stream)
-    exportname =f"DataQuality_Hashtags_{datetime.now().isoformat()}"
+    exportname = f"DataQuality_Hashtags_{datetime.now().isoformat()}"
     response.headers["Content-Disposition"] = f"attachment; filename={exportname}.csv"
 
     return response
 
+
 @router.post("/project-reports/")
 @version(1)
 def get_tasking_manager_project_data_quality_report(params: DataQuality_TM_RequestParams):
-    data_quality = DataQuality(params,"TM")
+    data_quality = DataQuality(params, "TM")
 
     if params.output_type == OutputType.GEOJSON.value:
         return data_quality.get_report()
 
     stream = io.StringIO()
-    exportname =f"TM_DataQuality_{datetime.now().isoformat()}"
+    exportname = f"TM_DataQuality_{datetime.now().isoformat()}"
     data_quality.get_report_as_csv(stream)
     response = StreamingResponse(iter([stream.getvalue()]),
-                            media_type="text/csv"
-    )
-    response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
+                                 media_type="text/csv"
+                                 )
+    response.headers["Content-Disposition"] = "attachment; filename=" + \
+        exportname+".csv"
     return response
+
 
 @router.post("/user-reports/")
 @version(1)
@@ -71,8 +74,8 @@ def get_user_data_quality_report(params: DataQuality_username_RequestParams):
     """Returns data quality report for a OpenStreetMap user in a given time period.
 
     Args:
-        params (DataQuality_username_RequestParams): 
-        
+        params (DataQuality_username_RequestParams):
+
         {
             "fromTimestamp": "string",
             "toTimestamp": "string",
@@ -89,28 +92,28 @@ def get_user_data_quality_report(params: DataQuality_username_RequestParams):
         }
 
     Returns:
-    
+
         file: geojson or csv
-    
-    Example Request : 
+
+    Example Request :
     1. Example request for a user who contributed hashtag
-    
+
     {"fromTimestamp":"2022-07-22T13:15:00.461Z","toTimestamp":"2022-07-22T14:15:00.461Z","osmUsernames":["Kshitizraj Sharma"],"issueTypes":["all"],"outputType":"geojson","hashtags":["missingmaps"]}
-    
-    2. Example request for a user with all data quality issues within period of time 
-    
+
+    2. Example request for a user with all data quality issues within period of time
+
     {"fromTimestamp":"2022-07-22T13:15:00.461Z","toTimestamp":"2022-07-22T14:15:00.461Z","osmUsernames":["Kshitizraj Sharma"],"issueTypes":["all"],"outputType":"geojson","hashtags":[]}
     """
-    data_quality = DataQuality(params,"username")
-    
+    data_quality = DataQuality(params, "username")
+
     if params.output_type == OutputType.GEOJSON.value:
         return data_quality.get_report()
     stream = io.StringIO()
-    exportname =f"Username_DataQuality_{datetime.now().isoformat()}"
+    exportname = f"Username_DataQuality_{datetime.now().isoformat()}"
     data_quality.get_report_as_csv(stream)
     response = StreamingResponse(iter([stream.getvalue()]),
-                            media_type="text/csv"
-    )
-    response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
+                                 media_type="text/csv"
+                                 )
+    response.headers["Content-Disposition"] = "attachment; filename=" + \
+        exportname+".csv"
     return response
-

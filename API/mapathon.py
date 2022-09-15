@@ -18,7 +18,7 @@
 # <info@hotosm.org>
 
 from fastapi import APIRouter, Depends
-from fastapi_versioning import  version
+from fastapi_versioning import version
 from src.galaxy.app import Mapathon
 from src.galaxy.validation.models import (
     MapathonSummary,
@@ -29,20 +29,22 @@ from .auth import login_required
 
 router = APIRouter(prefix="/mapathon")
 
+
 @router.post("/detail/", response_model=MapathonDetail)
 @version(1)
 def get_mapathon_detailed_report(params: MapathonRequestParams,
                                  user_data=Depends(login_required)):
-    """End point to return detailed Mapathon statistics with a list of users and their contribution.
+    """End point to return detailed Mapathon statistics with a list of
+    users and their contribution.
 
     Args:
-    
-    
+
+
         params (MapathonRequestParams): {
                                 "fromTimestamp": "from when you want to have data",
                                 "toTimestamp": "until when you want to have data ",
                                 "projectIds": [
-                                    Tasking Manager Project ids (only integer) separated by comma 
+                                    Tasking Manager Project ids (only integer) separated by comma
                                 ],
                                 "hashtags": [
                                     "list of OpenStreetMap hashtags you want to use without # sign separated by comma"
@@ -53,8 +55,8 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
 
 
     Returns:
-    
-    
+
+
         json: {
                 "mappedFeatures": [
                     {
@@ -101,12 +103,12 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
                     }
                 ]
                 }
-                
-                
-    Example Request : 
-    
-    1. Example with hashtag : 
-    
+
+
+    Example Request :
+
+    1. Example with hashtag :
+
         {
             "fromTimestamp":"2022-07-21T18:15:00.461",
             "toTimestamp":"2022-07-22T18:14:59.461",
@@ -116,9 +118,9 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
                 "missingmaps"
             ]
         }
-    
-    2. Example with Tasking Manager Project id : 
-    
+
+    2. Example with Tasking Manager Project id :
+
         {
             "fromTimestamp":"2022-07-21T18:15:00.461",
             "toTimestamp":"2022-07-22T18:14:59.461",
@@ -128,11 +130,12 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
             "hashtags":[
             ]
         }
-        
-    Note : Passing both Tasking Manager Project ID and hashtag will work as OR condition for the query
-    
-    Example Response : 
-    
+
+    Note : Passing both Tasking Manager Project ID and hashtag will work
+    as OR condition for the query
+
+    Example Response :
+
             {
         "mappedFeatures":[
             {
@@ -237,31 +240,32 @@ def get_mapathon_detailed_report(params: MapathonRequestParams,
         "tmStats":[
             {
                 "tasksMapped":[
-                    
+
                 ],
                 "tasksValidated":[
-                    
+
                 ],
                 "timeSpentMapping":[
-                    
+
                 ],
                 "timeSpentValidating":[
-                    
+
                 ]
             }
         ]
         }
     """
-    mapathon = Mapathon(params,"insights")
+    mapathon = Mapathon(params, "insights")
     return mapathon.get_detailed_report()
+
 
 @router.post("/summary/", response_model=MapathonSummary)
 @version(1)
 def get_mapathon_summary(params: MapathonRequestParams):
     """Returns summary of Mapathon , It doesn't require authorization
     Args:
-        params (MapathonRequestParams): 
-        
+        params (MapathonRequestParams):
+
                                {
                                 "fromTimestamp": "from when you want to have data",
                                 "toTimestamp": "until when you want to have data ",
@@ -275,8 +279,8 @@ def get_mapathon_summary(params: MapathonRequestParams):
                                 }
 
     Returns:
-        json: 
-        
+        json:
+
             {
             "totalContributors": 0,
             "mappedFeatures": [
@@ -287,10 +291,10 @@ def get_mapathon_summary(params: MapathonRequestParams):
                 }
             ]
             }
-            
-    Example Request : 
+
+    Example Request :
     1. With hashtag
-    
+
         {
             "fromTimestamp":"2022-07-22T13:15:00.461",
             "toTimestamp":"2022-07-22T14:15:00.461",
@@ -299,9 +303,9 @@ def get_mapathon_summary(params: MapathonRequestParams):
                 "missingmaps"
             ]
         }
-        
-    2. With tasking manager ID : 
-    
+
+    2. With tasking manager ID :
+
             {
             "fromTimestamp":"2022-07-21T18:15:00.461",
             "toTimestamp":"2022-07-22T18:14:59.461",
@@ -311,9 +315,9 @@ def get_mapathon_summary(params: MapathonRequestParams):
             "hashtags":[
             ]
         }
-    
-    Example Response : 
-    
+
+    Example Response :
+
         {
         "totalContributors":4,
         "mappedFeatures":[
@@ -350,9 +354,9 @@ def get_mapathon_summary(params: MapathonRequestParams):
         ]
         }
     """
-   
+
     if params.source == "underpass":
-        mapathon = Mapathon(params,"underpass")
+        mapathon = Mapathon(params, "underpass")
     else:
-        mapathon = Mapathon(params,"insights")
+        mapathon = Mapathon(params, "insights")
     return mapathon.get_summary()

@@ -20,9 +20,9 @@
 """[Router Responsible for Organizational data API ]
 """
 from fastapi import APIRouter, Depends
-from fastapi_versioning import  version
+from fastapi_versioning import version
 from src.galaxy.app import OrganizationHashtags
-from src.galaxy.validation.models import OrganizationHashtag, OrganizationOutputtype,OrganizationHashtagParams
+from src.galaxy.validation.models import OrganizationHashtag, OrganizationOutputtype, OrganizationHashtagParams
 from .auth import login_required
 from typing import List
 from fastapi.responses import StreamingResponse
@@ -32,20 +32,24 @@ from datetime import datetime
 router = APIRouter(prefix="/hashtags")
 
 
-@router.post("/statistics/",response_model=List[OrganizationHashtag])
+@router.post("/statistics/", response_model=List[OrganizationHashtag])
 @version(1)
 # def get_organisations_list(user_data=Depends(login_required)):
-def get_hashtag_stats(params:OrganizationHashtagParams):
-    """Monitors specific OpenStreetMap hashtag statistics for weekly/quarterly/monthly frequency. Please send requests to tech@hotosm.org to register your hashatags for statistics monitoring.
+def get_hashtag_stats(params: OrganizationHashtagParams):
+    """Monitors specific OpenStreetMap hashtag statistics for
+    weekly/quarterly/monthly frequency.
+    Please send requests to tech@hotosm.org to register your hashatags for
+    statistics monitoring.
 
     Args:
-    
+
             {
             "hashtags": [
                 "string" # list of OpenStreetMap hashtags separated by comma
             ],
-            "frequency": "w", # supported :  WEEKLY = "w",MONTHLY = "m",QUARTERLY = "q",YEARLY = "y"
-            "outputType": "json", # supported json and csv 
+            "frequency": "w", # supported :  WEEKLY = "w",MONTHLY = "m",
+            QUARTERLY = "q",YEARLY = "y"
+            "outputType": "json", # supported json and csv
             "startDate": "2022-07-28",
             "endDate": "2022-07-28"
             }
@@ -67,8 +71,8 @@ def get_hashtag_stats(params:OrganizationHashtagParams):
                 "totalNewPlaces": 0
             }
             ]
-    
-    Example Request : 
+
+    Example Request :
     1. To get weekly stats
 
         {
@@ -91,9 +95,9 @@ def get_hashtag_stats(params:OrganizationHashtagParams):
             "startDate": "2020-10-22",
             "endDate": "2020-12-22"
         }
-    
+
     Example Response :
-    
+
         [
         {
             "hashtag": "msf",
@@ -185,14 +189,15 @@ def get_hashtag_stats(params:OrganizationHashtagParams):
         }
         ]
     """
-    organization= OrganizationHashtags(params)
+    organization = OrganizationHashtags(params)
     if params.output_type == OrganizationOutputtype.JSON.value:
         return organization.get_report()
     stream = io.StringIO()
-    exportname =f"Hashtags_Organization_{datetime.now().isoformat()}"
+    exportname = f"Hashtags_Organization_{datetime.now().isoformat()}"
     organization.get_report_as_csv(stream)
     response = StreamingResponse(iter([stream.getvalue()]),
-                            media_type="text/csv"
-    )
-    response.headers["Content-Disposition"] = "attachment; filename="+exportname+".csv"
+                                 media_type="text/csv"
+                                 )
+    response.headers["Content-Disposition"] = "attachment; filename=" + \
+        exportname+".csv"
     return response

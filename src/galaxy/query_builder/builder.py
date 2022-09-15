@@ -395,7 +395,7 @@ def generate_data_quality_TM_query(params):
     '''Normal Query to feed our OUTPUT Class '''
     query = f"""   with t1 as (
         select id
-                From changesets 
+                From changesets
                 WHERE
                   {hashtagfilter}
             ),
@@ -424,7 +424,7 @@ def generate_data_quality_username_query(params, cur):
         issue_types = ", ".join(["%s"] * len(params.issue_types))
         issue_types_str = [i for i in params.issue_types]
         issue_types = cur.mogrify(sql.SQL(issue_types), issue_types_str).decode()
-        issue_type_filter=f"""and unnest_status in ({issue_types})"""   
+        issue_type_filter=f"""and unnest_status in ({issue_types})"""
 
     else:
         issue_type_filter=f""""""
@@ -439,7 +439,7 @@ def generate_data_quality_username_query(params, cur):
         osm_usernames.append(p)
 
     username_filter=create_hashtagfilter_underpass(osm_usernames,"username")
-    
+
     query= f"""with t1 as (
         select
             id,
@@ -524,13 +524,13 @@ def generate_mapathon_summary_underpass_query(params, cur):
         t2 as (
         select (each(added)).key as feature , (each(added)).value::Integer as count, 'create'::text as action
         from t1
-        union all 
+        union all
         select  (each(modified)).key as feature , (each(modified)).value::Integer as count, 'modify'::text as action
         from t1
         )
         select feature,action ,sum(count) as count
         from t2
-        group by feature ,action 
+        group by feature ,action
         order by count desc """
     total_contributor_query = f"""select  COUNT(distinct user_id) as contributors_count
         from changesets
@@ -627,7 +627,7 @@ def generate_organization_hashtag_reports(cur, params):
             t2 as (
                 {t2_query}
             )
-            select * 
+            select *
             from t2
             order by hashtag"""
     # print(query)
@@ -657,14 +657,14 @@ def generate_tm_validators_stats_query(cur, params):
     organisation_subset=""
     country_subset= ""
     if params.status :
-        status_subset=f""" and status ={params.status}""" 
+        status_subset=f""" and status ={params.status}"""
     if params.organisation:
         organisation_list=[f"""organisation_id = {id}""" for id in params.organisation]
         organisation_join = " or ".join(organisation_list)
         organisation_subset=f""" and ({organisation_join})"""
     if params.country:
-        country_subset=f""" and '{params.country}' ~~* any(country)""" 
-        
+        country_subset=f""" and '{params.country}' ~~* any(country)"""
+
     query = f"""
     {sub_query}{status_subset}{organisation_subset}{country_subset}
         order by p_id
@@ -797,7 +797,7 @@ def raw_historical_data_extraction_query(cur,conn,params):
                     public.osm_element_history i
                 where
                     i.id = oeh.id and i.type = oeh.type
-                    and i."timestamp"< '{params.to_timestamp}'::timestamptz )  
+                    and i."timestamp"< '{params.to_timestamp}'::timestamptz )
             )
         select
             t2.id,
@@ -924,7 +924,7 @@ def extract_geometry_type_query(params,ogr_export=False):
     schema = {'osm_id': 'int64', 'tags': 'str',
               'changeset': 'int64', 'timestamp': 'str'}
     query_point, query_line, query_poly = None, None, None
-    attribute_filter,master_attribute_filter,master_tag_filter,poly_attribute_filter,poly_tag_filter = None,None,None,None,None 
+    attribute_filter,master_attribute_filter,master_tag_filter,poly_attribute_filter,poly_tag_filter = None,None,None,None,None
     point_schema, line_schema, poly_schema = None, None, None
     tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter=None,None,None,None,None,None,None,None,None,None
     if params.filters:
@@ -935,7 +935,7 @@ def extract_geometry_type_query(params,ogr_export=False):
             master_attribute_filter, create_schema=True)
     if master_tag_filter :
         attribute_filter = generate_tag_filter_query(master_tag_filter)
-    if params.geometry_type is None : # fix me 
+    if params.geometry_type is None : # fix me
         params.geometry_type=['point', 'line', 'polygon']
 
     for type in params.geometry_type:
@@ -1016,7 +1016,7 @@ def extract_geometry_type_query(params,ogr_export=False):
 
 def extract_attributes_tags(filters):
     tags = None
-    attributes = None 
+    attributes = None
     point_tag_filter = None
     poly_tag_filter= None
     line_tag_filter = None
@@ -1051,7 +1051,7 @@ def extract_attributes_tags(filters):
                             poly_attribute_filter = v
                         if k == SupportedGeometryFilters.ALLGEOM.value:
                             master_attribute_filter=v
-        
+
     return tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter
 
 
@@ -1059,12 +1059,12 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
     base_query = []
-    
+
     tags,attributes,point_attribute_filter,line_attribute_filter,poly_attribute_filter,master_attribute_filter,point_tag_filter,line_tag_filter,poly_tag_filter,master_tag_filter=None,None,None,None,None,None,None,None,None,None
 
     point_select_condition=None
     line_select_condition=None
-    poly_select_condition=None 
+    poly_select_condition=None
 
     point_tag=None
     line_tag=None
@@ -1075,8 +1075,8 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
 
     query_table=[]
     if select_all:
-        select_condition = """osm_id,version,tags::text as tags,changeset,timestamp::text,geom""" #FIXme have condition for displaying userinfo after user authentication 
-    else:    
+        select_condition = """osm_id,version,tags::text as tags,changeset,timestamp::text,geom""" #FIXme have condition for displaying userinfo after user authentication
+    else:
         select_condition = """osm_id ,version,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     point_select_condition=select_condition #initializing default
     line_select_condition=select_condition
@@ -1094,7 +1094,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         else :
             if point_attribute_filter:
                 if len(point_attribute_filter)>0:
-                    point_select_condition=create_column_filter(point_attribute_filter)           
+                    point_select_condition=create_column_filter(point_attribute_filter)
             if line_attribute_filter:
                 if len(line_attribute_filter)>0:
                     line_select_condition=create_column_filter(line_attribute_filter)
@@ -1115,8 +1115,8 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             if poly_tag_filter:
                 poly_tag=generate_tag_filter_query(poly_tag_filter)
 
-# condition for geometry types 
-    if params.geometry_type is None : 
+# condition for geometry types
+    if params.geometry_type is None :
         params.geometry_type=["point","line","polygon"]
     if SupportedGeometryFilters.ALLGEOM.value in params.geometry_type:
         params.geometry_type=["point","line","polygon"]
@@ -1145,7 +1145,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
             if poly_select_condition == line_select_condition and poly_tag == line_tag :
                 use_geomtype_in_relation=False
-                    
+
         if use_geomtype_in_relation:
             query_relations_line = f"""select
                 {line_select_condition}
@@ -1155,9 +1155,9 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
                     {geom_filter}"""
             if line_tag:
                 query_relations_line += f""" and ({line_tag})"""
-            query_relations_line += f""" and (geometrytype(geom)='MULTILINESTRING')""" 
+            query_relations_line += f""" and (geometrytype(geom)='MULTILINESTRING')"""
             base_query.append(query_relations_line)
-    
+
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
         if g_id:
             grid_filter_base = [
@@ -1175,8 +1175,8 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         if poly_tag :
             query_ways_poly += f""" and ({poly_tag})"""
         base_query.append(query_ways_poly)
-        
-        
+
+
         query_relations_poly = f"""select
             {select_condition}
             from
@@ -1198,12 +1198,12 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             table_base_query.append(
                 f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")
     final_query = " UNION ALL ".join(table_base_query)
-    return final_query         
+    return final_query
 
 def check_last_updated_rawdata():
     query = f"""select NOW()-importdate as last_updated from planet_osm_replication_status"""
     return query
-    
+
 def check_last_updated_mapathon_insights():
     query = f"""SELECT (NOW() - last_timestamp) AS "last_updated" FROM public.osm_element_history_state;"""
     return query

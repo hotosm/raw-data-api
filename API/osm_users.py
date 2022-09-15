@@ -18,9 +18,9 @@
 # <info@hotosm.org>
 
 from fastapi import APIRouter
-from fastapi_versioning import  version
+from fastapi_versioning import version
 from typing import List
-from src.galaxy.validation.models import UsersListParams, User, UserStatsParams,UserStatistics
+from src.galaxy.validation.models import UsersListParams, User, UserStatsParams, UserStatistics
 from src.galaxy.app import UserStats
 router = APIRouter(prefix="/osm-users")
 
@@ -31,8 +31,8 @@ def get_user_id(params: UsersListParams):
     """Provides OpenStreetMap user id of usernames, It is possible same username can be taken by different users at different times hence this endpoint takes from and to timestamps.
 
     Args:
-        params (UsersListParams): 
-        
+        params (UsersListParams):
+
         {
         "userNames": [
             "string"
@@ -42,15 +42,15 @@ def get_user_id(params: UsersListParams):
         }
 
     Returns:
-        json: 
-        
+        json:
+
         {
             "userId": 0,
             "userName": "string"
         }
-    
-    Example Request : 
-    
+
+    Example Request :
+
         {
             "userNames":[
                 "Kshitizraj Sharma"
@@ -58,9 +58,9 @@ def get_user_id(params: UsersListParams):
             "fromTimestamp":"2022-04-26T00:00:00Z",
             "toTimestamp":"2022-04-27T00:00:00Z"
         }
-        
+
     Example Response :
-    
+
         [{"userId":123456,"userName":"Kshitizraj Sharma"}]
     """
 
@@ -73,20 +73,20 @@ def get_user_statistics(params: UserStatsParams):
     """Returns Statistics for specified OpenStreetMap usernames over a period of time.
 
     Args:
-        params (UserStatsParams): 
-        
+        params (UserStatsParams):
+
         {
         "fromTimestamp": "string",
         "toTimestamp": "string",
         "userId": 0, # this will take only OpenStreetMap user id not user name; userId can be derived from /ids/ for one user at a time.
-        "hashtags": [ 
+        "hashtags": [
             "string" # you can get user statistics for specific OpenStreetMap hashtag or
         ],
         "projectIds": []  # you can get user statistics for specific Tasking Manger Project IDs
         }
 
     Returns:
-    
+
         {
             "addedBuildings": 0, #count
             "modifiedBuildings": 0, #count
@@ -95,10 +95,10 @@ def get_user_statistics(params: UserStatsParams):
             "addedHighwayMeters": 0, #meters
             "modifiedHighwayMeters": 0 #meters
         }
-    
-    Example Request : 
-    1. To get user stats within time period 
-    
+
+    Example Request :
+    1. To get user stats within time period
+
         {
             "userId":7004124,
             "fromTimestamp":"2022-03-02T00:00:00Z",
@@ -106,9 +106,9 @@ def get_user_statistics(params: UserStatsParams):
             "projectIds":[],
             "hashtags":[]
         }
-    
+
     2. To get stats contributed by user for particular OpenStreetMap hashtag :
-    
+
         {
             "userId":7004124,
             "fromTimestamp":"2022-06-28T14:25:33.277Z",
@@ -120,7 +120,7 @@ def get_user_statistics(params: UserStatsParams):
         }
 
     3. To get stats contributed by user for specific Tasking Manager Project:
-    
+
         {"userId":7004124,"fromTimestamp":"2022-06-28T14:25:33.277Z","toTimestamp":"2022-07-27T14:25:33.277Z","projectIds":[123],"hashtags":[]}
     """
     user_stats = UserStats()

@@ -1,5 +1,6 @@
 from pydantic import BaseModel as PydanticModel
 
+
 def to_camel(string: str) -> str:
     """formats underscore seperated words with camel case
 
