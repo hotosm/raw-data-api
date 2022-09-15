@@ -564,6 +564,7 @@ class SupportedFilters(Enum):
 
     @classmethod
     def has_value(cls, value):
+        """Checks value"""
         return value in cls._value2member_map_
 
 

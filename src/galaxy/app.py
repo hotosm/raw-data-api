@@ -1316,6 +1316,7 @@ class ProgressPercentage(object):
         self._lock = threading.Lock()
 
     def __call__(self, bytes_amount):
+        """ returns log percentage"""
         # To simplify, assume this is hooked up to a single filename
         with self._lock:
             self._seen_so_far += bytes_amount
