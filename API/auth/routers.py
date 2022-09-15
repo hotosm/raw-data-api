@@ -11,15 +11,16 @@ from . import AuthUser, Login, Token, login_required, is_staff_member
 router = APIRouter(prefix="/auth")
 
 
-@router.get("/login", response_model=Login)
+@router.get("/login/", response_model=Login)
 def login_url(request: Request):
-    """Generate Login URL for authentication using OAuth2 Application registered to OpenStreetMap
+    """Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
+    Click on the download url returned to get access_token.
 
     Parameters: None
 
     Returns:
     - login_url (string) - URL to authorize user to the application via. Openstreetmap 
-        OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters  
+        OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters   
     """
     osm_url = config.get("OAUTH", "url")
     authorize_url = f"{osm_url}/oauth2/authorize/"
@@ -36,12 +37,12 @@ def login_url(request: Request):
     return Login(url=login_url)
 
 
-@router.get("/callback", response_model=Token)
+@router.get("/callback/", response_model=Token)
 def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Galaxy API
 
     Core will use Oauth secret key from configuration while deserializing token, 
-    provides access token that can be used on authorized endpoint
+    provides access token that can be used for authorized endpoints.
 
     Parameters: None 
 
@@ -92,7 +93,7 @@ def callback(request: Request):
     return token
 
 
-@router.get("/me", response_model=AuthUser)
+@router.get("/me/", response_model=AuthUser)
 def my_data(user_data: AuthUser = Depends(is_staff_member)):
     """Read the access token and provide  user details from OSM user's API endpoint,
     also integrated with underpass .

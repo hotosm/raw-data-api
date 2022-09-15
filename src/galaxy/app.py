@@ -17,14 +17,18 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 '''Main page contains class for database mapathon and funtion for error printing  '''
-
-from .validation.models import Source
+import os
 import sys
+import threading
+
+from threading import excepthook
+from .config import get_db_connection_params,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,BUCKET_NAME,level,logger as logging , export_path,config,use_connection_pooling,shp_limit
+from .validation.models import Source
 from fastapi import param_functions
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, errorcodes, errors
-from pydantic import validator
+from pydantic import NoneStrBytes, validator
 from pydantic.types import Json
 from pydantic import parse_obj_as
 from .validation.models import *
@@ -36,19 +40,36 @@ from json import loads as json_loads
 from geojson import Feature, FeatureCollection, Point
 from io import StringIO
 from csv import DictWriter
-from .config import config
 import logging
 import orjson
 from area import area
 import subprocess
 from json import dumps
-logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
+import fiona
+from fiona.crs import from_epsg
+import time
+import shutil
+import boto3
+import requests
+import signal
+from fastapi import HTTPException
+#import instance for pooling 
+if use_connection_pooling:
+    from src.galaxy.db_session import database_instance
+else:
+    database_instance=None
+import logging as log
+#assigning global variable of pooling so that it will be accessible from any function within this script
+global LOCAL_CON_POOL
 
-from .config import get_db_connection_params
+#getting the pool instance which was fireup when API is started
+LOCAL_CON_POOL = database_instance
+
+
 
 def print_psycopg2_exception(err):
     """ 
-    function that handles and parses psycopg2 exceptions
+    Function that handles and parses Psycopg2 exceptions
     """
     '''details_exception'''
     err_type, err_obj, traceback = sys.exc_info()
@@ -106,7 +127,7 @@ class Database:
         try:
             if self.conn != None:
                 self.cursor = self.cur
-                if query!= None:
+                if query != None:
                     # catch exception for invalid SQL statement
 
                     try:
@@ -198,6 +219,18 @@ class Underpass:
         
         return user_role
 
+    def get_osm_last_updated(self):
+        """OSM synchronisation"""
+        status_query = check_last_updated_osm_underpass()
+        result = self.database.executequery(status_query)
+        return result[0][0]
+
+    def get_user_data_quality_last_updated(self):
+        """ Recency of user data quality reports"""
+        status_query = check_last_updated_user_data_quality_underpass()
+        result = self.database.executequery(status_query)
+        return result[0][0]
+
 
 class Insight:
     """This class connects to Insight database and responsible for all the Insight related functionality"""
@@ -236,8 +269,27 @@ class Insight:
         contributors_query = create_users_contributions_query(
             self.params, changeset_query)
         osm_history_result = self.database.executequery(osm_history_query)
-        total_contributors_result = self.database.executequery(contributors_query)
+        total_contributors_result = self.database.executequery(
+            contributors_query)
         return osm_history_result, total_contributors_result
+
+    def get_osm_last_updated(self):
+        """OSM synchronisation"""
+        status_query = check_last_updated_osm_insights()
+        result = self.database.executequery(status_query)
+        return result[0][0]
+
+    def get_mapathon_statistics_last_updated(self):
+        """Recency of mapathon statistics"""
+        status_query = check_last_updated_mapathon_insights()
+        result = self.database.executequery(status_query)
+        return result[0][0]
+
+    def get_user_statistics_last_updated(self):
+        """Recency of user statistics"""
+        status_query = check_last_updated_user_statistics_insights()
+        result = self.database.executequery(status_query)
+        return result[0][0]
 
 
 class TaskingManager:
@@ -251,55 +303,66 @@ class TaskingManager:
     def extract_project_ids(self):
         test_hashtag = "hotosm-project-"
         ids = []
-        
+
         if (len(self.params.project_ids) > 0):
             ids.extend(self.params.project_ids)
-        
+
         if(len(self.params.hashtags) > 0):
             for hashtag in self.params.hashtags:
                 if test_hashtag in hashtag:
-                    if len(hashtag[15:]) > 0: ids.append(hashtag[15:])
+                    if len(hashtag[15:]) > 0:
+                        ids.append(hashtag[15:])
         return ids
 
     def get_tasks_mapped_and_validated_per_user(self):
         project_ids = self.extract_project_ids()
         if len(project_ids) > 0:
             tasks_mapped_query, tasks_validated_query = create_user_tasks_mapped_and_validated_query(project_ids,
-            self.params.from_timestamp, self.params.to_timestamp)
-            tasks_mapped_result = self.database.executequery(tasks_mapped_query)
-            tasks_validated_result = self.database.executequery(tasks_validated_query)
+                                                                                                     self.params.from_timestamp, self.params.to_timestamp)
+            tasks_mapped_result = self.database.executequery(
+                tasks_mapped_query)
+            tasks_validated_result = self.database.executequery(
+                tasks_validated_query)
             return tasks_mapped_result, tasks_validated_result
-        return [],[]
+        return [], []
 
     def get_time_spent_mapping_and_validating_per_user(self):
         project_ids = self.extract_project_ids()
         if len(project_ids) > 0:
             time_spent_mapping_query, time_spent_validating_query = create_user_time_spent_mapping_and_validating_query(project_ids,
-            self.params.from_timestamp, self.params.to_timestamp)
-            time_spent_mapping_result = self.database.executequery(time_spent_mapping_query)
-            time_spent_validating_result = self.database.executequery(time_spent_validating_query)
+                                                                                                                        self.params.from_timestamp, self.params.to_timestamp)
+            time_spent_mapping_result = self.database.executequery(
+                time_spent_mapping_query)
+            time_spent_validating_result = self.database.executequery(
+                time_spent_validating_query)
             return time_spent_mapping_result, time_spent_validating_result
-        return [],[]   
+        return [], []
+
 
     def get_validators_stats(self):
         query = generate_tm_validators_stats_query(self.cur, self.params)
+        print(query)
         result = [dict(r) for r in self.database.executequery(query)]
+        if result :
+            indexes = ['user_id', 'username','mapping_level']
+            columns = ['project_id','country','organisation_name','project_status','total_tasks', 'tasks_mapped', 'tasks_validated']
 
-        indexes = ['user_id', 'username']
-        columns = ['project_id', 'country', 'total_tasks', 'tasks_mapped', 'tasks_validated']
+            df = pandas.DataFrame(result)
+            out = pandas.pivot_table(df,
+                values='cnt',
+                index=indexes,
+                columns=columns,
+                aggfunc= 'sum', 
+                margins = True, margins_name='Total',
+                fill_value=0
+            ).swaplevel(0, 1).sort_values(by='username', ascending=True).reset_index()
+            print(out)
 
-        df = pandas.DataFrame(result)
-        out = pandas.pivot_table(df,
-            values='cnt',
-            index=indexes,
-            columns=columns,
-            fill_value=0
-        ).swaplevel(0, 1).reset_index()
+            stream = StringIO()
+            out.to_csv(stream)
 
-        stream = StringIO()
-        out.to_csv(stream)
-
-        return iter(stream.getvalue())
+            return iter(stream.getvalue())
+        return None
 
     def list_teams(self):
         query = generate_tm_teams_list()
@@ -315,8 +378,8 @@ class TaskingManager:
 
         return iter(stream.getvalue())
 
-    def list_teams_metadata(self):
-        query = generate_list_teams_metadata()
+    def list_teams_metadata(self,team_id):
+        query = generate_list_teams_metadata(team_id)
         results_dicts = [dict(r) for r in self.database.executequery(query)]
 
         results_dicts = [{**r, "function": TeamMemberFunction(r["function"]).name.lower()}
@@ -346,11 +409,11 @@ class Mapathon:
 
         if source == "underpass":
             self.database = Underpass(self.params)
-        elif source == "insight":
+        elif source == "insights":
             self.database = Insight(self.params)
         else:
-            raise ValueError("Source is not Supported")
-
+            raise HTTPException(status_code=404, detail="Source is not Supported")  
+        
     # Mapathon class instance method
     def get_summary(self):
         """Function to get summary of your mapathon event """
@@ -375,20 +438,24 @@ class Mapathon:
         if (len(tasks_mapped_results) > 0):
             for r in tasks_mapped_results:
                 r[1] = r[1] if r[1] > 0 else 0
-            tasks_mapped_stats = [MappedTaskStats(**r) for r in tasks_mapped_results]
+            tasks_mapped_stats = [MappedTaskStats(
+                **r) for r in tasks_mapped_results]
         if (len(tasks_validated_results) > 0):
             for r in tasks_validated_results:
                 r[1] = r[1] if r[1] > 0 else 0
-            tasks_validated_stats = [ValidatedTaskStats(**r) for r in tasks_validated_results]
-        if (len(time_mapping_results) > 0): 
+            tasks_validated_stats = [ValidatedTaskStats(
+                **r) for r in tasks_validated_results]
+        if (len(time_mapping_results) > 0):
             for t in time_mapping_results:
                 t[1] = t[1].total_seconds() if t[1] else 0.0
-            time_mapping_stats = [TimeSpentMapping(**r) for r in time_mapping_results]
-        if (len(time_validating_results) > 0): 
+            time_mapping_stats = [TimeSpentMapping(
+                **r) for r in time_mapping_results]
+        if (len(time_validating_results) > 0):
             for t in time_validating_results:
                 t[1] = t[1].total_seconds() if t[1] else 0.0
-            time_validating_stats = [TimeSpentValidating(**r) for r in time_validating_results] 
-        
+            time_validating_stats = [TimeSpentValidating(
+                **r) for r in time_validating_results]
+
         tm_stats = [TMUserStats(tasks_mapped=tasks_mapped_stats,
                                 tasks_validated=tasks_validated_stats,
                                 time_spent_mapping=time_mapping_stats,
@@ -399,6 +466,7 @@ class Mapathon:
                                 tm_stats=tm_stats)
         # print(Output(osm_history_query,self.con).to_list())
         return report
+
 
 class Output:
     """Class to convert sql query result to specific output format. It uses Pandas Dataframe
@@ -714,20 +782,85 @@ class OrganizationHashtags:
         except Exception as err:
             return err  
 
+
+class Status:
+    """Class to show how recent the data is from different data sources"""
+
+    # constructor
+    def __init__(self, parameters):
+        # parameter validation using pydantic model
+        if type(parameters) is DataRecencyParams:
+            self.params = parameters
+        else:
+            self.params = DataRecencyParams(**parameters)
+
+        if self.params.data_source == "underpass":
+            self.database = Underpass(self.params)
+        elif self.params.data_source == "insight":
+            self.database = Insight(self.params)
+        else:
+            raise ValueError("Source is not Supported")
+
+
+    def get_osm_recency(self):
+        return self.database.get_osm_last_updated() if getattr(self.database, "get_osm_last_updated", None) else None # checks either that method is supported by the database supplied or not without making call to database class if yes will make a call else it will return None 
+
+    def get_mapathon_statistics_recency(self):
+        return self.database.get_mapathon_statistics_last_updated() if getattr(self.database, "get_mapathon_statistics_last_updated", None) else None 
+
+    def get_user_statistics_recency(self):
+        return self.database.get_user_statistics_last_updated() if getattr(self.database, "get_user_statistics_last_updated", None) else None 
+
+    def get_user_data_quality_recency(self):
+        return self.database.get_user_data_quality_last_updated() if getattr(self.database, "get_user_data_quality_last_updated", None) else None
+
+    def get_raw_data_recency(self): 
+        return RawData().check_status()
+
+
 class RawData:
-    """Class responsible for the Rawdata Extraction from available sources , Currently Works for Underpass source Current Snapshot
+    """Class responsible for the Rawdata Extraction from available sources ,
+        Currently Works for Underpass source Current Snapshot
     Returns:
-    Geojson Zip file 
+    Geojson Zip file
     Supports:
-    -Any Key value pair of osm tags 
+    -Any Key value pair of osm tags
     -A Polygon
     -Osm element type (Optional)
     """
-    def __init__(self, params: HashtagParams = None):
-        self.params = params
-        self.db = Database(dict(config.items("RAW_DATA")))
-        self.con, self.cur = self.db.connect()
-    
+
+    def __init__(self, parameters=None,dbdict=None):
+        if parameters:
+            # validation for the parameters if it is already validated with
+            # pydantic model or not , people coming from package they
+            # will not have api valdiation so to make sure they will be validated
+            # before accessing the class
+            if isinstance(parameters,RawDataCurrentParams) is False:
+                self.params = RawDataCurrentParams(**parameters)
+            else :
+                self.params=parameters
+        # only use connection pooling if it is configured in config file
+        if use_connection_pooling :
+            #if database credentials directly from class is not passed grab from pool
+            pool_conn=LOCAL_CON_POOL.get_conn_from_pool()
+            self.con,self.cur= pool_conn,pool_conn.cursor(cursor_factory=DictCursor)
+        else :
+            #else use our default db class
+            if not dbdict:
+                dbdict=get_db_connection_params("RAW_DATA")
+            self.d_b = Database(dict(dbdict))
+            self.con, self.cur = self.d_b.connect()
+    @staticmethod
+    def close_con(con):
+        """Closes connection if exists"""
+        if con : 
+            if use_connection_pooling:
+                #release connection from pool
+                database_instance.release_conn_from_pool(con)
+            else:
+                con.close()
+
+
     @staticmethod
     def to_geojson(results):
         """Responsible for converting query result to featurecollection , It is absolute now ~ not used anymore
@@ -739,10 +872,11 @@ class RawData:
             _type_: featurecollection
         """
         logging.debug('Geojson Binding Started !')
-        feature_collection = FeatureCollection(features=[orjson.loads(row[0]) for row in results])
+        feature_collection = FeatureCollection(
+            features=[orjson.loads(row[0]) for row in results])
         logging.debug('Geojson Binding Done !')
         return feature_collection
-    
+
     def extract_historical_data(self):
         """Idea is to extract historical data , Currently not maintained
 
@@ -751,38 +885,102 @@ class RawData:
         """
         extraction_query = raw_historical_data_extraction_query(
             self.cur, self.con, self.params)
-        results = self.db.executequery(extraction_query)
-        return  RawData.to_geojson(results)
+        results = self.d_b.executequery(extraction_query)
+        return RawData.to_geojson(results)
+
     @staticmethod
-    def ogr_export(query,export_path,outputtype):
+    def ogr_export(outputtype,query=None, export_temp_path=None ,point_query=None, line_query=None, poly_query=None,dump_temp_file_path=None,binding_file_dir=None):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
-        db_items=dict(config.items("raw"))
-        formatted_query=query.replace('"','\\"')
-        if outputtype is  RawDataOutputType.MBTILES.value: # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
-            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(outputtype=outputtype, export_path = export_path, host = db_items.get('host'), username = db_items.get('user'), db = db_items.get('dbname'), password = db_items.get('password'), pg_sql_select = formatted_query)
-        else:    
-            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(outputtype=outputtype, export_path = export_path, host = db_items.get('host'), username = db_items.get('user'), db = db_items.get('dbname'), password = db_items.get('password'), pg_sql_select = formatted_query)
-        logging.debug("Calling ogr2ogr")
-        
-        run=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        for c in iter(lambda: run.stdout.read(2), b''): 
-            logging.debug(c.strip())
-        # logging.debug(run.stdout.read())
-        
-    
+        db_items = get_db_connection_params("RAW_DATA")
+        #format query if it has " in string"
+        if query:
+            formatted_query = query.replace('"', '\\"')
+        # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
+        if outputtype is RawDataOutputType.MBTILES.value:
+            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                outputtype=outputtype, export_path=export_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+
+        elif outputtype is RawDataOutputType.SHAPEFILE.value: 
+            #if it is shapefile it needs different logic for point,line and polygon
+            file_paths = []
+            outputtype="ESRI Shapefile"
+            if point_query:
+                query_path = f"""{dump_temp_file_path}_sql.sql"""
+
+                with open(query_path, 'w') as file: #writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
+                    file.write(point_query)
+                #standard file path for the generation
+                point_file_path = f"""{dump_temp_file_path}_point.shp"""
+                #command for ogr2ogr to generate file 
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+                logging.debug("Calling ogr2ogr-Point Shapefile")
+                run_ogr2ogr_cmd(cmd,binding_file_dir)
+                os.remove(query_path)#clear query file we don't need it anymore
+
+                file_paths.append(point_file_path)
+                #need filepath to zip in to file and clear them after zipping 
+                file_paths.append(f"""{dump_temp_file_path}_point.shx""")
+                # file_paths.append(f"""{dump_temp_file_path}_point.cpg""")
+                file_paths.append(f"""{dump_temp_file_path}_point.dbf""")
+                file_paths.append(f"""{dump_temp_file_path}_point.prj""")
+            if line_query:
+                query_path = f"""{dump_temp_file_path}_sql.sql"""
+
+                with open(query_path, 'w') as file: #writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
+                    file.write(line_query)
+
+                line_file_path = f"""{dump_temp_file_path}_line.shp"""
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+                logging.debug("Calling ogr2ogr-Line Shapefile")
+                run_ogr2ogr_cmd(cmd,binding_file_dir)
+                os.remove(query_path)#clear query file we don't need it anymore
+
+                file_paths.append(line_file_path)
+                file_paths.append(f"""{dump_temp_file_path}_line.shx""")
+                # file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
+                file_paths.append(f"""{dump_temp_file_path}_line.dbf""")
+                file_paths.append(f"""{dump_temp_file_path}_line.prj""")
+            if poly_query:
+                
+                poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
+                poly_query_path = f"""{dump_temp_file_path}_poly_sql.sql"""
+
+                with open(poly_query_path, 'w') as file: #writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
+                    file.write(poly_query)
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=poly_query_path)
+                logging.debug("Calling ogr2ogr-Poly Shapefile")
+                run_ogr2ogr_cmd(cmd,binding_file_dir)
+                os.remove(poly_query_path)#clear query file we don't need it anymore
+                file_paths.append(poly_file_path)
+                file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
+                # file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
+                file_paths.append(f"""{dump_temp_file_path}_poly.dbf""")
+                file_paths.append(f"""{dump_temp_file_path}_poly.prj""")
+            return file_paths
+        else:
+            #if it is not shapefile use standard ogr2ogr with their output format , will be useful for kml 
+            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+        run_ogr2ogr_cmd(cmd,binding_file_dir)
+        return export_path
+
     @staticmethod
-    def query2geojson(con,extraction_query,dump_temp_file):
+    def query2geojson(con, extraction_query, dump_temp_file_path):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
-        # print(extraction_query)
-        pre_geojson="""{"type": "FeatureCollection","features": ["""
-        post_geojson= """]}"""
-        with open(dump_temp_file, 'a',encoding = 'utf-8') as f: # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
-            f.write(pre_geojson)            
+        #creating geojson file 
+        pre_geojson = """{"type": "FeatureCollection","features": ["""
+        post_geojson = """]}"""
+        #writing to the file 
+        with open(dump_temp_file_path, 'a', encoding='utf-8') as f:  # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
+            f.write(pre_geojson)
             logging.debug('Server side Cursor Query Sent with 1000 Chunk Size')
-            with con.cursor(name='fetch_raw') as cursor: #using server side cursor
-                cursor.itersize = 1000 # chunk size to get 1000 row at a time in client side
+            with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
+                cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
                 cursor.execute(extraction_query)
-                first=True
+                first = True
                 for row in cursor:
                     if first:
                         first = False
@@ -790,13 +988,111 @@ class RawData:
                     else:
                         f.write(',')
                         f.write(row[0])
-                cursor.close() # closing connection to avoid memory issues
-                con.close()
+                cursor.close()  # closing connection to avoid memory issues
+                #close the writing geojson with last part 
             f.write(post_geojson)
-        f.close()
-        logging.debug(f"""Server side Query Result  Post Processing Done""")
+        logging.debug("Server side Query Result  Post Processing Done")
+
+    @staticmethod
+    def query2shapefile(con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path):
+        # schema: it is a simple dictionary with geometry and properties as keys
+        # schema = {'geometry': 'LineString','properties': {'test': 'int'}}
+        file_paths = []
+        if point_query:
+            logging.debug("Writing Point Shapefile")
+
+            schema = {'geometry': 'Point', 'properties': point_schema, }
+            point_file_path = f"""{dump_temp_file_path}_point.shp"""
+            # open a fiona object
+            pointShp = fiona.open(point_file_path, mode='w', driver='ESRI Shapefile', encoding='UTF-8',
+                                  schema=schema, crs="EPSG:4326")
+
+            with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
+                cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
+                cursor.execute(point_query)
+                for row in cursor:
+                    pointShp.write(orjson.loads(row[0]))
+
+                cursor.close()  # closing connection to avoid memory issues
+                # close fiona object
+            pointShp.close()
+            file_paths.append(point_file_path)
+            file_paths.append(f"""{dump_temp_file_path}_point.shx""")
+            file_paths.append(f"""{dump_temp_file_path}_point.cpg""")
+            file_paths.append(f"""{dump_temp_file_path}_point.dbf""")
+            file_paths.append(f"""{dump_temp_file_path}_point.prj""")
+
+        if line_query:
+            logging.debug("Writing Line Shapefile")
+
+            schema = {'geometry': 'LineString', 'properties': line_schema, }
+            # print(schema)
+            line_file_path = f"""{dump_temp_file_path}_line.shp"""
+            with fiona.open(line_file_path, 'w', encoding='UTF-8', crs=from_epsg(4326), driver='ESRI Shapefile', schema=schema) as layer:
+                with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
+                    cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
+                    cursor.execute(line_query)
+                    for row in cursor:
+                        layer.write(orjson.loads(row[0]))
+
+                    cursor.close()  # closing connection to avoid memory issues
+                # close fiona object
+                layer.close()
+            file_paths.append(line_file_path)
+            file_paths.append(f"""{dump_temp_file_path}_line.shx""")
+            file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
+            file_paths.append(f"""{dump_temp_file_path}_line.dbf""")
+            file_paths.append(f"""{dump_temp_file_path}_line.prj""")
+
+        if poly_query:
+            logging.debug("Writing Poly Shapefile")
+
+            poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
+            schema = {'geometry': 'Polygon', 'properties': poly_schema, }
+
+            with fiona.open(poly_file_path, 'w', encoding='UTF-8', crs=from_epsg(4326), driver='ESRI Shapefile', schema=schema) as layer:
+                with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
+                    cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
+                    cursor.execute(poly_query)
+                    for row in cursor:
+                        layer.write(orjson.loads(row[0]))
+
+                    cursor.close()  # closing connection to avoid memory issues
+                # close fiona object
+                layer.close()
+            file_paths.append(poly_file_path)
+            file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
+            file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
+            file_paths.append(f"""{dump_temp_file_path}_poly.dbf""")
+            file_paths.append(f"""{dump_temp_file_path}_poly.prj""")
+        return file_paths
     
-    def extract_current_data(self,exportname):
+    @staticmethod
+    def get_grid_id(geom,cur):
+        """Gets the intersecting related grid id for the geometry that is passed 
+
+        Args:
+            geom (_type_): _description_
+            cur (_type_): _description_
+
+        Returns:
+            _type_: grid id , geometry dump and the area of geometry
+        """
+        geometry_dump = dumps(dict(geom))
+        #generating geometry area in sqkm
+        geom_area = int(area(json.loads(geom.json())) * 1E-6)
+        #only apply grid in the logic if it exceeds the 5000 Sqkm
+        if geom_area > 5000:
+            # this will be applied only when polygon gets bigger we will be slicing index size to search
+            cur.execute(
+                get_grid_id_query(geometry_dump))
+            grid_id = cur.fetchall()
+            cur.close()
+        else:
+            grid_id = None
+        return grid_id, geometry_dump,geom_area
+
+    def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump 
         Args:
             exportname: takes filename as argument to create geojson file passed from routers
@@ -804,24 +1100,178 @@ class RawData:
         Returns:
             _file_path_: geojson file location path
         """
-        geometry_dump = dumps(dict(self.params.geometry))
-        geom_area=int(area(json.loads(self.params.geometry.json()))* 1E-6)
-        country_id = self.db.executequery(get_country_id_query(geometry_dump)) # this will be applied only when polygon gets bigger we will be slicing index size to search 
+        #first check either geometry needs grid or not for querying 
+        grid_id,geometry_dump,geom_area=RawData.get_grid_id(self.params.geometry,self.cur)
         if self.params.output_type is None:
-            output_type=RawDataOutputType.GEOJSON.value # if nothing is supplied then default output type will be geojson
+            # if nothing is supplied then default output type will be geojson
+            output_type = RawDataOutputType.GEOJSON.value
         else:
-            output_type=self.params.output_type
-        dump_temp_file = f"""exports/{exportname}.{output_type.lower()}"""
-        if output_type is RawDataOutputType.GEOJSON.value: # currently we have only geojson binding function written other than that we have depend on ogr
-            RawData.query2geojson(self.con,raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area),dump_temp_file) # uses own conversion class
-        else:
-            RawData.ogr_export(raw_currentdata_extraction_query(self.params,country_id,geometry_dump,geom_area,True),dump_temp_file,output_type) #uses ogr export to export
-        return dump_temp_file,geom_area
-    
+            output_type = self.params.output_type
+
+        # Check whether the export path exists or not
+        isExist = os.path.exists(export_path)
+        if not isExist:
+            # Create a exports directory because it does not exist
+            os.makedirs(export_path)
+        root_dir_file=export_path
+        path=f"""{export_path}{exportname}/"""
+        os.makedirs(path)
+        #create file path with respect to of output type 
+        dump_temp_file_path = f"""{path}{exportname}.{output_type.lower()}"""
+        try :
+            # currently we have only geojson binding function written other than that we have depend on ogr
+            if output_type is RawDataOutputType.GEOJSON.value:
+                RawData.query2geojson(self.con, raw_currentdata_extraction_query(
+                    self.params, g_id=grid_id, geometry_dump=geometry_dump), dump_temp_file_path)  # uses own conversion class
+            elif output_type is RawDataOutputType.SHAPEFILE.value:
+                point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
+                    self.params,ogr_export=True)
+                # point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
+                #     self.params,ogr_export=True)
+                dump_temp_file_path = f"""{path}{exportname}"""
+                filepaths = RawData.ogr_export(outputtype=output_type,point_query=point_query, line_query=line_query, poly_query=poly_query,dump_temp_file_path=dump_temp_file_path,binding_file_dir=path) #using ogr2ogr
+                # filepaths = RawData.query2shapefile(self.con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path) #using fiona
+                return filepaths, geom_area , root_dir_file
+            else:
+                filepaths=RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True), export_temp_path=dump_temp_file_path, outputtype=output_type,binding_file_dir=path)  # uses ogr export to export
+            return [dump_temp_file_path], geom_area , root_dir_file
+        except Exception as ex :
+            logging.error(ex)
+            raise ex
+        finally :
+            #closing connection before leaving class
+            RawData.close_con(self.con)
+
+
     def check_status(self):
         """Gives status about DB update, Substracts with current time and last db update time"""
-        status_query=check_last_updated_rawdata()
-        behind_time=self.db.executequery(status_query)
-        behind_time_min=behind_time[0][0].total_seconds()/60
-        return behind_time_min
-    
+        status_query = check_last_updated_rawdata()
+        self.cur.execute(status_query)
+        behind_time=self.cur.fetchall()
+        self.cur.close()
+        #closing connection before leaving class
+        RawData.close_con(self.con)
+        return str(behind_time[0][0])
+
+def run_ogr2ogr_cmd(cmd,binding_file_dir):
+    """Runs command and monitors the file size until the process runs
+
+    Args:
+        cmd (_type_): Command to run for subprocess
+        binding_file_dir (_type_): _description_
+
+    Raises:
+        ValueError: Shapefile exceed 4GB limit
+        ValueError: Binding failed
+    """
+    try:
+        # start_time=time.time()
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+            preexec_fn=os.setsid
+        )
+        while process.poll() is None:
+            # if (time.time()-start_time)/60 > 25 :
+            #     raise ValueError("Shapefile Exceed Limit export")
+
+            size=0
+            for ele in os.scandir(binding_file_dir):
+                size+=os.path.getsize(ele)
+            # print(size/1000000) # in MB
+            if size/1000000 >  shp_limit:
+                logging.warn(f"Killing ogr2ogr because it exceed {shp_limit} MB...")
+                # process.kill()
+                # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+                # shutil.rmtree(binding_file_dir)
+                raise HTTPException(status_code=404, detail=f"Shapefile Exceed {shp_limit} MB Limit")  
+
+        logging.debug(process.stdout.read())             
+    except Exception as ex:
+        logging.error(ex)
+        process.kill()
+        os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+        if  os.path.exists(binding_file_dir):
+            shutil.rmtree(binding_file_dir)
+        raise ex    
+
+class S3FileTransfer :
+    """Responsible for the file transfer to s3 from API maachine """
+    def __init__(self):
+        #responsible for the connection 
+        try:
+            if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+                self.aws_session = boto3.Session(
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                )
+            else:# if it is not passed on config then api will assume it is configured within machine using credentials file 
+                self.aws_session = boto3.Session()
+            self.s_3 = self.aws_session.client('s3')
+            logging.debug("Connection has been successful to s3")
+        except Exception as ex:
+            logging.error(ex)
+            raise ex
+        
+    def list_buckets(self):
+        """used to list all the buckets available on s3"""
+        buckets=self.s_3.list_buckets()
+        return buckets 
+
+    def get_bucket_location(self,bucket_name):
+        """Provides the bucket location on aws, takes bucket_name as string -- name of repo on s3"""
+        try:
+            bucket_location = self.s_3.get_bucket_location(Bucket=bucket_name)['LocationConstraint']
+        except Exception as ex :
+            logging.error("Can't access bucket location")
+            raise ex
+        return bucket_location or 'us-east-1'
+
+    def upload(self,file_path, file_prefix):
+        """Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
+        Parameters :file_path --- your local file path to upload ,
+            file_prefix -- prefix for the filename which is stored
+        sample function call : 
+            S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test") """
+        file_name=f"{file_prefix}.zip"
+        #instantiate upload 
+        start_time=time.time()
+        
+        try:
+            if level is log.DEBUG:
+                self.s_3.upload_file(file_path,BUCKET_NAME,file_name,Callback=ProgressPercentage(file_path))
+            else:
+                self.s_3.upload_file(file_path,BUCKET_NAME,file_name)
+                
+        except Exception as ex:
+            logging.error(ex)
+            raise ex
+        logging.debug("Uploaded %s in %s sec" ,file_prefix,time.time()-start_time)
+        #generate the download url 
+        bucket_location = self.get_bucket_location(bucket_name=BUCKET_NAME)
+        object_url = f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
+        return object_url 
+
+class ProgressPercentage(object):
+    """Determines the project percentage of aws s3 upload file call
+
+    Args:
+        object (_type_): _description_
+    """
+
+    def __init__(self, filename):
+        self._filename = filename
+        self._size = float(os.path.getsize(filename))
+        self._seen_so_far = 0
+        self._lock = threading.Lock()
+
+    def __call__(self, bytes_amount):
+        # To simplify, assume this is hooked up to a single filename
+        with self._lock:
+            self._seen_so_far += bytes_amount
+            percentage = (self._seen_so_far / self._size) * 100
+            logging.debug("\r%s  %s / %s  (%.2f%%)" ,self._filename, self._seen_so_far, self._size,percentage)
+
+        

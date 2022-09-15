@@ -17,13 +17,14 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+from calendar import c
 from src.galaxy import app
 import testing.postgresql
 import pytest
 from src.galaxy.validation import models as mapathon_validation
 from src.galaxy.query_builder import builder as mapathon_query_builder
-from src.galaxy.query_builder.builder import generate_organization_hashtag_reports,create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports,raw_currentdata_extraction_query
-from src.galaxy.validation.models import OrganizationHashtagParams, UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams,RawDataCurrentParams
+from src.galaxy.query_builder.builder import check_last_updated_osm_insights, check_last_updated_osm_underpass, check_last_updated_user_data_quality_underpass, check_last_updated_user_statistics_insights, generate_organization_hashtag_reports,create_UserStats_get_statistics_query,create_userstats_get_statistics_with_hashtags_query,generate_data_quality_TM_query,generate_data_quality_username_query,generate_data_quality_hashtag_reports,raw_currentdata_extraction_query
+from src.galaxy.validation.models import DataRecencyParams, OrganizationHashtagParams, UserStatsParams,DataQuality_TM_RequestParams,DataQuality_username_RequestParams,DataQualityHashtagParams,RawDataCurrentParams
 from src.galaxy import Output
 import os.path
 from json import dumps
@@ -528,7 +529,7 @@ def test_organization_hashtag_weekly_query():
             ),
             t2 as (
                 select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters,
-            total_new_amenities as total_new_amenities, total_new_places as total_new_places
+            total_new_amenity as total_new_amenities, total_new_places as total_new_places
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='w' and start_date >= '2020-10-22T12:00:00.000'::timestamp and end_date <= '2020-12-22T12:00:00.000'::timestamp
             )
@@ -557,7 +558,7 @@ def test_organization_hashtag_monthly_query():
             ),
             t2 as (
                 select name as hashtag, type as frequency , start_date , end_date , total_new_buildings , total_uq_contributors as total_unique_contributors , total_new_road_m as total_new_road_meters,
-            total_new_amenities as total_new_amenities, total_new_places as total_new_places
+            total_new_amenity as total_new_amenities, total_new_places as total_new_places
             from hashtag_stats join t1 on hashtag_id=t1.id
             where type='m' and start_date >= '2020-10-22T00:00:00.000'::timestamp and end_date <= '2020-12-22T00:00:00.000'::timestamp
             )
@@ -598,34 +599,34 @@ def test_rawdata_current_snapshot_geometry_query() :
                     ]
                 },
             "outputType": "GeoJSON",
-            "osmTags": {"building":[],"amenity":["place","shop"],"type":["Multipolygon"]},
-
-            "geometryType": [
-                "point","polygon","multipolygon"
-            ]
+            "filters":{"tags":{"point":{"amenity":["shop","toilet"]}},"attributes":{"point":["name"]}}
             }
     validated_params = RawDataCurrentParams(**test_param)
     expected_query = """select ST_AsGeoJSON(t0.*) from (select
-                        osm_id ,tags::text as tags,changeset,timestamp::text,geom
-                        from
-                            nodes
-                        where
-                            ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) and (tags ? 'building' OR tags ->>  'amenity' IN ( 'place'  ,  'shop' ) OR tags ->> 'type' = 'Multipolygon')) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
-                            osm_id ,tags::text as tags,changeset,timestamp::text,geom
-                            from
-                                ways_poly
-                            where
-                            ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) and (tags ? 'building' OR tags ->>  'amenity' IN ( 'place'  ,  'shop' ) OR tags ->> 'type' = 'Multipolygon')) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
-                    osm_id ,tags::text as tags,changeset,timestamp::text,geom
+                    osm_id , tags ->> 'name' as name , geom
                     from
-                        relations
+                        nodes
                     where
-                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) and ( geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON' ) and (tags ? 'building' OR tags ->>  'amenity' IN ( 'place'  ,  'shop' ) OR tags ->> 'type' = 'Multipolygon')) t2"""
-    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)),100)
+                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) and (tags ->>  'amenity' IN ( 'shop'  ,  'toilet' ))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
+            from
+                ways_line
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
+            from
+                ways_poly
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
+            from
+                relations
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t3"""
+    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)))
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
 
-def test_rawdata_current_snapshot_osm_elements_query() :
-    
+def test_rawdata_current_snapshot_normal_query() :
     test_param={
             "geometry": {
                     "type": "Polygon",
@@ -654,34 +655,82 @@ def test_rawdata_current_snapshot_osm_elements_query() :
                     ]
                     ]
                 },
-            "outputType": "GeoJSON",
-            "osmTags": {},
-            "osmElements": [
-                "nodes","ways","relations"
-            ]
+            "outputType": "GeoJSON"
             }
     validated_params = RawDataCurrentParams(**test_param)
     expected_query = """select ST_AsGeoJSON(t0.*) from (select
-                    osm_id ,tags::text as tags,changeset,timestamp::text,geom
+                    osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
                     from
                         nodes
                     where
                         ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
-                    osm_id ,tags::text as tags,changeset,timestamp::text,geom
-                    from
-                        relations
-                    where
-                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
-                    osm_id ,tags::text as tags,changeset,timestamp::text,geom
-                    from
-                        ways_poly
-                    where
-                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
-                    osm_id ,tags::text as tags,changeset,timestamp::text,geom
-                    from
-                        ways_line
-                    where
-                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t3"""
-    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)),100)
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
+            from
+                ways_line
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
+            from
+                ways_poly
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
+            from
+                relations
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom)) t3"""
+    query_result=raw_currentdata_extraction_query(validated_params,None,dumps(dict(validated_params.geometry)))
+    assert query_result.encode('utf-8') == expected_query.encode('utf-8')
+     
+def test_attribute_filter_rawdata() :
+    test_param={"geometry":{"type":"Polygon","coordinates":[[[83.502574,27.569073],[83.502574,28.332758],[85.556417,28.332758],[85.556417,27.569073],[83.502574,27.569073]]]},"outputType":"GeoJSON","geometryType":["polygon","line"],"filters":{"attributes":{"line":["name"]},"tags":{"all_geometry":{"building":["yes"]}}}}    
+    validated_params = RawDataCurrentParams(**test_param)
+    expected_query = """select ST_AsGeoJSON(t0.*) from (select
+            osm_id , tags ->> 'name' as name , geom
+            from
+                ways_line
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [83.502574, 27.569073]]], "type": "Polygon"}'), geom) and (tags ->> 'building' = 'yes')) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
+                osm_id , tags ->> 'name' as name , geom
+                from
+                    relations
+                where
+                    ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [83.502574, 27.569073]]], "type": "Polygon"}'), geom) and (tags ->> 'building' = 'yes') and (geometrytype(geom)='MULTILINESTRING')) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
+            from
+                ways_poly
+            where
+                (grid = 1187 OR grid = 1188) and ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [83.502574, 27.569073]]], "type": "Polygon"}'), geom) and (tags ->> 'building' = 'yes')) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
+            osm_id ,version,tags::text as tags,changeset,timestamp::text,geom
+            from
+                relations
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [83.502574, 27.569073]]], "type": "Polygon"}'), geom) and (tags ->> 'building' = 'yes') and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')) t3"""
+    query_result=raw_currentdata_extraction_query(validated_params,[[1187],[1188]],dumps(dict(validated_params.geometry)))
+    print("result \n")
+    # print(query_result)
     assert query_result.encode('utf-8') == expected_query.encode('utf-8')
 
+def test_osm_recency_query():
+    expected_insights_query = 'SELECT (NOW() - last_timestamp) AS "last_updated" FROM public.osm_element_history_state;'
+    assert check_last_updated_osm_insights() == expected_insights_query
+    expected_underpass_query = 'SELECT (NOW() - MAX(updated_at)) AS "last_updated" FROM public.changesets;'
+    assert check_last_updated_osm_underpass() == expected_underpass_query
+
+    test_incorrect_params = {
+        "dataSource": "random",
+        "dataOutput": "statistics"
+    }
+
+    with pytest.raises(PydanticError) as error:
+        DataRecencyParams(**test_incorrect_params)
+    assert error.type is PydanticError
+    
+
+def test_user_statistics_recency_query():
+    expected_insights_query = 'SELECT (now() - max(timestamp)) FROM public.osm_element_history where changeset = (SELECT max(changeset) FROM public.all_changesets_stats);'
+    assert check_last_updated_user_statistics_insights() == expected_insights_query
+
+def test_user_data_quality_recency_query():
+    expected_underpass_query = 'SELECT (now() - max(updated_at)) FROM public.changesets;'
+    assert check_last_updated_user_data_quality_underpass() == expected_underpass_query

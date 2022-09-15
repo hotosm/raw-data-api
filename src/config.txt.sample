@@ -1,25 +1,14 @@
-[DATABASE]
-host=localhost
-user=
-password=
-dbname=
-port=
-
-[HOST]
-host=localhost
-port=8000
-
 [OAUTH]
 client_id=
 client_secret=
 url=https://www.openstreetmap.org
 scope=read_prefs
-login_redirect_uri=http://127.0.0.1:8000/auth/callback
-secret_key=jnfdsjkfndsjkfnsdkjfnskfn
+login_redirect_uri=http://127.0.0.1:8000/v1/auth/callback/
+secret_key=
 
 [DUMP]
 path=
-redirect_uri=http://127.0.0.1:8000/callback
+redirect_uri=http://127.0.0.1:8000/callback/
 underpass=underpass.sql
 osmstats=osmstats.sql
 
@@ -37,14 +26,37 @@ password=
 database=galaxy
 port=
 
+
+[RAW_DATA]
+host=localhost
+user=admin
+password=admin
+database=postgres
+port=5432
+
+[API_CONFIG]
+export_path=exports/ # used to store export path
+api_host=http://127.0.0.1
+api_port=8000
+max_area=100000 # max area to support for rawdata input 
+use_connection_pooling=True 
+log_level=info #options are info,debug,warning,error
+env=dev # default is prod , supported values are dev and prod
+shp_limit=6000 # in mb default is 4096
+
 [TM]
 host=
 user=
 password=
-host=
 port=
 
 [SENTRY]
-url=https://apikey.ingest.sentry.io/appid
+dsn=https://apikey.ingest.sentry.io/appid
 rate=1.0
+
+[EXPORT_UPLOAD]
+FILE_UPLOAD_METHOD=disk # options are s3,disk 
+AWS_ACCESS_KEY_ID= your id 
+AWS_SECRET_ACCESS_KEY= yourkey 
+BUCKET_NAME= your bucket name 
 
