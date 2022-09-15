@@ -186,8 +186,10 @@ def create_osm_history_query(changeset_query, with_username):
 
 
 def create_userstats_get_statistics_with_hashtags_query(params, con, cur):
-    hashtag_filter = create_hashtag_filter_query(params.project_ids, params.hashtags, cur, con, prefix=True)
-    timestamp_filter = create_timestamp_filter_query("created_at", params.from_timestamp, params.to_timestamp, cur, prefix=True)
+    hashtag_filter = create_hashtag_filter_query(
+        params.project_ids, params.hashtags, cur, con, prefix=True)
+    timestamp_filter = create_timestamp_filter_query(
+        "created_at", params.from_timestamp, params.to_timestamp, cur, prefix=True)
     query = f"""
     select
         sum(added_buildings)::int as added_buildings,
@@ -422,14 +424,16 @@ def generate_data_quality_username_query(params, cur):
     if ('all' in params.issue_types) is False:
         issue_types = ", ".join(["%s"] * len(params.issue_types))
         issue_types_str = [i for i in params.issue_types]
-        issue_types = cur.mogrify(sql.SQL(issue_types), issue_types_str).decode()
+        issue_types = cur.mogrify(
+            sql.SQL(issue_types), issue_types_str).decode()
         issue_type_filter = f"""and unnest_status in ({issue_types})"""
 
     else:
         issue_type_filter = ""
 
     if params.hashtags is not None and len(params.hashtags) > 0:
-        hashtag_filt = create_hashtagfilter_underpass(params.hashtags, "hashtags")
+        hashtag_filt = create_hashtagfilter_underpass(
+            params.hashtags, "hashtags")
         filter_hashtags = f""" and {hashtag_filt}"""
     else:
         filter_hashtags = ""
@@ -659,7 +663,8 @@ def generate_tm_validators_stats_query(cur, params):
     if params.status:
         status_subset = f""" and status ={params.status}"""
     if params.organisation:
-        organisation_list = [f"""organisation_id = {id}""" for id in params.organisation]
+        organisation_list = [
+            f"""organisation_id = {id}""" for id in params.organisation]
         organisation_join = " or ".join(organisation_list)
         organisation_subset = f""" and ({organisation_join})"""
     if params.country:
@@ -858,7 +863,7 @@ def create_geom_filter(geom):
 
 def format_file_name_str(input_str):
     # Fixme I need to check every possible special character that can comeup on osm tags
-    input_str = re.sub("\s+", "-", input_str)  # putting - in every space
+    input_str = re.sub("\s+", "-", input_str)  # putting - in every space  # noqa
     input_str = re.sub(":", "-", input_str)  # putting - in every : value
     input_str = re.sub("_", "-", input_str)  # putting - in every _ value
 
@@ -867,7 +872,7 @@ def format_file_name_str(input_str):
 
 def remove_spaces(input_str):
     # Fixme I need to check every possible special character that can comeup on osm tags
-    input_str = re.sub("\s+", "_", input_str)  # putting _ in every space
+    input_str = re.sub("\s+", "_", input_str)  # putting _ in every space # noqa
     input_str = re.sub(":", "_", input_str)  # putting _ in every : value
     return input_str
 
@@ -930,7 +935,8 @@ def extract_geometry_type_query(params, ogr_export=False):
     point_schema, line_schema, poly_schema = None, None, None
     tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = None, None, None, None, None, None, None, None, None, None
     if params.filters:
-        tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = extract_attributes_tags(params.filters)
+        tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = extract_attributes_tags(
+            params.filters)
 
     if master_attribute_filter:  # if no specific point , line or poly filter is not passed master columns filter will be used , if master columns is also empty then above default select statement will be used
         select_condition, schema = create_column_filter(
@@ -957,7 +963,8 @@ def extract_geometry_type_query(params, ogr_export=False):
                 query_point += f""" and ({attribute_filter})"""
             point_schema = schema
 
-            query_point = get_query_as_geojson([query_point], ogr_export=ogr_export)
+            query_point = get_query_as_geojson(
+                [query_point], ogr_export=ogr_export)
 
         if type == SupportedGeometryFilters.LINE.value:
             query_line_list = []
@@ -984,7 +991,8 @@ def extract_geometry_type_query(params, ogr_export=False):
             query_relations_line += """ and (geometrytype(geom)='MULTILINESTRING')"""
             query_line_list.append(query_ways_line)
             query_line_list.append(query_relations_line)
-            query_line = get_query_as_geojson(query_line_list, ogr_export=ogr_export)
+            query_line = get_query_as_geojson(
+                query_line_list, ogr_export=ogr_export)
             line_schema = schema
 
         if type == SupportedGeometryFilters.POLYGON.value:
@@ -1012,7 +1020,8 @@ def extract_geometry_type_query(params, ogr_export=False):
             query_relations_poly += """ and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
             query_poly_list.append(query_ways_poly)
             query_poly_list.append(query_relations_poly)
-            query_poly = get_query_as_geojson(query_poly_list, ogr_export=ogr_export)
+            query_poly = get_query_as_geojson(
+                query_poly_list, ogr_export=ogr_export)
             poly_schema = schema
     return query_point, query_line, query_poly, point_schema, line_schema, poly_schema
 
@@ -1085,24 +1094,30 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
     poly_select_condition = select_condition
 
     if params.filters:
-        tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = extract_attributes_tags(params.filters)
+        tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = extract_attributes_tags(
+            params.filters)
     if attributes:
         if master_attribute_filter:
             if len(master_attribute_filter) > 0:
-                select_condition = create_column_filter(master_attribute_filter)
-                point_select_condition = select_condition  # if master attribute is supplied it will be applied to other geom type as well even though value is supplied they will be ignored
+                select_condition = create_column_filter(
+                    master_attribute_filter)
+                # if master attribute is supplied it will be applied to other geom type as well even though value is supplied they will be ignored
+                point_select_condition = select_condition
                 line_select_condition = select_condition
                 poly_select_condition = select_condition
         else:
             if point_attribute_filter:
                 if len(point_attribute_filter) > 0:
-                    point_select_condition = create_column_filter(point_attribute_filter)
+                    point_select_condition = create_column_filter(
+                        point_attribute_filter)
             if line_attribute_filter:
                 if len(line_attribute_filter) > 0:
-                    line_select_condition = create_column_filter(line_attribute_filter)
+                    line_select_condition = create_column_filter(
+                        line_attribute_filter)
             if poly_attribute_filter:
                 if len(line_attribute_filter) > 0:
-                    poly_select_condition = create_column_filter(point_attribute_filter)
+                    poly_select_condition = create_column_filter(
+                        point_attribute_filter)
     if tags:
         if master_tag_filter:  # if master tag is supplied then other tags should be ignored and master tag will be used
             master_tag = generate_tag_filter_query(master_tag_filter)

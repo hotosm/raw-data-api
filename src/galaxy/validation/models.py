@@ -35,7 +35,7 @@ from ..config import config
 MAX_POLYGON_AREA = 5000  # km^2
 
 # this as argument in compile method
-SPECIAL_CHARACTER = '[@!#$%^&*() <>?/\|}{~:,"]'
+SPECIAL_CHARACTER = '[@!#$%^&*() <>?/\|}{~:,"]'  # noqa
 ORGANIZATIONAL_FREQUENCY = {"w": 7, "m": 30, "q": 90, "y": 365}
 
 
