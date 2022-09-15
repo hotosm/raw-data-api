@@ -19,11 +19,11 @@
 
 """[Router Responsible for training data API ]
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi_versioning import version
 from src.galaxy.app import Training
 from src.galaxy.validation.models import TrainingOrganisations, TrainingParams, Trainings
-from .auth import login_required
+# from .auth import login_required
 from typing import List
 router = APIRouter(prefix="/training")
 

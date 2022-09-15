@@ -19,7 +19,7 @@
 
 """[Router Responsible for Organizational data API ]
 """
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Response
 from fastapi_versioning import version
 # from .auth import login_required
 

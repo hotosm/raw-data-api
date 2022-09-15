@@ -266,16 +266,12 @@ def get_current_data(params: RawDataCurrentParams, background_tasks: BackgroundT
         # watches the status code of the link provided and deletes the file if it is 200
         background_tasks.add_task(watch_s3_upload, download_url, zip_temp_path)
     else:
-        try:
-            # getting from config in case api and frontend is not hosted on same url
-            client_host = config.get("API_CONFIG", "api_host")
-        except:
-            client_host = f"""{request.url.scheme}://{request.client.host}"""  # getting client host
 
-        try:
-            client_port = config.get("API_CONFIG", "api_port")
-        except:
-            client_port = 8000
+        # getting from config in case api and frontend is not hosted on same url
+        client_host = config.get(
+            "API_CONFIG", "api_host", fallback=f"""{request.url.scheme}://{request.client.host}""")
+        client_port = config.get("API_CONFIG", "api_port", fallback=8000)
+
         if client_port:
             download_url = f"""{client_host}:{client_port}/v1/exports/{exportname}.zip"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
         else:

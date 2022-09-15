@@ -17,7 +17,6 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-from csv import DictWriter
 from fastapi import APIRouter
 from fastapi_versioning import version
 from src.galaxy.validation.models import DataQuality_TM_RequestParams, DataQuality_username_RequestParams, DataQualityHashtagParams, OutputType
@@ -64,7 +63,7 @@ def get_tasking_manager_project_data_quality_report(params: DataQuality_TM_Reque
                                  media_type="text/csv"
                                  )
     response.headers["Content-Disposition"] = "attachment; filename=" + \
-        exportname+".csv"
+        exportname + ".csv"
     return response
 
 
@@ -115,5 +114,5 @@ def get_user_data_quality_report(params: DataQuality_username_RequestParams):
                                  media_type="text/csv"
                                  )
     response.headers["Content-Disposition"] = "attachment; filename=" + \
-        exportname+".csv"
+        exportname + ".csv"
     return response

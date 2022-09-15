@@ -19,11 +19,11 @@
 
 """[Router Responsible for Organizational data API ]
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi_versioning import version
 from src.galaxy.app import OrganizationHashtags
 from src.galaxy.validation.models import OrganizationHashtag, OrganizationOutputtype, OrganizationHashtagParams
-from .auth import login_required
+# from .auth import login_required
 from typing import List
 from fastapi.responses import StreamingResponse
 import io
@@ -199,5 +199,5 @@ def get_hashtag_stats(params: OrganizationHashtagParams):
                                  media_type="text/csv"
                                  )
     response.headers["Content-Disposition"] = "attachment; filename=" + \
-        exportname+".csv"
+        exportname + ".csv"
     return response

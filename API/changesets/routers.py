@@ -1,6 +1,5 @@
 import psycopg2
 
-from psycopg2 import sql
 from psycopg2.extras import DictCursor
 from fastapi import APIRouter
 from fastapi_versioning import version

@@ -6,7 +6,7 @@ from requests_oauthlib import OAuth2Session
 
 from src.galaxy import config
 from src.galaxy.app import Underpass
-from . import AuthUser, Login, Token, login_required, is_staff_member
+from . import AuthUser, Login, Token, is_staff_member
 
 router = APIRouter(prefix="/auth")
 
