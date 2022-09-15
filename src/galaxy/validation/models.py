@@ -283,6 +283,7 @@ class DataQuality_username_RequestParams(DateStampParams):
 
     @validator("hashtags", allow_reuse=True)
     def check_hashtag_string(cls, value, values, **kwargs):
+        """Checks given hashtag string against special characters"""
         regex = re.compile(SPECIAL_CHARACTER)
         for v in value:
             v = v.strip()
@@ -325,6 +326,7 @@ class DataQualityHashtagParams(TimeStampParams):
 
     @validator("geometry", always=True)
     def check_not_defined_fields(cls, value, values):
+        """Checks given fields with geometry and hashtags"""
         hashtags = values.get("hashtags")
 
         if value is None and (hashtags is None or len(hashtags) == 0):
@@ -428,6 +430,7 @@ class OrganizationHashtagParams(BaseModel):
 
     @validator("hashtags", allow_reuse=True)
     def check_hashtag_string(cls, value, values, **kwargs):
+        """Validates hashtags"""
         regex = re.compile(SPECIAL_CHARACTER)
         for v in value:
             v = v.strip()
@@ -442,6 +445,7 @@ class OrganizationHashtagParams(BaseModel):
 
     @validator("end_date", allow_reuse=True)
     def check_date_difference(cls, value, values, **kwargs):
+        """Validates date difference"""
         start_date = values.get("start_date")
         if start_date:
             frequency = values.get("frequency")
@@ -483,6 +487,7 @@ class HashtagParams(BaseModel):
 
     @validator("hashtags", allow_reuse=True)
     def check_hashtag_string(cls, value, values, **kwargs):
+        """Validates hashtags"""
         regex = re.compile(SPECIAL_CHARACTER)
         for v in value:
             v = v.strip()
@@ -508,6 +513,7 @@ class RawDataHistoricalParams(HashtagParams):
 
     @validator("geometry", allow_reuse=True)
     def check_geometry_area(cls, value, values):
+        """Validates area of geometry"""
         cd = json.loads(value.json())["coordinates"]
         for x in range(len(cd)):
             geom_cd = '{"type":"Polygon","coordinates":%s}' % cd[x]
@@ -522,6 +528,7 @@ class RawDataHistoricalParams(HashtagParams):
 
     @validator("to_timestamp", allow_reuse=True)
     def check_date_difference(cls, value, values, **kwargs):
+        """Validates    date difference between two values"""
         start_date = values.get("from_timestamp")
         hashtags = values.get("hashtags")
         difference = value - start_date
@@ -568,6 +575,7 @@ class SupportedGeometryFilters(Enum):
 
     @classmethod
     def has_value(cls, value):
+        """Checks if the value is supported"""
         return value in cls._value2member_map_
 
 
@@ -580,6 +588,7 @@ class RawDataCurrentParams(BaseModel):
 
     @validator("filters", allow_reuse=True)
     def check_value(cls, value, values):
+        """Checks given fields"""
         for key, v in value.items():
             if SupportedFilters.has_value(key):  # check for tags or attributes
                 # check if value is of dict type or not for tags and attributes
@@ -619,10 +628,12 @@ class RawDataCurrentParams(BaseModel):
 
     @validator("geometry", always=True)
     def check_geometry_area(cls, value, values):
+        """Validates geom area_m2"""
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1E-6
 
-        RAWDATA_CURRENT_POLYGON_AREA = int(config.get("API_CONFIG", "max_area", fallback=100000))
+        RAWDATA_CURRENT_POLYGON_AREA = int(config.get(
+            "API_CONFIG", "max_area", fallback=100000))
 
         output_type = values.get("output_type")
         if output_type:
