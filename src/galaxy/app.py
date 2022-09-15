@@ -172,6 +172,7 @@ class Underpass:
         self.params = parameters
 
     def get_mapathon_summary_result(self):
+        """ Get summary result"""
         osm_history_query, total_contributor_query = generate_mapathon_summary_underpass_query(
             self.params, self.cur)
         # print(osm_history_query)
@@ -192,6 +193,7 @@ class Underpass:
         return query_result
 
     def training_list(self, params):
+        """ Returns a list of training organizations. """
         filter_training_query = generate_filter_training_query(params)
         training_query = generate_training_query(filter_training_query)
         # print(training_query)
@@ -200,6 +202,7 @@ class Underpass:
         return query_result
 
     def get_user_role(self, user_id: int):
+        """returns user role for given user id"""
         query = f"select role from users_roles where user_id = {user_id}"
         query_result = self.database.executequery(query)
 
@@ -234,6 +237,7 @@ class Insight:
         self.params = parameters
 
     def get_mapathon_summary_result(self):
+        """ Get mapathon summary result"""
         changeset_query, hashtag_filter, timestamp_filter = create_changeset_query(
             self.params, self.con, self.cur)
         osm_history_query = create_osm_history_query(changeset_query,
@@ -253,6 +257,7 @@ class Insight:
         return osm_history_result, total_contributors_result
 
     def get_mapathon_detailed_result(self):
+        """Functions that returns detailed reports  for mapathon results_dicts"""
         changeset_query, _, _ = create_changeset_query(
             self.params, self.con, self.cur)
         # History Query
@@ -293,6 +298,7 @@ class TaskingManager:
         self.params = parameters
 
     def extract_project_ids(self):
+        """Functions that returns project ids"""
         test_hashtag = "hotosm-project-"
         ids = []
 
@@ -307,6 +313,7 @@ class TaskingManager:
         return ids
 
     def get_tasks_mapped_and_validated_per_user(self):
+        """Function reutrns task mapped and validated from TM database"""
         project_ids = self.extract_project_ids()
         if len(project_ids) > 0:
             tasks_mapped_query, tasks_validated_query = create_user_tasks_mapped_and_validated_query(project_ids,
@@ -319,6 +326,7 @@ class TaskingManager:
         return [], []
 
     def get_time_spent_mapping_and_validating_per_user(self):
+        """Functions that returns time spent in the mapping per user."""
         project_ids = self.extract_project_ids()
         if len(project_ids) > 0:
             time_spent_mapping_query, time_spent_validating_query = create_user_time_spent_mapping_and_validating_query(project_ids,
@@ -331,6 +339,11 @@ class TaskingManager:
         return [], []
 
     def get_validators_stats(self):
+        """Generate a list of validators for the TM
+
+        Returns:
+            [type]: [description]
+        """
         query = generate_tm_validators_stats_query(self.cur, self.params)
         print(query)
         result = [dict(r) for r in self.database.executequery(query)]
@@ -357,6 +370,7 @@ class TaskingManager:
         return None
 
     def list_teams(self):
+        """Functions    that    returns     teams in tasking manager"""
         query = generate_tm_teams_list()
         results_dicts = [dict(r) for r in self.database.executequery(query)]
 
@@ -371,6 +385,7 @@ class TaskingManager:
         return iter(stream.getvalue())
 
     def list_teams_metadata(self, team_id):
+        """ Functions   that    returns teams metadata for a given team"""
         query = generate_list_teams_metadata(team_id)
         results_dicts = [dict(r) for r in self.database.executequery(query)]
 
