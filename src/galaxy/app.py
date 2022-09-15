@@ -1031,6 +1031,7 @@ class RawData:
 
     @staticmethod
     def query2shapefile(con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path):
+        """Function that transfer db query to shp"""
         # schema: it is a simple dictionary with geometry and properties as keys
         # schema = {'geometry': 'LineString','properties': {'test': 'int'}}
         file_paths = []
