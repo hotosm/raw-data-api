@@ -520,6 +520,7 @@ class Output:
             return []
 
     def get_dataframe(self):
+        """Functions    for getting the dataframe of the connection_params"""
         # print(self.dataframe)
         return self.dataframe
 
@@ -573,6 +574,7 @@ class UserStats:
         self.con, self.cur = self.db.connect()
 
     def list_users(self, params):
+        """ returns a list of users in the database"""
         user_names_str = ",".join(
             ["%s" for n in range(len(params.user_names))])
 
@@ -592,6 +594,7 @@ class UserStats:
         return users_list
 
     def get_statistics(self, params):
+        """ Returns statistics for the current user"""
         query = create_UserStats_get_statistics_query(params, self.con,
                                                       self.cur)
         result = self.db.executequery(query)
@@ -603,6 +606,7 @@ class UserStats:
         return summary
 
     def get_statistics_with_hashtags(self, params):
+        """"Returns user statistics for user with hashtags """
         query = create_userstats_get_statistics_with_hashtags_query(
             params, self.con, self.cur)
         result = self.db.executequery(query)
@@ -615,6 +619,7 @@ class UserStats:
 
 
 def dict_none_clean(to_clean):
+    """Clean DictWriter"""
     result = {}
     for key, value in to_clean.items():
         if value is None:
@@ -632,6 +637,7 @@ class DataQualityHashtags:
 
     @staticmethod
     def to_csv_stream(results):
+        """Responsible for csv writing"""
         stream = StringIO()
 
         features = results.get("features")
@@ -656,6 +662,7 @@ class DataQualityHashtags:
 
     @staticmethod
     def to_geojson(results):
+        """ Responseible for geojson writing"""
         features = []
         for row in results:
             geojson_feature = {
@@ -678,6 +685,7 @@ class DataQualityHashtags:
         return feature_collection
 
     def get_report(self):
+        """Functions    that    Returns dataquality report """
         query = generate_data_quality_hashtag_reports(self.cur, self.params)
         results = self.db.executequery(query)
         feature_collection = DataQualityHashtags.to_geojson(results)
@@ -763,6 +771,7 @@ class Training:
         return Training_organisations_list
 
     def get_trainingslist(self, params: TrainingParams):
+        """Returns  Training lists"""
         query_result = self.database.training_list(params)
         Trainings_list = [Trainings(**r) for r in query_result]
         # print(Trainings_list)
@@ -782,11 +791,13 @@ class OrganizationHashtags:
             self.cur, self.params)
 
     def get_report(self):
+        """Functions    that returns report of hashtags """
         query_result = self.db.executequery(self.query)
         results = [OrganizationHashtag(**r) for r in query_result]
         return results
 
     def get_report_as_csv(self, filelocation):
+        """Returns as csv report"""
         try:
             result = Output(self.query, self.con).to_CSV(filelocation)
             return result
@@ -813,19 +824,24 @@ class Status:
             raise ValueError("Source is not Supported")
 
     def get_osm_recency(self):
+        """Returns OSm Recency"""
         # checks either that method is supported by the database supplied or not without making call to database class if yes will make a call else it will return None
         return self.database.get_osm_last_updated() if getattr(self.database, "get_osm_last_updated", None) else None
 
     def get_mapathon_statistics_recency(self):
+        """Returns Mapathon recency"""
         return self.database.get_mapathon_statistics_last_updated() if getattr(self.database, "get_mapathon_statistics_last_updated", None) else None
 
     def get_user_statistics_recency(self):
+        """Returns User stat recency"""
         return self.database.get_user_statistics_last_updated() if getattr(self.database, "get_user_statistics_last_updated", None) else None
 
     def get_user_data_quality_recency(self):
+        """Returns Userdata quality recency"""
         return self.database.get_user_data_quality_last_updated() if getattr(self.database, "get_user_data_quality_last_updated", None) else None
 
     def get_raw_data_recency(self):
+        """Returns recency of rawdata snapshot"""
         return RawData().check_status()
 
 
