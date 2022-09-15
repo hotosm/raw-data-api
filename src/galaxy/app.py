@@ -498,8 +498,8 @@ class Output:
                 else:
                     raise ValueError("Connection is required for SQL Query")
         else:
-            raise ValueError("Input type " + str(type(result)) +
-                             " is not supported")
+            raise ValueError(
+                "Input type " + str(type(result)) + " is not supported")
         # print(self.dataframe)
         if self.dataframe.empty:
             return []
