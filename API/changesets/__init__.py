@@ -33,6 +33,7 @@ class FilterParams(BaseModel):
 
     @validator("type", "value")
     def matching_types(cls, v, values, **kwargs):
+        """Validates geojson type"""
         # type_val = values.get("type")
         if ("type" in values and values["type"].value == PolygonFilter.iso3.value and type(v) is not str):
             raise ValueError("Value must be ISO3 code")
