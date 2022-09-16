@@ -176,54 +176,6 @@ def test_data_quality_hashtags_query_builder():
 
     assert query == test_data_quality_hashtags_query_no_hashtags
 
-    # # Test no geometry, no hashtags. Raise a pydantic error.
-    # test_params = {
-    #     "fromTimestamp": "2020-12-11T00:00:00",
-    #     "toTimestamp": "2020-12-11T00:00:00",
-    #     "issueType": [
-    #         "badgeom"
-    #     ],
-    #     "outputType": "geojson"
-    # }
-    # params = DataQualityHashtagParams(**test_params)
-
-    # test_params = {
-    #     "fromTimestamp": "2020-12-11T00:00:00",
-    #     "toTimestamp": "2020-12-11T00:00:00",
-    #     "issueType": [
-    #         "badgeom"
-    #     ],
-    #     "outputType": "geojson",
-    #     "geometry": {
-    #         "type": "Polygon",
-    #         "coordinates": [
-    #             [
-    #                 [
-    #                     -76.387939453125,
-    #                     9.611582210984674
-    #                 ],
-    #                 [
-    #                     -73.76220703125,
-    #                     9.611582210984674
-    #                 ],
-    #                 [
-    #                     -73.76220703125,
-    #                     11.544616463449655
-    #                 ],
-    #                 [
-    #                     -76.387939453125,
-    #                     11.544616463449655
-    #                 ],
-    #                 [
-    #                     -76.387939453125,
-    #                     9.611582210984674
-    #                 ]
-    #             ]
-    #         ]
-    #     }
-    # }
-    # params = DataQualityHashtagParams(**test_params)
-
 
 def test_mapathon_total_contributor_mapathon_query_builder():
     default_total_contributor_query = '\n                SELECT COUNT(distinct user_id) as contributors_count\n                FROM osm_changeset\n                WHERE "created_at" between \'2021-08-27T09:00:00\'::timestamp AND \'2021-08-27T11:00:00\'::timestamp AND (("tags" -> \'hashtags\') ~~* \'%hotosm-project-11224;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10042;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-9906;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-1381;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11203;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10681;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-8055;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-8732;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11193;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-7305;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11210;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10985;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10988;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11190;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-6658;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-5644;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10913;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-6495;%\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-4229;%\' OR ("tags" -> \'hashtags\') ~~* \'%mapandchathour2021;%\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11224 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10042 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-9906 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-1381 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11203 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10681 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-8055 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-8732 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11193 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-7305 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11210 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10985 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10988 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11190 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-6658 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-5644 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10913 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-6495 %\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-4229 %\' OR ("tags" -> \'comment\') ~~* \'%mapandchathour2021 %\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11224\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11224\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10042\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10042\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-9906\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-9906\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-1381\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-1381\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11203\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11203\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10681\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10681\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-8055\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-8055\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-8732\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-8732\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11193\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11193\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-7305\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-7305\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11210\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11210\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10985\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10985\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10988\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10988\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-11190\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-11190\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-6658\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-6658\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-5644\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-5644\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-10913\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-10913\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-6495\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-6495\' OR ("tags" -> \'hashtags\') ~~* \'%hotosm-project-4229\' OR ("tags" -> \'comment\') ~~* \'%hotosm-project-4229\' OR ("tags" -> \'hashtags\') ~~* \'%mapandchathour2021\' OR ("tags" -> \'comment\') ~~* \'%mapandchathour2021\')\n            '
