@@ -185,10 +185,7 @@ def test_data_quality_hashtags_query_builder():
         ],
         "outputType": "geojson"
     }
-
-    with Exception as ex:
-        params = DataQualityHashtagParams(**test_params)
-
+    params = DataQualityHashtagParams(**test_params)
 
     test_params = {
         "fromTimestamp": "2020-12-11T00:00:00",
@@ -225,10 +222,7 @@ def test_data_quality_hashtags_query_builder():
             ]
         }
     }
-
-    with Exception as ex:
-        params = DataQualityHashtagParams(**test_params)
-
+    params = DataQualityHashtagParams(**test_params)
 
 
 def test_mapathon_total_contributor_mapathon_query_builder():
