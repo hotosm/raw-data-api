@@ -176,53 +176,53 @@ def test_data_quality_hashtags_query_builder():
 
     assert query == test_data_quality_hashtags_query_no_hashtags
 
-    # Test no geometry, no hashtags. Raise a pydantic error.
-    test_params = {
-        "fromTimestamp": "2020-12-11T00:00:00",
-        "toTimestamp": "2020-12-11T00:00:00",
-        "issueType": [
-            "badgeom"
-        ],
-        "outputType": "geojson"
-    }
-    params = DataQualityHashtagParams(**test_params)
+    # # Test no geometry, no hashtags. Raise a pydantic error.
+    # test_params = {
+    #     "fromTimestamp": "2020-12-11T00:00:00",
+    #     "toTimestamp": "2020-12-11T00:00:00",
+    #     "issueType": [
+    #         "badgeom"
+    #     ],
+    #     "outputType": "geojson"
+    # }
+    # params = DataQualityHashtagParams(**test_params)
 
-    test_params = {
-        "fromTimestamp": "2020-12-11T00:00:00",
-        "toTimestamp": "2020-12-11T00:00:00",
-        "issueType": [
-            "badgeom"
-        ],
-        "outputType": "geojson",
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [
-                        -76.387939453125,
-                        9.611582210984674
-                    ],
-                    [
-                        -73.76220703125,
-                        9.611582210984674
-                    ],
-                    [
-                        -73.76220703125,
-                        11.544616463449655
-                    ],
-                    [
-                        -76.387939453125,
-                        11.544616463449655
-                    ],
-                    [
-                        -76.387939453125,
-                        9.611582210984674
-                    ]
-                ]
-            ]
-        }
-    }
-    params = DataQualityHashtagParams(**test_params)
+    # test_params = {
+    #     "fromTimestamp": "2020-12-11T00:00:00",
+    #     "toTimestamp": "2020-12-11T00:00:00",
+    #     "issueType": [
+    #         "badgeom"
+    #     ],
+    #     "outputType": "geojson",
+    #     "geometry": {
+    #         "type": "Polygon",
+    #         "coordinates": [
+    #             [
+    #                 [
+    #                     -76.387939453125,
+    #                     9.611582210984674
+    #                 ],
+    #                 [
+    #                     -73.76220703125,
+    #                     9.611582210984674
+    #                 ],
+    #                 [
+    #                     -73.76220703125,
+    #                     11.544616463449655
+    #                 ],
+    #                 [
+    #                     -76.387939453125,
+    #                     11.544616463449655
+    #                 ],
+    #                 [
+    #                     -76.387939453125,
+    #                     9.611582210984674
+    #                 ]
+    #             ]
+    #         ]
+    #     }
+    # }
+    # params = DataQualityHashtagParams(**test_params)
 
 
 def test_mapathon_total_contributor_mapathon_query_builder():
