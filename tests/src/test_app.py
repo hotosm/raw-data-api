@@ -177,18 +177,18 @@ def test_data_quality_hashtags_query_builder():
     assert query == test_data_quality_hashtags_query_no_hashtags
 
     # Test no geometry, no hashtags. Raise a pydantic error.
-    test_params = {
-        "fromTimestamp": "2020-12-11T00:00:00",
-        "toTimestamp": "2020-12-11T00:00:00",
-        "issueType": [
-            "badgeom"
-        ],
-        "outputType": "geojson"
-    }
+    # test_params = {
+    #     "fromTimestamp": "2020-12-11T00:00:00",
+    #     "toTimestamp": "2020-12-11T00:00:00",
+    #     "issueType": [
+    #         "badgeom"
+    #     ],
+    #     "outputType": "geojson"
+    # }
 
-    with Exception as ex:
-        params = DataQualityHashtagParams(**test_params)
-        raise ex
+    # with Exception as ex:
+    #     params = DataQualityHashtagParams(**test_params)
+    #     raise ex
 
     test_params = {
         "fromTimestamp": "2020-12-11T00:00:00",
