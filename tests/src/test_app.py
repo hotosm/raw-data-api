@@ -186,8 +186,9 @@ def test_data_quality_hashtags_query_builder():
         "outputType": "geojson"
     }
 
-    with pytest.raises(PydanticError):
+    with Exception as ex:
         params = DataQualityHashtagParams(**test_params)
+        raise ex
 
     test_params = {
         "fromTimestamp": "2020-12-11T00:00:00",
@@ -225,9 +226,9 @@ def test_data_quality_hashtags_query_builder():
         }
     }
 
-    with pytest.raises(PydanticError) as ex:
-        raise ex
+    with Exception as ex:
         params = DataQualityHashtagParams(**test_params)
+        raise ex
 
 
 def test_mapathon_total_contributor_mapathon_query_builder():
