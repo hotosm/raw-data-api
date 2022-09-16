@@ -154,8 +154,8 @@ class Database:
         # Check if the connection was successful
         try:
             if self.conn is not None:
-                if self.cursor:
-                    self.cursor.close()
+                if self.cur is not None:
+                    self.cur.close()
                     self.conn.close()
                     logging.debug("Database Connection closed")
         except Exception as err:
