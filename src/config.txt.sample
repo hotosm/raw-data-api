@@ -56,7 +56,8 @@ env=dev
 #BUCKET_NAME= your bucket name 
 
 #[TM]
-#host=
-#user=
-#password=
-#port=
+#host=localhost
+#user=postgres
+#password=admin
+#database=TM
+#port=5432

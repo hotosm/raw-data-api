@@ -127,13 +127,33 @@ BUCKET_NAME= your bucket name
 ```
 ##### Setup Tasking Manager Database for TM related development  
 
-You can setup [Tasking manager](https://github.com/hotosm/tasking-manager)  and add those block to config.txt 
+You can setup [Tasking manager](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend).
+
+If you want only to setup the TM database, do the following:
+
+- Create a new database named TM (`CREATE DATABASE "TM";`), connect to it (`\c TM`) and activate postgis (`CREATE EXTENSION if not exists postgis;`)
+- Download source code of the [latest release of the tasking manager](https://github.com/hotosm/tasking-manager/releases)
+- Install a dedicated python environment like documented [in this build section](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#build)
+- Create tasking-manager.env in the tasking manager root directory with the following values:
+```
+POSTGRES_ENDPOINT=localhost
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=admin
+POSTGRES_DB=TM
+POSTGRES_PORT=5432
+```
+- Fill the database with the command `python3 manage.py db upgrade`
+
+TODO Add fixtures in the tables
+
+Add those block to config.txt with the value you use in the tasking manager configuration.
 ```
 [TM]
-host=
-user=
-password=
-port=
+host=localhost
+user=postgres
+password=admin
+database=TM
+port=5432
 ```
 ### 8. Run server
 
