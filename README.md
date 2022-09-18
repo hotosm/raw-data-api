@@ -127,24 +127,10 @@ BUCKET_NAME= your bucket name
 ```
 ##### Setup Tasking Manager Database for TM related development  
 
-You can setup [Tasking manager](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend).
+Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend) OR Create database "tm" in your local postgres and insert sample dump from [TM test dump](https://github.com/hotosm/tasking-manager/blob/develop/tests/database/tasking-manager.sql).
+(```wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql```)
 
-If you want only to setup the TM database, do the following:
-
-- Create a new database named TM (`CREATE DATABASE "TM";`), connect to it (`\c TM`) and activate postgis (`CREATE EXTENSION if not exists postgis;`)
-- Download source code of the [latest release of the tasking manager](https://github.com/hotosm/tasking-manager/releases)
-- Install a dedicated python environment like documented [in this build section](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#build)
-- Create tasking-manager.env in the tasking manager root directory with the following values:
-```
-POSTGRES_ENDPOINT=localhost
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=admin
-POSTGRES_DB=TM
-POSTGRES_PORT=5432
-```
-- Fill the database with the command `python3 manage.py db upgrade`
-
-TODO Add fixtures in the tables
+```psql -U postgres -h localhost tm < tasking-manager.sql```
 
 Add those block to config.txt with the value you use in the tasking manager configuration.
 ```
@@ -152,9 +138,13 @@ Add those block to config.txt with the value you use in the tasking manager conf
 host=localhost
 user=postgres
 password=admin
-database=TM
+database=tm
 port=5432
 ```
+
+You can test it with the `/mapathon/detail/` endpoint and with the following input:
+`{"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}`
+
 ### 8. Run server
 
 ```uvicorn API.main:app --reload```
