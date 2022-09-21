@@ -22,11 +22,12 @@ celery.conf.result_backend = config.get(
 )  # using redis as backend , make sure you have redis server started on your system on port 6379
 
 celery.conf.task_serializer = 'pickle'
-celery.conf.result_serializer = 'pickle'
+celery.conf.result_serializer = 'json'
 celery.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
+
 @celery.task(name="process_raw_data")
-def process_raw_data(incoming_scheme, incoming_host, params, background_tasks):
+def process_raw_data(incoming_scheme, incoming_host, params):
     start_time = dt.now()
     if (
         params.output_type is None
@@ -76,7 +77,7 @@ def process_raw_data(incoming_scheme, incoming_host, params, background_tasks):
             inside_file_size += os.path.getsize(temp_file)
 
     # remove the file that are just binded to zip file , we no longer need to store it
-    background_tasks.add_task(remove_file, path)
+    remove_file(path)
 
     # check if download url will be generated from s3 or not from config
     if use_s3_to_upload:
@@ -109,9 +110,9 @@ def process_raw_data(incoming_scheme, incoming_host, params, background_tasks):
         "download_url": download_url,
         "file_name": exportname,
         "response_time": response_time_str,
-        "query_area": f"""{geom_area} Sq Km """,
-        "binded_file_size": f"""{round(inside_file_size/1000000)} MB""",
-        "zip_file_size_bytes": {zip_file_size},
+        "query_area": f"{geom_area} Sq Km ",
+        "binded_file_size": f"{round(inside_file_size/1000000)} MB",
+        "zip_file_size_bytes": zip_file_size,
     }
 
 

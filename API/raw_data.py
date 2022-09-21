@@ -30,7 +30,7 @@ from fastapi.responses import JSONResponse
 from src.galaxy.validation.models import RawDataCurrentParams
 from src.galaxy.app import RawData
 from celery.result import AsyncResult
-from .api_worker import process_raw_data
+from .api_worker import process_raw_data, celery
 
 router = APIRouter(prefix="/raw-data")
 
@@ -44,7 +44,7 @@ router = APIRouter(prefix="/raw-data")
 @router.post("/current-snapshot/")
 @version(1)
 def get_current_data(
-    params: RawDataCurrentParams, background_tasks: BackgroundTasks, request: Request
+    params: RawDataCurrentParams, request: Request
 ):
     """Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features
 
@@ -201,13 +201,14 @@ def get_current_data(
 
     """
     # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)): # this will use osm login makes it restrict login
-    task = process_raw_data.delay(request.url.scheme, request.client.host, params, background_tasks)
+    task = process_raw_data.delay(request.url.scheme, request.client.host, params)
     return JSONResponse({"task_id": task.id, "track_link": f"/current-snapshot/tasks/{task.id}/"})
 
 
 @router.get("/current-snapshot/tasks/{task_id}/")
 def get_status(task_id):
-    task_result = AsyncResult(task_id)
+    task_result = AsyncResult(task_id, app=celery)
+    print(task_result)
     result = {
         "task_id": task_id,
         "task_status": task_result.status,
