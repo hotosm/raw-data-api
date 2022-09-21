@@ -19,29 +19,17 @@
 
 """[Router Responsible for Raw data API ]
 """
-import os
-from datetime import datetime as dt
-from uuid import uuid4
-import time
-import zipfile
-import requests
 
 # from .auth import login_required
-import pathlib
-import shutil
 from starlette.background import BackgroundTasks
-import orjson
-
 from fastapi import APIRouter, Request
 from fastapi_versioning import version
 from fastapi.responses import JSONResponse
 
 # from fastapi import APIRouter, Depends, Request
-from src.galaxy.query_builder.builder import format_file_name_str
-from src.galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
-from src.galaxy.app import RawData, S3FileTransfer
-
-from src.galaxy.config import use_s3_to_upload, logger as logging, config
+from src.galaxy.validation.models import RawDataCurrentParams
+from src.galaxy.app import RawData
+from celery.result import AsyncResult
 from api_worker import process_raw_data
 
 router = APIRouter(prefix="/raw-data")
@@ -214,7 +202,18 @@ def get_current_data(
     """
     # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)): # this will use osm login makes it restrict login
     task = process_raw_data(request, params, background_tasks)
-    return JSONResponse({"task_id": task.id})
+    return JSONResponse({"task_id": task.id, "track_link": f"/current-snapshot/tasks/{task.id}/"})
+
+
+@router.get("/current-snapshot/tasks/{task_id}/")
+def get_status(task_id):
+    task_result = AsyncResult(task_id)
+    result = {
+        "task_id": task_id,
+        "task_status": task_result.status,
+        "task_result": task_result.result
+    }
+    return JSONResponse(result)
 
 
 @router.get("/status/")

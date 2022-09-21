@@ -1,5 +1,4 @@
 import os
-import time
 import pathlib
 import orjson
 import shutil
@@ -10,7 +9,7 @@ from celery import Celery
 from src.galaxy.config import config
 from fastapi.responses import JSONResponse
 from src.galaxy.query_builder.builder import format_file_name_str
-from src.galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
+from src.galaxy.validation.models import RawDataOutputType
 from src.galaxy.app import RawData, S3FileTransfer
 from src.galaxy.config import use_s3_to_upload, logger as logging, config
 
@@ -62,7 +61,8 @@ def process_raw_data(request, params, background_tasks):
         zf.write(file_path, arcname=file_path.name)
 
     # Compressing geojson file
-    zf.writestr("clipping_boundary.geojson", orjson.dumps(dict(params.geometry)))
+    zf.writestr("clipping_boundary.geojson",
+                orjson.dumps(dict(params.geometry)))
 
     zf.close()
     logging.debug("Zip Binding Done !")
