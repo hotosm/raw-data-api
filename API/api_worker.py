@@ -3,7 +3,6 @@ import pathlib
 import orjson
 import shutil
 from datetime import datetime as dt
-from uuid import uuid4
 import zipfile
 from celery import Celery
 from src.galaxy.config import config
@@ -26,8 +25,8 @@ celery.conf.result_serializer = 'json'
 celery.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
 
-@celery.task(name="process_raw_data")
-def process_raw_data(incoming_scheme, incoming_host, params):
+@celery.task(bind=True,name="process_raw_data")
+def process_raw_data(self, incoming_scheme, incoming_host, params):
     start_time = dt.now()
     if (
         params.output_type is None
@@ -38,12 +37,12 @@ def process_raw_data(incoming_scheme, incoming_host, params):
     if params.file_name:
         # need to format string from space to _ because it is filename , may be we need to filter special character as well later on
         formatted_file_name = format_file_name_str(params.file_name)
-        # exportname = f"{formatted_file_name}_{datetime.now().isoformat()}_{str(uuid4())}"
-        exportname = f"""{formatted_file_name}_{str(uuid4())}_{params.output_type}"""  # disabled date for now
+        # exportname = f"{formatted_file_name}_{datetime.now().isoformat()}_{str(self.request.id)}"
+        exportname = f"""{formatted_file_name}_{str(self.request.id)}_{params.output_type}"""  # disabled date for now
 
     else:
-        # exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(uuid4())}"
-        exportname = f"Raw_Export_{str(uuid4())}_{params.output_type}"
+        # exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(self.request.id)}"
+        exportname = f"Raw_Export_{str(self.request.id)}_{params.output_type}"
 
     logging.info("Request %s received", exportname)
 

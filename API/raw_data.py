@@ -208,7 +208,6 @@ def get_current_data(
 @router.get("/current-snapshot/tasks/{task_id}/")
 def get_status(task_id):
     task_result = AsyncResult(task_id, app=celery)
-    print(task_result)
     result = {
         "task_id": task_id,
         "task_status": task_result.status,
