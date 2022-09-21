@@ -21,9 +21,12 @@ celery.conf.result_backend = config.get(
     "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
 )  # using redis as backend , make sure you have redis server started on your system on port 6379
 
+celery.conf.task_serializer = 'pickle'
+celery.conf.result_serializer = 'pickle'
+celery.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
 @celery.task(name="process_raw_data")
-def process_raw_data(request, params, background_tasks):
+def process_raw_data(incoming_scheme, incoming_host, params, background_tasks):
     start_time = dt.now()
     if (
         params.output_type is None
@@ -85,7 +88,7 @@ def process_raw_data(request, params, background_tasks):
         client_host = config.get(
             "API_CONFIG",
             "api_host",
-            fallback=f"""{request.url.scheme}://{request.client.host}""",
+            fallback=f"""{incoming_scheme}://{incoming_host}""",
         )
         client_port = config.get("API_CONFIG", "api_port", fallback=8000)
 

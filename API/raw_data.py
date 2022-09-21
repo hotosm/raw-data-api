@@ -30,7 +30,7 @@ from fastapi.responses import JSONResponse
 from src.galaxy.validation.models import RawDataCurrentParams
 from src.galaxy.app import RawData
 from celery.result import AsyncResult
-from api_worker import process_raw_data
+from .api_worker import process_raw_data
 
 router = APIRouter(prefix="/raw-data")
 
@@ -201,7 +201,7 @@ def get_current_data(
 
     """
     # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)): # this will use osm login makes it restrict login
-    task = process_raw_data(request, params, background_tasks)
+    task = process_raw_data.delay(request.url.scheme, request.client.host, params, background_tasks)
     return JSONResponse({"task_id": task.id, "track_link": f"/current-snapshot/tasks/{task.id}/"})
 
 
