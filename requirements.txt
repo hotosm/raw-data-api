@@ -28,5 +28,8 @@ orjson==3.6.7
 boto3==1.24.38
 Fiona==1.8.21
 fastapi-versioning==0.10.0
-#gdal and ogr2ogr is required on the machine to run rawdata endpoint 
+redis==4.3.4
+celery==5.2.7
+flower==1.2.0
+#gdal and ogr2ogr is required on the machine to run rawdata endpoint
 # gdal == 3.3.2
