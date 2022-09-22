@@ -28,10 +28,7 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Check postgresql version
-        run: |
-          psql -V
-      - name: Remove postgresql version  14
+      - name: Clean up PSQL
         run: |
           sudo apt-get --purge remove postgresql
           sudo apt-get purge postgresql*
@@ -48,7 +45,6 @@ jobs:
       - name: Create Databases
         run : |
           export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE insights;"
           psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE underpass;"
           psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE tm;"
           psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE raw;"
@@ -58,6 +54,8 @@ jobs:
           psql -U postgres -h localhost insights < tests/src/fixtures/insights.sql
           psql -U postgres -h localhost raw  < tests/src/fixtures/raw_data.sql
           psql -U postgres -h localhost underpass < tests/src/fixtures/underpass.sql
+          wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
+          psql -U postgres -h localhost tm < tasking-manager.sql
 
       - name: Install Dependencies
         run: |
