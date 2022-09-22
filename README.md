@@ -162,7 +162,7 @@ After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs)
 3. You will get access_token
 4. You can use that access_token in all endpoints that requires authentication , To check token pass token in /auth/me/ It should return your osm profile
 
-If you get a 401 response with the detail "User is not staff member", get your OSM id using https://osm-stats.hotosm.org/v1/docs#/default/get_user_id_osm_users_ids__post, then run the following SQL on underpass database replacing ID:
+If you get a 401 response with the detail "User is not staff member", get your OSM id using https://galaxy-api.hotosm.org/v1/docs#/default/get_user_id_osm_users_ids__post, then run the following SQL on underpass database replacing ID:
 
 ```sql
 INSERT INTO users_roles VALUES (ID, 1);
@@ -170,7 +170,7 @@ INSERT INTO users_roles VALUES (ID, 1);
 
 Repeat the steps to get a new access_token.
 
-#### API has been setup successfully ! 
+#### API has been setup successfully !
 
 
 ## Run tests
