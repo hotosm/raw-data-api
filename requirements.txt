@@ -26,7 +26,7 @@ sphinx==4.2.0
 area==1.1.1
 orjson==3.6.7
 boto3==1.24.38
-# Fiona==1.8.21
+Fiona==1.8.21
 fastapi-versioning==0.10.0
 redis==4.3.4
 celery==5.2.7
