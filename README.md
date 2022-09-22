@@ -158,8 +158,6 @@ port=
 
 Check redis is running on your machine
 
-```sudo systemctl status redis```
-
 Login to redis cli
 
 ```redis-cli```
