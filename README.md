@@ -177,7 +177,7 @@ You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-
 
 API uses flower for monitoring the Celery distributed queue. Run this command on different shell
 
-```celery --app API.api_worker flower --port=5555 --broker=redis://redis:6379/```
+```celery --app API.api_worker flower --port=5550 --broker=redis://redis:6379/```
 
 ### 12. Navigate to Fast API Docs to get details about API Endpoint
 
@@ -185,9 +185,7 @@ After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs)
 
 ```http://127.0.0.1:8000/latest/docs```
 
-Flower dashboard should be available on following
-
-http://127.0.0.1:5555/
+Flower dashboard should be available on 5550 localhost port.
 
 ### Check Authetication
 
