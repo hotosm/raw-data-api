@@ -1,6 +1,7 @@
 
 Before getting started on config Make sure you have https://www.postgresql.org/ setup in your machine.
 
+## Compulsary Configuration 
 
 ### 1. Create ```config.txt``` inside src directory.
 ![image](https://user-images.githubusercontent.com/36752999/188402566-80dc9633-5d4e-479c-97dc-9e8a4999b385.png)
@@ -51,7 +52,7 @@ Grab Client ID and Client Secret and put it inside config.txt as OAUTH Block , y
 
 
 ### 6. Put your credentials inside config.txt
-Insert your config blocks with the database credentials where you have underpass ,insight and tm in your database
+Insert your config blocks with the database credentials where you have underpass ,insight and rawdata in your database along with oauth block
 
 ```
 [INSIGHTS]
@@ -88,7 +89,28 @@ env=dev
 
 ```
 
-#### Optional Configuration
+**Celery Configuration options:**
+
+Galaxy API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration , for the local setup Broker URL could be redis://localhost:6379/0 , for the current docker compose use following
+
+**For local installation :**
+```
+[CELERY]
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
+```
+
+
+**For Docker :**
+```
+[CELERY]
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+```
+
+**Tips** : Follow .github/workflows/[unit-test](https://github.com/hotosm/galaxy-api/blob/feature/celery/.github/workflows/unit-test.yml) If you have any confusion on implementation of config file .
+
+## Optional Configuration [ You can skip this part for basic installation ] 
 
 You can further customize API if you wish with API_CONFIG Block
 
@@ -113,15 +135,7 @@ AWS_SECRET_ACCESS_KEY= yourkey
 BUCKET_NAME= your bucket name
 ```
 
-Celery Configuration options:
 
-Galaxy API uses Celery 5 and Redis for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration , for the local setup Broker URL could be redis://localhost:6379/0 , for the current docker compose use following
-
-```
-[CELERY]
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
-```
 ##### Setup Tasking Manager Database for TM related development
 
 Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend) OR Create database "tm" in your local postgres and insert sample dump from [TM test dump](https://github.com/hotosm/tasking-manager/blob/develop/tests/database/tasking-manager.sql).
