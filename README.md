@@ -12,7 +12,8 @@ To get started with docker follow [GETTING_STARTED_WITH_DOCKER](https://github.c
 Install [gdal](https://gdal.org/index.html) on your machine , for example on Ubuntu
 
 ```
-apt-get update && apt-get -y upgrade && apt-get -y install gdal-bin python3-gdal && apt-get -y autoremove && apt-get clean
+sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get cleansudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+
 ```
 Install [redis](https://redis.io/docs/getting-started/installation/) on your system
 
@@ -99,7 +100,7 @@ Flower dashboard should be available on 5550 localhost port.
 http://127.0.0.1:5550/
 ```
 
-## Check API Installation 
+## Check API Installation
 ### Check Authetication
 
 1. Hit /auth/login/
