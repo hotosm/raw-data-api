@@ -9,12 +9,10 @@ To get started with docker follow [GETTING_STARTED_WITH_DOCKER](https://github.c
 
 ### 1. Install requirements.
 
-Install gdal on your machine , for example on Ubuntu
+Install [gdal](https://gdal.org/index.html) on your machine , for example on Ubuntu
 
 ```
-sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
-sudo apt-get update
-sudo apt-get install gdal-bin libgdal-dev
+apt-get update && apt-get -y upgrade && apt-get -y install gdal-bin python3-gdal && apt-get -y autoremove && apt-get clean
 ```
 Install [redis](https://redis.io/docs/getting-started/installation/) on your system
 
