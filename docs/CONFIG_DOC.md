@@ -105,11 +105,21 @@ CELERY_RESULT_BACKEND=redis://localhost:6379
 ```
 ##### Setup Tasking Manager Database for TM related development
 
-You can setup [Tasking manager](https://github.com/hotosm/tasking-manager)  and add those block to config.txt
+Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend) OR Create database "tm" in your local postgres and insert sample dump from [TM test dump](https://github.com/hotosm/tasking-manager/blob/develop/tests/database/tasking-manager.sql).
+(```wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql```)
+
+```psql -U postgres -h localhost tm < tasking-manager.sql```
+
+Add those block to config.txt with the value you use in the tasking manager configuration.
 ```
 [TM]
-host=
-user=
-password=
-port=
+host=localhost
+user=postgres
+password=admin
+database=tm
+port=5432
 ```
+
+You can test it later after running server with the `/mapathon/detail/` endpoint and with the following input:
+`{"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}`
+
