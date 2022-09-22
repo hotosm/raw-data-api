@@ -7,7 +7,7 @@ Before getting started on config Make sure you have https://www.postgresql.org/ 
 
 
 ### 2. Setup Underpass
-  Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md)  OR Create database "underpass" in your local postgres and insert sample dump from  
+  Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md)  OR Create database "underpass" in your local postgres and insert sample dump from
 ```
 /tests/src/fixtures/underpass.sql
 ```
@@ -16,9 +16,9 @@ Before getting started on config Make sure you have https://www.postgresql.org/ 
 psql -U postgres -h localhost underpass < underpass.sql
 ```
 ### 3. Setup Insights
-Setup insights from [here](https://github.com/hotosm/insights) OR Create database "insights" in your local postgres and insert sample dump from  
+Setup insights from [here](https://github.com/hotosm/insights) OR Create database "insights" in your local postgres and insert sample dump from
 ```
-/tests/src/fixtures/insights.sql 
+/tests/src/fixtures/insights.sql
 ```
 
 ```
@@ -26,9 +26,9 @@ psql -U postgres -h localhost insights < insights.sql
 ```
 
 ### 4. Setup Raw Data
-Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from  
+Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from
 ```
-/tests/src/fixtures/raw_data.sql 
+/tests/src/fixtures/raw_data.sql
 ```
 
 ```
@@ -115,12 +115,12 @@ BUCKET_NAME= your bucket name
 
 Celery Configuration options:
 
-Galaxy API uses Celery 5 and Redis for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration
+Galaxy API uses Celery 5 and Redis for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration , for the local setup Broker URL could be redis://localhost:6379/0 , for the current docker compose use following
 
 ```
 [CELERY]
-CELERY_BROKER_URL=redis://localhost:6379
-CELERY_RESULT_BACKEND=redis://localhost:6379
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
 ```
 ##### Setup Tasking Manager Database for TM related development
 
