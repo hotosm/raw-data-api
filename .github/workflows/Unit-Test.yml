@@ -15,7 +15,7 @@ jobs:
       ubuntu-latest
     services:
      postgres:
-      image: postgis/postgis:14-3.3
+      image: postgis/postgis:12-3.3
       env:
         POSTGRES_PASSWORD: admin
         POSTGRES_DB: postgres
