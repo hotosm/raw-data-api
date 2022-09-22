@@ -18,7 +18,7 @@ jobs:
       image: postgis/postgis:14-3.3
       env:
         POSTGRES_PASSWORD: admin
-        POSTGRES_DB: postgres
+        POSTGRES_DB: insights
       ports:
         - 5432:5432
       options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
@@ -32,9 +32,7 @@ jobs:
       - name: Install gdal
         run: |
           sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
-      - name: Create Database
-        run: |
-          PGPASSWORD=admin psql -U postgres -h localhost -c "CREATE DATABASE underpass;"
+
       - name: Insert sample data
         run : |
           PGPASSWORD=admin psql -U postgres -h localhost insights < tests/src/fixtures/insights.sql
@@ -43,6 +41,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
+      -name: Creating config.txt
+        run: |
+          mv src/config.txt.sample src/config.txt
       - name: Run Tests
         run: |
           py.test -v -s
