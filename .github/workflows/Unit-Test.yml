@@ -35,7 +35,7 @@ jobs:
       - name: Insert sample data
         run : |
           psql -U postgres -h localhost insights < tests/src/fixtures/insights.sql
-      - name: Create Databases
+      - name: Create Database
         run: |
           PGPASSWORD=admin psql -U postgres -tc "CREATE DATABASE underpass;"
       - name: Install Dependencies
