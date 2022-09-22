@@ -27,7 +27,7 @@ jobs:
           python-version: 3.8
       - name: Install gdal
         run: |
-        apt-get update && apt-get -y upgrade && apt-get -y install gdal-bin python3-gdal && apt-get -y autoremove && apt-get clean
+          apt-get update && apt-get -y upgrade && apt-get -y install gdal-bin python3-gdal && apt-get -y autoremove && apt-get clean
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
