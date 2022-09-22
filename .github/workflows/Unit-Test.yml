@@ -13,6 +13,11 @@ jobs:
   deploy:
     runs-on:
       ubuntu-latest
+    services:
+      -image: postgis/postgis:14-3.3
+      env:
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: postgres
 
     steps:
       - uses: actions/checkout@v2
@@ -20,28 +25,9 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Check postgresql version 
+      - name: Install gdal
         run: |
-          psql -V
-      - name: Remove postgresql version  14
-        run: |
-          sudo apt-get --purge remove postgresql
-          sudo apt-get purge postgresql*
-          sudo apt-get --purge remove postgresql postgresql-doc postgresql-common
-      - name: Set up postgresql 12
-        uses: harmon758/postgresql-action@v1
-        with:
-          postgresql version: '12'
-      - name: Install Postgis 3 for Psql 12
-        run: |
-          sudo apt-get update
-          sudo apt install postgis postgresql-12-postgis-3
-      - name: Install gdal 
-        run: |
-          sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
-          sudo apt-get update
-          sudo apt-get install gdal-bin libgdal-dev
-          
+        apt-get update && apt-get -y upgrade && apt-get -y install gdal-bin python3-gdal && apt-get -y autoremove && apt-get clean
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
