@@ -1,13 +1,11 @@
 import psycopg2
 
-from psycopg2 import sql
 from psycopg2.extras import DictCursor
 from fastapi import APIRouter
-from fastapi_versioning import  version
+from fastapi_versioning import version
 from .utils import geom_filter_subquery
 from src.galaxy.config import get_db_connection_params
 from . import ChangesetResult, FilterParams
-
 
 
 router = APIRouter(prefix="/changesets")
@@ -19,7 +17,7 @@ def get_changesets(params: FilterParams):
     geom_filter_sq = geom_filter_subquery(params.dict())
 
     t3 = """
-        SELECT 
+        SELECT
             name,
             id,
             user_id,
@@ -48,7 +46,7 @@ def get_changesets(params: FilterParams):
 
     query = f"""WITH t1 AS ({geom_filter_sq}),
         t2 AS (
-        select 
+        select
             t1.name,
             cs.id,
             cs.user_id,
@@ -62,7 +60,7 @@ def get_changesets(params: FilterParams):
         ),
         t3 AS ({t3}),
         t4 AS (
-        SELECT 
+        SELECT
             name,
             count(id) AS total_changesets,
             count(DISTINCT user_id) AS contributors

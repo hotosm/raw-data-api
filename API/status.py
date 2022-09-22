@@ -27,6 +27,7 @@ from src.galaxy.validation.models import DataOutput, DataSource, DataRecencyPara
 from src.galaxy.app import Status
 router = APIRouter(prefix="/status")
 
+
 @router.post("/")
 @version(1)
 def data_recency_status(params: DataRecencyParams):
@@ -41,11 +42,11 @@ def data_recency_status(params: DataRecencyParams):
         }
 
     Returns:
-      
+
         {
           "time_difference": "1 day, 00:03:20" #time
         }
-                        
+
     Example Request:
 
         {
@@ -54,22 +55,23 @@ def data_recency_status(params: DataRecencyParams):
         }
 
     Example Response :
-    
+
         {
-          "time_difference": "00:00:10"     
-        }    
+          "time_difference": "00:00:10"
+        }
     """
     result = None
     db = Status(params)
     if (params.data_output == DataOutput.osm.value):
-      result = db.get_osm_recency()
-    elif(params.data_output == DataOutput.mapathon_statistics.value):
-      result = db.get_mapathon_statistics_recency()
-    elif(params.data_output == DataOutput.user_statistics.value):
-      result = db.get_user_statistics_recency()
-    elif(params.data_output == DataOutput.data_quality.value):
-      result = db.get_user_data_quality_recency()
+        result = db.get_osm_recency()
+    elif (params.data_output == DataOutput.mapathon_statistics.value):
+        result = db.get_mapathon_statistics_recency()
+    elif (params.data_output == DataOutput.user_statistics.value):
+        result = db.get_user_statistics_recency()
+    elif (params.data_output == DataOutput.data_quality.value):
+        result = db.get_user_data_quality_recency()
     elif params.data_output == DataOutput.raw_data.value:
-      result = db.get_raw_data_recency() if params.data_source is DataSource.UNDERPASS.value else None
+        result = db.get_raw_data_recency(
+        ) if params.data_source is DataSource.UNDERPASS.value else None
 
-    return { "time_difference": str(result) if result else None }
+    return {"time_difference": str(result) if result else None}

@@ -1,4 +1,4 @@
-from .app import Mapathon, Database,Output,DataQuality,RawData
+from .app import Mapathon, Database, Output, DataQuality, RawData
 from .config import config
 
 

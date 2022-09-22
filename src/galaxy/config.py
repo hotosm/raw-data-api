@@ -27,53 +27,61 @@ CONFIG_FILE_PATH = "src/config.txt"
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
 
-log_level = config.get("API_CONFIG", "log_level",fallback=None) # get log level from config
-use_s3_to_upload=False
+# get log level from config
+log_level = config.get("API_CONFIG", "log_level", fallback=None)
+use_s3_to_upload = False
 
-if log_level is None or log_level.lower() == 'debug':  # default will go to debug
-    level=logging.DEBUG 
-elif log_level.lower() == 'info' :
-    level=logging.INFO
-elif log_level.lower() == 'error' :
-    level= logging.ERROR
+if log_level is None or log_level.lower() == 'debug':  # default debug
+    level = logging.DEBUG
+elif log_level.lower() == 'info':
+    level = logging.INFO
+elif log_level.lower() == 'error':
+    level = logging.ERROR
 elif log_level.lower() == 'warning':
     level = logging.WARNING
-else :
-    logging.error("logging config is not supported , Supported fields are : debug,error,warning,info , Logging to default :debug")
+else:
+    logging.error(
+        "logging config is not supported , Supported fields are : debug,error,warning,info , Logging to default :debug")
     level = logging.DEBUG
 
 logging.getLogger("fiona").propagate = False  # disable fiona logging
 logging.basicConfig(format='%(asctime)s - %(message)s', level=level)
-logging.getLogger('boto3').propagate = False # disable boto3 logging
+logging.getLogger('boto3').propagate = False  # disable boto3 logging
 
 logger = logging.getLogger('galaxy')
 
-export_path=config.get('API_CONFIG', 'export_path', fallback=None)
-if export_path is None : 
+export_path = config.get('API_CONFIG', 'export_path', fallback=None)
+if export_path is None:
     export_path = "exports/"
-if export_path.endswith("/") is False : 
-    export_path=f"""{export_path}/"""
+if export_path.endswith("/") is False:
+    export_path = f"""{export_path}/"""
 
-shp_limit=int(config.get('API_CONFIG', 'shp_limit', fallback=4096))
+shp_limit = int(config.get('API_CONFIG', 'shp_limit', fallback=4096))
 
 
-AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY , BUCKET_NAME =None , None , None
-#check either to use connection pooling or not 
-use_connection_pooling = config.getboolean("API_CONFIG","use_connection_pooling", fallback=False)
+AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
+# check either to use connection pooling or not
+use_connection_pooling = config.getboolean(
+    "API_CONFIG", "use_connection_pooling", fallback=False)
 
-#check either to use s3 raw data exports file uploading or not 
-file_upload_method=config.get("EXPORT_UPLOAD", "FILE_UPLOAD_METHOD",fallback='disk').lower()
-if   file_upload_method== "s3" :
-    use_s3_to_upload=True
-    try :
-        AWS_ACCESS_KEY_ID=config.get("EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID") 
-        AWS_SECRET_ACCESS_KEY=config.get("EXPORT_UPLOAD", "AWS_SECRET_ACCESS_KEY")
-    except :
+# check either to use s3 raw data exports file uploading or not
+file_upload_method = config.get(
+    "EXPORT_UPLOAD", "FILE_UPLOAD_METHOD", fallback='disk').lower()
+if file_upload_method == "s3":
+    use_s3_to_upload = True
+    try:
+        AWS_ACCESS_KEY_ID = config.get("EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID")
+        AWS_SECRET_ACCESS_KEY = config.get(
+            "EXPORT_UPLOAD", "AWS_SECRET_ACCESS_KEY")
+    except Exception as ex:
+        logging.debug(ex)
         logging.debug("No aws credentials supplied")
-    BUCKET_NAME = config.get("EXPORT_UPLOAD", "BUCKET_NAME",fallback="exports-stage.hotosm.org")
+    BUCKET_NAME = config.get(
+        "EXPORT_UPLOAD", "BUCKET_NAME", fallback="exports-stage.hotosm.org")
 elif file_upload_method not in ["s3", "disk"]:
-    logging.error("value not supported for file_upload_method , switching to default disk method")
-    use_s3_to_upload=False
+    logging.error(
+        "value not supported for file_upload_method ,switching to default disk method")
+    use_s3_to_upload = False
 
 
 def get_db_connection_params(dbIdentifier: str) -> dict:
@@ -88,14 +96,16 @@ def get_db_connection_params(dbIdentifier: str) -> dict:
 
     """
 
-    ALLOWED_SECTION_NAMES = ('INSIGHTS', 'TM', 'UNDERPASS' , 'RAW_DATA')
+    ALLOWED_SECTION_NAMES = ('INSIGHTS', 'TM', 'UNDERPASS', 'RAW_DATA')
 
     if dbIdentifier not in ALLOWED_SECTION_NAMES:
-        logging.error(f"Invalid dbIdentifier. Pick one of {ALLOWED_SECTION_NAMES}")
+        logging.error(
+            f"Invalid dbIdentifier. Pick one of {ALLOWED_SECTION_NAMES}")
         return None
     try:
         connection_params = dict(config.items(dbIdentifier))
         return connection_params
-    except Exception as ex :
-        logging.error(f"""Can't find DB credentials on config :{dbIdentifier}""")
+    except Exception as ex:
+        logging.error(
+            f"""Can't find DB credentials on config :{dbIdentifier}""")
         raise ex
