@@ -56,11 +56,13 @@ env=dev
 #BUCKET_NAME= your bucket name
 
 #[TM]
-#host=
-#user=
-#password=
-#port=
+#host=localhost
+#user=postgres
+#password=admin
+#database=tm
+#port=5432
 
 #[CELERY]
 #CELERY_BROKER_URL=redis://localhost:6379
 #CELERY_RESULT_BACKEND=redis://localhost:6379
+
