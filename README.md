@@ -9,19 +9,33 @@ To get started with docker follow [GETTING_STARTED_WITH_DOCKER](https://github.c
 
 ### 1. Install requirements.
 
-Install [gdal](https://gdal.org/index.html) on your machine , for example on Ubuntu
+- Install [gdal](https://gdal.org/index.html) on your machine , for example on Ubuntu
 
 ```
 sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
 
 ```
-Install [redis](https://redis.io/docs/getting-started/installation/) on your system
+- Install [redis](https://redis.io/docs/getting-started/installation/) on your system
 
 ```
 sudo apt-get install redis
 ```
 
-Clone the Repo to your machine
+- Check Redis server
+
+Check redis is running on your machine
+
+Login to redis cli
+
+```
+redis-cli
+```
+
+Hit ```ping``` it should return pong
+
+If REDIS is not running check out its [documentation](https://redis.io/docs/getting-started/)
+
+- Clone the Repo to your machine
 
 ```
 git clone https://github.com/hotosm/galaxy-api.git
@@ -33,7 +47,7 @@ Navigate to repo
 cd galaxy-api
 ```
 
-Install python dependencies
+- Install python dependencies
 
 ```
 pip install -r requirements.txt
@@ -57,28 +71,14 @@ Setup necessary config for API from [docs/CONFIG.DOC](https://github.com/hotosm/
 uvicorn API.main:app --reload
 ```
 
-### 4. Check Redis server
-
-Check redis is running on your machine
-
-Login to redis cli
-
-```
-redis-cli
-```
-
-Hit ```ping``` it should return pong
-
-If REDIS is not running check out its [documentation](https://redis.io/docs/getting-started/)
-
-### 5. Start Celery Worker
+### 4. Start Celery Worker
 You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html#running-the-celery-worker-server) worker  by running following command on different shell
 
 ```
 celery --app API.api_worker worker --loglevel=INFO
 ```
 
-### 6 . [OPTIONAL] Start flower for monitoring queue
+### 5 . [OPTIONAL] Start flower for monitoring queue
 
 API uses flower for monitoring the Celery distributed queue. Run this command on different shell
 
@@ -86,7 +86,7 @@ API uses flower for monitoring the Celery distributed queue. Run this command on
 celery --app API.api_worker flower --port=5550 --broker=redis://redis:6379/
 ```
 
-### 7. Navigate to Fast API Docs to get details about API Endpoint
+### 6. Navigate to Fast API Docs to get details about API Endpoint
 
 After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs) URL on your browser
 
@@ -115,6 +115,13 @@ INSERT INTO users_roles VALUES (ID, 1);
 ```
 
 Repeat the steps to get a new access_token.
+
+You can test  with the `/mapathon/detail/` endpoint  with the following input to check both authentication and database connection
+
+```
+{"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}
+```
+
 
 #### API has been setup successfully !
 
