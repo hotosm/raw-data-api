@@ -7,18 +7,33 @@ Before getting started on config Make sure you have https://www.postgresql.org/ 
 
 
 ### 2. Setup Underpass
-  Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md)  OR Create database "underpass" in your local postgres and insert sample dump from  ```/tests/src/fixtures/underpass.sql ```
+  Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md)  OR Create database "underpass" in your local postgres and insert sample dump from  
+```
+/tests/src/fixtures/underpass.sql
+```
 
-```psql -U postgres -h localhost underpass < underpass.sql```
+```
+psql -U postgres -h localhost underpass < underpass.sql
+```
 ### 3. Setup Insights
-Setup insights from [here](https://github.com/hotosm/insights) OR Create database "insights" in your local postgres and insert sample dump from  ```/tests/src/fixtures/insights.sql ```
+Setup insights from [here](https://github.com/hotosm/insights) OR Create database "insights" in your local postgres and insert sample dump from  
+```
+/tests/src/fixtures/insights.sql 
+```
 
-```psql -U postgres -h localhost insights < insights.sql```
+```
+psql -U postgres -h localhost insights < insights.sql
+```
 
 ### 4. Setup Raw Data
-Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from  ```/tests/src/fixtures/raw_data.sql ```
+Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from  
+```
+/tests/src/fixtures/raw_data.sql 
+```
 
-```psql -U postgres -h localhost raw < raw_data.sql```
+```
+psql -U postgres -h localhost raw < raw_data.sql
+```
 
 
 ### 5. Setup Oauth
@@ -28,7 +43,9 @@ Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and regist
 
 
 Check on read user preferences and Enter redirect URI as following
-```http://127.0.0.1:8000/latest/auth/callback/```
+```
+http://127.0.0.1:8000/latest/auth/callback/
+```
 
 Grab Client ID and Client Secret and put it inside config.txt as OAUTH Block , you can generate secret key for your application by yourself
 
@@ -108,9 +125,15 @@ CELERY_RESULT_BACKEND=redis://localhost:6379
 ##### Setup Tasking Manager Database for TM related development
 
 Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend) OR Create database "tm" in your local postgres and insert sample dump from [TM test dump](https://github.com/hotosm/tasking-manager/blob/develop/tests/database/tasking-manager.sql).
-(```wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql```)
 
-```psql -U postgres -h localhost tm < tasking-manager.sql```
+```
+wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
+```
+
+
+```
+psql -U postgres -h localhost tm < tasking-manager.sql
+```
 
 Add those block to config.txt with the value you use in the tasking manager configuration.
 ```
@@ -123,5 +146,7 @@ port=5432
 ```
 
 You can test it later after running server with the `/mapathon/detail/` endpoint and with the following input:
-`{"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}`
+`
+{"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}
+`
 
