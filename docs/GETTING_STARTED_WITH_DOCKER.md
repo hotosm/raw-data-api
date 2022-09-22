@@ -18,8 +18,15 @@ Uvicorn should be running on 8000 port , Redis on default port , Celery with a w
 ```
 http://127.0.0.1:8000/latest/docs
 ```
+API Docs will be displayed like this upon uvicorn successfull server start 
+![image](https://user-images.githubusercontent.com/36752999/191813795-fdfd46fe-5e6c-4ecf-be9b-f9f351d3d1d7.png)
+
 ```
 http://127.0.0.1:8000/5550/
 ```
+
+Flower dashboard will look like this on successfull installation with a worker online 
+![image](https://user-images.githubusercontent.com/36752999/191813613-3859522b-ea68-4370-87b2-ebd1d8880d80.png)
+
 
 Now, Continue Readme. Check installation from [here](https://github.com/hotosm/galaxy-api/blob/feature/celery/README.md#check-api-installation)
