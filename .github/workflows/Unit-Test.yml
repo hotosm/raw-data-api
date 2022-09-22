@@ -39,7 +39,7 @@ jobs:
           psql -V
       - name: Install Postgis Extension
         run: |
-          sudo apt -y install postgresql-14-postgis-3
+          sudo apt install postgresql-14-postgis-3
 
       - name: Install Dependencies
         run: |
