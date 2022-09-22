@@ -1,4 +1,6 @@
 
+Before getting started on config Make sure you have https://www.postgresql.org/ setup in your machine.
+
 
 ### 1. Create ```config.txt``` inside src directory.
 ![image](https://user-images.githubusercontent.com/36752999/188402566-80dc9633-5d4e-479c-97dc-9e8a4999b385.png)
