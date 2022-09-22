@@ -1,4 +1,7 @@
 ### 1. First Checkout the repository  and Setup Config
+
+```git clone https://github.com/hotosm/galaxy-api.git```
+
 Follow [instructions](https://github.com/hotosm/galaxy-api/blob/develop/docs/CONFIG_DOC.md) and create config.txt inside /src/
 
 ### 2. Create the images and spin up the Docker containers:
