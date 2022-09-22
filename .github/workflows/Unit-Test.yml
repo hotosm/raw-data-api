@@ -31,7 +31,7 @@ jobs:
           python-version: 3.8
       - name: Install gdal
         run: |
-          sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get cleansudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+          sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get cleansudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal
       - name: Insert sample data
         run : |
           psql -U postgres -h localhost insights < /tests/src/fixtures/insights.sql
