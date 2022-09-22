@@ -1,5 +1,5 @@
 
-Before getting started on config Make sure you have https://www.postgresql.org/ setup in your machine.
+Before getting started on config Make sure you have [Postgres](https://www.postgresql.org/) and [Postgis](https://postgis.net/) setup in your machine.
 
 ## Compulsary Configuration 
 
@@ -16,7 +16,17 @@ Before getting started on config Make sure you have https://www.postgresql.org/ 
 ```
 psql -U postgres -h localhost underpass < underpass.sql
 ```
-### 3. Setup Insights
+Put your credentials in Underpass block 
+```
+[UNDERPASS]
+host=localhost
+user=postgres
+password=admin
+database=underpass
+port=5432
+```
+
+### 3. Setup Insights for Historical Data
 Setup insights from [here](https://github.com/hotosm/insights) OR Create database "insights" in your local postgres and insert sample dump from
 ```
 /tests/src/fixtures/insights.sql
@@ -25,8 +35,17 @@ Setup insights from [here](https://github.com/hotosm/insights) OR Create databas
 ```
 psql -U postgres -h localhost insights < insights.sql
 ```
+Put your credentials in insights block 
+```
+[INSIGHTS]
+host=localhost
+user=postgres
+password=admin
+database=insights
+port=5432
+```
 
-### 4. Setup Raw Data
+### 4. Setup Raw Data for Current OSM Snapshot
 Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from
 ```
 /tests/src/fixtures/raw_data.sql
@@ -35,9 +54,39 @@ Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/r
 ```
 psql -U postgres -h localhost raw < raw_data.sql
 ```
+Put your credentials on Rawdata block 
 
+```
+[RAW_DATA]
+host=localhost
+user=postgres
+password=admin
+database=raw
+port=5432
+```
 
-### 5. Setup Oauth
+### 5. Setup Tasking Manager Database for TM related development
+
+Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend) OR Create database "tm" in your local postgres and insert sample dump from [TM test dump](https://github.com/hotosm/tasking-manager/blob/develop/tests/database/tasking-manager.sql).
+
+```
+wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
+```
+
+```
+psql -U postgres -h localhost tm < tasking-manager.sql
+```
+Put your credentials on TM block
+```
+[TM]
+host=localhost
+user=postgres
+password=admin
+database=tm
+port=5432
+```
+
+### 6. Setup Oauth for Authentication
 Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local galaxy app to Oauth2applications
 
 ![image](https://user-images.githubusercontent.com/36752999/188452619-aababf28-b685-4141-b381-9c25d0367b57.png)
@@ -50,18 +99,58 @@ http://127.0.0.1:8000/latest/auth/callback/
 
 Grab Client ID and Client Secret and put it inside config.txt as OAUTH Block , you can generate secret key for your application by yourself
 
+```
+[OAUTH]
+client_id= your client id
+client_secret= your client secret
+url=https://www.openstreetmap.org
+scope=read_prefs
+login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
+secret_key=jnfdsjkfndsjkfnsdkjfnskfn
+```
 
-### 6. Put your credentials inside config.txt
+### 7. Configure celery and redis
+
+Galaxy API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration , for the local setup Broker URL could be redis://localhost:6379/0 , for the current docker compose use following
+
+**For local installation :**
+```
+[CELERY]
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
+```
+
+**For Docker :**
+```
+[CELERY]
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+```
+
+### 7. Finalizing config.txt
 Insert your config blocks with the database credentials where you have underpass ,insight and rawdata in your database along with oauth block
 
-```
-[INSIGHTS]
-host=localhost
-user=postgres
-password=admin
-database=insights
-port=5432
+Summary of command : 
 
+Considering You have PSQL-POSTGIS setup  with user **postgres** host **localhost** on port **5432** as password **admin**
+
+```
+  export PGPASSWORD='admin';
+  psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE underpass;"
+  psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE tm;"
+  psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE raw;"
+  
+  cd tests/src/fixtures/
+  psql -U postgres -h localhost -p 5432 insights < insights.sql
+  psql -U postgres -h localhost -p 5432 raw  < raw_data.sql
+  psql -U postgres -h localhost -p 5432 underpass < underpass.sql
+  wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
+  psql -U postgres -h localhost -p 5432 tm < tasking-manager.sql
+```
+
+Your config.txt will look like this 
+
+```
 [UNDERPASS]
 host=localhost
 user=postgres
@@ -69,11 +158,25 @@ password=admin
 database=underpass
 port=5432
 
+[INSIGHTS]
+host=localhost
+user=postgres
+password=admin
+database=insights
+port=5432
+
 [RAW_DATA]
 host=localhost
 user=postgres
 password=admin
 database=raw
+port=5432
+
+[TM]
+host=localhost
+user=postgres
+password=admin
+database=tm
 port=5432
 
 [OAUTH]
@@ -86,26 +189,12 @@ secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 
 [API_CONFIG]
 env=dev
+log_level=debug
 
-```
-
-**Celery Configuration options:**
-
-Galaxy API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration , for the local setup Broker URL could be redis://localhost:6379/0 , for the current docker compose use following
-
-**For local installation :**
-```
-[CELERY]
-CELERY_BROKER_URL=redis://localhost:6379/0
-CELERY_RESULT_BACKEND=redis://localhost:6379/0
-```
-
-
-**For Docker :**
-```
 [CELERY]
 CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
+
 ```
 
 **Tips** : Follow .github/workflows/[unit-test](https://github.com/hotosm/galaxy-api/blob/feature/celery/.github/workflows/unit-test.yml) If you have any confusion on implementation of config file .
@@ -134,33 +223,4 @@ AWS_ACCESS_KEY_ID= your id
 AWS_SECRET_ACCESS_KEY= yourkey
 BUCKET_NAME= your bucket name
 ```
-
-
-##### Setup Tasking Manager Database for TM related development
-
-Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend) OR Create database "tm" in your local postgres and insert sample dump from [TM test dump](https://github.com/hotosm/tasking-manager/blob/develop/tests/database/tasking-manager.sql).
-
-```
-wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
-```
-
-
-```
-psql -U postgres -h localhost tm < tasking-manager.sql
-```
-
-Add those block to config.txt with the value you use in the tasking manager configuration.
-```
-[TM]
-host=localhost
-user=postgres
-password=admin
-database=tm
-port=5432
-```
-
-You can test it later after running server with the `/mapathon/detail/` endpoint and with the following input:
-`
-{"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}
-`
 
