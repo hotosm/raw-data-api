@@ -51,11 +51,11 @@ jobs:
 
       - name: Insert sample db data
         run : |
-          psql -U postgres -h localhost insights < tests/src/fixtures/insights.sql
-          psql -U postgres -h localhost raw  < tests/src/fixtures/raw_data.sql
-          psql -U postgres -h localhost underpass < tests/src/fixtures/underpass.sql
+          psql -U postgres -h localhost -p 5434 insights < tests/src/fixtures/insights.sql
+          psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
+          psql -U postgres -h localhost -p 5434 underpass < tests/src/fixtures/underpass.sql
           wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
-          psql -U postgres -h localhost tm < tasking-manager.sql
+          psql -U postgres -h localhost -p 5434 tm < tasking-manager.sql
 
       - name: Install Dependencies
         run: |
