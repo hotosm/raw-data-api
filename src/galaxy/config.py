@@ -44,7 +44,7 @@ else:
         "logging config is not supported , Supported fields are : debug,error,warning,info , Logging to default :debug")
     level = logging.DEBUG
 
-logging.getLogger("fiona").propagate = False  # disable fiona logging
+# logging.getLogger("fiona").propagate = False  # disable fiona logging
 logging.basicConfig(format='%(asctime)s - %(message)s', level=level)
 logging.getLogger('boto3').propagate = False  # disable boto3 logging
 
