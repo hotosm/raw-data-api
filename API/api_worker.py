@@ -21,7 +21,7 @@ celery.conf.result_backend = config.get(
 )  # using redis as backend , make sure you have redis server started on your system on port 6379
 
 celery.conf.task_serializer = 'pickle'
-celery.conf.result_serializer = 'json'
+celery.conf.result_serializer = 'pickle'
 celery.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
 
@@ -115,7 +115,7 @@ def process_raw_data(self, incoming_scheme, incoming_host, params):
             "zip_file_size_bytes": zip_file_size,
         }
     except Exception as ex:
-        self.update_state(state='FAILURE', meta={'exc': 'Failed'})
+        raise ex
 
 
 

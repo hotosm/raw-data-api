@@ -1,7 +1,7 @@
 
 Before getting started on config Make sure you have [Postgres](https://www.postgresql.org/) and [Postgis](https://postgis.net/) setup in your machine.
 
-## Compulsary Configuration 
+## Compulsary Configuration
 
 ### 1. Create ```config.txt``` inside src directory.
 ![image](https://user-images.githubusercontent.com/36752999/188402566-80dc9633-5d4e-479c-97dc-9e8a4999b385.png)
@@ -16,7 +16,7 @@ Before getting started on config Make sure you have [Postgres](https://www.postg
 ```
 psql -U postgres -h localhost underpass < underpass.sql
 ```
-Put your credentials in Underpass block 
+Put your credentials in Underpass block
 ```
 [UNDERPASS]
 host=localhost
@@ -35,7 +35,7 @@ Setup insights from [here](https://github.com/hotosm/insights) OR Create databas
 ```
 psql -U postgres -h localhost insights < insights.sql
 ```
-Put your credentials in insights block 
+Put your credentials in insights block
 ```
 [INSIGHTS]
 host=localhost
@@ -54,7 +54,7 @@ Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/r
 ```
 psql -U postgres -h localhost raw < raw_data.sql
 ```
-Put your credentials on Rawdata block 
+Put your credentials on Rawdata block
 
 ```
 [RAW_DATA]
@@ -111,16 +111,8 @@ secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 
 ### 7. Configure celery and redis
 
-Galaxy API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration , for the local setup Broker URL could be redis://localhost:6379/0 , for the current docker compose use following
+Galaxy API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration for the current docker compose use following
 
-**For local installation :**
-```
-[CELERY]
-CELERY_BROKER_URL=redis://localhost:6379/0
-CELERY_RESULT_BACKEND=redis://localhost:6379/0
-```
-
-**For Docker :**
 ```
 [CELERY]
 CELERY_BROKER_URL=redis://redis:6379/0
@@ -130,7 +122,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
 ### 7. Finalizing config.txt
 Insert your config blocks with the database credentials where you have underpass ,insight and rawdata in your database along with oauth block
 
-Summary of command : 
+Summary of command :
 
 Considering You have PSQL-POSTGIS setup  with user **postgres** host **localhost** on port **5432** as password **admin**
 
@@ -139,7 +131,7 @@ Considering You have PSQL-POSTGIS setup  with user **postgres** host **localhost
   psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE underpass;"
   psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE tm;"
   psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE raw;"
-  
+
   cd tests/src/fixtures/
   psql -U postgres -h localhost -p 5432 insights < insights.sql
   psql -U postgres -h localhost -p 5432 raw  < raw_data.sql
@@ -148,7 +140,7 @@ Considering You have PSQL-POSTGIS setup  with user **postgres** host **localhost
   psql -U postgres -h localhost -p 5432 tm < tasking-manager.sql
 ```
 
-Your config.txt will look like this 
+Your config.txt will look like this
 
 ```
 [UNDERPASS]
@@ -199,7 +191,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 **Tips** : Follow .github/workflows/[unit-test](https://github.com/hotosm/galaxy-api/blob/feature/celery/.github/workflows/unit-test.yml) If you have any confusion on implementation of config file .
 
-## Optional Configuration [ You can skip this part for basic installation ] 
+## Optional Configuration [ You can skip this part for basic installation ]
 
 You can further customize API if you wish with API_CONFIG Block
 
