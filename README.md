@@ -46,6 +46,8 @@ pip install gdal==3.0.2
 
 ### 2. Setup required config for API
 
+Make sure you have https://www.postgresql.org/ setup in your machine.
+
 Setup necessary config for API from [docs/CONFIG.DOC](https://github.com/hotosm/galaxy-api/blob/develop/docs/CONFIG_DOC.md)
 
 ### 3. Run server
