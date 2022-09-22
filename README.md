@@ -5,7 +5,7 @@
 ## Getting Started
 
 API Can be installed through docker or manually to local machine .
-To get started with docker follow [docs/GETTING_STARTED_WITH_DOCKER](https://github.com/hotosm/galaxy-api/blob/develop/docs/GETTING_STARTED_WITH_DOCKER.md)
+To get started with docker follow [GETTING_STARTED_WITH_DOCKER](https://github.com/hotosm/galaxy-api/blob/develop/docs/GETTING_STARTED_WITH_DOCKER.md)
 
 ### 1. Install requirements.
 
@@ -24,19 +24,27 @@ sudo apt-get install redis
 
 Clone the Repo to your machine
 
-``` git clone https://github.com/hotosm/galaxy-api.git ```
+```
+git clone https://github.com/hotosm/galaxy-api.git
+```
 
 Navigate to repo
 
-``` cd galaxy-api ```
+```
+cd galaxy-api
+```
 
 Install python dependencies
 
-```pip install -r requirements.txt```
+```
+pip install -r requirements.txt
+```
 
 Install gdal python ( Include your gdal version , if you are using different version )
 
-```pip install gdal==3.0.2```
+```
+pip install gdal==3.0.2
+```
 
 ### 2. Setup required config for API
 
@@ -44,7 +52,9 @@ Setup necessary config for API from [docs/CONFIG.DOC](https://github.com/hotosm/
 
 ### 3. Run server
 
-```uvicorn API.main:app --reload```
+```
+uvicorn API.main:app --reload
+```
 
 ### 4. Check Redis server
 
@@ -52,7 +62,9 @@ Check redis is running on your machine
 
 Login to redis cli
 
-```redis-cli```
+```
+redis-cli
+```
 
 Hit ```ping``` it should return pong
 
@@ -61,22 +73,33 @@ If REDIS is not running check out its [documentation](https://redis.io/docs/gett
 ### 5. Start Celery Worker
 You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html#running-the-celery-worker-server) worker  by running following command on different shell
 
-```celery --app API.api_worker worker --loglevel=INFO```
+```
+celery --app API.api_worker worker --loglevel=INFO
+```
 
 ### 6 . [OPTIONAL] Start flower for monitoring queue
 
 API uses flower for monitoring the Celery distributed queue. Run this command on different shell
 
-```celery --app API.api_worker flower --port=5550 --broker=redis://redis:6379/```
+```
+celery --app API.api_worker flower --port=5550 --broker=redis://redis:6379/
+```
 
 ### 7. Navigate to Fast API Docs to get details about API Endpoint
 
 After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs) URL on your browser
 
-```http://127.0.0.1:8000/latest/docs```
+```
+http://127.0.0.1:8000/latest/docs
+```
 
 Flower dashboard should be available on 5550 localhost port.
 
+```
+http://127.0.0.1:5550/
+```
+
+## Check API Installation 
 ### Check Authetication
 
 1. Hit /auth/login/
@@ -100,18 +123,24 @@ Repeat the steps to get a new access_token.
 Galaxy-API uses pytest for tests ,Navigate to root Dir, Install package in editable mode
 
 
-```pip install -e .```
+```
+pip install -e .
+```
 
 
 Make sure you have postgresql installed locally with postgis extension enabled , Now Run Pytest
 
 
-```py.test -v -s```
+```
+py.test -v -s
+```
 
 
 Run Individual tests
 
-```py.test -k test function name```
+```
+py.test -k test function name
+```
 
 
 # Galaxy Package
@@ -119,7 +148,9 @@ Run Individual tests
 ## Local Install
 
 
-```python setup.py install```
+```
+python setup.py install
+```
 
 Now import as :
 
