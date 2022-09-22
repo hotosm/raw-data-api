@@ -22,4 +22,4 @@ http://127.0.0.1:8000/latest/docs
 http://127.0.0.1:8000/5550/
 ```
 
-Now follow Readme.md
+Now, Continue Readme. Check installation from [here](https://github.com/hotosm/galaxy-api/blob/feature/celery/README.md#check-api-installation)
