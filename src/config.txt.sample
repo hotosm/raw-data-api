@@ -43,20 +43,24 @@ env=dev
 #export_path=exports/ # used to store export path
 #api_host=http://127.0.0.1
 #api_port=8000
-#max_area=100000 # max area to support for rawdata input 
-#use_connection_pooling=True 
+#max_area=100000 # max area to support for rawdata input
+#use_connection_pooling=True
 #log_level=info #options are info,debug,warning,error
 #env=dev # default is prod , supported values are dev and prod
 #shp_limit=6000 # in mb default is 4096
 
 #[EXPORT_UPLOAD]
-#FILE_UPLOAD_METHOD=disk # options are s3,disk 
-#AWS_ACCESS_KEY_ID= your id 
-#AWS_SECRET_ACCESS_KEY= yourkey 
-#BUCKET_NAME= your bucket name 
+#FILE_UPLOAD_METHOD=disk # options are s3,disk
+#AWS_ACCESS_KEY_ID= your id
+#AWS_SECRET_ACCESS_KEY= yourkey
+#BUCKET_NAME= your bucket name
 
 #[TM]
 #host=
 #user=
 #password=
 #port=
+
+#[CELERY]
+#CELERY_BROKER_URL=redis://localhost:6379
+#CELERY_RESULT_BACKEND=redis://localhost:6379

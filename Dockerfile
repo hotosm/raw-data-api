@@ -14,9 +14,10 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.docker.txt
 RUN pip install -e .
 
-RUN chmod +x Docker/entrypoint.sh
+COPY /entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 #CMD ["uvicorn", "API.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
-ENTRYPOINT ["Docker/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 HEALTHCHECK CMD curl -f http://localhost:8000 || exit 1

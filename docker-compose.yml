@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+
+  app:
+    build: .
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+  worker:
+    build: .
+    command: celery --app API.api_worker worker --loglevel=INFO
+    volumes:
+      - .:/app
+    depends_on:
+      - app
+      - redis
+
+  redis:
+    image: redis:6-alpine
+
+  worker-dashboard:
+    build: .
+    command:  celery --app API.api_worker flower --port=5550 --broker=redis://redis:6379/
+    ports:
+      - 5550:5550
+    depends_on:
+      - app
+      - redis
+      - worker
