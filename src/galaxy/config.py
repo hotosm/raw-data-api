@@ -21,8 +21,12 @@
 
 from configparser import ConfigParser
 import logging
+import os
 
 CONFIG_FILE_PATH = "src/config.txt"
+
+if os.path.exists(CONFIG_FILE_PATH) is False:
+    raise "Config file does not exist : src/config.txt"
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)

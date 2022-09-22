@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
 if [[ -z "${GALAXY_API_CONFIG_FILE}" ]]; then
     printf "Error: GALAXY_API_CONFIG_FILE environment variable missing.. Exiting!"
     exit 1
