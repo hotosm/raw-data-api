@@ -13,6 +13,11 @@ sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
 sudo apt-get update
 sudo apt-get install gdal-bin libgdal-dev
 ```
+Install [redis](https://redis.io/docs/getting-started/installation/) on your system
+
+```
+sudo apt-get install redis
+```
 
 Clone the Repo to your machine
 
@@ -125,6 +130,16 @@ AWS_ACCESS_KEY_ID= your id
 AWS_SECRET_ACCESS_KEY= yourkey
 BUCKET_NAME= your bucket name
 ```
+
+Celery Configuration options:
+
+Galaxy API uses Celery 5 and Redis for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration
+
+```
+[CELERY]
+CELERY_BROKER_URL=redis://localhost:6379
+CELERY_RESULT_BACKEND=redis://localhost:6379
+```
 ##### Setup Tasking Manager Database for TM related development
 
 You can setup [Tasking manager](https://github.com/hotosm/tasking-manager)  and add those block to config.txt
@@ -139,11 +154,40 @@ port=
 
 ```uvicorn API.main:app --reload```
 
-### 9. Navigate to Fast API Docs to get details about API Endpoint
+### 9. Check Redis server
+
+Check redis is running on your machine
+
+```sudo systemctl status redis```
+
+Login to redis cli
+
+```redis-cli```
+
+Hit ```ping``` it should return pong
+
+If REDIS is not running check out its [documentation](https://redis.io/docs/getting-started/)
+
+### 10. Start Celery Worker
+You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html#running-the-celery-worker-server) worker  by running following command on different shell
+
+```celery --app API.api_worker worker --loglevel=INFO```
+
+### 11 . [OPTIONAL] Start flower for monitoring queue
+
+API uses flower for monitoring the Celery distributed queue. Run this command on different shell
+
+```celery --app API.api_worker flower --port=5555 --broker=redis://redis:6379/```
+
+### 12. Navigate to Fast API Docs to get details about API Endpoint
 
 After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs) URL on your browser
 
 ```http://127.0.0.1:8000/latest/docs```
+
+Flower dashboard should be available on following
+
+http://127.0.0.1:5555/
 
 ### Check Authetication
 
@@ -160,7 +204,7 @@ INSERT INTO users_roles VALUES (ID, 1);
 
 Repeat the steps to get a new access_token.
 
-#### API has been setup successfully ! 
+#### API has been setup successfully !
 
 
 ## Run tests
