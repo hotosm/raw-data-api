@@ -6,7 +6,7 @@ from requests_oauthlib import OAuth2Session
 
 from src.galaxy import config
 from src.galaxy.app import Underpass
-from . import AuthUser, Login, Token, login_required, is_staff_member
+from . import AuthUser, Login, Token, is_staff_member
 
 router = APIRouter(prefix="/auth")
 
@@ -19,8 +19,8 @@ def login_url(request: Request):
     Parameters: None
 
     Returns:
-    - login_url (string) - URL to authorize user to the application via. Openstreetmap 
-        OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters   
+    - login_url (string) - URL to authorize user to the application via. Openstreetmap
+        OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters
     """
     osm_url = config.get("OAUTH", "url")
     authorize_url = f"{osm_url}/oauth2/authorize/"
@@ -41,10 +41,10 @@ def login_url(request: Request):
 def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Galaxy API
 
-    Core will use Oauth secret key from configuration while deserializing token, 
+    Core will use Oauth secret key from configuration while deserializing token,
     provides access token that can be used for authorized endpoints.
 
-    Parameters: None 
+    Parameters: None
 
     Returns:
     - access_token (string)
@@ -76,7 +76,7 @@ def callback(request: Request):
     serializer = URLSafeSerializer(config.get("OAUTH", "secret_key"))
 
     user_id = data.get("id")
-    user_role =Underpass().get_user_role(user_id)
+    user_role = Underpass().get_user_role(user_id)
 
     user_data = {
         "id": user_id,

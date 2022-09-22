@@ -1,11 +1,13 @@
 import psycopg2
 from psycopg2.extras import DictCursor
 from fastapi import APIRouter
-from fastapi_versioning import  version
+from fastapi_versioning import version
 from geojson_pydantic import FeatureCollection
 from src.galaxy.config import get_db_connection_params
 
 router = APIRouter(prefix="/countries")
+
+
 @router.get("/", response_model=FeatureCollection)
 @version(1)
 def get_countries():

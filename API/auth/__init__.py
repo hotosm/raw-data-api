@@ -9,6 +9,7 @@ from fastapi import Header, HTTPException, status
 from src.galaxy import config
 from src.galaxy.validation.models import UserRole
 
+
 class AuthUser(BaseModel):
     id: int
     username: str
@@ -58,4 +59,3 @@ def is_staff_member(access_token: str = Header(...)):
         )
 
     return user_data
-
