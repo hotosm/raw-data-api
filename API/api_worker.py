@@ -25,7 +25,7 @@ celery.conf.result_serializer = 'pickle'
 celery.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
 
-@celery.task(bind=True,name="process_raw_data")
+@celery.task(bind=True, name="process_raw_data")
 def process_raw_data(self, incoming_scheme, incoming_host, params):
     try:
         start_time = dt.now()
@@ -116,7 +116,6 @@ def process_raw_data(self, incoming_scheme, incoming_host, params):
         }
     except Exception as ex:
         raise ex
-
 
 
 def remove_file(path: str) -> None:
