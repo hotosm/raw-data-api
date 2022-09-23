@@ -1,0 +1,64 @@
+name: Check Build
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:14-3.3
+        env:
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: insights
+        ports:
+          - 5434:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install Gdal
+        run: |
+          sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+
+      - name: Install redis
+        run: |
+          sudo apt-get install redis
+          redis-cli
+          ping
+
+      - name: Create Databases
+        run: |
+          export PGPASSWORD='admin';
+          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE underpass;"
+          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE tm;"
+          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE raw;"
+
+      - name: Insert sample db data
+        run: |
+          export PGPASSWORD='admin';
+          psql -U postgres -h localhost -p 5434 insights < tests/src/fixtures/insights.sql
+          psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
+          psql -U postgres -h localhost -p 5434 underpass < tests/src/fixtures/underpass.sql
+          wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
+          psql -U postgres -h localhost -p 5434 tm < tasking-manager.sql
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Creating config.txt
+        run: |
+          mv src/config.txt.sample src/config.txt
