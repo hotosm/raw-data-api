@@ -62,9 +62,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
-      - name: Creating config.txt
-        run: |
-          mv src/config.txt.sample src/config.txt
+
       - name: Run server
         run: |
           uvicorn API.main:app
