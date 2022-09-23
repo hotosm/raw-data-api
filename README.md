@@ -5,8 +5,7 @@
 ## Getting Started
 
 API Can be installed through docker or manually to local machine .
-To get started with docker follow [GETTING_STARTED_WITH_DOCKER](https://github.com/hotosm/galaxy-api/blob/develop/docs/GETTING_STARTED_WITH_DOCKER.md) md file is in /docs
-
+To get started with docker follow [GETTING_STARTED_WITH_DOCKER](/docs/GETTING_STARTED_WITH_DOCKER.md) 
 ### 1. Install requirements.
 
 - Install [gdal](https://gdal.org/index.html) on your machine , for example on Ubuntu
@@ -57,7 +56,7 @@ pip install -r requirements.txt
 
 Make sure you have https://www.postgresql.org/ setup in your machine.
 
-Setup necessary config for API from [docs/CONFIG.DOC](https://github.com/hotosm/galaxy-api/blob/develop/docs/CONFIG_DOC.md)
+Setup necessary config for API from [docs/CONFIG.DOC](/docs/CONFIG_DOC.md)
 
 ### 3. Run server
 
@@ -126,7 +125,7 @@ curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11
 {"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}
 ```
 
-Clean Setup of API can be found in github action workflow , You can follow the steps for more [clarity](https://github.com/hotosm/galaxy-api/actions/workflows/build.yml).  ```/workflows/build.yml```
+Clean Setup of API can be found in github action workflow , You can follow the steps for more [clarity](/.github/workflows/build.yml).  ```/workflows/build.yml```
 
 #### API has been setup successfully !
 
