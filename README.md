@@ -5,14 +5,14 @@
 ## Getting Started
 
 API Can be installed through docker or manually to local machine .
-To get started with docker follow [GETTING_STARTED_WITH_DOCKER](https://github.com/hotosm/galaxy-api/blob/develop/docs/GETTING_STARTED_WITH_DOCKER.md)
+To get started with docker follow [GETTING_STARTED_WITH_DOCKER](https://github.com/hotosm/galaxy-api/blob/develop/docs/GETTING_STARTED_WITH_DOCKER.md) md file is in /docs
 
 ### 1. Install requirements.
 
 - Install [gdal](https://gdal.org/index.html) on your machine , for example on Ubuntu
 
 ```
-sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
 
 ```
 - Install [redis](https://redis.io/docs/getting-started/installation/) on your system
