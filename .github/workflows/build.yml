@@ -28,19 +28,6 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install gdal
-        run: |
-          sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
-
-      - name: Install redis
-        run: |
-          sudo apt install lsb-release
-          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-          sudo apt-get update
-          sudo apt-get install redis
-          redis-cli ping
-
       - name: Create Databases
         run: |
           export PGPASSWORD='admin';
@@ -56,6 +43,19 @@ jobs:
           psql -U postgres -h localhost -p 5434 underpass < tests/src/fixtures/underpass.sql
           wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
           psql -U postgres -h localhost -p 5434 tm < tasking-manager.sql
+
+      - name: Install gdal
+        run: |
+          sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+
+      - name: Install redis
+        run: |
+          sudo apt install lsb-release
+          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+          sudo apt-get update
+          sudo apt-get install redis
+          redis-cli ping
 
       - name: Install Dependencies
         run: |
