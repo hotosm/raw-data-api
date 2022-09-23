@@ -1,6 +1,8 @@
 
 Before getting started on config Make sure you have [Postgres](https://www.postgresql.org/) and [Postgis](https://postgis.net/) setup in your machine.
 
+**Note** : If you are running API through Docker container , Your local postgres should be accessible from containers . In order to do that find your network ip address (for linux/mac you can use ```ifconfig -l | xargs -n1 ipconfig getifaddr``` ) and use your ip as a host instead of localhost in config file
+
 ## Compulsary Configuration
 
 ### 1. Create ```config.txt``` inside src directory.
