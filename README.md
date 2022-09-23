@@ -116,7 +116,15 @@ INSERT INTO users_roles VALUES (ID, 1);
 
 Repeat the steps to get a new access_token.
 
-You can test  with the `/mapathon/detail/` endpoint  with the following input to check both authentication and database connection
+- **Check Mapathon Summary : **
+
+```
+curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
+```
+It should return some stats
+
+- Check Mapathon detailed report :
+  You can test  with the `/mapathon/detail/` endpoint  with the following input to check both authentication and database connection
 
 ```
 {"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}

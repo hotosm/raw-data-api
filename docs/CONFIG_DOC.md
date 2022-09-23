@@ -35,6 +35,12 @@ Setup insights from [here](https://github.com/hotosm/insights) OR Create databas
 ```
 psql -U postgres -h localhost insights < insights.sql
 ```
+Add a sample data dump for mapathon summary to visualize statistics
+
+```
+psql -U postgres -h localhost insights < tests/src/fixtures/mapathon_summary.sql
+```
+
 Put your credentials in insights block
 ```
 [INSIGHTS]
@@ -111,7 +117,7 @@ secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 
 ### 7. Configure celery and redis
 
-Galaxy API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port , You can change the port according to your configuration for the current docker compose use following
+Galaxy API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port . if you are running redis on same machine your broker could be ```redis://localhost:6379/```. You can change the port according to your configuration for the current docker compose use following
 
 ```
 [CELERY]
@@ -134,6 +140,7 @@ Considering You have PSQL-POSTGIS setup  with user **postgres** host **localhost
 
   cd tests/src/fixtures/
   psql -U postgres -h localhost -p 5432 insights < insights.sql
+  psql -U postgres -h localhost -p 5432 insights < tests/src/fixtures/mapathon_summary.sql
   psql -U postgres -h localhost -p 5432 raw  < raw_data.sql
   psql -U postgres -h localhost -p 5432 underpass < underpass.sql
   wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql

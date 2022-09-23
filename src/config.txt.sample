@@ -3,28 +3,28 @@ host=localhost
 user=postgres
 password=admin
 database=insights
-port=5432
+port=5434
 
 [UNDERPASS]
 host=localhost
 user=postgres
 password=admin
 database=underpass
-port=5432
+port=5434
 
 [RAW_DATA]
 host=localhost
 user=postgres
 password=admin
 database=raw
-port=5432
+port=5434
 
 [TM]
 host=localhost
 user=postgres
 password=admin
 database=tm
-port=5432
+port=5434
 
 [OAUTH]
 client_id=
