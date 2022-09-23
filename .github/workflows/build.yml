@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install Gdal
+      - name: Install gdal
         run: |
           sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
 
@@ -38,7 +38,6 @@ jobs:
           curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
           sudo apt-get update
-          sudo apt-get install redis
           sudo apt-get install redis
           redis-cli ping
 
@@ -66,3 +65,6 @@ jobs:
       - name: Creating config.txt
         run: |
           mv src/config.txt.sample src/config.txt
+      - name: Run server
+        run: |
+          uvicorn API.main:app
