@@ -81,5 +81,4 @@ jobs:
 
       - name: Test Endpoint
         run: |
-          curl -d '{ "fromTimestamp":"2022-07-22T13:15:00.461", "toTimestamp":"2022-07-22T14:15:00.461", "projectIds":[], "hashtags":[ "missingmaps" ] }' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
           curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
