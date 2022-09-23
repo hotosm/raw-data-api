@@ -76,4 +76,4 @@ jobs:
           celery --app API.api_worker worker --loglevel=INFO &
       - name: Test Endpoint
         run: |
-          curl -I http://127.0.0.1:8000/v1/tasking-manager/teams/
+          curl -v http://127.0.0.1:8000/v1/tasking-manager/teams/
