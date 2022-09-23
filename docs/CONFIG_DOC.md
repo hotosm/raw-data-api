@@ -140,7 +140,7 @@ Considering You have PSQL-POSTGIS setup  with user **postgres** host **localhost
 
   cd tests/src/fixtures/
   psql -U postgres -h localhost -p 5432 insights < insights.sql
-  psql -U postgres -h localhost -p 5432 insights < tests/src/fixtures/mapathon_summary.sql
+  psql -U postgres -h localhost -p 5432 insights < mapathon_summary.sql
   psql -U postgres -h localhost -p 5432 raw  < raw_data.sql
   psql -U postgres -h localhost -p 5432 underpass < underpass.sql
   wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
