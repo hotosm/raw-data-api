@@ -53,12 +53,6 @@ cd galaxy-api
 pip install -r requirements.txt
 ```
 
-Install gdal python ( Include your gdal version , if you are using different version )
-
-```
-pip install gdal==3.0.2
-```
-
 ### 2. Setup required config for API
 
 Make sure you have https://www.postgresql.org/ setup in your machine.
