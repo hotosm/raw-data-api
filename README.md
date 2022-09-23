@@ -132,7 +132,7 @@ curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11
 {"fromTimestamp":"2019-04-08 10:00:00.000000","toTimestamp":"2019-04-08 11:00:00.000000","projectIds":[1],"hashtags":[]}
 ```
 
-Clean Setup of API can be found in gihub action workflow , You can follow the steps for more [clarity](https://github.com/hotosm/galaxy-api/actions/workflows/build.yml).  ```/workflows/build.yml```
+Clean Setup of API can be found in github action workflow , You can follow the steps for more [clarity](https://github.com/hotosm/galaxy-api/actions/workflows/build.yml).  ```/workflows/build.yml```
 
 #### API has been setup successfully !
 
