@@ -10,7 +10,8 @@ on:
       - develop
 
 jobs:
-  deploy:
+  build:
+    timeout-minutes: 4
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -62,7 +63,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
-
-      - name: Run server
+      - name: Creating config.txt
         run: |
-          uvicorn API.main:app
+          mv src/config.txt.sample src/config.txt
+      - name: Run uvicorn server
+        run: |
+          uvicorn API.main:app &
+        env:
+          PORT: 8000
+      - name: Run Celery server
+        run: |
+          celery --app API.api_worker worker --loglevel=INFO &
+      - name: Test Endpoint
+        run: |
+          curl -I http://127.0.0.1:8000/v1/tasking-manager/teams/
