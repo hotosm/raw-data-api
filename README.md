@@ -80,7 +80,7 @@ celery --app API.api_worker worker --loglevel=INFO
 
 ### 5 . [OPTIONAL] Start flower for monitoring queue
 
-API uses flower for monitoring the Celery distributed queue. Run this command on different shell
+API uses flower for monitoring the Celery distributed queue. Run this command on different shell , if you are running redis on same machine your broker could be ```redis://localhost:6379/```
 
 ```
 celery --app API.api_worker flower --port=5550 --broker=redis://redis:6379/

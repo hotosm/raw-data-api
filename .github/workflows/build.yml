@@ -71,9 +71,13 @@ jobs:
           uvicorn API.main:app &
         env:
           PORT: 8000
-      - name: Run Celery server
+      - name: Run celery server
         run: |
           celery --app API.api_worker worker --loglevel=INFO &
+      - name: Run flower dashboard
+        run: |
+          celery --app API.api_worker flower --port=5555 --broker=redis://localhost:6379/
+
       - name: Test Endpoint
         run: |
-          curl -v http://127.0.0.1:8000/v1/tasking-manager/teams/
+          curl -d '{ "fromTimestamp":"2022-07-22T13:15:00.461", "toTimestamp":"2022-07-22T14:15:00.461", "projectIds":[], "hashtags":[ "missingmaps" ] }' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
