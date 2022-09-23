@@ -48,7 +48,7 @@ jobs:
 
       - name: Install gdal
         run: |
-          sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+          sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
 
       - name: Install redis
         run: |
@@ -80,12 +80,8 @@ jobs:
           celery --app API.api_worker flower --port=5555 --broker=redis://localhost:6379/ &
       - name: Check db connection
         run: |
+          export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 -d insights -c 'select * from osm_changeset limit 1;'
-        env:
-          # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: postgres
-          # The default PostgreSQL port
-          POSTGRES_PORT: 5434
       - name: Test Endpoint
         run: |
           curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
