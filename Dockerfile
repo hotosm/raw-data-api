@@ -16,4 +16,4 @@ RUN pip install -e .
 
 COPY /src/config.txt src/config.txt
 
-HEALTHCHECK CMD curl -f http://localhost:8000 || exit 1
+HEALTHCHECK CMD curl -f http://localhost:8000/latest/docs || exit 1
