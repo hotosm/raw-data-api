@@ -30,7 +30,7 @@ import os
 CONFIG_FILE_PATH = "src/config.txt"
 
 if os.path.exists(CONFIG_FILE_PATH) is False:
-    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), 'src/config.txt')
+    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), CONFIG_FILE_PATH)
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
