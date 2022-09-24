@@ -6,14 +6,17 @@ RUN apt-get update && apt-get -y upgrade && \
     apt-get -y autoremove && \
     apt-get clean
 
-COPY . /app
+RUN mkdir /app
+COPY requirements.docker.txt /app/requirements.docker.txt
+COPY setup.py /app/setup.py
 
 WORKDIR /app
 
 RUN pip install --upgrade pip
 RUN pip install -r requirements.docker.txt
-RUN pip install -e .
 
-COPY /src/config.txt src/config.txt
+COPY . /app
+
+RUN pip install -e .
 
 HEALTHCHECK CMD curl -f http://localhost:8000/latest/docs || exit 1
