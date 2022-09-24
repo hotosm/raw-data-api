@@ -536,10 +536,5 @@ def get_task_status(task_id):
 
     """
     task_result = AsyncResult(task_id, app=celery)
-
-    result = {
-        "id": task_id,
-        "status": task_result.status,
-        "result": task_result.result if task_result.status == 'SUCCESS' else None
-    }
+    result = { "id": task_id,"status": task_result.state, "result": task_result.result if task_result.status == 'SUCCESS' else None }
     return JSONResponse(result)
