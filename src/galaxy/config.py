@@ -22,6 +22,8 @@
 from configparser import ConfigParser
 import logging
 import os
+from slowapi.util import get_remote_address
+from slowapi import Limiter
 
 CONFIG_FILE_PATH = "src/config.txt"
 
@@ -31,6 +33,8 @@ if os.path.exists(CONFIG_FILE_PATH) is False:
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
 
+limiter = Limiter(key_func=get_remote_address) # rate limiter for API requests
+export_rate_limit = int(config.get("API_CONFIG", "export_rate_limit", fallback=5))
 # get log level from config
 log_level = config.get("API_CONFIG", "log_level", fallback=None)
 use_s3_to_upload = False

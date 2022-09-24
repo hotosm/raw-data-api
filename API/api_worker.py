@@ -22,7 +22,7 @@ celery.conf.result_backend = config.get(
 
 celery.conf.task_serializer = 'pickle'
 celery.conf.result_serializer = 'pickle'
-celery.conf.accept_content = ['application/json','pickle', 'application/x-python-serialize']
+celery.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
 
 @celery.task(bind=True, name="process_raw_data")

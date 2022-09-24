@@ -37,8 +37,11 @@ from .download_export import router as download_router
 # from .test_router import router as test_router
 from .status import router as status_router
 from src.galaxy.db_session import database_instance
-from src.galaxy.config import use_connection_pooling, use_s3_to_upload, logger as logging, config
+from src.galaxy.config import limiter, use_connection_pooling, use_s3_to_upload, logger as logging, config
 from fastapi_versioning import VersionedFastAPI
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
 
 # only use sentry if it is specified in config blocks
 if config.get("SENTRY", "dsn", fallback=None):
@@ -55,6 +58,8 @@ if run_env.lower() == 'dev':
     # This is used for local setup for auth login
     import os
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+
 
 app = FastAPI(title="Galaxy API")
 
@@ -80,6 +85,9 @@ if use_s3_to_upload is False:
 app = VersionedFastAPI(app, enable_latest=True,
                        version_format='{major}', prefix_format='/v{major}')
 
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 origins = ["*"]
 

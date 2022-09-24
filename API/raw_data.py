@@ -40,8 +40,7 @@ from src.galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
 from src.galaxy.app import RawData, S3FileTransfer
 from celery.result import AsyncResult
 from .api_worker import process_raw_data, celery
-
-from src.galaxy.config import use_s3_to_upload, logger as logging, config
+from src.galaxy.config import export_rate_limit, use_s3_to_upload, logger as logging, config, limiter
 
 router = APIRouter(prefix="/raw-data")
 
@@ -335,6 +334,7 @@ def watch_s3_upload(url: str, path: str) -> None:
 
 
 @router.post("/current-snapshot/")
+@limiter.limit(f"{export_rate_limit}/minute")
 @version(2)
 def get_current_snapshot_of_osm_data(
     params: RawDataCurrentParams, request: Request
@@ -536,5 +536,5 @@ def get_task_status(task_id):
 
     """
     task_result = AsyncResult(task_id, app=celery)
-    result = { "id": task_id,"status": task_result.state, "result": task_result.result if task_result.status == 'SUCCESS' else None }
+    result = { "id": task_id, "status": task_result.state, "result": task_result.result if task_result.status == 'SUCCESS' else None }
     return JSONResponse(result)
