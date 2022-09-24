@@ -24,11 +24,13 @@ import logging
 import os
 from slowapi.util import get_remote_address
 from slowapi import Limiter
+import errno
+import os
 
 CONFIG_FILE_PATH = "src/config.txt"
 
 if os.path.exists(CONFIG_FILE_PATH) is False:
-    raise "Config file does not exist : src/config.txt"
+    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), 'src/config.txt')
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
