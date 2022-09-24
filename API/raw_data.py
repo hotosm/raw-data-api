@@ -286,7 +286,7 @@ def get_current_snapshot_osm_data(params: RawDataCurrentParams, background_tasks
     logging.info(
         f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}")
 
-    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000)} MB""", "zip_file_size_bytes": {zip_file_size}}
+    return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000,2)} MB""", "zip_file_size_bytes": {zip_file_size}}
 
 
 @router.get("/status/")
