@@ -13,3 +13,4 @@ newrelic.ini
 newrelic.ini_backup
 exports
 *.out
+*.log
