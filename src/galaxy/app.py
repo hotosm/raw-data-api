@@ -1005,7 +1005,6 @@ class RawData:
     @staticmethod
     def query2geojson(con, extraction_query, dump_temp_file_path):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
-        logging.debug("I am inside query2geojson and my query is %s", extraction_query)
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
         post_geojson = """]}"""
@@ -1139,7 +1138,6 @@ class RawData:
             _file_path_: geojson file location path
         """
         # first check either geometry needs grid or not for querying
-        logging.debug("I am inside extract current data function")
         grid_id, geometry_dump, geom_area = RawData.get_grid_id(
             self.params.geometry, self.cur)
         if self.params.output_type is None:
@@ -1158,11 +1156,9 @@ class RawData:
         os.makedirs(path)
         # create file path with respect to of output type
         dump_temp_file_path = f"""{path}{exportname}.{output_type.lower()}"""
-        logging.debug("after dump temp file path with %s and %s", output_type, RawDataOutputType.GEOJSON.value)
         try:
             # currently we have only geojson binding function written other than that we have depend on ogr
             if output_type == RawDataOutputType.GEOJSON.value:
-                logging.debug("above firing geojson")
                 RawData.query2geojson(self.con, raw_currentdata_extraction_query(
                     self.params, g_id=grid_id, geometry_dump=geometry_dump), dump_temp_file_path)  # uses own conversion class
             elif output_type == RawDataOutputType.SHAPEFILE.value:
