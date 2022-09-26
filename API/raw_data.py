@@ -337,7 +337,7 @@ def watch_s3_upload(url: str, path: str) -> None:
 @limiter.limit(f"{export_rate_limit}/minute")
 @version(2)
 def get_current_snapshot_of_osm_data(
-    params: RawDataCurrentParams, request: Request
+    params: RawDataCurrentParams, background_tasks: BackgroundTasks, request: Request
 ):
     """Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features
 

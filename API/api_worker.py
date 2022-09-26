@@ -80,15 +80,11 @@ def process_raw_data(self, incoming_scheme, incoming_host, params):
 
         # remove the file that are just binded to zip file , we no longer need to store it
         remove_file(path)
-
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
             download_url = file_transfer_obj.upload(zip_temp_path, exportname)
-            # watches the status code of the link provided and deletes the file if it is 200
-            watch_s3_upload(download_url, zip_temp_path)
         else:
-
             # getting from config in case api and frontend is not hosted on same url
             client_host = config.get(
                 "API_CONFIG", "api_host", fallback=f"""{incoming_scheme}://{incoming_host}""")
@@ -101,12 +97,14 @@ def process_raw_data(self, incoming_scheme, incoming_host, params):
 
         # getting file size of zip , units are in bytes converted to mb in response
         zip_file_size = os.path.getsize(zip_temp_path)
+        # watches the status code of the link provided and deletes the file if it is 200
+        watch_s3_upload(download_url, zip_temp_path)
         response_time = dt.now() - start_time
         response_time_str = str(response_time)
         logging.info(
             f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}")
+        return {"download_url": download_url, "file_name": exportname, "process_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000,2)} MB""", "zip_file_size_bytes": zip_file_size}
 
-        return {"download_url": download_url, "file_name": exportname, "response_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000,2)} MB""", "zip_file_size_bytes": {zip_file_size}}
     except Exception as ex:
         raise ex
 
@@ -117,6 +115,7 @@ def remove_file(path: str) -> None:
         shutil.rmtree(path)
     except OSError as ex:
         logging.error("Error: %s - %s.", ex.filename, ex.strerror)
+
 
 def watch_s3_upload(url: str, path: str) -> None:
     """Watches upload of s3 either it is completed or not and removes the temp file after completion

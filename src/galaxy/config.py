@@ -57,8 +57,13 @@ else:
 # logging.getLogger("fiona").propagate = False  # disable fiona logging
 logging.basicConfig(format='%(asctime)s - %(message)s', level=level)
 logging.getLogger('boto3').propagate = False  # disable boto3 logging
+logging.getLogger('botocore').propagate = False  # disable boto3 logging
+logging.getLogger('s3transfer').propagate = False  # disable boto3 logging
+logging.getLogger('boto').propagate = False  # disable boto3 logging
 
-logger = logging.getLogger('galaxy')
+
+
+logger = logging.getLogger('src.galaxy')
 
 export_path = config.get('API_CONFIG', 'export_path', fallback=None)
 if export_path is None:

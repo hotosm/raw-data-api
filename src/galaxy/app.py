@@ -20,13 +20,13 @@
 import os
 import sys
 import threading
-from .config import get_db_connection_params, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling, shp_limit
-from .validation.models import Source
+from src.galaxy.config import get_db_connection_params, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling, shp_limit
+from src.galaxy.validation.models import Source
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError
-from .validation.models import UserRole, TeamMemberFunction, List, RawDataCurrentParams, RawDataOutputType, MapathonRequestParams, MappedFeature, MapathonSummary, MappedFeatureWithUser, MapathonContributor, MappedTaskStats, ValidatedTaskStats, TimeSpentMapping, OrganizationHashtagParams, DataRecencyParams, OrganizationHashtag, Trainings, TrainingParams, TrainingOrganisations, User, TimeSpentValidating, TMUserStats, MapathonDetail, UserStatistics, DataQualityHashtagParams, DataQuality_TM_RequestParams, DataQuality_username_RequestParams
-from .query_builder.builder import generate_list_teams_metadata, get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query, raw_historical_data_extraction_query, generate_tm_teams_list, generate_tm_validators_stats_query, create_user_time_spent_mapping_and_validating_query, create_user_tasks_mapped_and_validated_query, generate_organization_hashtag_reports, check_last_updated_user_data_quality_underpass, create_changeset_query, create_osm_history_query, create_users_contributions_query, check_last_updated_osm_insights, generate_data_quality_TM_query, generate_data_quality_hashtag_reports, generate_data_quality_username_query, check_last_updated_mapathon_insights, check_last_updated_user_statistics_insights, check_last_updated_osm_underpass, generate_mapathon_summary_underpass_query, generate_training_organisations_query, generate_filter_training_query, generate_training_query, create_UserStats_get_statistics_query, create_userstats_get_statistics_with_hashtags_query
+from src.galaxy.validation.models import UserRole, TeamMemberFunction, List, RawDataCurrentParams, RawDataOutputType, MapathonRequestParams, MappedFeature, MapathonSummary, MappedFeatureWithUser, MapathonContributor, MappedTaskStats, ValidatedTaskStats, TimeSpentMapping, OrganizationHashtagParams, DataRecencyParams, OrganizationHashtag, Trainings, TrainingParams, TrainingOrganisations, User, TimeSpentValidating, TMUserStats, MapathonDetail, UserStatistics, DataQualityHashtagParams, DataQuality_TM_RequestParams, DataQuality_username_RequestParams
+from src.galaxy.query_builder.builder import generate_list_teams_metadata, get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query, raw_historical_data_extraction_query, generate_tm_teams_list, generate_tm_validators_stats_query, create_user_time_spent_mapping_and_validating_query, create_user_tasks_mapped_and_validated_query, generate_organization_hashtag_reports, check_last_updated_user_data_quality_underpass, create_changeset_query, create_osm_history_query, create_users_contributions_query, check_last_updated_osm_insights, generate_data_quality_TM_query, generate_data_quality_hashtag_reports, generate_data_quality_username_query, check_last_updated_mapathon_insights, check_last_updated_user_statistics_insights, check_last_updated_osm_underpass, generate_mapathon_summary_underpass_query, generate_training_organisations_query, generate_filter_training_query, generate_training_query, create_UserStats_get_statistics_query, create_userstats_get_statistics_with_hashtags_query
 import json
 import pandas
 from json import loads as json_loads
@@ -1005,6 +1005,7 @@ class RawData:
     @staticmethod
     def query2geojson(con, extraction_query, dump_temp_file_path):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
+        logging.debug("I am inside query2geojson and my query is %s", extraction_query)
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
         post_geojson = """]}"""
@@ -1138,6 +1139,7 @@ class RawData:
             _file_path_: geojson file location path
         """
         # first check either geometry needs grid or not for querying
+        logging.debug("I am inside extract current data function")
         grid_id, geometry_dump, geom_area = RawData.get_grid_id(
             self.params.geometry, self.cur)
         if self.params.output_type is None:
@@ -1156,12 +1158,14 @@ class RawData:
         os.makedirs(path)
         # create file path with respect to of output type
         dump_temp_file_path = f"""{path}{exportname}.{output_type.lower()}"""
+        logging.debug("after dump temp file path with %s and %s", output_type, RawDataOutputType.GEOJSON.value)
         try:
             # currently we have only geojson binding function written other than that we have depend on ogr
-            if output_type is RawDataOutputType.GEOJSON.value:
+            if output_type == RawDataOutputType.GEOJSON.value:
+                logging.debug("above firing geojson")
                 RawData.query2geojson(self.con, raw_currentdata_extraction_query(
                     self.params, g_id=grid_id, geometry_dump=geometry_dump), dump_temp_file_path)  # uses own conversion class
-            elif output_type is RawDataOutputType.SHAPEFILE.value:
+            elif output_type == RawDataOutputType.SHAPEFILE.value:
                 point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
                     self.params, ogr_export=True)
                 # point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
