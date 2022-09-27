@@ -925,16 +925,16 @@ class RawData:
         if query:
             formatted_query = query.replace('"', '\\"')
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
-        if outputtype is RawDataOutputType.MBTILES.value:
+        if outputtype == RawDataOutputType.MBTILES.value:
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
                 outputtype=outputtype, export_path=export_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
 
-        elif outputtype is RawDataOutputType.SHAPEFILE.value:
+        elif outputtype == RawDataOutputType.SHAPEFILE.value:
             # if it is shapefile it needs different logic for point,line and polygon
             file_paths = []
             outputtype = "ESRI Shapefile"
             if point_query:
-                query_path = f"""{dump_temp_file_path}_sql.sql"""
+                query_path = f"""{dump_temp_file_path}_point.sql"""
 
                 # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
                 with open(query_path, 'w') as file:
@@ -956,7 +956,7 @@ class RawData:
                 file_paths.append(f"""{dump_temp_file_path}_point.dbf""")
                 file_paths.append(f"""{dump_temp_file_path}_point.prj""")
             if line_query:
-                query_path = f"""{dump_temp_file_path}_sql.sql"""
+                query_path = f"""{dump_temp_file_path}_line.sql"""
 
                 # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
                 with open(query_path, 'w') as file:
@@ -978,7 +978,7 @@ class RawData:
             if poly_query:
 
                 poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
-                poly_query_path = f"""{dump_temp_file_path}_poly_sql.sql"""
+                poly_query_path = f"""{dump_temp_file_path}_poly.sql"""
 
                 # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
                 with open(poly_query_path, 'w') as file:
@@ -1028,81 +1028,6 @@ class RawData:
                 # close the writing geojson with last part
             f.write(post_geojson)
         logging.debug("Server side Query Result  Post Processing Done")
-
-    # @staticmethod
-    # def query2shapefile(con, point_query, line_query, poly_query, point_schema, line_schema, poly_schema, dump_temp_file_path):
-    #     """Function that transfer db query to shp"""
-    #     # schema: it is a simple dictionary with geometry and properties as keys
-    #     # schema = {'geometry': 'LineString','properties': {'test': 'int'}}
-    #     file_paths = []
-    #     if point_query:
-    #         logging.debug("Writing Point Shapefile")
-
-    #         schema = {'geometry': 'Point', 'properties': point_schema, }
-    #         point_file_path = f"""{dump_temp_file_path}_point.shp"""
-    #         # open a fiona object
-    #         pointShp = fiona.open(point_file_path, mode='w', driver='ESRI Shapefile', encoding='UTF-8',
-    #                               schema=schema, crs="EPSG:4326")
-
-    #         with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
-    #             cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
-    #             cursor.execute(point_query)
-    #             for row in cursor:
-    #                 pointShp.write(orjson.loads(row[0]))
-
-    #             cursor.close()  # closing connection to avoid memory issues
-    #             # close fiona object
-    #         pointShp.close()
-    #         file_paths.append(point_file_path)
-    #         file_paths.append(f"""{dump_temp_file_path}_point.shx""")
-    #         file_paths.append(f"""{dump_temp_file_path}_point.cpg""")
-    #         file_paths.append(f"""{dump_temp_file_path}_point.dbf""")
-    #         file_paths.append(f"""{dump_temp_file_path}_point.prj""")
-
-    #     if line_query:
-    #         logging.debug("Writing Line Shapefile")
-
-    #         schema = {'geometry': 'LineString', 'properties': line_schema, }
-    #         # print(schema)
-    #         line_file_path = f"""{dump_temp_file_path}_line.shp"""
-    #         with fiona.open(line_file_path, 'w', encoding='UTF-8', crs=from_epsg(4326), driver='ESRI Shapefile', schema=schema) as layer:
-    #             with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
-    #                 cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
-    #                 cursor.execute(line_query)
-    #                 for row in cursor:
-    #                     layer.write(orjson.loads(row[0]))
-
-    #                 cursor.close()  # closing connection to avoid memory issues
-    #             # close fiona object
-    #             layer.close()
-    #         file_paths.append(line_file_path)
-    #         file_paths.append(f"""{dump_temp_file_path}_line.shx""")
-    #         file_paths.append(f"""{dump_temp_file_path}_line.cpg""")
-    #         file_paths.append(f"""{dump_temp_file_path}_line.dbf""")
-    #         file_paths.append(f"""{dump_temp_file_path}_line.prj""")
-
-    #     if poly_query:
-    #         logging.debug("Writing Poly Shapefile")
-
-    #         poly_file_path = f"""{dump_temp_file_path}_poly.shp"""
-    #         schema = {'geometry': 'Polygon', 'properties': poly_schema, }
-
-    #         with fiona.open(poly_file_path, 'w', encoding='UTF-8', crs=from_epsg(4326), driver='ESRI Shapefile', schema=schema) as layer:
-    #             with con.cursor(name='fetch_raw') as cursor:  # using server side cursor
-    #                 cursor.itersize = 1000  # chunk size to get 1000 row at a time in client side
-    #                 cursor.execute(poly_query)
-    #                 for row in cursor:
-    #                     layer.write(orjson.loads(row[0]))
-
-    #                 cursor.close()  # closing connection to avoid memory issues
-    #             # close fiona object
-    #             layer.close()
-    #         file_paths.append(poly_file_path)
-    #         file_paths.append(f"""{dump_temp_file_path}_poly.shx""")
-    #         file_paths.append(f"""{dump_temp_file_path}_poly.cpg""")
-    #         file_paths.append(f"""{dump_temp_file_path}_poly.dbf""")
-    #         file_paths.append(f"""{dump_temp_file_path}_poly.prj""")
-    #     return file_paths
 
     @staticmethod
     def get_grid_id(geom, cur):
