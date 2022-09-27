@@ -939,11 +939,13 @@ class RawData:
                 # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
                 with open(query_path, 'w') as file:
                     file.write(point_query)
+                with open('exports/test.sql', 'w') as file:
+                    file.write(point_query)
                 # standard file path for the generation
                 point_file_path = f"""{dump_temp_file_path}_point.shp"""
                 # command for ogr2ogr to generate file
-                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
-                    outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=point_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
                 logging.debug("Calling ogr2ogr-Point Shapefile")
                 run_ogr2ogr_cmd(cmd, binding_file_dir)
                 # clear query file we don't need it anymore
@@ -963,8 +965,8 @@ class RawData:
                     file.write(line_query)
 
                 line_file_path = f"""{dump_temp_file_path}_line.shp"""
-                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
-                    outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=line_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
                 logging.debug("Calling ogr2ogr-Line Shapefile")
                 run_ogr2ogr_cmd(cmd, binding_file_dir)
                 # clear query file we don't need it anymore
@@ -983,8 +985,8 @@ class RawData:
                 # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
                 with open(poly_query_path, 'w') as file:
                     file.write(poly_query)
-                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
-                    outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=poly_query_path)
+                cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                    outputtype=outputtype, export_path=poly_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=poly_query_path)
                 logging.debug("Calling ogr2ogr-Poly Shapefile")
                 run_ogr2ogr_cmd(cmd, binding_file_dir)
                 # clear query file we don't need it anymore
@@ -997,8 +999,8 @@ class RawData:
             return file_paths
         else:
             # if it is not shapefile use standard ogr2ogr with their output format , will be useful for kml
-            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
-                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+            cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
         run_ogr2ogr_cmd(cmd, binding_file_dir)
         return export_path
 
@@ -1131,6 +1133,7 @@ def run_ogr2ogr_cmd(cmd, binding_file_dir):
     """
     try:
         # start_time=time.time()
+        logging.debug("Calling command : %s",cmd)
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,

@@ -14,7 +14,7 @@ services:
 
   worker:
     build: .
-    command: celery --app API.api_worker worker --loglevel=INFO
+    command: celery --app API.api_worker worker --loglevel=DEBUG
     volumes:
       - .:/app
     depends_on:
