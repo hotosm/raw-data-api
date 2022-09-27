@@ -939,8 +939,6 @@ class RawData:
                 # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
                 with open(query_path, 'w') as file:
                     file.write(point_query)
-                with open('exports/test.sql', 'w') as file:
-                    file.write(point_query)
                 # standard file path for the generation
                 point_file_path = f"""{dump_temp_file_path}_point.shp"""
                 # command for ogr2ogr to generate file
