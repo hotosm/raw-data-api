@@ -995,11 +995,18 @@ class RawData:
                 file_paths.append(f"""{dump_temp_file_path}_poly.dbf""")
                 file_paths.append(f"""{dump_temp_file_path}_poly.prj""")
             return file_paths
+
+        elif outputtype == RawDataOutputType.FlatGeobuf.value:
+            cmd = '''ogr2ogr -overwrite -f FlatGeobuf {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
+                export_path=export_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+            run_ogr2ogr_cmd(cmd, binding_file_dir, use_limit=False)
+            return export_path
+
         else:
             # if it is not shapefile use standard ogr2ogr with their output format , will be useful for kml
             cmd = '''ogr2ogr -overwrite -f \"{outputtype}\" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql "{pg_sql_select}" -progress'''.format(
-                outputtype=outputtype, export_path=export_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
-        run_ogr2ogr_cmd(cmd, binding_file_dir)
+                outputtype=outputtype, export_path=export_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=formatted_query)
+        run_ogr2ogr_cmd(cmd, binding_file_dir, use_limit=False)
         return export_path
 
     @staticmethod
@@ -1118,7 +1125,7 @@ class RawData:
         return str(behind_time[0][0])
 
 
-def run_ogr2ogr_cmd(cmd, binding_file_dir):
+def run_ogr2ogr_cmd(cmd, binding_file_dir, use_limit=True):
     """Runs command and monitors the file size until the process runs
 
     Args:
@@ -1131,7 +1138,7 @@ def run_ogr2ogr_cmd(cmd, binding_file_dir):
     """
     try:
         # start_time=time.time()
-        logging.debug("Calling command : %s",cmd)
+        logging.debug("Calling command : %s", cmd)
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -1139,22 +1146,22 @@ def run_ogr2ogr_cmd(cmd, binding_file_dir):
             shell=True,
             preexec_fn=os.setsid
         )
-        while process.poll() is None:
-            # if (time.time()-start_time)/60 > 25 :
-            #     raise ValueError("Shapefile Exceed Limit export")
-
-            size = 0
-            for ele in os.scandir(binding_file_dir):
-                size += os.path.getsize(ele)
-            # print(size/1000000) # in MB
-            if size / 1000000 > shp_limit:
-                logging.warn(
-                    f"Killing ogr2ogr because it exceed {shp_limit} MB...")
-                # process.kill()
-                # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
-                # shutil.rmtree(binding_file_dir)
-                raise HTTPException(
-                    status_code=404, detail=f"Shapefile Exceed {shp_limit} MB Limit")
+        if use_limit:
+            while process.poll() is None:
+                # if (time.time()-start_time)/60 > 25 :
+                #     raise ValueError("Shapefile Exceed Limit export")
+                size = 0
+                for ele in os.scandir(binding_file_dir):
+                    size += os.path.getsize(ele)
+                # print(size/1000000) # in MB
+                if size / 1000000 > shp_limit:
+                    logging.warn(
+                        f"Killing ogr2ogr because it exceed {shp_limit} MB...")
+                    # process.kill()
+                    # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+                    # shutil.rmtree(binding_file_dir)
+                    raise HTTPException(
+                        status_code=404, detail=f"Limit Exceed {shp_limit} MB Limit")
 
         logging.debug(process.stdout.read())
     except Exception as ex:
@@ -1201,13 +1208,16 @@ class S3FileTransfer:
             raise ex
         return bucket_location or 'us-east-1'
 
-    def upload(self, file_path, file_prefix):
+    def upload(self, file_path, file_prefix, bind_zip=True):
         """Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
         Parameters :file_path --- your local file path to upload ,
             file_prefix -- prefix for the filename which is stored
         sample function call :
             S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test") """
-        file_name = f"{file_prefix}.zip"
+        if bind_zip:
+            file_name = f"{file_prefix}.zip"
+        else:
+            file_name = file_prefix
         # instantiate upload
         start_time = time.time()
 

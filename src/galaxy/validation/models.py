@@ -477,8 +477,9 @@ class TeamMemberFunction(Enum):
 
 class RawDataOutputType (Enum):
     GEOJSON = "GeoJSON"
-    KML = "KML"
+    KML = "kml"
     SHAPEFILE = "shp"
+    FlatGeobuf = "fgb"
     MBTILES = "MBTILES"  # fully experimental for now
 
 

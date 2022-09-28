@@ -31,6 +31,9 @@ celery.conf.accept_content = ['application/json', 'application/x-python-serializ
 def process_raw_data(self, incoming_scheme, incoming_host, params):
     try:
         start_time = dt.now()
+        bind_zip=True
+        if params.output_type == RawDataOutputType.FlatGeobuf.value:
+            bind_zip=False
         if params.output_type is None:  # if no ouput type is supplied default is geojson output
             params.output_type = RawDataOutputType.GEOJSON.value
 
@@ -56,34 +59,35 @@ def process_raw_data(self, incoming_scheme, incoming_host, params):
                 status_code=400,
                 content={"Error": "Request went too big"}
             )
+        if bind_zip:
+            logging.debug('Zip Binding Started !')
+            # saving file in temp directory instead of memory so that zipping file will not eat memory
+            zip_temp_path = f"""{root_dir_file}{exportname}.zip"""
+            zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
 
-        logging.debug('Zip Binding Started !')
-        # saving file in temp directory instead of memory so that zipping file will not eat memory
-        zip_temp_path = f"""{root_dir_file}{exportname}.zip"""
-        zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
+            directory = pathlib.Path(path)
+            for file_path in directory.iterdir():
+                zf.write(file_path, arcname=file_path.name)
 
-        directory = pathlib.Path(path)
-        for file_path in directory.iterdir():
-            zf.write(file_path, arcname=file_path.name)
+            # Compressing geojson file
+            zf.writestr("clipping_boundary.geojson",
+                        orjson.dumps(dict(params.geometry)))
 
-        # Compressing geojson file
-        zf.writestr("clipping_boundary.geojson",
-                    orjson.dumps(dict(params.geometry)))
-
-        zf.close()
-        logging.debug('Zip Binding Done !')
+            zf.close()
+            logging.debug('Zip Binding Done !')
+        else:
+            zip_temp_path = dump_temp_file[0]
         inside_file_size = 0
         for temp_file in dump_temp_file:
-            # clearing tmp geojson file since it is already dumped to zip file we don't need it anymore
             if os.path.exists(temp_file):
                 inside_file_size += os.path.getsize(temp_file)
-
-        # remove the file that are just binded to zip file , we no longer need to store it
-        remove_file(path)
+        if bind_zip:
+            # remove the file that are just binded to zip file , we no longer need to store it
+            remove_file(path)
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
-            download_url = file_transfer_obj.upload(zip_temp_path, exportname)
+            download_url = file_transfer_obj.upload(zip_temp_path, exportname, bind_zip=False if bind_zip else True)
         else:
             # getting from config in case api and frontend is not hosted on same url
             client_host = config.get(
