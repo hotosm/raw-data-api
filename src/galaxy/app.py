@@ -1133,7 +1133,7 @@ def run_ogr2ogr_cmd(cmd, binding_file_dir, use_limit=True):
         binding_file_dir (_type_): _description_
 
     Raises:
-        ValueError: Shapefile exceed 4GB limit
+        ValueError: File exceed 4GB limit
         ValueError: Binding failed
     """
     try:
@@ -1208,16 +1208,13 @@ class S3FileTransfer:
             raise ex
         return bucket_location or 'us-east-1'
 
-    def upload(self, file_path, file_prefix, bind_zip=True):
+    def upload(self, file_path, file_name, file_suffix='zip'):
         """Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
         Parameters :file_path --- your local file path to upload ,
             file_prefix -- prefix for the filename which is stored
         sample function call :
             S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test") """
-        if bind_zip:
-            file_name = f"{file_prefix}.zip"
-        else:
-            file_name = file_prefix
+        file_name = f"{file_name}.{file_suffix}"
         # instantiate upload
         start_time = time.time()
 
@@ -1232,7 +1229,7 @@ class S3FileTransfer:
             logging.error(ex)
             raise ex
         logging.debug("Uploaded %s in %s sec",
-                      file_prefix, time.time() - start_time)
+                      file_name, time.time() - start_time)
         # generate the download url
         bucket_location = self.get_bucket_location(bucket_name=BUCKET_NAME)
         object_url = f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""

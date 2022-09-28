@@ -87,7 +87,7 @@ def process_raw_data(self, incoming_scheme, incoming_host, params):
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
-            download_url = file_transfer_obj.upload(zip_temp_path, exportname, bind_zip=False if bind_zip else True)
+            download_url = file_transfer_obj.upload(zip_temp_path, exportname, file_suffix='zip' if bind_zip else params.output_type.lower())
         else:
             # getting from config in case api and frontend is not hosted on same url
             client_host = config.get(
