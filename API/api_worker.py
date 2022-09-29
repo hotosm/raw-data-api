@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from src.galaxy.query_builder.builder import format_file_name_str
 from src.galaxy.validation.models import RawDataOutputType
 from src.galaxy.app import RawData, S3FileTransfer
-from src.galaxy.config import use_s3_to_upload, logger as logging, config
+from src.galaxy.config import use_s3_to_upload, logger as logging, config, allow_bind_zip_filter
 
 celery = Celery(__name__)
 celery.conf.broker_url = config.get(
@@ -31,7 +31,7 @@ celery.conf.accept_content = ['application/json', 'application/x-python-serializ
 def process_raw_data(self, params):
     try:
         start_time = dt.now()
-        bind_zip=params.bind_zip
+        bind_zip=params.bind_zip if allow_bind_zip_filter else True
         # unique id for zip file and geojson for each export
         params.file_name=format_file_name_str(params.file_name) if params.file_name else 'Export'
         exportname = f"{params.file_name}_{str(self.request.id)}_{params.output_type}"

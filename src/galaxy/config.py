@@ -71,7 +71,9 @@ if export_path is None:
 if not os.path.exists(export_path):
     # Create a exports directory because it does not exist
     os.makedirs(export_path)
-
+allow_bind_zip_filter=config.get('API_CONFIG', 'allow_bind_zip_filter', fallback=None)
+if allow_bind_zip_filter:
+    allow_bind_zip_filter=True if allow_bind_zip_filter.lower()=='true' else False
 
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 # check either to use connection pooling or not

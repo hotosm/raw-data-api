@@ -32,7 +32,7 @@ import re
 
 from tomlkit import boolean
 
-from ..config import config
+from src.galaxy.config import config, allow_bind_zip_filter
 
 MAX_POLYGON_AREA = 5000  # km^2
 
@@ -582,20 +582,25 @@ class SupportedGeometryFilters(Enum):
         """Checks if the value is supported"""
         return value in cls._value2member_map_
 
+class JoinFilterType (Enum):
+    OR = "OR"
+    AND ="AND"
 
 class RawDataCurrentParams(BaseModel):
     output_type: Optional[RawDataOutputType] = None
     file_name: Optional[str] = None
     geometry: Union[Polygon, MultiPolygon]
     filters: Optional[dict] = None
-    bind_zip: Optional[bool] = True
+    join_filter_type: Optional[JoinFilterType]=None
     geometry_type: Optional[List[SupportedGeometryFilters]] = None
+    if allow_bind_zip_filter:
+        bind_zip: Optional[bool] = True
 
-    @validator("bind_zip", allow_reuse=True)
-    def check_bind_option(cls, value, values):
-        if value is False and values.get("output_type")=='shp':
-            raise ValueError("Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True")
-        return value
+        @validator("bind_zip", allow_reuse=True)
+        def check_bind_option(cls, value, values):
+            if value is False and values.get("output_type")=='shp':
+                raise ValueError("Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True")
+            return value
 
     @validator("filters", allow_reuse=True)
     def check_value(cls, value, values):
@@ -649,7 +654,7 @@ class RawDataCurrentParams(BaseModel):
         output_type = values.get("output_type")
         if output_type:
             # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
-            if output_type is RawDataOutputType.MBTILES.value:
+            if output_type == RawDataOutputType.MBTILES.value:
                 RAWDATA_CURRENT_POLYGON_AREA = 2  # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
             raise ValueError(
