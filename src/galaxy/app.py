@@ -977,7 +977,7 @@ class RawData:
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.FlatGeobuf.value:
-            cmd = '''ogr2ogr -overwrite -f FlatGeobuf {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f FlatGeobuf {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress VERIFY_BUFFERS=NO'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
