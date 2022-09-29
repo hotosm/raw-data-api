@@ -30,8 +30,6 @@ from enum import Enum
 from area import area
 import re
 
-from tomlkit import boolean
-
 from src.galaxy.config import config, allow_bind_zip_filter
 
 MAX_POLYGON_AREA = 5000  # km^2
