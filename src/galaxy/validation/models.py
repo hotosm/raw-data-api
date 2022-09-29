@@ -596,6 +596,7 @@ class RawDataCurrentParams(BaseModel):
 
         @validator("bind_zip", allow_reuse=True)
         def check_bind_option(cls, value, values):
+            """checks if shp is selected along with bind to zip file"""
             if value is False and values.get("output_type")=='shp':
                 raise ValueError("Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True")
             return value
