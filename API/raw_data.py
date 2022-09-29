@@ -59,7 +59,7 @@ def get_current_snapshot_osm_data(params: RawDataCurrentParams, background_tasks
 
         params (RawDataCurrentParams):
                 {
-                "outputType": "GeoJSON", # supported are : kml,shp,fgb
+                "outputType": "GeoJSON", # supported are : kml,shp,(FlatGeobuf)fgb
                 "fileName": "string",
                 "geometry": { # only polygon is supported ** required field **
                     "coordinates": [
@@ -312,7 +312,7 @@ def watch_s3_upload(url: str, path: str) -> None:
 @version(2)
 def get_current_snapshot_of_osm_data(
     params: RawDataCurrentParams, request: Request):
-    """Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features. API Supports Flatgeobuff(fgb) output format which will be the fatest output format among all
+    """Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features.
 
     Steps to Run Snapshot :
 
@@ -327,7 +327,7 @@ def get_current_snapshot_of_osm_data(
 
         params (RawDataCurrentParams):
                 {
-                "outputType": "GeoJSON",
+                "outputType": "GeoJSON", # supports kml,(FlatGeobuf)fgb,shp
                 "fileName": "string",
                 "geometry": { # only polygon is supported ** required field **
                     "coordinates": [
