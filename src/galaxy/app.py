@@ -20,7 +20,7 @@
 import os
 import sys
 import threading
-from src.galaxy.config import get_db_connection_params, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling, shp_limit
+from src.galaxy.config import get_db_connection_params, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling
 from src.galaxy.validation.models import Source
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
@@ -928,7 +928,7 @@ class RawData:
             # standard file path for the generation
             point_file_path=os.path.join(working_dir,f"{file_name}_point.shp")
             # command for ogr2ogr to generate file
-            cmd = '''ogr2ogr -overwrite -f ESRI Shapefile {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
                 export_path=point_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Point Shapefile")
             run_ogr2ogr_cmd(cmd)
@@ -941,7 +941,7 @@ class RawData:
             with open(query_path, 'w', encoding="UTF-8") as file:
                 file.write(line_query)
             line_file_path=os.path.join(working_dir,f"{file_name}_line.shp")
-            cmd = '''ogr2ogr -overwrite -f ESRI Shapefile {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
                 export_path=line_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Line Shapefile")
             run_ogr2ogr_cmd(cmd)
@@ -954,8 +954,8 @@ class RawData:
             # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
             with open(query_path, 'w', encoding="UTF-8") as file:
                 file.write(poly_query)
-            cmd = '''ogr2ogr -overwrite -f ESRI Shapefile {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
-                export_path=poly_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=poly_query_path)
+            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+                export_path=poly_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Poly Shapefile")
             run_ogr2ogr_cmd(cmd)
             # clear query file we don't need it anymore

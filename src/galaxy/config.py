@@ -72,8 +72,6 @@ if not os.path.exists(export_path):
     # Create a exports directory because it does not exist
     os.makedirs(export_path)
 
-shp_limit = int(config.get('API_CONFIG', 'shp_limit', fallback=4096))
-
 
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 # check either to use connection pooling or not

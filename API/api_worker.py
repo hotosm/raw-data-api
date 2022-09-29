@@ -31,9 +31,7 @@ celery.conf.accept_content = ['application/json', 'application/x-python-serializ
 def process_raw_data(self, params):
     try:
         start_time = dt.now()
-        bind_zip=True
-        if params.output_type == RawDataOutputType.FlatGeobuf.value:
-            bind_zip=False
+        bind_zip=params.bind_zip
         # unique id for zip file and geojson for each export
         exportname = f"{format_file_name_str(params.file_name) if params.file_name else 'Export'}_{str(self.request.id)}_{params.output_type}"
 

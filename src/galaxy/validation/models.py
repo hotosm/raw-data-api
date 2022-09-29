@@ -30,6 +30,8 @@ from enum import Enum
 from area import area
 import re
 
+from tomlkit import boolean
+
 from ..config import config
 
 MAX_POLYGON_AREA = 5000  # km^2
@@ -586,7 +588,14 @@ class RawDataCurrentParams(BaseModel):
     file_name: Optional[str] = None
     geometry: Union[Polygon, MultiPolygon]
     filters: Optional[dict] = None
+    bind_zip: Optional[bool] = True
     geometry_type: Optional[List[SupportedGeometryFilters]] = None
+
+    @validator("bind_zip", allow_reuse=True)
+    def check_bind_option(cls, value, values):
+        if value is False and values.get("output_type")=='shp':
+            raise ValueError("Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True")
+        return value
 
     @validator("filters", allow_reuse=True)
     def check_value(cls, value, values):
