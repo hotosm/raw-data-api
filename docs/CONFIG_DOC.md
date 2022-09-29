@@ -205,7 +205,7 @@ You can further customize API if you wish with API_CONFIG Block
 
 ```
 [API_CONFIG]
-export_path=exports/ # used to store export path
+export_path=exports # used to store export path
 api_host=http://127.0.0.1 # you can define this if you have different host
 api_port=8000
 max_area=100000 # max area to support for rawdata input

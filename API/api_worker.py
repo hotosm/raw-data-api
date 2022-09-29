@@ -28,46 +28,28 @@ celery.conf.accept_content = ['application/json', 'application/x-python-serializ
 
 
 @celery.task(bind=True, name="process_raw_data")
-def process_raw_data(self, incoming_scheme, incoming_host, params):
+def process_raw_data(self, params):
     try:
         start_time = dt.now()
         bind_zip=True
         if params.output_type == RawDataOutputType.FlatGeobuf.value:
             bind_zip=False
-        if params.output_type is None:  # if no ouput type is supplied default is geojson output
-            params.output_type = RawDataOutputType.GEOJSON.value
-
         # unique id for zip file and geojson for each export
-        if params.file_name:
-            # need to format string from space to _ because it is filename , may be we need to filter special character as well later on
-            formatted_file_name = format_file_name_str(params.file_name)
-            # exportname = f"{formatted_file_name}_{datetime.now().isoformat()}_{str(self.request.id)}"
-            exportname = f"""{formatted_file_name}_{str(self.request.id)}_{params.output_type}"""  # disabled date for now
-
-        else:
-            # exportname = f"Raw_Export_{datetime.now().isoformat()}_{str(self.request.id)}"
-            exportname = f"Raw_Export_{str(self.request.id)}_{params.output_type}"
+        exportname = f"{format_file_name_str(params.file_name) if params.file_name else 'Export'}_{str(self.request.id)}_{params.output_type}"
 
         logging.info("Request %s received", exportname)
 
-        dump_temp_file, geom_area, root_dir_file = RawData(
-            params).extract_current_data(exportname)
-        path = f"""{root_dir_file}{exportname}/"""
-
-        if os.path.exists(path) is False:
-            return JSONResponse(
-                status_code=400,
-                content={"Error": "Request went too big"}
-            )
+        geom_area, working_dir = RawData(params).extract_current_data(exportname)
+        inside_file_size = 0
         if bind_zip:
             logging.debug('Zip Binding Started !')
             # saving file in temp directory instead of memory so that zipping file will not eat memory
-            zip_temp_path = f"""{root_dir_file}{exportname}.zip"""
-            zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
+            upload_file_path = os.path.join(working_dir,os.pardir,f"{exportname}.zip")
 
-            directory = pathlib.Path(path)
-            for file_path in directory.iterdir():
+            zf = zipfile.ZipFile(upload_file_path, "w", zipfile.ZIP_DEFLATED)
+            for file_path in pathlib.Path(working_dir).iterdir():
                 zf.write(file_path, arcname=file_path.name)
+                inside_file_size += os.path.getsize(file_path)
 
             # Compressing geojson file
             zf.writestr("clipping_boundary.geojson",
@@ -76,38 +58,29 @@ def process_raw_data(self, incoming_scheme, incoming_host, params):
             zf.close()
             logging.debug('Zip Binding Done !')
         else:
-            zip_temp_path = dump_temp_file[0]
-        inside_file_size = 0
-        for temp_file in dump_temp_file:
-            if os.path.exists(temp_file):
-                inside_file_size += os.path.getsize(temp_file)
-        if bind_zip:
-            # remove the file that are just binded to zip file , we no longer need to store it
-            remove_file(path)
+            for file_path in pathlib.Path(working_dir).iterdir():
+                upload_file_path=file_path
+                inside_file_size += os.path.getsize(file_path)
+                break # only take one file inside dir , if contains many it should be inside zip
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
-            download_url = file_transfer_obj.upload(zip_temp_path, exportname, file_suffix='zip' if bind_zip else params.output_type.lower())
+            download_url = file_transfer_obj.upload(upload_file_path, exportname, file_suffix='zip' if bind_zip else params.output_type.lower())
         else:
-            # getting from config in case api and frontend is not hosted on same url
-            client_host = config.get(
-                "API_CONFIG", "api_host", fallback=f"""{incoming_scheme}://{incoming_host}""")
-            client_port = config.get("API_CONFIG", "api_port", fallback=8000)
-
-            if client_port:
-                download_url = f"""{client_host}:{client_port}/v1/exports/{exportname}.zip"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
-            else:
-                download_url = f"""{client_host}/v1/exports/{exportname}.zip"""  # disconnected download portion from this endpoint because when there will be multiple hits at a same time we don't want function to get stuck waiting for user to download the file and deliver the response , we want to reduce waiting time and free function !
+            download_url = str(upload_file_path) # give the static file download url back to user served from fastapi static export path
 
         # getting file size of zip , units are in bytes converted to mb in response
-        zip_file_size = os.path.getsize(zip_temp_path)
+        zip_file_size = os.path.getsize(upload_file_path)
         # watches the status code of the link provided and deletes the file if it is 200
-        watch_s3_upload(download_url, zip_temp_path)
+        if use_s3_to_upload:
+            watch_s3_upload(download_url, upload_file_path)
+        if use_s3_to_upload or bind_zip:
+            #remove working dir from the machine , if its inside zip / uploaded we no longer need it
+            remove_file(working_dir)
         response_time = dt.now() - start_time
         response_time_str = str(response_time)
-        logging.info(
-            f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}")
-        return {"download_url": download_url, "file_name": exportname, "process_time": response_time_str, "query_area": f"""{geom_area} Sq Km """, "binded_file_size": f"""{round(inside_file_size/1000000,2)} MB""", "zip_file_size_bytes": zip_file_size}
+        logging.info(f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}")
+        return {"download_url": download_url, "file_name": exportname, "process_time": response_time_str, "query_area": f"{geom_area} Sq Km ", "binded_file_size": f"{round(inside_file_size/1000000,2)} MB", "zip_file_size_bytes": zip_file_size}
 
     except Exception as ex:
         raise ex

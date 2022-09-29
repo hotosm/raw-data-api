@@ -480,7 +480,7 @@ class RawDataOutputType (Enum):
     KML = "kml"
     SHAPEFILE = "shp"
     FlatGeobuf = "fgb"
-    MBTILES = "MBTILES"  # fully experimental for now
+    MBTILES = "mbtiles"  # fully experimental for now
 
 
 class HashtagParams(BaseModel):

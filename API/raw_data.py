@@ -38,8 +38,7 @@ from fastapi.responses import JSONResponse
 from src.galaxy.query_builder.builder import format_file_name_str
 from src.galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
 from src.galaxy.app import RawData, S3FileTransfer
-from celery.result import AsyncResult
-from .api_worker import process_raw_data, celery
+from .api_worker import process_raw_data
 from src.galaxy.config import export_rate_limit, use_s3_to_upload, logger as logging, config, limiter
 
 router = APIRouter(prefix="/raw-data")
@@ -337,8 +336,7 @@ def watch_s3_upload(url: str, path: str) -> None:
 @limiter.limit(f"{export_rate_limit}/minute")
 @version(2)
 def get_current_snapshot_of_osm_data(
-    params: RawDataCurrentParams, background_tasks: BackgroundTasks, request: Request
-):
+    params: RawDataCurrentParams, request: Request):
     """Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features
 
     Steps to Run Snapshot :
@@ -346,9 +344,9 @@ def get_current_snapshot_of_osm_data(
     1.  Post the your request here and your request will be on queue, endpoint will return as following :
         {
             "task_id": "your task_id",
-            "track_link": "/current-snapshot/tasks/task_id/"
+            "track_link": "/tasks/task_id/"
         }
-    2. Now navigate to /current-snapshot/tasks/ with your task id to track progress and result
+    2. Now navigate to /tasks/ with your task id to track progress and result
 
     Args:
 
@@ -498,43 +496,5 @@ def get_current_snapshot_of_osm_data(
 
     """
     # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)): # this will use osm login makes it restrict login
-    task = process_raw_data.delay(request.url.scheme, request.client.host, params)
-    return JSONResponse({"task_id": task.id, "track_link": f"/current-snapshot/tasks/{task.id}/"})
-
-
-@router.get("/current-snapshot/tasks/{task_id}/")
-@version(2)
-def get_task_status(task_id):
-    """Tracks the request from the task id provided by galaxy api for the request
-
-    Args:
-
-        task_id ([type]): [Unique id provided on response from /current-snapshot/]
-
-    Returns:
-
-        id: Id of the task
-        status : SUCCESS / PENDING
-        result : Result of task
-
-    Successful task will have additional nested json inside row as following :
-    Example response of rawdata current snapshot response :
-
-
-        {
-            "id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
-            "status": "SUCCESS",
-            "result": {
-                "download_url": "https://s3.us-east-1.amazonaws.com/exports-stage.hotosm.org/Raw_Export_3fded368-456f-4ef4-a1b8-c099a7f77ca4_GeoJSON.zip",
-                "file_name": "Raw_Export_3fded368-456f-4ef4-a1b8-c099a7f77ca4_GeoJSON",
-                "response_time": "0:00:12.175976",
-                "query_area": "6 Sq Km ",
-                "binded_file_size": "7 MB",
-                "zip_file_size_bytes": 1331601
-
-        }
-
-    """
-    task_result = AsyncResult(task_id, app=celery)
-    result = { "id": task_id, "status": task_result.state, "result": task_result.result if task_result.status == 'SUCCESS' else None }
-    return JSONResponse(result)
+    task = process_raw_data.delay(params)
+    return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})

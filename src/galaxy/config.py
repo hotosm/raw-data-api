@@ -67,9 +67,10 @@ logger = logging.getLogger('src.galaxy')
 
 export_path = config.get('API_CONFIG', 'export_path', fallback=None)
 if export_path is None:
-    export_path = "exports/"
-if export_path.endswith("/") is False:
-    export_path = f"""{export_path}/"""
+    export_path = "exports"
+if not os.path.exists(export_path):
+    # Create a exports directory because it does not exist
+    os.makedirs(export_path)
 
 shp_limit = int(config.get('API_CONFIG', 'shp_limit', fallback=4096))
 
