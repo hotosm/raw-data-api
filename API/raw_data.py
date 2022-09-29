@@ -373,7 +373,7 @@ def get_current_snapshot_of_osm_data(
         Sample Query :
         1. Sample query to extract point and polygon features that are marked building=*  with name attribute
         {
-            "outputType": "fgb",
+            "outputType": "GeoJSON",
             "fileName": "Pokhara_buildings",
             "geometry": {
                     "type": "Polygon",
