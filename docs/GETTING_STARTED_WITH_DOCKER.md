@@ -96,3 +96,14 @@ Since API is running through container, If you have local postgres installed on 
     Find your network ip address (for linux/mac you can use ```ifconfig -l | xargs -n1 ipconfig getifaddr``` ) and use your ip as a host instead of localhost in config file .
 
     If connection still fails : You may need to edit your postgres config file ( ask postgres where it is by this query ```show config_file;``` ) and edit/enable ```listen_addresses = '*'``` inside ```postgresql.conf``` . Also add ```host    all             all             0.0.0.0/0               trust``` in ```pg_hba.conf```
+
+### [Troubleshoot] If you can't run postgresql on docker to execute .sh script provided
+
+Make your .sh script executable . For eg : In ubuntu/mac
+
+```
+chmod +x populate-docker-db.sh
+```
+```
+chmod +x docker-multiple-db.sh
+```
