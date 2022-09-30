@@ -2,18 +2,6 @@ version: '3.8'
 
 services:
 
-  app:
-    build: .
-    container_name: api
-    command: uvicorn API.main:app --reload --host 0.0.0.0 --port 8000 --no-use-colors --proxy-headers
-    ports:
-      - 8000:8000
-    volumes:
-      - .:/app
-    depends_on:
-      - redis
-      - postgres
-
   postgres:
       image: postgis/postgis
       container_name: pgsql
@@ -26,8 +14,21 @@ services:
       volumes:
         - ./tests/src/fixtures/:/sql/
         - ./postgres-data:/var/lib/postgresql/data
-        - ./docker-multiple-db.sh:/docker-entrypoint-initdb.d/docker-multiple-db.sh
-        - ./populate-docker-db.sh:/docker-entrypoint-initdb.d/populate-docker-db.sh
+        - ./docker-multiple-db.sh:/docker-entrypoint-initdb.d/create.sh
+        - ./populate-docker-db.sh:/docker-entrypoint-initdb.d/insert.sh
+
+
+  app:
+    build: .
+    container_name: api
+    command: uvicorn API.main:app --reload --host 0.0.0.0 --port 8000 --no-use-colors --proxy-headers
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - postgres
 
 
   worker:
