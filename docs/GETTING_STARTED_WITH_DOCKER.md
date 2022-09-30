@@ -102,8 +102,5 @@ Since API is running through container, If you have local postgres installed on 
 Make your .sh script executable . For eg : In ubuntu/mac
 
 ```
-chmod +x populate-docker-db.sh
-```
-```
-chmod +x docker-multiple-db.sh
+chmod +x populate-docker-db.sh && chmod +x docker-multiple-db.sh
 ```
