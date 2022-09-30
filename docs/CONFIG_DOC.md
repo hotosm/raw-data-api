@@ -7,6 +7,45 @@ Before getting started on config Make sure you have [Postgres](https://www.postg
 ### 1. Create ```config.txt``` inside src directory.
 ![image](https://user-images.githubusercontent.com/36752999/188402566-80dc9633-5d4e-479c-97dc-9e8a4999b385.png)
 
+### For docker users :
+If you want to use docker postgres Sample data for underpass, insights, taskingmanager, rawdata is included in db itself : 
+You can use following config and navigate to **Step 6**  or Setup them by yourself by following instructions
+```
+[INSIGHTS]
+host=pgsql
+user=postgres
+password=admin
+database=insights
+port=5432
+
+[UNDERPASS]
+host=pgsql
+user=postgres
+password=admin
+database=underpass
+port=5432
+
+[TM]
+host=pgsql
+user=postgres
+password=admin
+database=tm
+port=5432
+
+[RAW_DATA]
+host=pgsql
+user=postgres
+password=admin
+database=raw
+port=5432
+
+[API_CONFIG]
+env=dev
+
+[CELERY]
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+```
 
 ### 2. Setup Underpass
   Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md)  OR Create database "underpass" in your local postgres and insert sample dump from
@@ -74,10 +113,10 @@ port=5432
 
 ### 5. Setup Tasking Manager Database for TM related development
 
-Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager/blob/develop/docs/developers/development-setup.md#backend) OR Create database "tm" in your local postgres and insert sample dump from [TM test dump](https://github.com/hotosm/tasking-manager/blob/develop/tests/database/tasking-manager.sql).
+Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager) OR Create database "tm" in your local postgres and insert sample dump from TM Sample Dump
 
 ```
-wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
+/tests/src/fixtures/tasking-manager.sql
 ```
 
 ```
