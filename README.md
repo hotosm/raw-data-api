@@ -76,7 +76,7 @@ celery --app API.api_worker worker --loglevel=INFO
 API uses flower for monitoring the Celery distributed queue. Run this command on different shell , if you are running redis on same machine your broker could be ```redis://localhost:6379/```
 
 ```
-celery --app API.api_worker flower --port=5550 --broker=redis://redis:6379/
+celery --app API.api_worker flower --port=5000 --broker=redis://redis:6379/
 ```
 
 ### 6. Navigate to Fast API Docs to get details about API Endpoint
@@ -87,10 +87,10 @@ After sucessfully running server , hit [this](http://127.0.0.1:8000/latest/docs)
 http://127.0.0.1:8000/latest/docs
 ```
 
-Flower dashboard should be available on 5550 localhost port.
+Flower dashboard should be available on 5000 localhost port.
 
 ```
-http://127.0.0.1:5550/
+http://127.0.0.1:5000/
 ```
 
 ## Check API Installation
