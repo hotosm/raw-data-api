@@ -10,9 +10,9 @@ git clone https://github.com/hotosm/galaxy-api.git
 touch src/config.txt
 ```
 
-- Put those config block inside your file 
+- Put those config block inside your file
 
-If you want to use docker postgres Sample data for underpass, insights, taskingmanager, rawdata is included in db itself : 
+If you want to use docker postgres Sample data for underpass, insights, taskingmanager, rawdata is included in db itself :
 You can use following config to get started with sample data  or Setup them by yourself by following [instructions](../docs/CONFIG_DOC.md)
 ```
 [INSIGHTS]
@@ -51,9 +51,9 @@ CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
 ```
 
-- **Setup Authentication** 
-   
-   Follow this [Setup Oauth Block](../docs/CONFIG_DOC.md#6-setup-oauth-for-authentication) and include it in your config.txt 
+- **Setup Authentication**
+
+   Follow this [Setup Oauth Block](../docs/CONFIG_DOC.md#6-setup-oauth-for-authentication) and include it in your config.txt
 
 ### 2. Create the images and spin up the Docker containers:
 ```
@@ -62,7 +62,7 @@ docker-compose up -d --build
 
 ### 3. Check Servers
 
-Uvicorn should be running on 8000 port , Redis on default port , Celery with a worker and Flower on 5000
+Uvicorn should be running on 8000 port , Redis on default port , Celery with a worker and Flower on 4000
 
 ```
 http://127.0.0.1:8000/latest/docs
@@ -71,7 +71,7 @@ API Docs will be displayed like this upon uvicorn successfull server start
 ![image](https://user-images.githubusercontent.com/36752999/191813795-fdfd46fe-5e6c-4ecf-be9b-f9f351d3d1d7.png)
 
 ```
-http://127.0.0.1:5000/
+http://127.0.0.1:4000/
 ```
 
 Flower dashboard will look like this on successfull installation with a worker online
