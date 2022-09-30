@@ -9,8 +9,8 @@ RUN apt-get update && apt-get -y upgrade && \
 RUN mkdir /app
 COPY requirements.docker.txt /app/requirements.docker.txt
 
-RUN chmod +x docker-multiple-db.sh
-RUN chmod +x populate-docker-db.sh
+RUN chmod +x ./docker-multiple-db.sh
+RUN chmod +x ./populate-docker-db.sh
 
 COPY setup.py /app/setup.py
 
