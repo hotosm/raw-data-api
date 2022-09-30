@@ -62,7 +62,7 @@ docker-compose up -d --build
 
 ### 3. Check Servers
 
-Uvicorn should be running on 8000 port , Redis on default port , Celery with a worker and Flower on 4000
+Uvicorn should be running on [8000](http://127.0.0.1:8000/latest/docs) port , Redis on default port , Celery with a worker and Flower on 4000
 
 ```
 http://127.0.0.1:8000/latest/docs
@@ -74,7 +74,7 @@ API Docs will be displayed like this upon uvicorn successfull server start
 http://127.0.0.1:4000/
 ```
 
-Flower dashboard will look like this on successfull installation with a worker online
+Flower [dashboard](http://127.0.0.1:4000/) will look like this on successfull installation with a worker online
 ![image](https://user-images.githubusercontent.com/36752999/191813613-3859522b-ea68-4370-87b2-ebd1d8880d80.png)
 
 
