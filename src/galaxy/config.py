@@ -35,7 +35,10 @@ if os.path.exists(CONFIG_FILE_PATH) is False:
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
 
-limiter = Limiter(key_func=get_remote_address) # rate limiter for API requests
+limiter_storage_uri = config.get(
+    "API_CONFIG", "limiter_storage_uri", fallback="redis://localhost:6379"
+)
+limiter = Limiter(key_func=get_remote_address, storage_uri=limiter_storage_uri) # rate limiter for API requests based on the remote ip address and redis as backend
 export_rate_limit = int(config.get("API_CONFIG", "export_rate_limit", fallback=5))
 # get log level from config
 log_level = config.get("API_CONFIG", "log_level", fallback=None)

@@ -212,7 +212,8 @@ max_area=100000 # max area to support for rawdata input
 use_connection_pooling=True # default it will not use connection pooling but you can configure api to use to for psycopg2 connections
 log_level=info #options are info,debug,warning,error
 env=dev # default is dev , supported values are dev and prod
-allow_bind_zip_filter=true # default is false, this will allow people to choose either their output should be zipped or not . Default all output will be zipped
+allow_bind_zip_filter=true # option to configure export output zipped/unzipped Default all output will be zipped
+limiter_storage_uri=redis://localhost:6379 # API uses redis as backend for rate limiting
 export_rate_limit=5 # no of requests per minute - default is 5 requests per minute
 ```
 Based on your requirement you can also customize rawdata exports parameter using EXPORT_UPLOAD block
