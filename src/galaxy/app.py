@@ -20,7 +20,7 @@
 import os
 import sys
 import threading
-from src.galaxy.config import get_db_connection_params, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling
+from src.galaxy.config import get_db_connection_params, grid_index_threshold, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling
 from src.galaxy.validation.models import Source
 from psycopg2 import connect, sql
 from psycopg2.extras import DictCursor
@@ -1035,7 +1035,7 @@ class RawData:
         # generating geometry area in sqkm
         geom_area = int(area(json.loads(geom.json())) * 1E-6)
         # only apply grid in the logic if it exceeds the 5000 Sqkm
-        if geom_area > 5000:
+        if geom_area > grid_index_threshold:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
             cur.execute(
                 get_grid_id_query(geometry_dump))

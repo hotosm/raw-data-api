@@ -28,6 +28,7 @@ import errno
 import os
 
 CONFIG_FILE_PATH = "src/config.txt"
+use_s3_to_upload = False
 
 if os.path.exists(CONFIG_FILE_PATH) is False:
     raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), CONFIG_FILE_PATH)
@@ -39,10 +40,13 @@ limiter_storage_uri = config.get(
     "API_CONFIG", "limiter_storage_uri", fallback="redis://localhost:6379"
 )
 limiter = Limiter(key_func=get_remote_address, storage_uri=limiter_storage_uri) # rate limiter for API requests based on the remote ip address and redis as backend
+
 export_rate_limit = int(config.get("API_CONFIG", "export_rate_limit", fallback=5))
+
+grid_index_threshold = int(config.get("API_CONFIG", "grid_index_threshold", fallback=5000))
+
 # get log level from config
 log_level = config.get("API_CONFIG", "log_level", fallback=None)
-use_s3_to_upload = False
 
 if log_level is None or log_level.lower() == 'debug':  # default debug
     level = logging.DEBUG

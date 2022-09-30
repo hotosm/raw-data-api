@@ -214,6 +214,7 @@ log_level=info #options are info,debug,warning,error
 env=dev # default is dev , supported values are dev and prod
 allow_bind_zip_filter=true # option to configure export output zipped/unzipped Default all output will be zipped
 limiter_storage_uri=redis://localhost:6379 # API uses redis as backend for rate limiting
+grid_index_threshold=5000 # value in sqkm to apply grid index filter
 export_rate_limit=5 # no of requests per minute - default is 5 requests per minute
 ```
 Based on your requirement you can also customize rawdata exports parameter using EXPORT_UPLOAD block
