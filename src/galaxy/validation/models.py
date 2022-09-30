@@ -479,9 +479,9 @@ class RawDataOutputType (Enum):
     GEOJSON = "GeoJSON"
     KML = "kml"
     SHAPEFILE = "shp"
-    FlatGeobuf = "fgb"
+    FLATGEOBUF = "fgb"
     MBTILES = "mbtiles"  # fully experimental for now
-
+    GEOPACKAGE = "gpkg"
 
 class HashtagParams(BaseModel):
     hashtags: Optional[List[str]]

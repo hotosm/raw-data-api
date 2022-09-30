@@ -59,7 +59,7 @@ def get_current_snapshot_osm_data(params: RawDataCurrentParams, background_tasks
 
         params (RawDataCurrentParams):
                 {
-                "outputType": "GeoJSON", # supported are : kml,shp,(FlatGeobuf)fgb
+                "outputType": "GeoJSON", # supported are : kml,shp,(FLATGEOBUF)fgb
                 "fileName": "string",
                 "geometry": { # only polygon is supported ** required field **
                     "coordinates": [
@@ -327,7 +327,7 @@ def get_current_snapshot_of_osm_data(
 
         params (RawDataCurrentParams):
                 {
-                "outputType": "GeoJSON", # supports kml,(FlatGeobuf)fgb,shp
+                "outputType": "GeoJSON", # supports kml,(FLATGEOBUF)fgb,shp
                 "fileName": "string",
                 "geometry": { # only polygon is supported ** required field **
                     "coordinates": [
