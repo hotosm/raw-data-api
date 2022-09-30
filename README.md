@@ -94,36 +94,36 @@ http://127.0.0.1:4000/
 ```
 
 ## Check API Installation
-### Check Authetication
-
-1. Hit /auth/login/
-2. Hit Url returned on response
-3. You will get access_token
-4. You can use that access_token in all endpoints that requires authentication , To check token pass token in /auth/me/ It should return your osm profile
-
-If you get a 401 response with the detail "User is not staff member", get your OSM id using https://galaxy-api.hotosm.org/v1/docs#/default/get_user_id_osm_users_ids__post, then run the following SQL on underpass database replacing ID:
-
-```sql
-INSERT INTO users_roles VALUES (ID, 1);
-```
-
-Repeat the steps to get a new access_token.
-
-Check endpoints :
-
 - Check Mapathon Summary :
 
-```
-curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
-```
-  It should return some stats
+  ```
+  curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
+  ```
+    It should return some stats
+
+- Check Authetication :
+
+  1. Hit /auth/login/
+  2. Hit Url returned on response
+  3. You will get access_token
+  4. You can use that access_token in all endpoints that requires authentication , To check token pass token in /auth/me/ It should return your osm profile
+
+  If you get a 401 response with the detail "User is not staff member", get your OSM id using https://galaxy-api.hotosm.org/v1/docs#/default/get_user_id_osm_users_ids__post, then run the following SQL on underpass database replacing ID:
+
+  ```sql
+  INSERT INTO users_roles VALUES (ID, 1);
+  ```
+
+  Repeat the steps to get a new access_token.
+
 
 - Check Mapathon detailed report :
+
   You can test  with the `/mapathon/detail/` endpoint  with the following input to check both authentication , database connection and visualize the above summary result
 
-```
-{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}
-```
+  ```
+  {"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}
+  ```
 
 Clean Setup of API can be found in github action workflow , You can follow the steps for more [clarity](/.github/workflows/build.yml).  ```/workflows/build.yml```
 
