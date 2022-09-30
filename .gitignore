@@ -12,5 +12,6 @@ build
 newrelic.ini
 newrelic.ini_backup
 exports
+postgres-data
 *.out
 *.log
