@@ -34,7 +34,7 @@ def process_raw_data(self, params):
         bind_zip=params.bind_zip if allow_bind_zip_filter else True
         # unique id for zip file and geojson for each export
         params.output_type = params.output_type if params.output_type else RawDataOutputType.GEOJSON.value
-        params.file_name=format_file_name_str(params.file_name) if params.file_name else 'Galaxy_Export'
+        params.file_name=format_file_name_str(params.file_name) if params.file_name else 'Galaxy_export'
         exportname = f"{params.file_name}_{str(self.request.id)}_{params.output_type}"
 
         logging.info("Request %s received", exportname)
