@@ -1057,12 +1057,7 @@ class RawData:
         # first check either geometry needs grid or not for querying
         grid_id, geometry_dump, geom_area = RawData.get_grid_id(
             self.params.geometry, self.cur)
-        if self.params.output_type is None:
-            # if nothing is supplied then default output type will be geojson
-            output_type = RawDataOutputType.GEOJSON.value
-        else:
-            output_type = self.params.output_type
-
+        output_type = self.params.output_type
         # Check whether the export path exists or not
         working_dir=os.path.join(export_path, exportname)
         if not os.path.exists(working_dir):

@@ -33,6 +33,7 @@ def process_raw_data(self, params):
         start_time = dt.now()
         bind_zip=params.bind_zip if allow_bind_zip_filter else True
         # unique id for zip file and geojson for each export
+        params.output_type = params.output_type if params.output_type else RawDataOutputType.GEOJSON.value
         params.file_name=format_file_name_str(params.file_name) if params.file_name else 'Export'
         exportname = f"{params.file_name}_{str(self.request.id)}_{params.output_type}"
 
@@ -79,7 +80,7 @@ def process_raw_data(self, params):
         response_time = dt.now() - start_time
         response_time_str = str(response_time)
         logging.info(f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}")
-        return {"download_url": download_url, "file_name": exportname, "process_time": response_time_str, "query_area": f"{geom_area} Sq Km ", "binded_file_size": f"{round(inside_file_size/1000000,2)} MB", "zip_file_size_bytes": zip_file_size}
+        return {"download_url": download_url, "file_name": params.file_name, "process_time": response_time_str, "query_area": f"{geom_area} Sq Km ", "binded_file_size": f"{round(inside_file_size/1000000,2)} MB", "zip_file_size_bytes": zip_file_size}
 
     except Exception as ex:
         raise ex
