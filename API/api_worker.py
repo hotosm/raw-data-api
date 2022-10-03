@@ -80,7 +80,7 @@ def process_raw_data(self, params):
         response_time = dt.now() - start_time
         response_time_str = str(response_time)
         logging.info(f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}")
-        return {"download_url": download_url, "file_name": params.file_name, "process_time": response_time_str, "query_area": f"{geom_area} Sq Km ", "binded_file_size": f"{round(inside_file_size/1000000,2)} MB", "zip_file_size_bytes": zip_file_size}
+        return {"download_url": download_url, "file_name": params.file_name, "process_time": response_time_str, "query_area": f"{round(geom_area,2)} Sq Km", "binded_file_size": f"{round(inside_file_size/1000000,2)} MB", "zip_file_size_bytes": zip_file_size}
 
     except Exception as ex:
         raise ex

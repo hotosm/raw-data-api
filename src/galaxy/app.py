@@ -1033,9 +1033,9 @@ class RawData:
         """
         geometry_dump = dumps(dict(geom))
         # generating geometry area in sqkm
-        geom_area = int(area(json.loads(geom.json())) * 1E-6)
+        geom_area = area(json.loads(geom.json())) * 1E-6
         # only apply grid in the logic if it exceeds the 5000 Sqkm
-        if geom_area > grid_index_threshold:
+        if int(geom_area) > grid_index_threshold:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
             cur.execute(
                 get_grid_id_query(geometry_dump))
