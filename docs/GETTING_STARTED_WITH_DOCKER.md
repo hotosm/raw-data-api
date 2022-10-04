@@ -104,3 +104,4 @@ Make your .sh script executable . For eg : In ubuntu/mac
 ```
 chmod +x populate-docker-db.sh && chmod +x docker-multiple-db.sh
 ```
+In windows you can recreate the file and paste the content ! 
