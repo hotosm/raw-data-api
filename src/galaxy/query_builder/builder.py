@@ -1119,6 +1119,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
                 if len(poly_attribute_filter) > 0:
                     poly_select_condition = create_column_filter(
                         point_attribute_filter)
+    print(poly_select_condition)
     if tags:
         if master_tag_filter:  # if master tag is supplied then other tags should be ignored and master tag will be used
             master_tag = generate_tag_filter_query(master_tag_filter, params)
@@ -1194,7 +1195,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             query_ways_poly += f""" and ({poly_tag})"""
         base_query.append(query_ways_poly)
         query_relations_poly = f"""select
-            {select_condition}
+            {poly_select_condition}
             from
                 relations
             where
