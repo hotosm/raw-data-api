@@ -54,7 +54,7 @@ pip install -r requirements.txt
 
 ### 2. Setup required config for API
 
-Make sure you have https://www.postgresql.org/ setup in your machine.
+Make sure you have https://www.postgresql.org/ setup in your machine or you can use docker 
 
 Setup necessary config for API from [docs/CONFIG.DOC](/docs/CONFIG_DOC.md)
 
