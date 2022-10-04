@@ -1066,7 +1066,6 @@ def extract_attributes_tags(filters):
                             poly_attribute_filter = v
                         if k == SupportedGeometryFilters.ALLGEOM.value:
                             master_attribute_filter = v
-
     return tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter
 
 
@@ -1095,7 +1094,6 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
     point_select_condition = select_condition  # initializing default
     line_select_condition = select_condition
     poly_select_condition = select_condition
-
     if params.filters:
         tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = extract_attributes_tags(
             params.filters)
@@ -1118,7 +1116,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
                     line_select_condition = create_column_filter(
                         line_attribute_filter)
             if poly_attribute_filter:
-                if len(line_attribute_filter) > 0:
+                if len(poly_attribute_filter) > 0:
                     poly_select_condition = create_column_filter(
                         point_attribute_filter)
     if tags:
