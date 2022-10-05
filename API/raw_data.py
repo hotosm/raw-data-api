@@ -267,8 +267,7 @@ def get_current_snapshot_osm_data(params: RawDataCurrentParams, background_tasks
 def check_current_db_status():
     """Gives status about DB update, Substracts with current time and last db update time"""
     result = RawData().check_status()
-    response = f"{result} ago"
-    return {"last_updated": response}
+    return {"last_updated": result}
 
 
 def remove_file(path: str) -> None:
