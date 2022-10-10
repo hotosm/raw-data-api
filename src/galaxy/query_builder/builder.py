@@ -1219,7 +1219,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
 
 
 def check_last_updated_rawdata():
-    query = """select NOW()-importdate as last_updated from planet_osm_replication_status"""
+    query = """select importdate as last_updated from planet_osm_replication_status"""
     return query
 
 

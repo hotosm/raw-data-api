@@ -265,7 +265,7 @@ def get_current_snapshot_osm_data(params: RawDataCurrentParams, background_tasks
 @router.get("/status/")
 @version(1)
 def check_current_db_status():
-    """Gives status about DB update, Substracts with current time and last db update time"""
+    """Gives status about how recent the osm data is , it will give the last time that database was updated completely"""
     result = RawData().check_status()
     return {"last_updated": result}
 
