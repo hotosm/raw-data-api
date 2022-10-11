@@ -1,6 +1,6 @@
 aiofiles==0.7.0
 asgiref==3.3.4
-click==8.0.1
+click==8.0.3
 fastapi==0.65.2
 h11==0.12.0
 importlib-metadata==4.5.0
@@ -26,7 +26,9 @@ sphinx==4.2.0
 area==1.1.1
 orjson==3.6.7
 boto3==1.24.38
-Fiona==1.8.21
 fastapi-versioning==0.10.0
-#gdal and ogr2ogr is required on the machine to run rawdata endpoint 
-#gdal == 3.3.2
+redis==4.3.4
+celery==5.2.7
+flower==1.2.0
+slowapi==0.1.6
+

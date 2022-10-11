@@ -1,0 +1,86 @@
+name: Check Build
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  build:
+    timeout-minutes: 4
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:14-3.3
+        env:
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: insights
+        ports:
+          - 5434:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Create Databases
+        run: |
+          export PGPASSWORD='admin';
+          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE underpass;"
+          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE tm;"
+          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE raw;"
+
+      - name: Insert sample db data
+        run: |
+          export PGPASSWORD='admin';
+          psql -U postgres -h localhost -p 5434 insights < tests/src/fixtures/insights.sql
+          psql -U postgres -h localhost -p 5434 insights < tests/src/fixtures/mapathon_summary.sql
+          psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
+          psql -U postgres -h localhost -p 5434 underpass < tests/src/fixtures/underpass.sql
+          wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
+          psql -U postgres -h localhost -p 5434 tm < tasking-manager.sql
+
+      - name: Install gdal
+        run: |
+          sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+
+      - name: Install redis
+        run: |
+          sudo apt install lsb-release
+          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+          sudo apt-get update
+          sudo apt-get install redis
+          redis-cli ping
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Creating config.txt
+        run: |
+          mv src/config.txt.sample src/config.txt
+      - name: Run uvicorn server
+        run: |
+          uvicorn API.main:app &
+        env:
+          PORT: 8000
+      - name: Run celery server
+        run: |
+          celery --app API.api_worker worker --loglevel=INFO &
+      - name: Run flower dashboard
+        run: |
+          celery --app API.api_worker flower --port=5555 --broker=redis://localhost:6379/ &
+      - name: Run mapathon summary endpoint
+        run: |
+          curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
+      - name: Run rawdata current snapshot
+        run: |
+          curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v2/raw-data/current-snapshot/

@@ -21,15 +21,32 @@
 
 from configparser import ConfigParser
 import logging
+import os
+from slowapi.util import get_remote_address
+from slowapi import Limiter
+import errno
+import os
 
 CONFIG_FILE_PATH = "src/config.txt"
+use_s3_to_upload = False
+
+if os.path.exists(CONFIG_FILE_PATH) is False:
+    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), CONFIG_FILE_PATH)
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
 
+limiter_storage_uri = config.get(
+    "API_CONFIG", "limiter_storage_uri", fallback="redis://localhost:6379"
+)
+limiter = Limiter(key_func=get_remote_address, storage_uri=limiter_storage_uri) # rate limiter for API requests based on the remote ip address and redis as backend
+
+export_rate_limit = int(config.get("API_CONFIG", "export_rate_limit", fallback=5))
+
+grid_index_threshold = int(config.get("API_CONFIG", "grid_index_threshold", fallback=5000))
+
 # get log level from config
 log_level = config.get("API_CONFIG", "log_level", fallback=None)
-use_s3_to_upload = False
 
 if log_level is None or log_level.lower() == 'debug':  # default debug
     level = logging.DEBUG
@@ -44,20 +61,26 @@ else:
         "logging config is not supported , Supported fields are : debug,error,warning,info , Logging to default :debug")
     level = logging.DEBUG
 
-logging.getLogger("fiona").propagate = False  # disable fiona logging
+# logging.getLogger("fiona").propagate = False  # disable fiona logging
 logging.basicConfig(format='%(asctime)s - %(message)s', level=level)
 logging.getLogger('boto3').propagate = False  # disable boto3 logging
+logging.getLogger('botocore').propagate = False  # disable boto3 logging
+logging.getLogger('s3transfer').propagate = False  # disable boto3 logging
+logging.getLogger('boto').propagate = False  # disable boto3 logging
 
-logger = logging.getLogger('galaxy')
+
+
+logger = logging.getLogger('src.galaxy')
 
 export_path = config.get('API_CONFIG', 'export_path', fallback=None)
 if export_path is None:
-    export_path = "exports/"
-if export_path.endswith("/") is False:
-    export_path = f"""{export_path}/"""
-
-shp_limit = int(config.get('API_CONFIG', 'shp_limit', fallback=4096))
-
+    export_path = "exports"
+if not os.path.exists(export_path):
+    # Create a exports directory because it does not exist
+    os.makedirs(export_path)
+allow_bind_zip_filter=config.get('API_CONFIG', 'allow_bind_zip_filter', fallback=None)
+if allow_bind_zip_filter:
+    allow_bind_zip_filter=True if allow_bind_zip_filter.lower()=='true' else False
 
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 # check either to use connection pooling or not

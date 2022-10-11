@@ -33,12 +33,14 @@ from .data_quality import router as data_quality_router
 from .hashtag_stats import router as hashtag_router
 from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
-from .download_export import router as download_router
-# from .test_router import router as test_router
+from .tasks import router as tasks_router
 from .status import router as status_router
 from src.galaxy.db_session import database_instance
-from src.galaxy.config import use_connection_pooling, use_s3_to_upload, logger as logging, config
+from src.galaxy.config import limiter, export_path, use_connection_pooling, use_s3_to_upload, logger as logging, config
 from fastapi_versioning import VersionedFastAPI
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from fastapi.staticfiles import StaticFiles
 
 # only use sentry if it is specified in config blocks
 if config.get("SENTRY", "dsn", fallback=None):
@@ -50,11 +52,14 @@ if config.get("SENTRY", "dsn", fallback=None):
         traces_sample_rate=config.get("SENTRY", "rate")
     )
 
+
 run_env = config.get("API_CONFIG", "env", fallback='prod')
 if run_env.lower() == 'dev':
     # This is used for local setup for auth login
     import os
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+
 
 app = FastAPI(title="Galaxy API")
 
@@ -71,15 +76,20 @@ app.include_router(hashtag_router)
 app.include_router(tm_router)
 app.include_router(status_router)
 app.include_router(raw_data_router)
+app.include_router(tasks_router)
 
-if use_s3_to_upload is False:
-    # only mount the disk if config is set to disk
-    app.include_router(download_router)
+
 
 
 app = VersionedFastAPI(app, enable_latest=True,
                        version_format='{major}', prefix_format='/v{major}')
 
+if use_s3_to_upload is False:
+    # only mount the disk if config is set to disk
+    app.mount("/exports", StaticFiles(directory=export_path), name="exports")
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 origins = ["*"]
 
