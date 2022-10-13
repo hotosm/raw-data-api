@@ -17,24 +17,12 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 import time
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import sentry_sdk
-
-from .countries.routers import router as countries_router
-# from .changesets.routers import router as changesets_router
-# from .data.routers import router as data_router
 from .auth.routers import router as auth_router
-from .mapathon import router as mapathon_router
-from .osm_users import router as osm_users_router
-from .data_quality import router as data_quality_router
-# from .trainings import router as training_router
-from .hashtag_stats import router as hashtag_router
-from .tasking_manager import router as tm_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
-from .status import router as status_router
 from src.galaxy.db_session import database_instance
 from src.galaxy.config import limiter, export_path, use_connection_pooling, use_s3_to_upload, logger as logging, config
 from fastapi_versioning import VersionedFastAPI
@@ -59,26 +47,10 @@ if run_env.lower() == 'dev':
     import os
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-
-
 app = FastAPI(title="Galaxy API")
-
-# app.include_router(test_router)
-app.include_router(countries_router)
-# app.include_router(changesets_router)
 app.include_router(auth_router)
-app.include_router(mapathon_router)
-# app.include_router(data_router)
-app.include_router(osm_users_router)
-app.include_router(data_quality_router)
-# app.include_router(training_router)
-app.include_router(hashtag_router)
-app.include_router(tm_router)
-app.include_router(status_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
-
-
 
 
 app = VersionedFastAPI(app, enable_latest=True,
