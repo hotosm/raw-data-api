@@ -25,7 +25,7 @@ from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError
 from src.galaxy.validation.models import UserRole, RawDataCurrentParams, RawDataOutputType
-from src.galaxy.query_builder.builder import get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query, raw_historical_data_extraction_query
+from src.galaxy.query_builder.builder import get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
 from json import loads as json_loads
 from geojson import FeatureCollection
 import orjson

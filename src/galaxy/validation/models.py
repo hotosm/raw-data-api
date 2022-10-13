@@ -153,3 +153,8 @@ class RawDataCurrentParams(BaseModel):
             raise ValueError(
                 f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
         return value
+
+class UserRole(Enum):
+    ADMIN = 1
+    STAFF = 2
+    NONE = 3
