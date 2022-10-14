@@ -261,33 +261,6 @@ class RawData:
                 con.close()
 
     @staticmethod
-    def to_geojson(results):
-        """Responsible for converting query result to featurecollection , It is absolute now ~ not used anymore
-
-        Args:
-            results (_type_): Query Result geojson per feature string
-
-        Returns:
-            _type_: featurecollection
-        """
-        logging.debug('Geojson Binding Started !')
-        feature_collection = FeatureCollection(
-            features=[orjson.loads(row[0]) for row in results])
-        logging.debug('Geojson Binding Done !')
-        return feature_collection
-
-    def extract_historical_data(self):
-        """Idea is to extract historical data , Currently not maintained
-
-        Returns:
-            _type_: geojson featurecollection
-        """
-        extraction_query = raw_historical_data_extraction_query(
-            self.cur, self.con, self.params)
-        results = self.d_b.executequery(extraction_query)
-        return RawData.to_geojson(results)
-
-    @staticmethod
     def ogr_export_shp(point_query, line_query, poly_query, working_dir, file_name):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
         db_items = get_db_connection_params("RAW_DATA")
@@ -300,7 +273,7 @@ class RawData:
             point_file_path = os.path.join(
                 working_dir, f"{file_name}_point.shp")
             # command for ogr2ogr to generate file
-            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=point_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Point Shapefile")
             run_ogr2ogr_cmd(cmd)
@@ -313,7 +286,7 @@ class RawData:
             with open(query_path, 'w', encoding="UTF-8") as file:
                 file.write(line_query)
             line_file_path = os.path.join(working_dir, f"{file_name}_line.shp")
-            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=line_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Line Shapefile")
             run_ogr2ogr_cmd(cmd)
@@ -326,7 +299,7 @@ class RawData:
             # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
             with open(query_path, 'w', encoding="UTF-8") as file:
                 file.write(poly_query)
-            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=poly_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Poly Shapefile")
             run_ogr2ogr_cmd(cmd)
@@ -344,22 +317,22 @@ class RawData:
             file.write(query)
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype == RawDataOutputType.MBTILES.value:
-            cmd = '''ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.FLATGEOBUF.value:
-            cmd = '''ogr2ogr -overwrite -f FLATGEOBUF {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress VERIFY_BUFFERS=NO'''.format(
+            cmd = '''ogr2ogr -overwrite -f FLATGEOBUF {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress VERIFY_BUFFERS=NO'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.KML.value:
-            cmd = '''ogr2ogr -overwrite -f KML {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f KML {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.GEOPACKAGE.value:
-            cmd = '''ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
         # clear query file we don't need it anymore
