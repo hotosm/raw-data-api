@@ -1,6 +1,6 @@
 # Export Tool API
-![example workflow](https://github.com/hotosm/galaxy-api/actions/workflows/Unit-Test.yml/badge.svg)
-![example workflow](https://github.com/hotosm/galaxy-api/actions/workflows/locust.yml/badge.svg)
+![example workflow](https://github.com/hotosm/export-tool-api/actions/workflows/Unit-Test.yml/badge.svg)
+![example workflow](https://github.com/hotosm/export-tool-api/actions/workflows/locust.yml/badge.svg)
 
 ## Getting Started
 
@@ -94,12 +94,6 @@ http://127.0.0.1:4000/
 ```
 
 ## Check API Installation
-- Check Mapathon Summary :
-
-  ```
-  curl -d '{"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/mapathon/summary/
-  ```
-    It should return some stats
 
 - Check Authetication :
 
@@ -117,12 +111,12 @@ http://127.0.0.1:4000/
   Repeat the steps to get a new access_token.
 
 
-- Check Mapathon detailed report :
+- Check Extraction :
 
-  You can test  with the `/mapathon/detail/` endpoint  with the following input to check both authentication , database connection and visualize the above summary result
+  You can test  with the `/raw-data/current-snapshot/` endpoint  with the following input to check both authentication , database connection and download the export
 
   ```
-  {"project_ids": [11224, 10042, 9906, 1381, 11203, 10681, 8055, 8732, 11193, 7305,11210, 10985, 10988, 11190, 6658, 5644, 10913, 6495, 4229],"fromTimestamp":"2021-08-27T9:00:00","toTimestamp":"2021-08-27T11:00:00","hashtags": ["mapandchathour2021"]}
+  curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],   [83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json'   http://127.0.0.1:8000/v2/raw-data/current-snapshot/
   ```
 
 Clean Setup of API can be found in github action workflow , You can follow the steps for more [clarity](/.github/workflows/build.yml).  ```/workflows/build.yml```
@@ -155,26 +149,9 @@ py.test -k test function name
 ```
 
 
-# Galaxy Package
-
-## Local Install
+# Dev Setup
 
 
-```
-python setup.py install
-```
-
-Now import as :
-
-```import galaxy```
-
-For database :
-
-```from galaxy import Database```
-
-For Mapathon :
-
-```from galaxy import Mapathon```
 
 ## New Relic
 When using New Relic, save the newrelic.ini to the root of the project and run the following to start the server:
@@ -183,7 +160,7 @@ When using New Relic, save the newrelic.ini to the root of the project and run t
 
 ## Setup Documentation
 
-Galaxy API Uses Sphinx for it's technical documentation.
+Repo Sphinx for it's technical documentation.
 
 To Setup  :
 
