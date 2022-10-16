@@ -12,7 +12,7 @@ touch src/config.txt
 
 - Put those config block inside your file
 
-If you want to use docker postgres Sample data for underpass, insights, taskingmanager, rawdata is included in db itself :
+If you want to use docker postgres Sample data for it is included in repo itself :
 You can use following config to get started with sample data  or Setup them by yourself by following [instructions](../docs/CONFIG_DOC.md)
 ```
 [RAW_DATA]
