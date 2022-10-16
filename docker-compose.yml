@@ -49,7 +49,7 @@ services:
   worker-dashboard:
     build: .
     container_name: flower
-    command:  celery --app API.api_worker flower --port=4000 --broker=redis://redis:6379/
+    command:  celery --broker=redis://redis:6379// --app API.api_worker flower --port=4000
     ports:
       - 4000:4000
     depends_on:
