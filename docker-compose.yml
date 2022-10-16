@@ -3,6 +3,7 @@ version: '3.8'
 services:
 
   postgres:
+      restart: always
       image: postgis/postgis
       container_name: pgsql
       environment:
@@ -13,6 +14,13 @@ services:
         - '5434:5432'
       volumes:
         - ./postgres-data:/var/lib/postgresql/data
+        - ./tests/src/fixtures/raw_data.sql:/docker-entrypoint-initdb.d/raw_data.sql
+
+  redis:
+    image: redis:6-alpine
+    container_name: redis
+    ports:
+     - "6379:6379"
 
   app:
     build: .
@@ -26,7 +34,6 @@ services:
       - redis
       - postgres
 
-
   worker:
     build: .
     container_name: worker
@@ -38,11 +45,6 @@ services:
       - redis
       - postgres
 
-  redis:
-    image: redis:6-alpine
-    container_name: redis
-    ports:
-     - "6379:6379"
 
   worker-dashboard:
     build: .

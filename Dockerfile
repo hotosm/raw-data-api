@@ -9,8 +9,6 @@ RUN apt-get update && apt-get -y upgrade && \
 RUN mkdir /app
 COPY requirements.txt /app/requirements.txt
 
-COPY tests/src/fixtures/raw_data.sql /docker-entrypoint-initdb.d/10-init.sql
-
 COPY setup.py /app/setup.py
 
 WORKDIR /app
