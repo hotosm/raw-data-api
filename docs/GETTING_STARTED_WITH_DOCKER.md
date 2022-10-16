@@ -33,7 +33,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 - **Setup Authentication**
 
-   Follow this [Setup Oauth Block](../docs/CONFIG_DOC.md#6-setup-oauth-for-authentication) and include it in your config.txt
+   Follow this [Setup Oauth Block](../docs/CONFIG_DOC.md#3-setup-oauth-for-authentication) and include it in your config.txt
 
 ### 2. Create the images and spin up the Docker containers:
 ```
