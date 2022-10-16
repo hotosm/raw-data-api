@@ -1,5 +1,5 @@
 # Export Tool API
-![Unit test](https://github.com/hotosm/export-tool-api/actions/workflows/unit-test.yml/badge.svg)
+![Unit test](https://github.com/hotosm/export-tool-api/actions/workflows/Unit-Test.yml/badge.svg)
 ![Locust](https://github.com/hotosm/export-tool-api/actions/workflows/locust.yml/badge.svg)
 
 ## Getting Started
