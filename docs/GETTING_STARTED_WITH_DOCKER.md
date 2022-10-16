@@ -1,19 +1,26 @@
-### 1. First Checkout the repository  and Setup Config
+### 1. Initial Setup
+
+- Clone the repository, and change directory to _export-tool-api_ folder on your computer.
 
 ```
 git clone https://github.com/hotosm/export-tool-api.git
+cd export-tool-api
 ```
 
-- Create config.txt inside /src/
+### 2. Configurations
+
+- Create `config.txt` inside /src/ folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer.
 
 ```
-touch src/config.txt
+touch src/config.txt #Linux
+wsl touch src/config.txt #Windows with WSL
+echo >> src/config.txt #Windows without WSL
 ```
 
-- Put those config block inside your file
+- Database configuration:
+  - To use the default database(with sample data) shipped with the `Dockerfile`, you can update the `config.txt` with the configurations below. [**Recommended**]
+  - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](../docs/CONFIG_DOC.md).
 
-If you want to use docker postgres Sample data for it is included in repo itself :
-You can use following config to get started with sample data  or Setup them by yourself by following [instructions](../docs/CONFIG_DOC.md)
 ```
 [RAW_DATA]
 host=pgsql
@@ -31,50 +38,64 @@ CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
 ```
 
-- **Setup Authentication**
+- OSM Authentication:
 
-   Follow this [Setup Oauth Block](../docs/CONFIG_DOC.md#3-setup-oauth-for-authentication) and include it in your config.txt
+  - Follow this step to setup OSM OAuth: [Setup Oauth Block](../docs/CONFIG_DOC.md#3-setup-oauth-for-authentication).
+  - Update your `config.txt` with the `[OAUTH]` block from the step above.
 
-### 2. Create the images and spin up the Docker containers:
+### 3. Create the Docker images and spin up the containers
+
 ```
 docker-compose up -d --build
 ```
 
-### 3. Check Servers
+### 4. Check the servers
 
-Uvicorn should be running on [8000](http://127.0.0.1:8000/latest/docs) port , Redis on default port , Celery with a worker and Flower on 5000
+By default, Uvicorn would be running on port [8000](http://127.0.0.1:8000/latest/docs), Redis on default port(i.e 6379), Celery with a worker and Flower on port [5000](http://127.0.0.1:5000/).
+
+- API Documentation
+
+Visit the route below to access the API documentation.
 
 ```
 http://127.0.0.1:8000/latest/docs
 ```
-API Docs will be displayed like this upon uvicorn successfull server start
+
+API docs will be displayed like this upon successfull server startup
+
 ![image](https://user-images.githubusercontent.com/36752999/191813795-fdfd46fe-5e6c-4ecf-be9b-f9f351d3d1d7.png)
+
+- Flower dashboard
+
+Vist the route below to access the Flower dashboard
 
 ```
 http://127.0.0.1:5000/
 ```
 
-Flower [dashboard](http://127.0.0.1:5000/) will look like this on successfull installation with a worker online
+Flower [dashboard](http://127.0.0.1:5000/) will look like this on successfull installation with a worker online.
+
 ![image](https://user-images.githubusercontent.com/36752999/191813613-3859522b-ea68-4370-87b2-ebd1d8880d80.png)
 
+### 5. Proceed to the readme for further configurations: [here](../README.md#check-api-installation).
 
-Now, Continue Readme. Check installation from [here](../README.md#check-api-installation)
+### 6. **Troubleshooting**
 
-### [Troubleshoot] If you can't connect to local postgres from API
+**NOTE:** If any of the solutions provided below does not work for you, please don't hesistate to open an issue.
 
-Since API is running through container, If you have local postgres installed on your machine that port may not be accesible as localhost from container , Container needs to connect to your local network , In order to do that there are few options
-1. Option one :
+- If you can't connect to your local postgres database from `export-tool-api`.
 
-   - For windows/ Mac docker user
-     Replace localhost with ```host.docker.internal``` – This resolves to the outside host and lets you connect to your machine's localhost through container , For example if postgres is running on your machine in 5432 , container can connect from ```host.docker.internal:5432```
-   - For linux user :
-     Linux users can enable host.docker.internal too via the --add-host flag for docker run. Start your containers with this flag to expose the host string:
-     ```docker run -d --add-host host.docker.internal:host-gateway my-container:latest```
+  Since _export-tool-api_ is running in docker containers, it means if you setup your `config.txt` file to use a local postgres database on your machine, the database port may not be accessible as `localhost` from the docker containers. To solve this, docker needs to connect to your local network. Try any of these hacks to troubleshoot the issue:
 
-2. Option two :
+  1. Option one :
 
-    Find your network ip address (for linux/mac you can use ```ifconfig -l | xargs -n1 ipconfig getifaddr``` ) and use your ip as a host instead of localhost in config file .
+     - For windows/ Mac docker user
+       Replace localhost with `host.docker.internal` – This resolves to the outside host and lets you connect to your machine's localhost through container. For example if postgres is running on your machine on port `5432` , docker container can connect from `host.docker.internal:5432`
+     - For linux user :
+       Linux users can enable host.docker.internal via the --add-host flag for docker run. Start your containers with this flag to expose the host string:
+       `docker run -d --add-host host.docker.internal:host-gateway my-container:latest`
 
-    If connection still fails : You may need to edit your postgres config file ( ask postgres where it is by this query ```show config_file;``` ) and edit/enable ```listen_addresses = '*'``` inside ```postgresql.conf``` . Also add ```host    all             all             0.0.0.0/0               trust``` in ```pg_hba.conf```
+  2. Option two :
 
-
+     - Find your network ip address (for linux/mac you can use `ifconfig -l | xargs -n1 ipconfig getifaddr` ) and use your ip address as the database host instead of `localhost` in `config.txt` file.
+     - If connection still fails : You may need to edit your postgres config file ( ask postgres where it is using this query: `show config_file;` ) and edit/enable `listen_addresses = '*'` inside `postgresql.conf` . Also add `host all all 0.0.0.0/0 trust` in `pg_hba.conf`.
