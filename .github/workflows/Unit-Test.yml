@@ -11,17 +11,16 @@ on:
 
 jobs:
   deploy:
-    runs-on:
-      ubuntu-latest
+    runs-on: ubuntu-latest
     services:
-     postgres:
-      image: postgis/postgis:14-3.3
-      env:
-        POSTGRES_PASSWORD: admin
-        POSTGRES_DB: insights
-      ports:
-        - 5434:5432
-      options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
+      postgres:
+        image: postgis/postgis:14-3.3
+        env:
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: raw
+        ports:
+          - 5434:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
@@ -36,27 +35,16 @@ jobs:
       - name: Set up postgresql 12
         uses: harmon758/postgresql-action@v1
         with:
-          postgresql version: '12'
+          postgresql version: "12"
       - name: Install Postgis 3 for Psql 12
         run: |
           sudo apt-get update
           sudo apt install postgis postgresql-12-postgis-3
 
-      - name: Create Databases
-        run : |
-          export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE underpass;"
-          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE tm;"
-          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE raw;"
-
       - name: Insert sample db data
-        run : |
+        run: |
           export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 insights < tests/src/fixtures/insights.sql
           psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
-          psql -U postgres -h localhost -p 5434 underpass < tests/src/fixtures/underpass.sql
-          wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
-          psql -U postgres -h localhost -p 5434 tm < tasking-manager.sql
 
       - name: Install Dependencies
         run: |

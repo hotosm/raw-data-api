@@ -1,7 +1,7 @@
 ### 1. First Checkout the repository  and Setup Config
 
 ```
-git clone https://github.com/hotosm/galaxy-api.git
+git clone https://github.com/hotosm/export-tool-api.git
 ```
 
 - Create config.txt inside /src/
@@ -12,30 +12,9 @@ touch src/config.txt
 
 - Put those config block inside your file
 
-If you want to use docker postgres Sample data for underpass, insights, taskingmanager, rawdata is included in db itself :
+If you want to use docker postgres Sample data for it is included in repo itself :
 You can use following config to get started with sample data  or Setup them by yourself by following [instructions](../docs/CONFIG_DOC.md)
 ```
-[INSIGHTS]
-host=pgsql
-user=postgres
-password=admin
-database=insights
-port=5432
-
-[UNDERPASS]
-host=pgsql
-user=postgres
-password=admin
-database=underpass
-port=5432
-
-[TM]
-host=pgsql
-user=postgres
-password=admin
-database=tm
-port=5432
-
 [RAW_DATA]
 host=pgsql
 user=postgres
@@ -45,6 +24,7 @@ port=5432
 
 [API_CONFIG]
 env=dev
+limiter_storage_uri=redis://redis:6379
 
 [CELERY]
 CELERY_BROKER_URL=redis://redis:6379/0
@@ -53,7 +33,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 - **Setup Authentication**
 
-   Follow this [Setup Oauth Block](../docs/CONFIG_DOC.md#6-setup-oauth-for-authentication) and include it in your config.txt
+   Follow this [Setup Oauth Block](../docs/CONFIG_DOC.md#3-setup-oauth-for-authentication) and include it in your config.txt
 
 ### 2. Create the images and spin up the Docker containers:
 ```
@@ -97,11 +77,4 @@ Since API is running through container, If you have local postgres installed on 
 
     If connection still fails : You may need to edit your postgres config file ( ask postgres where it is by this query ```show config_file;``` ) and edit/enable ```listen_addresses = '*'``` inside ```postgresql.conf``` . Also add ```host    all             all             0.0.0.0/0               trust``` in ```pg_hba.conf```
 
-### [Troubleshoot] If you can't run postgresql on docker to execute .sh script provided
 
-Make your .sh script executable . For eg : In ubuntu/mac
-
-```
-chmod +x populate-docker-db.sh && chmod +x docker-multiple-db.sh
-```
-In windows you can recreate the file and paste the content ! 

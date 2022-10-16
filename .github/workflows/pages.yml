@@ -3,10 +3,10 @@ on:
   push:
     branches:
       - master
+      - develop
 jobs:
   deploy:
-    runs-on:
-      ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -26,9 +26,9 @@ jobs:
           sphinx-apidoc -o source ../src/galaxy
           sphinx-apidoc -o source ../API
           make html
-        
-      - name : Debug Output
-        run : |
+
+      - name: Debug Output
+        run: |
           ls -la ./docs/build/html
 
       - name: Deploy HTML

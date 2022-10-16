@@ -3,20 +3,24 @@ version: '3.8'
 services:
 
   postgres:
+      restart: always
       image: postgis/postgis
       container_name: pgsql
       environment:
-        - POSTGRES_MULTIPLE_DATABASES="underpass","tm","raw","insights"
+        - POSTGRES_DB=raw
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=admin
       ports:
         - '5434:5432'
       volumes:
-        - ./tests/src/fixtures/:/sql/
         - ./postgres-data:/var/lib/postgresql/data
-        - ./docker-multiple-db.sh:/docker-entrypoint-initdb.d/create.sh
-        - ./populate-docker-db.sh:/docker-entrypoint-initdb.d/insert.sh
+        - ./tests/src/fixtures/raw_data.sql:/docker-entrypoint-initdb.d/raw_data.sql
 
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+     - "6379:6379"
 
   app:
     build: .
@@ -30,7 +34,6 @@ services:
       - redis
       - postgres
 
-
   worker:
     build: .
     container_name: worker
@@ -42,11 +45,6 @@ services:
       - redis
       - postgres
 
-  redis:
-    image: redis:6-alpine
-    container_name: redis
-    ports:
-     - "6379:6379"
 
   worker-dashboard:
     build: .

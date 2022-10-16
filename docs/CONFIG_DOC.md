@@ -8,51 +8,7 @@ Before getting started on config Make sure you have [Postgres](https://www.postg
 ![image](https://user-images.githubusercontent.com/36752999/188402566-80dc9633-5d4e-479c-97dc-9e8a4999b385.png)
 
 
-### 2. Setup Underpass
-  Run underpass from [here](https://github.com/hotosm/underpass/blob/master/doc/getting-started.md)  OR Create database "underpass" in your local postgres and insert sample dump from
-```
-/tests/src/fixtures/underpass.sql
-```
-
-```
-psql -U postgres -h localhost underpass < underpass.sql
-```
-Put your credentials in Underpass block
-```
-[UNDERPASS]
-host=localhost
-user=postgres
-password=admin
-database=underpass
-port=5432
-```
-
-### 3. Setup Insights for Historical Data
-Setup insights from [here](https://github.com/hotosm/insights) OR Create database "insights" in your local postgres and insert sample dump from
-```
-/tests/src/fixtures/insights.sql
-```
-
-```
-psql -U postgres -h localhost insights < insights.sql
-```
-Add a sample data dump for mapathon summary to visualize statistics
-
-```
-psql -U postgres -h localhost insights < tests/src/fixtures/mapathon_summary.sql
-```
-
-Put your credentials in insights block
-```
-[INSIGHTS]
-host=localhost
-user=postgres
-password=admin
-database=insights
-port=5432
-```
-
-### 4. Setup Raw Data for Current OSM Snapshot
+### 2. Prepare your OSM Snapshot Data
 Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from
 ```
 /tests/src/fixtures/raw_data.sql
@@ -72,28 +28,7 @@ database=raw
 port=5432
 ```
 
-### 5. Setup Tasking Manager Database for TM related development
-
-Setup Tasking manager from [here](https://github.com/hotosm/tasking-manager) OR Create database "tm" in your local postgres and insert sample dump from TM Sample Dump
-
-```
-/tests/src/fixtures/tasking-manager.sql
-```
-
-```
-psql -U postgres -h localhost tm < tasking-manager.sql
-```
-Put your credentials on TM block
-```
-[TM]
-host=localhost
-user=postgres
-password=admin
-database=tm
-port=5432
-```
-
-### 6. Setup Oauth for Authentication
+### 3. Setup Oauth for Authentication
 Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local galaxy app to Oauth2applications
 
 ![image](https://user-images.githubusercontent.com/36752999/188452619-aababf28-b685-4141-b381-9c25d0367b57.png)
@@ -116,9 +51,9 @@ login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
 secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 ```
 
-### 7. Configure celery and redis
+### 4. Configure celery and redis
 
-Galaxy API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port . if you are running redis on same machine your broker could be ```redis://localhost:6379/```. You can change the port according to your configuration for the current docker compose use following
+API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port . if you are running redis on same machine your broker could be ```redis://localhost:6379/```. You can change the port according to your configuration for the current docker compose use following
 
 ```
 [CELERY]
@@ -126,7 +61,7 @@ CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
 ```
 
-### 7. Finalizing config.txt
+### 5. Finalizing config.txt
 Insert your config blocks with the database credentials where you have underpass ,insight and rawdata in your database along with oauth block
 
 Summary of command :
@@ -135,48 +70,20 @@ Considering You have PSQL-POSTGIS setup  with user **postgres** host **localhost
 
 ```
   export PGPASSWORD='admin';
-  psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE underpass;"
-  psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE tm;"
   psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE raw;"
 
   cd tests/src/fixtures/
-  psql -U postgres -h localhost -p 5432 insights < insights.sql
-  psql -U postgres -h localhost -p 5432 insights < mapathon_summary.sql
   psql -U postgres -h localhost -p 5432 raw  < raw_data.sql
-  psql -U postgres -h localhost -p 5432 underpass < underpass.sql
-  wget https://raw.githubusercontent.com/hotosm/tasking-manager/develop/tests/database/tasking-manager.sql
-  psql -U postgres -h localhost -p 5432 tm < tasking-manager.sql
 ```
 
 Your config.txt will look like this
 
 ```
-[UNDERPASS]
-host=localhost
-user=postgres
-password=admin
-database=underpass
-port=5432
-
-[INSIGHTS]
-host=localhost
-user=postgres
-password=admin
-database=insights
-port=5432
-
 [RAW_DATA]
 host=localhost
 user=postgres
 password=admin
 database=raw
-port=5432
-
-[TM]
-host=localhost
-user=postgres
-password=admin
-database=tm
 port=5432
 
 [OAUTH]
@@ -190,6 +97,7 @@ secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 [API_CONFIG]
 env=dev
 log_level=debug
+limiter_storage_uri=redis://redis:6379
 
 [CELERY]
 CELERY_BROKER_URL=redis://redis:6379/0

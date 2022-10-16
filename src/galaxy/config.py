@@ -25,13 +25,13 @@ import os
 from slowapi.util import get_remote_address
 from slowapi import Limiter
 import errno
-import os
 
 CONFIG_FILE_PATH = "src/config.txt"
 use_s3_to_upload = False
 
 if os.path.exists(CONFIG_FILE_PATH) is False:
-    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), CONFIG_FILE_PATH)
+    raise FileNotFoundError(errno.ENOENT, os.strerror(
+        errno.ENOENT), CONFIG_FILE_PATH)
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
@@ -39,11 +39,14 @@ config.read(CONFIG_FILE_PATH)
 limiter_storage_uri = config.get(
     "API_CONFIG", "limiter_storage_uri", fallback="redis://localhost:6379"
 )
-limiter = Limiter(key_func=get_remote_address, storage_uri=limiter_storage_uri) # rate limiter for API requests based on the remote ip address and redis as backend
+# rate limiter for API requests based on the remote ip address and redis as backend
+limiter = Limiter(key_func=get_remote_address, storage_uri=limiter_storage_uri)
 
-export_rate_limit = int(config.get("API_CONFIG", "export_rate_limit", fallback=5))
+export_rate_limit = int(config.get(
+    "API_CONFIG", "export_rate_limit", fallback=5))
 
-grid_index_threshold = int(config.get("API_CONFIG", "grid_index_threshold", fallback=5000))
+grid_index_threshold = int(config.get(
+    "API_CONFIG", "grid_index_threshold", fallback=5000))
 
 # get log level from config
 log_level = config.get("API_CONFIG", "log_level", fallback=None)
@@ -69,7 +72,6 @@ logging.getLogger('s3transfer').propagate = False  # disable boto3 logging
 logging.getLogger('boto').propagate = False  # disable boto3 logging
 
 
-
 logger = logging.getLogger('src.galaxy')
 
 export_path = config.get('API_CONFIG', 'export_path', fallback=None)
@@ -78,9 +80,10 @@ if export_path is None:
 if not os.path.exists(export_path):
     # Create a exports directory because it does not exist
     os.makedirs(export_path)
-allow_bind_zip_filter=config.get('API_CONFIG', 'allow_bind_zip_filter', fallback=None)
+allow_bind_zip_filter = config.get(
+    'API_CONFIG', 'allow_bind_zip_filter', fallback=None)
 if allow_bind_zip_filter:
-    allow_bind_zip_filter=True if allow_bind_zip_filter.lower()=='true' else False
+    allow_bind_zip_filter = True if allow_bind_zip_filter.lower() == 'true' else False
 
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 # check either to use connection pooling or not
@@ -119,7 +122,7 @@ def get_db_connection_params(dbIdentifier: str) -> dict:
 
     """
 
-    ALLOWED_SECTION_NAMES = ('INSIGHTS', 'TM', 'UNDERPASS', 'RAW_DATA')
+    ALLOWED_SECTION_NAMES = ('UNDERPASS', 'RAW_DATA')
 
     if dbIdentifier not in ALLOWED_SECTION_NAMES:
         logging.error(

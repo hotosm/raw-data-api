@@ -1,29 +1,8 @@
-[INSIGHTS]
-host=localhost
-user=postgres
-password=admin
-database=insights
-port=5434
-
-[UNDERPASS]
-host=localhost
-user=postgres
-password=admin
-database=underpass
-port=5434
-
 [RAW_DATA]
 host=localhost
 user=postgres
 password=admin
 database=raw
-port=5434
-
-[TM]
-host=localhost
-user=postgres
-password=admin
-database=tm
 port=5434
 
 [OAUTH]
@@ -36,6 +15,7 @@ secret_key=PutSomethingRandmHere
 
 [API_CONFIG]
 env=dev
+limiter_storage_uri=redis://localhost:6379
 
 [CELERY]
 CELERY_BROKER_URL=redis://localhost:6379/0
