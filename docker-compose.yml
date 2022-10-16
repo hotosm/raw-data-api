@@ -17,7 +17,7 @@ services:
         - ./tests/src/fixtures/raw_data.sql:/docker-entrypoint-initdb.d/raw_data.sql
 
   redis:
-    image: redis:6-alpine
+    image: redis
     container_name: redis
     ports:
      - "6379:6379"
