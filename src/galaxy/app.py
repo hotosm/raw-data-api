@@ -24,7 +24,7 @@ from src.galaxy.config import get_db_connection_params, grid_index_threshold, AW
 from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError
-from src.galaxy.validation.models import UserRole, RawDataCurrentParams, RawDataOutputType
+from src.galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
 from src.galaxy.query_builder.builder import get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
 from json import loads as json_loads
 from geojson import FeatureCollection
@@ -191,29 +191,6 @@ class Database:
                     logging.debug("Database Connection closed")
         except Exception as err:
             raise err
-
-
-class Underpass:
-    """This class connects to underpass database and responsible for all the underpass related functionality"""
-
-    def __init__(self, parameters=None):
-        self.database = Database(get_db_connection_params("UNDERPASS"))
-        # self.database = Database(dict(config.items("UNDERPASS")))
-        self.con, self.cur = self.database.connect()
-        self.params = parameters
-
-    def get_user_role(self, user_id: int):
-        """returns user role for given user id"""
-        query = f"select role from users_roles where user_id = {user_id}"
-        query_result = self.database.executequery(query)
-
-        if len(query_result) == 0:
-            return UserRole.NONE
-
-        role_int = query_result[0]["role"]
-        user_role = UserRole(role_int)
-
-        return user_role
 
 
 class RawData:
