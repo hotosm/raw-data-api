@@ -1,4 +1,0 @@
-CREATE TABLE users_roles (
-	user_id BIGINT PRIMARY KEY,
-	role INTEGER NOT NULL
-);
