@@ -1,6 +1,6 @@
 # Export Tool API
-![example workflow](https://github.com/hotosm/export-tool-api/actions/workflows/Unit-Test.yml/badge.svg)
-![example workflow](https://github.com/hotosm/export-tool-api/actions/workflows/locust.yml/badge.svg)
+![Unit test](https://github.com/hotosm/export-tool-api/actions/workflows/unit-test.yml/badge.svg)
+![Locust](https://github.com/hotosm/export-tool-api/actions/workflows/locust.yml/badge.svg)
 
 ## Getting Started
 
@@ -54,7 +54,7 @@ pip install -r requirements.txt
 
 ### 2. Setup required config for API
 
-Make sure you have https://www.postgresql.org/ setup in your machine or you can use docker 
+Make sure you have https://www.postgresql.org/ setup in your machine or you can use docker
 
 Setup necessary config for API from [docs/CONFIG.DOC](/docs/CONFIG_DOC.md)
 

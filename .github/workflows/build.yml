@@ -29,16 +29,10 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Create Databases
-        run: |
-          export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE underpass;"
-
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
-          psql -U postgres -h localhost -p 5434 underpass < tests/src/fixtures/underpass.sql
 
       - name: Install gdal
         run: |
