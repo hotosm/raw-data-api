@@ -49,9 +49,9 @@ services:
   worker-dashboard:
     build: .
     container_name: flower
-    command:  celery --broker=redis://redis:6379// --app API.api_worker flower --port=4000
+    command:  celery --broker=redis://redis:6379// --app API.api_worker flower --address=0.0.0.0 --port=5000
     ports:
-      - 4000:4000
+      - 5000:5000
     depends_on:
       - app
       - redis
