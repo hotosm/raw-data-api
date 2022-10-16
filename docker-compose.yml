@@ -6,17 +6,13 @@ services:
       image: postgis/postgis
       container_name: pgsql
       environment:
-        - POSTGRES_MULTIPLE_DATABASES="underpass","tm","raw","insights"
+        - POSTGRES_DB=raw
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=admin
       ports:
         - '5434:5432'
       volumes:
-        - ./tests/src/fixtures/:/sql/
         - ./postgres-data:/var/lib/postgresql/data
-        - ./docker-multiple-db.sh:/docker-entrypoint-initdb.d/create.sh
-        - ./populate-docker-db.sh:/docker-entrypoint-initdb.d/insert.sh
-
 
   app:
     build: .

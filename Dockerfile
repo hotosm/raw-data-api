@@ -7,17 +7,16 @@ RUN apt-get update && apt-get -y upgrade && \
     apt-get clean
 
 RUN mkdir /app
-COPY requirements.docker.txt /app/requirements.docker.txt
+COPY requirements.txt /app/requirements.txt
 
-RUN chmod +x ./docker-multiple-db.sh
-RUN chmod +x ./populate-docker-db.sh
+COPY tests/src/fixtures/raw_data.sql /docker-entrypoint-initdb.d/10-init.sql
 
 COPY setup.py /app/setup.py
 
 WORKDIR /app
 
 RUN pip install --upgrade pip
-RUN pip install -r requirements.docker.txt
+RUN pip install -r requirements.txt
 
 COPY . /app
 

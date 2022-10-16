@@ -41,16 +41,10 @@ jobs:
           sudo apt-get update
           sudo apt install postgis postgresql-12-postgis-3
 
-      - name: Create Databases
-        run: |
-          export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 -c "CREATE DATABASE underpass;"
-
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
-          psql -U postgres -h localhost -p 5434 underpass < tests/src/fixtures/underpass.sql
 
       - name: Install Dependencies
         run: |

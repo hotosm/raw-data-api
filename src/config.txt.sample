@@ -1,10 +1,3 @@
-[UNDERPASS]
-host=localhost
-user=postgres
-password=admin
-database=underpass
-port=5434
-
 [RAW_DATA]
 host=localhost
 user=postgres
