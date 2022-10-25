@@ -23,8 +23,8 @@ import sentry_sdk
 from .auth.routers import router as auth_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
-from src.galaxy.db_session import database_instance
-from src.galaxy.config import limiter, export_path, use_connection_pooling, use_s3_to_upload, logger as logging, config
+from galaxy.db_session import database_instance
+from galaxy.config import limiter, export_path, use_connection_pooling, use_s3_to_upload, logger as logging, config
 from fastapi_versioning import VersionedFastAPI
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded

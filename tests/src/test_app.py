@@ -17,17 +17,17 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-from src.galaxy import app
+from galaxy import app
 import testing.postgresql
-from src.galaxy.query_builder.builder import raw_currentdata_extraction_query
-from src.galaxy.validation.models import RawDataCurrentParams
+from galaxy.query_builder.builder import raw_currentdata_extraction_query
+from galaxy.validation.models import RawDataCurrentParams
 import os.path
 from json import dumps
 
 # Reference to testing.postgresql db instance
 postgresql = None
 
-# Connection to database and query running class from our src.galaxy module
+# Connection to database and query running class from our galaxy module
 
 database = None
 filepath = None
@@ -75,7 +75,7 @@ def teardown_module(module):
 
 
 # def test_populate_data():
-#     database.executequery(slurp('tests/src/fixtures/mapathon_summary.sql'))
+#     database.executequery(slurp('tests/fixtures/mapathon_summary.sql'))
 
 
 def test_rawdata_current_snapshot_geometry_query():

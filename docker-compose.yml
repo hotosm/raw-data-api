@@ -14,7 +14,7 @@ services:
         - '5434:5432'
       volumes:
         - ./postgres-data:/var/lib/postgresql/data
-        - ./tests/src/fixtures/raw_data.sql:/docker-entrypoint-initdb.d/raw_data.sql
+        - ./tests/fixtures/raw_data.sql:/docker-entrypoint-initdb.d/raw_data.sql
 
   redis:
     image: redis

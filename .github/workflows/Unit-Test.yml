@@ -44,7 +44,7 @@ jobs:
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
+          psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/raw_data.sql
 
       - name: Install Dependencies
         run: |
@@ -53,7 +53,7 @@ jobs:
           pip install -e .
       - name: Creating config.txt
         run: |
-          mv src/config.txt.sample src/config.txt
+          mv config.txt.sample config.txt
       - name: Run Tests
         run: |
           py.test -v -s

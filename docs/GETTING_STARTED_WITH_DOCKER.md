@@ -9,12 +9,12 @@ cd export-tool-api
 
 ### 2. Configurations
 
-- Create `config.txt` inside /src/ folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer.
+- Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer.
 
 ```
-touch src/config.txt #Linux
-wsl touch src/config.txt #Windows with WSL
-echo >> src/config.txt #Windows without WSL
+touch config.txt #Linux
+wsl touch config.txt #Windows with WSL
+echo >> config.txt #Windows without WSL
 ```
 
 - Database configuration:

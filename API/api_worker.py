@@ -7,11 +7,11 @@ import requests
 from datetime import datetime as dt
 import zipfile
 from celery import Celery
-from src.galaxy.config import config
-from src.galaxy.query_builder.builder import format_file_name_str
-from src.galaxy.validation.models import RawDataOutputType
-from src.galaxy.app import RawData, S3FileTransfer
-from src.galaxy.config import use_s3_to_upload, logger as logging, config, allow_bind_zip_filter
+from galaxy.config import config
+from galaxy.query_builder.builder import format_file_name_str
+from galaxy.validation.models import RawDataOutputType
+from galaxy.app import RawData, S3FileTransfer
+from galaxy.config import use_s3_to_upload, logger as logging, config, allow_bind_zip_filter
 
 celery = Celery(__name__)
 celery.conf.broker_url = config.get(
