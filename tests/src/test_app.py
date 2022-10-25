@@ -75,7 +75,7 @@ def teardown_module(module):
 
 
 # def test_populate_data():
-#     database.executequery(slurp('tests/fixtures/mapathon_summary.sql'))
+#     database.executequery(slurp('tests/src/fixtures/mapathon_summary.sql'))
 
 
 def test_rawdata_current_snapshot_geometry_query():
