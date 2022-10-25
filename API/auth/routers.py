@@ -1,16 +1,12 @@
-import base64
+
 from fastapi import Request, APIRouter, Depends
-
-from itsdangerous.url_safe import URLSafeSerializer
-from requests_oauthlib import OAuth2Session
-
-from src.galaxy import config
-from . import AuthUser, Login, Token, login_required
+from . import AuthUser, login_required , osm_auth
+import json
 
 router = APIRouter(prefix="/auth")
 
 
-@router.get("/login/", response_model=Login)
+@router.get("/login/")
 def login_url(request: Request):
     """Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
     Click on the download url returned to get access_token.
@@ -21,22 +17,11 @@ def login_url(request: Request):
     - login_url (string) - URL to authorize user to the application via. Openstreetmap
         OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters
     """
-    osm_url = config.get("OAUTH", "url")
-    authorize_url = f"{osm_url}/oauth2/authorize/"
-    scope = config.get("OAUTH", "scope").split(",")
-
-    oauth = OAuth2Session(
-        config.get("OAUTH", "client_id"),
-        redirect_uri=config.get("OAUTH", "login_redirect_uri"),
-        scope=scope,
-    )
-
-    login_url, _ = oauth.authorization_url(authorize_url)
-
-    return Login(url=login_url)
+    login_url=osm_auth.login()
+    return json.loads(login_url)
 
 
-@router.get("/callback/", response_model=Token)
+@router.get("/callback/")
 def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Galaxy API
 
@@ -48,46 +33,9 @@ def callback(request: Request):
     Returns:
     - access_token (string)
     """
-    osm_url = config.get("OAUTH", "url")
-    token_url = f"{osm_url}/oauth2/token"
+    access_token=osm_auth.callback(str(request.url))
 
-    oauth = OAuth2Session(
-        config.get("OAUTH", "client_id"),
-        redirect_uri=config.get("OAUTH", "login_redirect_uri"),
-        state=request.query_params.get("state"),
-    )
-
-    oauth.fetch_token(
-        token_url,
-        authorization_response=str(request.url),
-        client_secret=config.get("OAUTH", "client_secret"),
-    )
-
-    api_url = f"{osm_url}/api/0.6/user/details.json"
-
-    resp = oauth.get(api_url)
-
-    if resp.status_code != 200:
-        raise ValueError("Invalid response from OSM")
-
-    data = resp.json().get("user")
-
-    serializer = URLSafeSerializer(config.get("OAUTH", "secret_key"))
-
-    user_id = data.get("id")
-
-    user_data = {
-        "id": user_id,
-        "username": data.get("display_name"),
-        "img_url": data.get("img").get("href") if data.get("img") else None
-    }
-
-    token = serializer.dumps(user_data)
-    access_token = base64.b64encode(bytes(token, "utf-8")).decode("utf-8")
-
-    token = Token(access_token=access_token)
-
-    return token
+    return json.loads(access_token)
 
 
 @router.get("/me/", response_model=AuthUser)
