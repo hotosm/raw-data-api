@@ -1,5 +1,5 @@
 from typing import Union
-from galaxy import config
+from galaxy.config import config
 from pydantic import BaseModel
 from fastapi import Header
 from osm_login_python.core import Auth
