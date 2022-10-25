@@ -26,12 +26,12 @@ from slowapi.util import get_remote_address
 from slowapi import Limiter
 import errno
 
-CONFIG_FILE_PATH = "src/config.txt"
+CONFIG_FILE_PATH = "config.txt"
 use_s3_to_upload = False
 
 if os.path.exists(CONFIG_FILE_PATH) is False:
-    raise FileNotFoundError(errno.ENOENT, os.strerror(
-        errno.ENOENT), CONFIG_FILE_PATH)
+    logging.error( FileNotFoundError(errno.ENOENT, os.strerror(
+        errno.ENOENT), CONFIG_FILE_PATH))
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
@@ -72,7 +72,7 @@ logging.getLogger('s3transfer').propagate = False  # disable boto3 logging
 logging.getLogger('boto').propagate = False  # disable boto3 logging
 
 
-logger = logging.getLogger('src.galaxy')
+logger = logging.getLogger('galaxy')
 
 export_path = config.get('API_CONFIG', 'export_path', fallback=None)
 if export_path is None:
@@ -134,4 +134,4 @@ def get_db_connection_params(dbIdentifier: str) -> dict:
     except Exception as ex:
         logging.error(
             f"""Can't find DB credentials on config :{dbIdentifier}""")
-        raise ex
+        logging.error( ex )

@@ -35,11 +35,11 @@ from fastapi import APIRouter, Request
 from fastapi_versioning import version
 from fastapi.responses import JSONResponse
 # from fastapi import APIRouter, Depends, Request
-from src.galaxy.query_builder.builder import format_file_name_str
-from src.galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
-from src.galaxy.app import RawData, S3FileTransfer
+from galaxy.query_builder.builder import format_file_name_str
+from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
+from galaxy.app import RawData, S3FileTransfer
 from .api_worker import process_raw_data
-from src.galaxy.config import export_rate_limit, use_s3_to_upload, logger as logging, config, limiter, allow_bind_zip_filter
+from galaxy.config import export_rate_limit, use_s3_to_upload, logger as logging, config, limiter, allow_bind_zip_filter
 
 router = APIRouter(prefix="/raw-data")
 

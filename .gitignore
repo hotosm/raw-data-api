@@ -2,9 +2,7 @@ __pycache__
 config.txt
 env
 venv
-osm_galaxy.egg-info
-test.py
-test.csv
+*.egg-info
 **/.vscode/**
 =======
 build

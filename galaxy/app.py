@@ -17,15 +17,16 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 '''Page contains Main core logic of app'''
+
 import os
 import sys
 import threading
-from src.galaxy.config import get_db_connection_params, grid_index_threshold, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling
+from galaxy.config import get_db_connection_params, grid_index_threshold, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling
 from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError
-from src.galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
-from src.galaxy.query_builder.builder import get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
+from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
+from galaxy.query_builder.builder import get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
 from json import loads as json_loads
 from geojson import FeatureCollection
 import orjson
@@ -36,7 +37,7 @@ import time
 import boto3
 # import instance for pooling
 if use_connection_pooling:
-    from src.galaxy.db_session import database_instance
+    from galaxy.db_session import database_instance
 else:
     database_instance = None
 import logging as log

@@ -24,7 +24,7 @@ from pydantic import BaseModel as PydanticModel
 from geojson_pydantic import Polygon, MultiPolygon
 from enum import Enum
 from area import area
-from src.galaxy.config import config, allow_bind_zip_filter
+from galaxy.config import config, allow_bind_zip_filter
 
 
 def to_camel(string: str) -> str:

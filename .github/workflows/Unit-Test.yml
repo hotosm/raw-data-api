@@ -53,7 +53,7 @@ jobs:
           pip install -e .
       - name: Creating config.txt
         run: |
-          mv src/config.txt.sample src/config.txt
+          mv config.txt.sample config.txt
       - name: Run Tests
         run: |
           py.test -v -s

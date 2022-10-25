@@ -4,12 +4,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='osm_galaxy',
+    name='export-tool-api',
     version='0.0.1',
     description=
     'The osm_galaxy module makes it simple for you to get osm data stats provided by api in your own project',
-    packages=["galaxy","galaxy.query_builder","galaxy.validation"],
-    package_dir={'galaxy': 'src/galaxy'},
+    packages=["galaxy"],
+    package_dir={'galaxy': 'galaxy'},
     extras_require={
         "dev": [
             "pytest == 3.7",
@@ -28,4 +28,4 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     author="Hot Tech Team",
     author_email="sysadmin@hotosm.org",
-    url="https://github.com/hotosm/osm-stats-api")
+    url="https://github.com/hotosm/export-tool-api")

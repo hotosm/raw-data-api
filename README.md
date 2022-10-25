@@ -159,7 +159,7 @@ Navigate to docs Folder and Build .rst files first
 
 ``` cd docs ```
 #### If you want to generate documentation for src
-``` sphinx-apidoc -o source ../src/galaxy ```
+``` sphinx-apidoc -o source ../galaxy ```
 #### If you want to generate documentation for API
 ``` sphinx-apidoc -o source ../API ```
 
