@@ -36,7 +36,7 @@ def process_raw_data(self, params):
         params.output_type = params.output_type if params.output_type else RawDataOutputType.GEOJSON.value
         params.file_name = format_file_name_str(
             params.file_name) if params.file_name else 'Galaxy_export'
-        exportname = f"{params.file_name}_{str(self.request.id)}_{params.output_type}"
+        exportname = f"{params.file_name}_{params.output_type}_uid_{str(self.request.id)}"
 
         logging.info("Request %s received", exportname)
 

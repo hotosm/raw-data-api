@@ -19,7 +19,7 @@
 """Page Contains Query logic required for application"""
 from json import dumps
 import re
-from ..validation.models import SupportedFilters, SupportedGeometryFilters
+from galaxy.validation.models import SupportedFilters, SupportedGeometryFilters
 
 
 def get_grid_id_query(geometry_dump):
