@@ -54,9 +54,9 @@ def create_geom_filter(geom):
 
 def format_file_name_str(input_str):
     # Fixme I need to check every possible special character that can comeup on osm tags
-    input_str = re.sub("\s+", "-", input_str)  # putting - in every space  # noqa
-    input_str = re.sub(":", "-", input_str)  # putting - in every : value
-    input_str = re.sub("_", "-", input_str)  # putting - in every _ value
+    input_str = re.sub("\s+", "_", input_str)  # putting _ in every space  # noqa
+    input_str = re.sub(":", "_", input_str)  # putting _ in every : value
+    input_str = re.sub("-", "_", input_str)  # putting _ in every - value
 
     return input_str
 
