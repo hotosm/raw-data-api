@@ -99,7 +99,8 @@ class RawDataCurrentParams(BaseModel):
             return value
 
     @validator("output_type", allow_reuse=True)
-    def check_geometry_area(cls, value, values):
+    def check_output_type(cls, value, values):
+        """Checks mbtiles required field """
         if value  == RawDataOutputType.MBTILES.value:
             if values.get("min_zoom") and values.get("max_zoom"):
                 if values.get("min_zoom") < 0 or values.get("max_zoom") > 22 :
