@@ -285,7 +285,7 @@ class RawData:
             os.remove(query_path)
 
     @staticmethod
-    def ogr_export(query, outputtype, working_dir, dump_temp_path):
+    def ogr_export(query, outputtype, working_dir, dump_temp_path, params):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
         db_items = get_db_connection_params("RAW_DATA")
         # format query if it has " in string"
@@ -295,8 +295,8 @@ class RawData:
             file.write(query)
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype == RawDataOutputType.MBTILES.value:
-            cmd = '''ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
-                export_path=dump_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            cmd = '''ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
+                min_zoom=params.min_zoom,max_zoom=params.max_zoom,export_path=dump_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.FLATGEOBUF.value:
@@ -401,7 +401,7 @@ class RawData:
                                        poly_query=poly_query, working_dir=working_dir, file_name=self.params.file_name if self.params.file_name else 'Export')  # using ogr2ogr
             else:
                 RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True),
-                                   outputtype=output_type, dump_temp_path=dump_temp_file_path, working_dir=working_dir)  # uses ogr export to export
+                                   outputtype=output_type, dump_temp_path=dump_temp_file_path, working_dir=working_dir, params=self.params)  # uses ogr export to export
             return geom_area, working_dir
         except Exception as ex:
             logging.error(ex)

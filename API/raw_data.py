@@ -107,8 +107,10 @@ def get_current_snapshot_of_osm_data(
 
         params (RawDataCurrentParams):
                 {
-                "outputType": "GeoJSON", # supports kml,(FLATGEOBUF)fgb,shp
+                "outputType": "GeoJSON", # supports kml,(FLATGEOBUF)fgb,shp,mbtiles
                 "fileName": "string",
+                "minZoom": 0, # supply only if outputtype is mbtiles
+                "maxZoom": 0, # supply only if outputtype is mbtiles
                 "geometry": { # only polygon is supported ** required field **
                     "coordinates": [
                     [

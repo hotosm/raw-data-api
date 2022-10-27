@@ -79,6 +79,8 @@ class JoinFilterType (Enum):
 
 class RawDataCurrentParams(BaseModel):
     output_type: Optional[RawDataOutputType] = None
+    min_zoom: Optional[int] = None # only for if mbtiles is output
+    max_zoom: Optional[int] = None # only for if mbtiles is output
     file_name: Optional[str] = None
     geometry: Union[Polygon, MultiPolygon]
     filters: Optional[dict] = None
@@ -94,6 +96,16 @@ class RawDataCurrentParams(BaseModel):
                 raise ValueError(
                     "Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True")
             return value
+
+    @validator("output_type", allow_reuse=True)
+    def check_geometry_area(cls, value, values):
+        if value  == RawDataOutputType.MBTILES.value:
+            if values.get("min_zoom") and values.get("max_zoom"):
+                if values.get("min_zoom") < 0 or values.get("max_zoom") > 22 :
+                    raise ValueError("Zoom range should range from 0-22")
+                return value
+            else :
+                raise ValueError("Field min_zoom and max_zoom must be supplied for mbtiles output type")
 
     @validator("filters", allow_reuse=True)
     def check_value(cls, value, values):
@@ -151,5 +163,5 @@ class RawDataCurrentParams(BaseModel):
                 RAWDATA_CURRENT_POLYGON_AREA = 2  # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
             raise ValueError(
-                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM""")
+                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}""")
         return value
