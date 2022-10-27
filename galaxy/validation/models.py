@@ -42,13 +42,14 @@ class BaseModel(PydanticModel):
 
 
 class RawDataOutputType (Enum):
-    GEOJSON = "GeoJSON"
+    GEOJSON = "geojson"
     KML = "kml"
     SHAPEFILE = "shp"
     FLATGEOBUF = "fgb"
     MBTILES = "mbtiles"  # fully experimental for now
     GEOPACKAGE = "gpkg"
-
+    PGDUMP = "sql"
+    CSV = "csv"
 
 class SupportedFilters(Enum):
     TAGS = "tags"

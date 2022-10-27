@@ -88,7 +88,7 @@ def create_column_filter(columns, create_schema=False):
             return select_condition, schema
         return select_condition
     else:
-        return """osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        return """osm_id ,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
 def generate_tag_filter_query(filter, params):
@@ -121,7 +121,7 @@ def extract_geometry_type_query(params, ogr_export=False):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
 
     geom_filter = create_geom_filter(params.geometry)
-    select_condition = """osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    select_condition = """osm_id ,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     schema = {'osm_id': 'int64', 'tags': 'str',
               'changeset': 'int64', 'timestamp': 'str'}
     query_point, query_line, query_poly = None, None, None
@@ -279,9 +279,9 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
 
     # query_table = []
     if select_all:
-        select_condition = """osm_id,version,tags::text as tags,changeset,timestamp::text,geom"""   # FIXme have condition for displaying userinfo after user authentication
+        select_condition = """osm_id,version,tags,changeset,timestamp,geom"""   # FIXme have condition for displaying userinfo after user authentication
     else:
-        select_condition = """osm_id ,version,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        select_condition = """osm_id ,version,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     point_select_condition = select_condition  # initializing default
     line_select_condition = select_condition
     poly_select_condition = select_condition

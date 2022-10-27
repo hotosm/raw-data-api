@@ -304,13 +304,23 @@ class RawData:
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
+        if outputtype == RawDataOutputType.PGDUMP.value:
+            cmd = '''ogr2ogr -overwrite --config PG_USE_COPY YES -f PGDump {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco SRID=4326 -progress'''.format(
+                export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            run_ogr2ogr_cmd(cmd)
+
         if outputtype == RawDataOutputType.KML.value:
             cmd = '''ogr2ogr -overwrite -f KML {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
+        if outputtype == RawDataOutputType.CSV.value:
+            cmd = '''ogr2ogr -overwrite -f CSV  {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco GEOMETRY=AS_XY  -progress'''.format(
+                export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            run_ogr2ogr_cmd(cmd)
+
         if outputtype == RawDataOutputType.GEOPACKAGE.value:
-            cmd = '''ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
         # clear query file we don't need it anymore

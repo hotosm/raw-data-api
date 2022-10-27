@@ -107,7 +107,7 @@ def get_current_snapshot_of_osm_data(
 
         params (RawDataCurrentParams):
                 {
-                "outputType": "GeoJSON", # supports kml,(FLATGEOBUF)fgb,shp,mbtiles
+                "outputType": "geojson", # supports kml,(FLATGEOBUF)fgb,shp,mbtiles
                 "fileName": "string",
                 "minZoom": 0, # supply only if outputtype is mbtiles
                 "maxZoom": 0, # supply only if outputtype is mbtiles
@@ -155,7 +155,7 @@ def get_current_snapshot_of_osm_data(
         Sample Query :
         1. Sample query to extract point and polygon features that are marked building=*  with name attribute
         {
-            "outputType": "GeoJSON",
+            "outputType": "geojson",
             "fileName": "Pokhara_buildings",
             "geometry": {
                     "type": "Polygon",
@@ -221,7 +221,7 @@ def get_current_snapshot_of_osm_data(
                     ]
                 }
         }
-        3. Clean query to extract all features by deafult; output will be same as 2nd query but in GeoJSON format and output name will be `default`
+        3. Clean query to extract all features by deafult; output will be same as 2nd query but in geojson format and output name will be `default`
         {
             "geometry": {
                     "type": "Polygon",
