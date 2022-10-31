@@ -282,12 +282,15 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         select_condition = """osm_id,version,tags,changeset,timestamp,geom"""   # FIXme have condition for displaying userinfo after user authentication
     else:
         select_condition = """osm_id ,version,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
-    point_select_condition = select_condition  # initializing default
+
+    point_select_condition = select_condition # initializing default
     line_select_condition = select_condition
     poly_select_condition = select_condition
+
     if params.filters:
         tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = extract_attributes_tags(
             params.filters)
+
     if attributes:
         if master_attribute_filter:
             if len(master_attribute_filter) > 0:
@@ -309,7 +312,8 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             if poly_attribute_filter:
                 if len(poly_attribute_filter) > 0:
                     poly_select_condition = create_column_filter(
-                        point_attribute_filter)
+                        poly_attribute_filter)
+
     if tags:
         if master_tag_filter:  # if master tag is supplied then other tags should be ignored and master tag will be used
             master_tag = generate_tag_filter_query(master_tag_filter, params)
