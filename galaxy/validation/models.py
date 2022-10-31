@@ -108,7 +108,7 @@ class RawDataCurrentParams(BaseModel):
                 return value
             else :
                 raise ValueError("Field min_zoom and max_zoom must be supplied for mbtiles output type")
-
+        return value
     @validator("filters", allow_reuse=True)
     def check_value(cls, value, values):
         """Checks given fields"""
