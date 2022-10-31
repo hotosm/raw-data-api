@@ -113,7 +113,7 @@ def run_ogr2ogr_cmd(cmd):
         )
         logging.debug(process)
     except Exception as ex:
-        logging.error(ex)
+        logging.error(ex.output)
         # process.kill()
         # # Send the signal to all the process groups
         # os.killpg(os.getpgid(process.pid), signal.SIGTERM)
