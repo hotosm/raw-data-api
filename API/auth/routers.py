@@ -23,7 +23,7 @@ def login_url(request: Request):
 
 @router.get("/callback/")
 def callback(request: Request):
-    """Performs token exchange between OpenStreetMap and Galaxy API
+    """Performs token exchange between OpenStreetMap and Export tool API
 
     Core will use Oauth secret key from configuration while deserializing token,
     provides access token that can be used for authorized endpoints.
