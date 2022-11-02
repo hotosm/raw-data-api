@@ -69,7 +69,7 @@ def remove_spaces(input_str):
     return input_str
 
 
-def create_column_filter(columns, create_schema=False):
+def create_column_filter(columns, create_schema=False , output_type='geojson'):
     """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
     if len(columns) > 0:
         filter_col = []
@@ -83,7 +83,14 @@ def create_column_filter(columns, create_schema=False):
                     f"""tags ->> '{cl.strip()}' as {remove_spaces(cl.strip())}""")
                 if create_schema:
                     schema[remove_spaces(cl.strip())] = 'str'
-        filter_col.append('geom')
+        if output_type == 'csv' : # if it is csv geom logic is different
+            filter_col.append('ST_X(ST_Centroid(geom)) as longitude')
+            filter_col.append('ST_Y(ST_Centroid(geom)) as latitude')
+            filter_col.append('GeometryType(geom) as geom_type')
+
+        else:
+            filter_col.append('geom')
+
         select_condition = " , ".join(filter_col)
         if create_schema:
             return select_condition, schema
@@ -134,7 +141,7 @@ def extract_geometry_type_query(params, ogr_export=False):
             params.filters)
 
     if master_attribute_filter:  # if no specific point , line or poly filter is not passed master columns filter will be used , if master columns is also empty then above default select statement will be used
-        select_condition, schema = create_column_filter(
+        select_condition, schema = create_column_filter(output_type=params.output_type, columns=
             master_attribute_filter, create_schema=True)
     if master_tag_filter:
         attribute_filter = generate_tag_filter_query(master_tag_filter, params)
@@ -144,7 +151,7 @@ def extract_geometry_type_query(params, ogr_export=False):
     for type in params.geometry_type:
         if type == SupportedGeometryFilters.POINT.value:
             if point_attribute_filter:
-                select_condition, schema = create_column_filter(
+                select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     point_attribute_filter, create_schema=True)
             query_point = f"""select
                         {select_condition}
@@ -164,7 +171,7 @@ def extract_geometry_type_query(params, ogr_export=False):
         if type == SupportedGeometryFilters.LINE.value:
             query_line_list = []
             if line_attribute_filter:
-                select_condition, schema = create_column_filter(
+                select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     line_attribute_filter, create_schema=True)
             query_ways_line = f"""select
                 {select_condition}
@@ -193,7 +200,7 @@ def extract_geometry_type_query(params, ogr_export=False):
         if type == SupportedGeometryFilters.POLYGON.value:
             query_poly_list = []
             if poly_attribute_filter:
-                select_condition, schema = create_column_filter(
+                select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     poly_attribute_filter, create_schema=True)
             query_ways_poly = f"""select
                 {select_condition}
@@ -305,7 +312,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
     if attributes:
         if master_attribute_filter:
             if len(master_attribute_filter) > 0:
-                select_condition = create_column_filter(
+                select_condition = create_column_filter(output_type=params.output_type, columns=
                     master_attribute_filter)
                 # if master attribute is supplied it will be applied to other geom type as well even though value is supplied they will be ignored
                 point_select_condition = select_condition
@@ -314,15 +321,15 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         else:
             if point_attribute_filter:
                 if len(point_attribute_filter) > 0:
-                    point_select_condition = create_column_filter(
+                    point_select_condition = create_column_filter(output_type=params.output_type, columns=
                         point_attribute_filter)
             if line_attribute_filter:
                 if len(line_attribute_filter) > 0:
-                    line_select_condition = create_column_filter(
+                    line_select_condition = create_column_filter(output_type=params.output_type, columns=
                         line_attribute_filter)
             if poly_attribute_filter:
                 if len(poly_attribute_filter) > 0:
-                    poly_select_condition = create_column_filter(
+                    poly_select_condition = create_column_filter(output_type=params.output_type, columns=
                         poly_attribute_filter)
 
     if tags:
@@ -420,7 +427,10 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             table_base_query.append(
                 f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")
     final_query = " UNION ALL ".join(table_base_query)
+    if params.output_type == 'csv':
+        logging.debug(final_query)
     return final_query
+
 
 
 def check_last_updated_rawdata():
