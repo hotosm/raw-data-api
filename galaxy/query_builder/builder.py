@@ -292,10 +292,6 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = extract_attributes_tags(
             params.filters)
     attribute_customization_full_support=['geojson','shp']
-    logging.debug(point_attribute_filter)
-    logging.debug(line_attribute_filter)
-    logging.debug(poly_attribute_filter)
-    logging.debug(master_attribute_filter)
 
     if params.output_type not in attribute_customization_full_support :
         logging.debug("Merging filters since they don't have same no of filters for features")
@@ -305,10 +301,6 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         if point_attribute_filter : point_attribute_filter = merged_result
         if line_attribute_filter : line_attribute_filter = merged_result
         if poly_attribute_filter : poly_attribute_filter = merged_result
-        logging.debug(point_attribute_filter)
-        logging.debug(line_attribute_filter)
-        logging.debug(poly_attribute_filter)
-        logging.debug(master_attribute_filter)
 
     if attributes:
         if master_attribute_filter:
