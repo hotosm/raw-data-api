@@ -48,7 +48,7 @@ if run_env.lower() == 'dev':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = FastAPI(title="Export tool API")
-app.include_router(auth_router)
+# app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
 
