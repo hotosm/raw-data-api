@@ -109,7 +109,7 @@ def run_ogr2ogr_cmd(cmd):
             stderr=subprocess.STDOUT,
             shell=True,
             preexec_fn=os.setsid,
-            timeout=60*60*2  # setting timeout of 2 hour
+            timeout=60*60*6  # setting timeout of 6 hour
         )
         logging.debug(process)
     except Exception as ex:
