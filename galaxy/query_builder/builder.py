@@ -90,7 +90,6 @@ def create_column_filter(columns, create_schema=False , output_type='geojson'):
 
         else:
             filter_col.append('geom')
-
         select_condition = " , ".join(filter_col)
         if create_schema:
             return select_condition, schema
