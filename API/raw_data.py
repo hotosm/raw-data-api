@@ -36,7 +36,7 @@ from fastapi_versioning import version
 from fastapi.responses import JSONResponse
 # from fastapi import APIRouter, Depends, Request
 from galaxy.query_builder.builder import format_file_name_str
-from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
+from galaxy.validation.models import RawDataCurrentParams,RawDataCurrentParamsQuick, RawDataOutputType
 from galaxy.app import RawData, S3FileTransfer
 from .api_worker import process_raw_data
 from galaxy.config import export_rate_limit, use_s3_to_upload, logger as logging, config, limiter, allow_bind_zip_filter
@@ -256,3 +256,53 @@ def get_current_snapshot_of_osm_data(
     # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)): # this will use osm login makes it restrict login
     task = process_raw_data.delay(params)
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
+
+
+@router.post("/current-snapshot/raw-query/")
+@version(1)
+def get_curent_snapshot_raw_query_data(params: RawDataCurrentParamsQuick, request: Request):
+    """Simple API to get osm features as geojson for small region.
+    Params :
+
+    bbox: Optional List = takes xmin, ymin, xmax, ymax uses srid=4326
+    select: List = this is select query  you can pass [*] to select all attribute
+    where: List[WhereCondition] = [{'key': 'building', 'value': ['*']},{'key':'amenity','value':['school','college']}]
+    join_by: Optional[JoinFilterType] = or/ and
+    look_in: Optional[List[OsmFeatureType]] = ["nodes",  "ways_poly"] tables name
+
+
+    1. Example to extract Boundary of Nepal
+
+        {
+            "select": [
+                "name"
+            ],
+            "where": [
+                {
+                "key": "admin_level",
+                "value": [
+                    "2"
+                ]
+                },
+                {
+                "key": "boundary",
+                "value": [
+                    "administrative"
+                ]
+                },
+                {
+                "key": "name:en",
+                "value": [
+                    "Nepal"
+                ]
+                }
+            ],
+            "joinBy": "AND",
+            "lookIn": [
+                "relations"
+            ]
+            }
+
+    """
+    result = RawData(params).extract_quick_raw_query_geojson()
+    return result

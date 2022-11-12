@@ -98,29 +98,49 @@ def create_column_filter(columns, create_schema=False , output_type='geojson'):
         return """osm_id ,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
-def generate_tag_filter_query(filter, params):
+def generate_tag_filter_query(filter, join_by='OR' , user_for_geojson=False):
     incoming_filter = []
-    for key, value in filter.items():
+    if user_for_geojson:
+        for item in filter:
+            key=item['key']
+            value=item['value']
+            if len(value) > 1:
+                v_l = []
+                for lil in value:
+                    v_l.append(f""" '{lil.strip()}' """)
+                v_l_join = " , ".join(v_l)
+                value_tuple = f"""({v_l_join})"""
 
-        if len(value) > 1:
-            v_l = []
-            for lil in value:
-                v_l.append(f""" '{lil.strip()}' """)
-            v_l_join = " , ".join(v_l)
-            value_tuple = f"""({v_l_join})"""
+                k = f""" '{key.strip()}' """
+                incoming_filter.append(
+                    """tags ->> """ + k + """IN """ + value_tuple + """""")
+            elif len(value) == 1 and value[0] != '*':
+                incoming_filter.append(
+                    f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+            else:
+                incoming_filter.append(f"""tags ? '{key.strip()}'""")
 
-            k = f""" '{key.strip()}' """
-            incoming_filter.append(
-                """tags ->> """ + k + """IN """ + value_tuple + """""")
-        elif len(value) == 1:
-            incoming_filter.append(
-                f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
-        else:
-            incoming_filter.append(f"""tags ? '{key.strip()}'""")
-    if params.join_filter_type:
-        tag_filter = f" {params.join_filter_type} ".join(incoming_filter)
-    else:
-        tag_filter = " OR ".join(incoming_filter)
+    else :
+        for key, value in filter.items():
+
+            if len(value) > 1:
+                v_l = []
+                for lil in value:
+                    v_l.append(f""" '{lil.strip()}' """)
+                v_l_join = " , ".join(v_l)
+                value_tuple = f"""({v_l_join})"""
+
+                k = f""" '{key.strip()}' """
+                incoming_filter.append(
+                    """tags ->> """ + k + """IN """ + value_tuple + """""")
+            elif len(value) == 1:
+                incoming_filter.append(
+                    f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+            else:
+                incoming_filter.append(f"""tags ? '{key.strip()}'""")
+
+    tag_filter = f" {join_by} ".join(incoming_filter)
+
     return tag_filter
 
 
@@ -143,7 +163,7 @@ def extract_geometry_type_query(params, ogr_export=False):
         select_condition, schema = create_column_filter(output_type=params.output_type, columns=
             master_attribute_filter, create_schema=True)
     if master_tag_filter:
-        attribute_filter = generate_tag_filter_query(master_tag_filter, params)
+        attribute_filter = generate_tag_filter_query(master_tag_filter, params.join_filter_type)
     if params.geometry_type is None:  # fix me
         params.geometry_type = ['point', 'line', 'polygon']
 
@@ -159,7 +179,7 @@ def extract_geometry_type_query(params, ogr_export=False):
                         where
                             {geom_filter}"""
             if point_tag_filter:
-                attribute_filter = generate_tag_filter_query(point_tag_filter, params)
+                attribute_filter = generate_tag_filter_query(point_tag_filter, params.join_filter_type)
             if attribute_filter:
                 query_point += f""" and ({attribute_filter})"""
             point_schema = schema
@@ -185,7 +205,7 @@ def extract_geometry_type_query(params, ogr_export=False):
                 where
                     {geom_filter}"""
             if line_tag_filter:
-                attribute_filter = generate_tag_filter_query(line_tag_filter, params)
+                attribute_filter = generate_tag_filter_query(line_tag_filter, params.join_filter_type)
             if attribute_filter:
                 query_ways_line += f""" and ({attribute_filter})"""
                 query_relations_line += f""" and ({attribute_filter})"""
@@ -214,7 +234,7 @@ def extract_geometry_type_query(params, ogr_export=False):
                 where
                     {geom_filter}"""
             if poly_tag_filter:
-                attribute_filter = generate_tag_filter_query(poly_tag_filter, params)
+                attribute_filter = generate_tag_filter_query(poly_tag_filter, params.join_filter_type)
             if attribute_filter:
                 query_ways_poly += f""" and ({attribute_filter})"""
                 query_relations_poly += f""" and ({attribute_filter})"""
@@ -333,17 +353,17 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
 
     if tags:
         if master_tag_filter:  # if master tag is supplied then other tags should be ignored and master tag will be used
-            master_tag = generate_tag_filter_query(master_tag_filter, params)
+            master_tag = generate_tag_filter_query(master_tag_filter, params.join_filter_type)
             point_tag = master_tag
             line_tag = master_tag
             poly_tag = master_tag
         else:
             if point_tag_filter:
-                point_tag = generate_tag_filter_query(point_tag_filter, params)
+                point_tag = generate_tag_filter_query(point_tag_filter, params.join_filter_type)
             if line_tag_filter:
-                line_tag = generate_tag_filter_query(line_tag_filter, params)
+                line_tag = generate_tag_filter_query(line_tag_filter, params.join_filter_type)
             if poly_tag_filter:
-                poly_tag = generate_tag_filter_query(poly_tag_filter, params)
+                poly_tag = generate_tag_filter_query(poly_tag_filter, params.join_filter_type)
 
 # condition for geometry types
     if params.geometry_type is None:
@@ -435,3 +455,31 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
 def check_last_updated_rawdata():
     query = """select importdate as last_updated from planet_osm_replication_status"""
     return query
+
+
+def raw_currentdata_extraction_query_geojson(params, inspect_only=False):
+
+    if len(params.select) == 1 and params.select[0] == '*':
+        params.select = []
+    select_condition = create_column_filter(params.select)
+    where_condition = generate_tag_filter_query(params.where, params.join_by, user_for_geojson=True)
+    if params.bbox:
+        xmin, ymin, xmax, ymax = params.bbox[0], params.bbox[1], params.bbox[2], params.bbox[3]
+        geom_condition = f"""ST_intersects(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax},4326), geom)"""
+
+    query_list = []
+    for table_name in params.look_in:
+        sub_query = f"""select {select_condition} from {table_name} where ({where_condition}) """
+        if params.bbox:
+            sub_query += f""" and {geom_condition}"""
+        query_list.append(sub_query)
+    table_base_query = []
+    for i in range(len(query_list)):
+        table_base_query.append(
+            f"""select ST_AsGeoJSON(t{i}.*) from ({query_list[i]}) t{i}""")
+    final_query = " UNION ALL ".join(table_base_query)
+    if inspect_only:
+        final_query = f"""EXPLAIN
+        {final_query}"""
+    return final_query
+

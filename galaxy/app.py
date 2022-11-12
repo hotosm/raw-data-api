@@ -26,9 +26,10 @@ from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError
 from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
-from galaxy.query_builder.builder import get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
+from galaxy.query_builder.builder import raw_currentdata_extraction_query_geojson, get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
 from json import loads as json_loads
-from geojson import FeatureCollection
+from geojson import Feature,FeatureCollection
+from fastapi import HTTPException
 import orjson
 from area import area
 import subprocess
@@ -211,10 +212,10 @@ class RawData:
             # pydantic model or not , people coming from package they
             # will not have api valdiation so to make sure they will be validated
             # before accessing the class
-            if isinstance(parameters, RawDataCurrentParams) is False:
-                self.params = RawDataCurrentParams(**parameters)
-            else:
-                self.params = parameters
+            # if isinstance(parameters, RawDataCurrentParams) is False:
+            #     self.params = RawDataCurrentParams(**parameters)
+            # else:
+            self.params = parameters
         # only use connection pooling if it is configured in config file
         if use_connection_pooling:
             # if database credentials directly from class is not passed grab from pool
@@ -378,6 +379,14 @@ class RawData:
             grid_id = None
         return grid_id, geometry_dump, geom_area
 
+    @staticmethod
+    def to_geojson_raw(results):
+        """ Responsible for geojson writing"""
+        features = [orjson.loads(row[0]) for row in results]
+        feature_collection = FeatureCollection(features=features)
+
+        return feature_collection
+
     def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
         Args:
@@ -429,6 +438,28 @@ class RawData:
         # closing connection before leaving class
         RawData.close_con(self.con)
         return str(behind_time[0][0])
+
+    def extract_quick_raw_query_geojson(self):
+        """Gets geojson for small area : Performs direct query with/without geometry"""
+        query = raw_currentdata_extraction_query_geojson(self.params, inspect_only=True)
+        self.cur.execute(query)
+        analyze_fetched = self.cur.fetchall()
+        rows = list(filter(lambda x: x.startswith('rows'), analyze_fetched[0][0].split()))
+        approx_returned_rows = rows[0].split('=')[1]
+        logging.debug("Approximated query output : %s", approx_returned_rows)
+
+        if int(approx_returned_rows) > 1000:
+            self.cur.close()
+            RawData.close_con(self.con)
+            raise HTTPException(status_code=404, detail="Query returned more than 1000 rows , Use /current-snapshot/ for larger extraction")
+
+        extraction_query = raw_currentdata_extraction_query_geojson(self.params)
+
+        self.cur.execute(extraction_query)
+        extraction_result = self.cur.fetchall()
+        self.cur.close()
+        RawData.close_con(self.con)
+        return RawData.to_geojson_raw(extraction_result)
 
 
 class S3FileTransfer:
