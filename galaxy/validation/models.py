@@ -82,13 +82,13 @@ class JoinFilterType (Enum):
 
 
 class RawDataCurrentParams(BaseModel):
-    output_type: Optional[RawDataOutputType] = None
+    output_type: Optional[RawDataOutputType] = RawDataOutputType.GEOJSON.value
     min_zoom: Optional[int] = None # only for if mbtiles is output
     max_zoom: Optional[int] = None # only for if mbtiles is output
     file_name: Optional[str] = None
     geometry: Union[Polygon, MultiPolygon]
     filters: Optional[dict] = None
-    join_filter_type: Optional[JoinFilterType] = None
+    join_filter_type: Optional[JoinFilterType] = JoinFilterType.OR.value
     geometry_type: Optional[List[SupportedGeometryFilters]] = None
     if allow_bind_zip_filter:
         bind_zip: Optional[bool] = True
