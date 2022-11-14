@@ -451,10 +451,9 @@ class RawData:
         if int(approx_returned_rows) > 1000:
             self.cur.close()
             RawData.close_con(self.con)
-            raise HTTPException(status_code=404, detail="Query returned more than 1000 rows , Use /current-snapshot/ for larger extraction")
+            raise HTTPException(status_code=500, detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction")
 
         extraction_query = raw_currentdata_extraction_query_geojson(self.params)
-
         self.cur.execute(extraction_query)
         extraction_result = self.cur.fetchall()
         self.cur.close()
