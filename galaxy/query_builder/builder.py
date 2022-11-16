@@ -71,6 +71,7 @@ def remove_spaces(input_str):
 
 def create_column_filter(columns, create_schema=False , output_type='geojson'):
     """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
+
     if len(columns) > 0:
         filter_col = []
         filter_col.append('osm_id')
@@ -78,11 +79,15 @@ def create_column_filter(columns, create_schema=False , output_type='geojson'):
             schema = {}
             schema['osm_id'] = 'int64'
         for cl in columns:
-            if cl != '':
-                filter_col.append(
-                    f"""tags ->> '{cl.strip()}' as {remove_spaces(cl.strip())}""")
-                if create_schema:
-                    schema[remove_spaces(cl.strip())] = 'str'
+            splitted_cl = [cl]
+            if ',' in cl:
+                splitted_cl = cl.split(',')
+            for cl in splitted_cl:
+                if cl != '':
+                    filter_col.append(
+                        f"""tags ->> '{cl.strip()}' as {remove_spaces(cl.strip())}""")
+                    if create_schema:
+                        schema[remove_spaces(cl.strip())] = 'str'
         if output_type == 'csv' : # if it is csv geom logic is different
             filter_col.append('ST_X(ST_Centroid(geom)) as longitude')
             filter_col.append('ST_Y(ST_Centroid(geom)) as latitude')
