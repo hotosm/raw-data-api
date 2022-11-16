@@ -104,21 +104,24 @@ def generate_tag_filter_query(filter, join_by='OR' , user_for_geojson=False):
         for item in filter:
             key=item['key']
             value=item['value']
-            if len(value) > 1:
-                v_l = []
-                for lil in value:
-                    v_l.append(f""" '{lil.strip()}' """)
-                v_l_join = " , ".join(v_l)
-                value_tuple = f"""({v_l_join})"""
+            if len(value) == 1 and value[0] == '*':
+                value =[]
+            if len(value) >= 1:
+                sub_append = []
+                pre = """ tags @> '{"""
+                post = """ }'"""
+                for v in value:
+                    sub_append.append(f"""{pre} "{key.strip()}" : "{v.strip()}" {post}""")
+                sub_append_join = " OR ".join(sub_append)
 
-                k = f""" '{key.strip()}' """
-                incoming_filter.append(
-                    """tags ->> """ + k + """IN """ + value_tuple + """""")
-            elif len(value) == 1 and value[0] != '*':
-                incoming_filter.append(
-                    f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+                incoming_filter.append(f"({sub_append_join})")
+            # if len(key) > 1:
+            #     key_list = [k.strip() for k in key]
+            #     key_str = " , ".join(key_list)
+            #     incoming_filter.append(f"""tags ?| array[{key_str}]""")
             else:
                 incoming_filter.append(f"""tags ? '{key.strip()}'""")
+
 
     else :
         for key, value in filter.items():
