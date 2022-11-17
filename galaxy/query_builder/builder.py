@@ -120,10 +120,6 @@ def generate_tag_filter_query(filter, join_by='OR' , user_for_geojson=False):
                 sub_append_join = " OR ".join(sub_append)
 
                 incoming_filter.append(f"({sub_append_join})")
-            # if len(key) > 1:
-            #     key_list = [k.strip() for k in key]
-            #     key_str = " , ".join(key_list)
-            #     incoming_filter.append(f"""tags ?| array[{key_str}]""")
             else:
                 incoming_filter.append(f"""tags ? '{key.strip()}'""")
 
