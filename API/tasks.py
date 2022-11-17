@@ -9,7 +9,7 @@ router = APIRouter(prefix="/tasks")
 
 
 @router.get("/status/{task_id}/")
-@version(2)
+@version(1)
 def get_task_status(task_id):
     """Tracks the request from the task id provided by galaxy api for the request
 

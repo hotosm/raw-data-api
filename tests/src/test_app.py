@@ -108,7 +108,7 @@ def test_rawdata_current_snapshot_geometry_query():
                 ]
             ]
         },
-        "outputType": "GeoJSON",
+        "outputType": "geojson",
         "filters": {"tags": {"point": {"amenity": ["shop", "toilet"]}}, "attributes": {"point": ["name"]}}
     }
     validated_params = RawDataCurrentParams(**test_param)
@@ -167,7 +167,7 @@ def test_rawdata_current_snapshot_normal_query():
                 ]
             ]
         },
-        "outputType": "GeoJSON"
+        "outputType": "geojson"
     }
     validated_params = RawDataCurrentParams(**test_param)
     expected_query = """select ST_AsGeoJSON(t0.*) from (select
@@ -198,7 +198,7 @@ def test_rawdata_current_snapshot_normal_query():
 
 def test_attribute_filter_rawdata():
     test_param = {"geometry": {"type": "Polygon", "coordinates": [[[83.502574, 27.569073], [83.502574, 28.332758], [85.556417, 28.332758], [85.556417, 27.569073], [
-        83.502574, 27.569073]]]}, "outputType": "GeoJSON", "geometryType": ["polygon", "line"], "filters": {"attributes": {"line": ["name"]}, "tags": {"all_geometry": {"building": ["yes"]}}}}
+        83.502574, 27.569073]]]}, "outputType": "geojson", "geometryType": ["polygon", "line"], "filters": {"attributes": {"line": ["name"]}, "tags": {"all_geometry": {"building": ["yes"]}}}}
     validated_params = RawDataCurrentParams(**test_param)
     expected_query = """select ST_AsGeoJSON(t0.*) from (select
             osm_id , tags ->> 'name' as name , geom

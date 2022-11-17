@@ -20,6 +20,7 @@
 from json import dumps
 import re
 from galaxy.validation.models import SupportedFilters, SupportedGeometryFilters
+from galaxy.config import logger as logging
 
 
 def get_grid_id_query(geometry_dump):
@@ -54,9 +55,9 @@ def create_geom_filter(geom):
 
 def format_file_name_str(input_str):
     # Fixme I need to check every possible special character that can comeup on osm tags
-    input_str = re.sub("\s+", "-", input_str)  # putting - in every space  # noqa
-    input_str = re.sub(":", "-", input_str)  # putting - in every : value
-    input_str = re.sub("_", "-", input_str)  # putting - in every _ value
+    input_str = re.sub("\s+", "_", input_str)  # putting _ in every space  # noqa
+    input_str = re.sub(":", "_", input_str)  # putting _ in every : value
+    input_str = re.sub("-", "_", input_str)  # putting _ in every - value
 
     return input_str
 
@@ -68,7 +69,7 @@ def remove_spaces(input_str):
     return input_str
 
 
-def create_column_filter(columns, create_schema=False):
+def create_column_filter(columns, create_schema=False , output_type='geojson'):
     """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
     if len(columns) > 0:
         filter_col = []
@@ -82,13 +83,19 @@ def create_column_filter(columns, create_schema=False):
                     f"""tags ->> '{cl.strip()}' as {remove_spaces(cl.strip())}""")
                 if create_schema:
                     schema[remove_spaces(cl.strip())] = 'str'
-        filter_col.append('geom')
+        if output_type == 'csv' : # if it is csv geom logic is different
+            filter_col.append('ST_X(ST_Centroid(geom)) as longitude')
+            filter_col.append('ST_Y(ST_Centroid(geom)) as latitude')
+            filter_col.append('GeometryType(geom) as geom_type')
+
+        else:
+            filter_col.append('geom')
         select_condition = " , ".join(filter_col)
         if create_schema:
             return select_condition, schema
         return select_condition
     else:
-        return """osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        return """osm_id ,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
 def generate_tag_filter_query(filter, params):
@@ -121,7 +128,7 @@ def extract_geometry_type_query(params, ogr_export=False):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
 
     geom_filter = create_geom_filter(params.geometry)
-    select_condition = """osm_id ,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    select_condition = """osm_id ,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     schema = {'osm_id': 'int64', 'tags': 'str',
               'changeset': 'int64', 'timestamp': 'str'}
     query_point, query_line, query_poly = None, None, None
@@ -133,7 +140,7 @@ def extract_geometry_type_query(params, ogr_export=False):
             params.filters)
 
     if master_attribute_filter:  # if no specific point , line or poly filter is not passed master columns filter will be used , if master columns is also empty then above default select statement will be used
-        select_condition, schema = create_column_filter(
+        select_condition, schema = create_column_filter(output_type=params.output_type, columns=
             master_attribute_filter, create_schema=True)
     if master_tag_filter:
         attribute_filter = generate_tag_filter_query(master_tag_filter, params)
@@ -143,7 +150,7 @@ def extract_geometry_type_query(params, ogr_export=False):
     for type in params.geometry_type:
         if type == SupportedGeometryFilters.POINT.value:
             if point_attribute_filter:
-                select_condition, schema = create_column_filter(
+                select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     point_attribute_filter, create_schema=True)
             query_point = f"""select
                         {select_condition}
@@ -163,7 +170,7 @@ def extract_geometry_type_query(params, ogr_export=False):
         if type == SupportedGeometryFilters.LINE.value:
             query_line_list = []
             if line_attribute_filter:
-                select_condition, schema = create_column_filter(
+                select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     line_attribute_filter, create_schema=True)
             query_ways_line = f"""select
                 {select_condition}
@@ -192,7 +199,7 @@ def extract_geometry_type_query(params, ogr_export=False):
         if type == SupportedGeometryFilters.POLYGON.value:
             query_poly_list = []
             if poly_attribute_filter:
-                select_condition, schema = create_column_filter(
+                select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     poly_attribute_filter, create_schema=True)
             query_ways_poly = f"""select
                 {select_condition}
@@ -279,19 +286,32 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
 
     # query_table = []
     if select_all:
-        select_condition = """osm_id,version,tags::text as tags,changeset,timestamp::text,geom"""   # FIXme have condition for displaying userinfo after user authentication
+        select_condition = """osm_id,version,tags,changeset,timestamp,geom"""   # FIXme have condition for displaying userinfo after user authentication
     else:
-        select_condition = """osm_id ,version,tags::text as tags,changeset,timestamp::text,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
-    point_select_condition = select_condition  # initializing default
+        select_condition = """osm_id ,version,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+
+    point_select_condition = select_condition # initializing default
     line_select_condition = select_condition
     poly_select_condition = select_condition
+
     if params.filters:
         tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = extract_attributes_tags(
             params.filters)
+    attribute_customization_full_support=['geojson','shp']
+
+    if params.output_type not in attribute_customization_full_support :
+        logging.debug("Merging filters since they don't have same no of filters for features")
+        merged_array=[i if i else [] for i in [point_attribute_filter, line_attribute_filter, poly_attribute_filter]]
+        merged_result=list({x for l in merged_array for x in l})
+        logging.debug(merged_result)
+        if point_attribute_filter : point_attribute_filter = merged_result
+        if line_attribute_filter : line_attribute_filter = merged_result
+        if poly_attribute_filter : poly_attribute_filter = merged_result
+
     if attributes:
         if master_attribute_filter:
             if len(master_attribute_filter) > 0:
-                select_condition = create_column_filter(
+                select_condition = create_column_filter(output_type=params.output_type, columns=
                     master_attribute_filter)
                 # if master attribute is supplied it will be applied to other geom type as well even though value is supplied they will be ignored
                 point_select_condition = select_condition
@@ -300,16 +320,17 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         else:
             if point_attribute_filter:
                 if len(point_attribute_filter) > 0:
-                    point_select_condition = create_column_filter(
+                    point_select_condition = create_column_filter(output_type=params.output_type, columns=
                         point_attribute_filter)
             if line_attribute_filter:
                 if len(line_attribute_filter) > 0:
-                    line_select_condition = create_column_filter(
+                    line_select_condition = create_column_filter(output_type=params.output_type, columns=
                         line_attribute_filter)
             if poly_attribute_filter:
                 if len(poly_attribute_filter) > 0:
-                    poly_select_condition = create_column_filter(
-                        point_attribute_filter)
+                    poly_select_condition = create_column_filter(output_type=params.output_type, columns=
+                        poly_attribute_filter)
+
     if tags:
         if master_tag_filter:  # if master tag is supplied then other tags should be ignored and master tag will be used
             master_tag = generate_tag_filter_query(master_tag_filter, params)
@@ -405,7 +426,10 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             table_base_query.append(
                 f"""select ST_AsGeoJSON(t{i}.*) from ({base_query[i]}) t{i}""")
     final_query = " UNION ALL ".join(table_base_query)
+    if params.output_type == 'csv':
+        logging.debug(final_query)
     return final_query
+
 
 
 def check_last_updated_rawdata():

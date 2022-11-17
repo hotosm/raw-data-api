@@ -109,11 +109,11 @@ def run_ogr2ogr_cmd(cmd):
             stderr=subprocess.STDOUT,
             shell=True,
             preexec_fn=os.setsid,
-            timeout=60*60*2  # setting timeout of 2 hour
+            timeout=60*60*6  # setting timeout of 6 hour
         )
         logging.debug(process)
     except Exception as ex:
-        logging.error(ex)
+        logging.error(ex.output)
         # process.kill()
         # # Send the signal to all the process groups
         # os.killpg(os.getpgid(process.pid), signal.SIGTERM)
@@ -251,6 +251,7 @@ class RawData:
             point_file_path = os.path.join(
                 working_dir, f"{file_name}_point.shp")
             # command for ogr2ogr to generate file
+
             cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=point_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Point Shapefile")
@@ -285,7 +286,7 @@ class RawData:
             os.remove(query_path)
 
     @staticmethod
-    def ogr_export(query, outputtype, working_dir, dump_temp_path):
+    def ogr_export(query, outputtype, working_dir, dump_temp_path, params):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
         db_items = get_db_connection_params("RAW_DATA")
         # format query if it has " in string"
@@ -295,12 +296,17 @@ class RawData:
             file.write(query)
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype == RawDataOutputType.MBTILES.value:
-            cmd = '''ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
-                export_path=dump_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            cmd = '''ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
+                min_zoom=params.min_zoom,max_zoom=params.max_zoom,export_path=dump_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.FLATGEOBUF.value:
             cmd = '''ogr2ogr -overwrite -f FLATGEOBUF {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress VERIFY_BUFFERS=NO'''.format(
+                export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            run_ogr2ogr_cmd(cmd)
+
+        if outputtype == RawDataOutputType.PGDUMP.value:
+            cmd = '''ogr2ogr -overwrite --config PG_USE_COPY YES -f PGDump {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco SRID=4326 -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
@@ -309,8 +315,13 @@ class RawData:
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
+        if outputtype == RawDataOutputType.CSV.value:
+            cmd = '''ogr2ogr -overwrite -f CSV  {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco -progress'''.format(
+                export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            run_ogr2ogr_cmd(cmd)
+
         if outputtype == RawDataOutputType.GEOPACKAGE.value:
-            cmd = '''ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
         # clear query file we don't need it anymore
@@ -401,7 +412,7 @@ class RawData:
                                        poly_query=poly_query, working_dir=working_dir, file_name=self.params.file_name if self.params.file_name else 'Export')  # using ogr2ogr
             else:
                 RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True),
-                                   outputtype=output_type, dump_temp_path=dump_temp_file_path, working_dir=working_dir)  # uses ogr export to export
+                                   outputtype=output_type, dump_temp_path=dump_temp_file_path, working_dir=working_dir, params=self.params)  # uses ogr export to export
             return geom_area, working_dir
         except Exception as ex:
             logging.error(ex)
