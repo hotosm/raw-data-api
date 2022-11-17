@@ -22,6 +22,8 @@ from typing import List, Union, Optional
 from pydantic import validator
 from pydantic import BaseModel as PydanticModel
 from geojson_pydantic import Polygon, MultiPolygon
+from typing_extensions import TypedDict
+from geojson_pydantic.types import BBox
 from enum import Enum
 from area import area
 from galaxy.config import config, allow_bind_zip_filter
@@ -78,14 +80,15 @@ class JoinFilterType (Enum):
     AND = "AND"
 
 
+
 class RawDataCurrentParams(BaseModel):
-    output_type: Optional[RawDataOutputType] = None
+    output_type: Optional[RawDataOutputType] = RawDataOutputType.GEOJSON.value
     min_zoom: Optional[int] = None # only for if mbtiles is output
     max_zoom: Optional[int] = None # only for if mbtiles is output
     file_name: Optional[str] = None
     geometry: Union[Polygon, MultiPolygon]
     filters: Optional[dict] = None
-    join_filter_type: Optional[JoinFilterType] = None
+    join_filter_type: Optional[JoinFilterType] = JoinFilterType.OR.value
     geometry_type: Optional[List[SupportedGeometryFilters]] = None
     if allow_bind_zip_filter:
         bind_zip: Optional[bool] = True
@@ -109,8 +112,9 @@ class RawDataCurrentParams(BaseModel):
             else :
                 raise ValueError("Field min_zoom and max_zoom must be supplied for mbtiles output type")
         return value
+
     @validator("filters", allow_reuse=True)
-    def check_value(cls, value, values):
+    def check_filters_value(cls, value, values):
         """Checks given fields"""
         for key, v in value.items():
             if SupportedFilters.has_value(key):  # check for tags or attributes
@@ -149,6 +153,7 @@ class RawDataCurrentParams(BaseModel):
                     f"""Filter {key} is not supported. Supported filters are 'tags' and 'attributes'""")
         return value
 
+
     @validator("geometry", always=True)
     def check_geometry_area(cls, value, values):
         """Validates geom area_m2"""
@@ -167,3 +172,33 @@ class RawDataCurrentParams(BaseModel):
             raise ValueError(
                 f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}""")
         return value
+
+
+class WhereCondition(TypedDict):
+    key: str
+    value: List[str]
+
+class OsmFeatureType (Enum):
+    NODES = "nodes"
+    WAYS_LINE = "ways_line"
+    WAYS_POLY = "ways_poly"
+    RELATIONS = "relations"
+
+
+class RawDataCurrentParamsQuick(BaseModel):
+    bbox: Optional[BBox] = None  #xmin: NumType, ymin: NumType, xmax: NumType, ymax: NumType , srid:4326
+    select: Optional[List[str]] = ['*']
+    where: List[WhereCondition] = [{'key': 'building', 'value': ['*']}]
+    join_by: Optional[JoinFilterType] = JoinFilterType.OR.value
+    look_in: Optional[List[OsmFeatureType]] = ["nodes",  "ways_poly"]
+    geometry_type: SupportedGeometryFilters = None
+
+    @validator("select", always=True)
+    def validate_select_statement(cls, value, values):
+        """Validates geom area_m2"""
+        for v in value:
+            if v != '*' and len(v) < 2:
+                raise ValueError("length of select attribute must be greater than 2 letters")
+        return value
+
+
