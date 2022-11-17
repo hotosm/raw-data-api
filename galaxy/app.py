@@ -448,17 +448,21 @@ class RawData:
         approx_returned_rows = rows[0].split('=')[1]
         logging.debug("Approximated query output : %s", approx_returned_rows)
 
-        if int(approx_returned_rows) > 100:
+        if int(approx_returned_rows) > 500:
             self.cur.close()
             RawData.close_con(self.con)
             raise HTTPException(status_code=500, detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction")
 
         extraction_query = raw_currentdata_extraction_query_geojson(self.params)
-        self.cur.execute(extraction_query)
-        extraction_result = self.cur.fetchall()
-        self.cur.close()
-        RawData.close_con(self.con)
-        return RawData.to_geojson_raw(extraction_result)
+        features = []
+
+        with self.con.cursor(name='fetch_raw_quick') as cursor:  # using server side cursor
+            cursor.itersize = 500
+            cursor.execute(extraction_query)
+            for row in cursor:
+                features.append(orjson.loads(row[0]))
+            cursor.close()
+        return FeatureCollection(features=features)
 
 
 class S3FileTransfer:
