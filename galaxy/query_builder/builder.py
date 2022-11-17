@@ -462,9 +462,9 @@ def check_last_updated_rawdata():
 
 
 def raw_currentdata_extraction_query_geojson(params, inspect_only=False):
-
-    if len(params.select) == 1 and params.select[0] == '*':
-        params.select = []
+    geom_filter_cond = None
+    if params.geometry_type == 'polygon':
+        geom_filter_cond = """ and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
     select_condition = create_column_filter(params.select)
     where_condition = generate_tag_filter_query(params.where, params.join_by, user_for_geojson=True)
     if params.bbox:
@@ -476,6 +476,8 @@ def raw_currentdata_extraction_query_geojson(params, inspect_only=False):
         sub_query = f"""select {select_condition} from {table_name} where ({where_condition}) """
         if params.bbox:
             sub_query += f""" and {geom_condition}"""
+        if geom_filter_cond:
+            sub_query += geom_filter_cond
         query_list.append(sub_query)
     table_base_query = []
     for i in range(len(query_list)):

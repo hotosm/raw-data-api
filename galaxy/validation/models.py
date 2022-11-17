@@ -191,6 +191,7 @@ class RawDataCurrentParamsQuick(BaseModel):
     where: List[WhereCondition] = [{'key': 'building', 'value': ['*']}]
     join_by: Optional[JoinFilterType] = JoinFilterType.OR.value
     look_in: Optional[List[OsmFeatureType]] = ["nodes",  "ways_poly"]
+    geometry_type: SupportedGeometryFilters = None
 
     @validator("select", always=True)
     def validate_select_statement(cls, value, values):
