@@ -448,7 +448,7 @@ class RawData:
         approx_returned_rows = rows[0].split('=')[1]
         logging.debug("Approximated query output : %s", approx_returned_rows)
 
-        if int(approx_returned_rows) > 1000:
+        if int(approx_returned_rows) > 100:
             self.cur.close()
             RawData.close_con(self.con)
             raise HTTPException(status_code=500, detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction")
