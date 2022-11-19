@@ -43,7 +43,9 @@ def get_country_id_query(geom_dump):
                     where
                         ST_Intersects(ST_GEOMFROMGEOJSON('{geom_dump}') ,
                         b.boundary)
-                    limit 1"""
+                    order by ST_Area(ST_Intersection(b.boundary,ST_MakeValid(ST_GEOMFROMGEOJSON('{geom_dump}')))) desc
+
+                    """
     return base_query
 
 
@@ -160,7 +162,7 @@ def generate_tag_filter_query(filter, join_by='OR' , user_for_geojson=False):
     return tag_filter
 
 
-def extract_geometry_type_query(params, ogr_export=False):
+def extract_geometry_type_query(params, ogr_export=False , g_id=None, c_id=None):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
 
     geom_filter = create_geom_filter(params.geometry)
@@ -237,18 +239,21 @@ def extract_geometry_type_query(params, ogr_export=False):
             if poly_attribute_filter:
                 select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     poly_attribute_filter, create_schema=True)
+
+            where_clause_for_poly,where_clause_for_relations = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export)
+
             query_ways_poly = f"""select
                 {select_condition}
                 from
                     ways_poly
                 where
-                    {geom_filter}"""
+                    {where_clause_for_poly}"""
             query_relations_poly = f"""select
                 {select_condition}
                 from
                     relations
                 where
-                    {geom_filter}"""
+                    {where_clause_for_relations}"""
             if poly_tag_filter:
                 attribute_filter = generate_tag_filter_query(poly_tag_filter, params.join_filter_type)
             if attribute_filter:
@@ -302,10 +307,29 @@ def extract_attributes_tags(filters):
                             master_attribute_filter = v
     return tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter
 
+def generate_where_clause_indexes_case(geom_filter,g_id,c_id,country_export):
+        where_clause_poly = geom_filter
+        where_clause_for_relations = geom_filter
+        if g_id:
+            column_name="grid"
+            grid_filter_base = [
+                f"""{column_name} = {ind[0]}""" for ind in g_id]
+            grid_filter = " OR ".join(grid_filter_base)
+            where_clause_poly = f"({grid_filter}) and ({geom_filter})"
 
-def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=False, select_all=False):
+        if c_id :
+            where_clause_poly += f" and (country = {c_id})"
+            where_clause_for_relations += f"and (country @> ARRAY[{c_id}])"
+
+        if country_export : # ignore the geometry take geom from the db itself by using precalculated field
+            where_clause = f"(country = {c_id})"
+            where_clause_for_relations = f"(country @> ARRAY[{c_id}])"
+        return where_clause, where_clause_for_relations
+
+def raw_currentdata_extraction_query(params, g_id, c_id, geometry_dump, ogr_export=False, select_all=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
+
 
     base_query = []
 
@@ -426,21 +450,14 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             base_query.append(query_relations_line)
 
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
-        where_clause = geom_filter
-        where_clause_for_relations = geom_filter
-        if g_id:
-            column_name="country" if params.country_export else "grid"
-            grid_filter_base = [
-                f"""{column_name} = {ind[0]}""" for ind in g_id]
-            grid_filter = " OR ".join(grid_filter_base)
-            where_clause = grid_filter if params.country_export else f"({grid_filter}) and {geom_filter}"
-            where_clause_for_relations = f"country @> ARRAY[{g_id[0][0]}]" if params.country_export else geom_filter
-        query_ways_poly = f"""
+        where_clause_for_poly,where_clause_for_relations = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export)
+
+        query_ways_poly = f"""select
             {poly_select_condition}
             from
                 ways_poly
             where
-                {where_clause}"""
+                {where_clause_for_poly}"""
         if poly_tag:
             query_ways_poly += f""" and ({poly_tag})"""
         base_query.append(query_ways_poly)

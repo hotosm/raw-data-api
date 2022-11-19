@@ -90,7 +90,7 @@ class RawDataCurrentParams(BaseModel):
     filters: Optional[dict] = None
     join_filter_type: Optional[JoinFilterType] = JoinFilterType.OR.value
     geometry_type: Optional[List[SupportedGeometryFilters]] = None
-    country_export: Optional[bool] = True
+    country_export: Optional[bool] = False
     if allow_bind_zip_filter:
         bind_zip: Optional[bool] = True
 
