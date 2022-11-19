@@ -426,15 +426,16 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             base_query.append(query_relations_line)
 
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
-        where_clause = f"""{geom_filter}"""
+        where_clause = geom_filter
+        where_clause_for_relations = geom_filter
         if g_id:
             column_name="country" if params.country_export else "grid"
             grid_filter_base = [
                 f"""{column_name} = {ind[0]}""" for ind in g_id]
             grid_filter = " OR ".join(grid_filter_base)
             where_clause = grid_filter if params.country_export else f"({grid_filter}) and {geom_filter}"
-
-        query_ways_poly = f"""select
+            where_clause_for_relations = f"country @> ARRAY[{g_id[0][0]}]" if params.country_export else geom_filter
+        query_ways_poly = f"""
             {poly_select_condition}
             from
                 ways_poly
@@ -448,7 +449,7 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             from
                 relations
             where
-                {geom_filter}"""
+                {where_clause_for_relations}"""
         if poly_tag:
             query_relations_poly += f""" and ({poly_tag})"""
         if use_geomtype_in_relation:
