@@ -322,9 +322,9 @@ def generate_where_clause_indexes_case(geom_filter,g_id,c_id,country_export):
             where_clause_for_relations += f"and (country @> ARRAY[{c_id}])"
 
         if country_export : # ignore the geometry take geom from the db itself by using precalculated field
-            where_clause = f"(country = {c_id})"
+            where_clause_poly = f"(country = {c_id})"
             where_clause_for_relations = f"(country @> ARRAY[{c_id}])"
-        return where_clause, where_clause_for_relations
+        return where_clause_poly, where_clause_for_relations
 
 def raw_currentdata_extraction_query(params, g_id, c_id, geometry_dump, ogr_export=False, select_all=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
