@@ -34,6 +34,18 @@ def get_grid_id_query(geometry_dump):
                         b.geom)"""
     return base_query
 
+def get_country_id_query(geom_dump):
+
+    base_query = f"""select
+                        b.cid
+                    from
+                        geoboundaries b
+                    where
+                        ST_Intersects(ST_GEOMFROMGEOJSON('{geom_dump}') ,
+                        b.boundary)
+                    limit 1"""
+    return base_query
+
 
 def get_query_as_geojson(query_list, ogr_export=None):
     table_base_query = []
@@ -294,6 +306,7 @@ def extract_attributes_tags(filters):
 def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=False, select_all=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
+
     base_query = []
 
     tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter = None, None, None, None, None, None, None, None, None, None
@@ -328,9 +341,9 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
         merged_array=[i if i else [] for i in [point_attribute_filter, line_attribute_filter, poly_attribute_filter]]
         merged_result=list({x for l in merged_array for x in l})
         logging.debug(merged_result)
-        if point_attribute_filter : point_attribute_filter = merged_result
-        if line_attribute_filter : line_attribute_filter = merged_result
-        if poly_attribute_filter : poly_attribute_filter = merged_result
+        if point_attribute_filter: point_attribute_filter = merged_result
+        if line_attribute_filter: line_attribute_filter = merged_result
+        if poly_attribute_filter: poly_attribute_filter = merged_result
 
     if attributes:
         if master_attribute_filter:
@@ -413,13 +426,14 @@ def raw_currentdata_extraction_query(params, g_id, geometry_dump, ogr_export=Fal
             base_query.append(query_relations_line)
 
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
+        where_clause = f"""{geom_filter}"""
         if g_id:
+            column_name="country" if params.country_export else "grid"
             grid_filter_base = [
-                f"""grid = {ind[0]}""" for ind in g_id]
+                f"""{column_name} = {ind[0]}""" for ind in g_id]
             grid_filter = " OR ".join(grid_filter_base)
-            where_clause = f"""({grid_filter}) and {geom_filter}"""
-        else:
-            where_clause = f"""{geom_filter}"""
+            where_clause = grid_filter if params.country_export else f"({grid_filter}) and {geom_filter}"
+
         query_ways_poly = f"""select
             {poly_select_condition}
             from
@@ -461,7 +475,7 @@ def check_last_updated_rawdata():
     return query
 
 
-def raw_currentdata_extraction_query_geojson(params, inspect_only=False):
+def raw_currentdata_extraction_query_quick(params, inspect_only=False):
     geom_filter_cond = None
     if params.geometry_type == 'polygon':
         geom_filter_cond = """ and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""

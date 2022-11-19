@@ -26,7 +26,7 @@ from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError
 from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
-from galaxy.query_builder.builder import raw_currentdata_extraction_query_geojson, get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
+from galaxy.query_builder.builder import raw_currentdata_extraction_query_quick, get_grid_id_query, get_country_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
 from json import loads as json_loads
 from geojson import Feature,FeatureCollection
 from fastapi import HTTPException
@@ -333,6 +333,7 @@ class RawData:
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
         post_geojson = """]}"""
+        logging.debug(extraction_query)
         # writing to the file
         # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
         with open(dump_temp_file_path, 'a', encoding='utf-8') as f:
@@ -355,7 +356,7 @@ class RawData:
         logging.debug("Server side Query Result  Post Processing Done")
 
     @staticmethod
-    def get_grid_id(geom, cur):
+    def get_grid_id(geom, cur, country_export=False):
         """Gets the intersecting related grid id for the geometry that is passed
 
         Args:
@@ -369,14 +370,14 @@ class RawData:
         # generating geometry area in sqkm
         geom_area = area(json_loads(geom.json())) * 1E-6
         # only apply grid in the logic if it exceeds the 5000 Sqkm
+        grid_id = None
         if int(geom_area) > grid_index_threshold:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
-            cur.execute(
-                get_grid_id_query(geometry_dump))
+            query = get_country_id_query(geometry_dump) if country_export else get_grid_id_query(geometry_dump)
+            cur.execute(query
+                )
             grid_id = cur.fetchall()
             cur.close()
-        else:
-            grid_id = None
         return grid_id, geometry_dump, geom_area
 
     @staticmethod
@@ -398,7 +399,7 @@ class RawData:
         """
         # first check either geometry needs grid or not for querying
         grid_id, geometry_dump, geom_area = RawData.get_grid_id(
-            self.params.geometry, self.cur)
+            self.params.geometry, self.cur, self.params.country_export)
         output_type = self.params.output_type
         # Check whether the export path exists or not
         working_dir = os.path.join(export_path, exportname)
@@ -441,7 +442,7 @@ class RawData:
 
     def extract_quick_raw_query_geojson(self):
         """Gets geojson for small area : Performs direct query with/without geometry"""
-        query = raw_currentdata_extraction_query_geojson(self.params, inspect_only=True)
+        query = raw_currentdata_extraction_query_quick(self.params, inspect_only=True)
         self.cur.execute(query)
         analyze_fetched = self.cur.fetchall()
         rows = list(filter(lambda x: x.startswith('rows'), analyze_fetched[0][0].split()))
@@ -453,7 +454,7 @@ class RawData:
             RawData.close_con(self.con)
             raise HTTPException(status_code=500, detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction")
 
-        extraction_query = raw_currentdata_extraction_query_geojson(self.params)
+        extraction_query = raw_currentdata_extraction_query_quick(self.params)
         features = []
 
         with self.con.cursor(name='fetch_raw_quick') as cursor:  # using server side cursor
