@@ -442,7 +442,7 @@ class RawData:
                 RawData.ogr_export_shp(point_query=point_query, line_query=line_query,
                                        poly_query=poly_query, working_dir=working_dir, file_name=self.params.file_name if self.params.file_name else 'Export')  # using ogr2ogr
             else:
-                RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id,c_id, geometry_dump, ogr_export=True),
+                RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id,country, geometry_dump, ogr_export=True),
                                    outputtype=output_type, dump_temp_path=dump_temp_file_path, working_dir=working_dir, params=self.params)  # uses ogr export to export
             return geom_area, working_dir
         except Exception as ex:
