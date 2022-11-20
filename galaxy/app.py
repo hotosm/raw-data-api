@@ -391,10 +391,15 @@ class RawData:
             else : # intersect with multiple countries or no country ,  use grid index instead
                 if country_export : # force country index
                     if count == 0 :
-                        raise HTTPException(status_code=500, detail=f"Geom didn't intersects with any country we support")
-                    for row in result_country:
-                        country = row[0] # get which has higher % intersection
-                        break
+                        # geom didn't intersected with any country
+                        logging.warning("Geom didn't intersect with any country")
+                        # use default grid index
+                        cur.execute(get_grid_id_query(geometry_dump))
+                        grid_id = cur.fetchall()
+                    else:
+                        for row in result_country:
+                            country = row[0] # get which has higher % intersection
+                            break
                 else:
                     cur.execute(get_grid_id_query(geometry_dump)
                         )
