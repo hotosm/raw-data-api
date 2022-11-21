@@ -190,12 +190,14 @@ def extract_geometry_type_query(params, ogr_export=False , g_id=None, c_id=None)
             if point_attribute_filter:
                 select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     point_attribute_filter, create_schema=True)
+            where_clause_for_nodes = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,"nodes")
+            
             query_point = f"""select
                         {select_condition}
                         from
                             nodes
                         where
-                            {geom_filter}"""
+                            {where_clause_for_nodes}"""
             if point_tag_filter:
                 attribute_filter = generate_tag_filter_query(point_tag_filter, params.join_filter_type)
             if attribute_filter:
@@ -210,18 +212,22 @@ def extract_geometry_type_query(params, ogr_export=False , g_id=None, c_id=None)
             if line_attribute_filter:
                 select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     line_attribute_filter, create_schema=True)
+            where_clause_for_line = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,"ways_line")
+            
             query_ways_line = f"""select
                 {select_condition}
                 from
                     ways_line
                 where
-                    {geom_filter}"""
+                    {where_clause_for_line}"""
+            where_clause_for_rel = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,"relations")
+            
             query_relations_line = f"""select
                 {select_condition}
                 from
                     relations
                 where
-                    {geom_filter}"""
+                    {where_clause_for_rel}"""
             if line_tag_filter:
                 attribute_filter = generate_tag_filter_query(line_tag_filter, params.join_filter_type)
             if attribute_filter:
@@ -240,7 +246,7 @@ def extract_geometry_type_query(params, ogr_export=False , g_id=None, c_id=None)
                 select_condition, schema = create_column_filter(output_type=params.output_type, columns=
                     poly_attribute_filter, create_schema=True)
 
-            where_clause_for_poly,where_clause_for_relations = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export)
+            where_clause_for_poly = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,"ways_poly")
 
             query_ways_poly = f"""select
                 {select_condition}
@@ -248,6 +254,8 @@ def extract_geometry_type_query(params, ogr_export=False , g_id=None, c_id=None)
                     ways_poly
                 where
                     {where_clause_for_poly}"""
+            where_clause_for_relations = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,"relations")
+            
             query_relations_poly = f"""select
                 {select_condition}
                 from
@@ -307,24 +315,44 @@ def extract_attributes_tags(filters):
                             master_attribute_filter = v
     return tags, attributes, point_attribute_filter, line_attribute_filter, poly_attribute_filter, master_attribute_filter, point_tag_filter, line_tag_filter, poly_tag_filter, master_tag_filter
 
-def generate_where_clause_indexes_case(geom_filter,g_id,c_id,country_export):
-        where_clause_poly = geom_filter
-        where_clause_for_relations = geom_filter
+def generate_where_clause_indexes_case(geom_filter,g_id,c_id,country_export,table_name='ways_poly'):
+        where_clause = geom_filter
         if g_id:
             column_name="grid"
             grid_filter_base = [
                 f"""{column_name} = {ind[0]}""" for ind in g_id]
             grid_filter = " OR ".join(grid_filter_base)
-            where_clause_poly = f"({grid_filter}) and ({geom_filter})"
-
+            where_clause = f"({grid_filter}) and ({geom_filter})"
         if c_id :
-            where_clause_poly += f" and (country = {c_id})"
-            where_clause_for_relations += f"and (country @> ARRAY[{c_id}])"
-
+            if table_name == 'ways_poly' or table_name == 'nodes' :
+                where_clause += f" and (country = {c_id})"
+            else:
+                where_clause += f"and (country @> ARRAY[{c_id}])"
         if country_export : # ignore the geometry take geom from the db itself by using precalculated field
-            where_clause_poly = f"(country = {c_id})"
-            where_clause_for_relations = f"(country @> ARRAY[{c_id}])"
-        return where_clause_poly, where_clause_for_relations
+            where_clause = f"(country @> ARRAY[{c_id}])"
+            if table_name == 'ways_poly' or table_name == 'nodes' :
+                
+                where_clause = f"(country = {c_id})"
+            
+        return where_clause
+        
+        # where_clause_poly = geom_filter
+        # where_clause_for_relations = geom_filter
+        # if g_id:
+        #     column_name="grid"
+        #     grid_filter_base = [
+        #         f"""{column_name} = {ind[0]}""" for ind in g_id]
+        #     grid_filter = " OR ".join(grid_filter_base)
+        #     where_clause_poly = f"({grid_filter}) and ({geom_filter})"
+
+        # if c_id :
+        #     where_clause_poly += f" and (country = {c_id})"
+        #     where_clause_for_relations += f"and (country @> ARRAY[{c_id}])"
+
+        # if country_export : # ignore the geometry take geom from the db itself by using precalculated field
+        #     where_clause_poly = f"(country = {c_id})"
+        #     where_clause_for_relations = f"(country @> ARRAY[{c_id}])"
+        # return where_clause_poly, where_clause_for_relations
 
 def raw_currentdata_extraction_query(params, g_id, c_id, geometry_dump, ogr_export=False, select_all=False):
     """Default function to support current snapshot extraction with all of the feature that galaxy has"""
@@ -412,23 +440,27 @@ def raw_currentdata_extraction_query(params, g_id, c_id, geometry_dump, ogr_expo
     if SupportedGeometryFilters.ALLGEOM.value in params.geometry_type:
         params.geometry_type = ["point", "line", "polygon"]
     if SupportedGeometryFilters.POINT.value in params.geometry_type:
+        where_clause_for_nodes= generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,'nodes')
+        
         query_point = f"""select
                     {point_select_condition}
                     from
                         nodes
                     where
-                        {geom_filter}"""
+                        {where_clause_for_nodes}"""
         if point_tag:
             query_point += f""" and ({point_tag})"""
         base_query.append(query_point)
 
     if SupportedGeometryFilters.LINE.value in params.geometry_type:
+        where_clause_for_line= generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,'ways_line')
+        
         query_ways_line = f"""select
             {line_select_condition}
             from
                 ways_line
             where
-                {geom_filter}"""
+                {where_clause_for_line}"""
         if line_tag:
             query_ways_line += f""" and ({line_tag})"""
         base_query.append(query_ways_line)
@@ -436,21 +468,23 @@ def raw_currentdata_extraction_query(params, g_id, c_id, geometry_dump, ogr_expo
         if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
             if poly_select_condition == line_select_condition and poly_tag == line_tag:
                 use_geomtype_in_relation = False
-
+        
         if use_geomtype_in_relation:
+            where_clause_for_rel= generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,'relations')
+            
             query_relations_line = f"""select
                 {line_select_condition}
                 from
                     relations
                 where
-                    {geom_filter}"""
+                    {where_clause_for_rel}"""
             if line_tag:
                 query_relations_line += f""" and ({line_tag})"""
             query_relations_line += """ and (geometrytype(geom)='MULTILINESTRING')"""
             base_query.append(query_relations_line)
 
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
-        where_clause_for_poly,where_clause_for_relations = generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export)
+        where_clause_for_poly= generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,'ways_poly')
 
         query_ways_poly = f"""select
             {poly_select_condition}
@@ -461,6 +495,7 @@ def raw_currentdata_extraction_query(params, g_id, c_id, geometry_dump, ogr_expo
         if poly_tag:
             query_ways_poly += f""" and ({poly_tag})"""
         base_query.append(query_ways_poly)
+        where_clause_for_relations= generate_where_clause_indexes_case(geom_filter,g_id,c_id,params.country_export,'relations')
         query_relations_poly = f"""select
             {poly_select_condition}
             from
