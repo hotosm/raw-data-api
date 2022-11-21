@@ -17,10 +17,11 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page Contains Query logic required for application"""
-from json import dumps
 import re
-from galaxy.validation.models import SupportedFilters, SupportedGeometryFilters
+from json import dumps
+
 from galaxy.config import logger as logging
+from galaxy.validation.models import SupportedFilters, SupportedGeometryFilters
 
 
 def get_grid_id_query(geometry_dump):
