@@ -319,7 +319,7 @@ def extract_attributes_tags(filters):
 def generate_where_clause_indexes_case(geom_filter,g_id,c_id,country_export,table_name='ways_poly'):
         where_clause = geom_filter
         if g_id:
-            if table_name == 'ways_poly':
+            if table_name == 'ways_poly': # currently grid index is only available for ways_poly
                 column_name="'grid"
                 grid_filter_base = [
                     f"""{column_name} = {ind[0]}""" for ind in g_id]
