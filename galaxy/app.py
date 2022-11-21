@@ -19,29 +19,49 @@
 '''Page contains Main core logic of app'''
 
 import os
+import subprocess
 import sys
 import threading
-from galaxy.config import get_db_connection_params, grid_index_threshold, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling
-from psycopg2 import connect
-from psycopg2.extras import DictCursor
-from psycopg2 import OperationalError
-from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
-from galaxy.query_builder.builder import raw_currentdata_extraction_query_quick, get_grid_id_query, get_country_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
+import time
+from json import dumps
 from json import loads as json_loads
-from geojson import Feature,FeatureCollection
-from fastapi import HTTPException
+
+import boto3
 import orjson
 from area import area
-import subprocess
-from json import dumps
-import time
-import boto3
+from fastapi import HTTPException
+from geojson import Feature, FeatureCollection
+from psycopg2 import OperationalError, connect
+from psycopg2.extras import DictCursor
+
+from galaxy.config import (
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY,
+    BUCKET_NAME,
+    export_path,
+    get_db_connection_params,
+    grid_index_threshold,
+    level,
+)
+from galaxy.config import logger as logging
+from galaxy.config import use_connection_pooling
+from galaxy.query_builder.builder import (
+    check_last_updated_rawdata,
+    extract_geometry_type_query,
+    get_country_id_query,
+    get_grid_id_query,
+    raw_currentdata_extraction_query,
+    raw_currentdata_extraction_query_quick,
+)
+from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
+
 # import instance for pooling
 if use_connection_pooling:
     from galaxy.db_session import database_instance
 else:
     database_instance = None
 import logging as log
+
 # assigning global variable of pooling so that it
 # will be accessible from any function within this script
 global LOCAL_CON_POOL
