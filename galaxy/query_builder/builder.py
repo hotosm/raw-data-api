@@ -402,7 +402,7 @@ def generate_where_clause_indexes_case(
         if (
             table_name == "ways_poly"
         ):  # currently grid index is only available for ways_poly
-            column_name = "'grid"
+            column_name = "'grid'"
             grid_filter_base = [f"""{column_name} = {ind[0]}""" for ind in g_id]
             grid_filter = " OR ".join(grid_filter_base)
             where_clause = f"({grid_filter}) and ({geom_filter})"
