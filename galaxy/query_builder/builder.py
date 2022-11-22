@@ -422,24 +422,6 @@ def generate_where_clause_indexes_case(
 
     return where_clause
 
-    # where_clause_poly = geom_filter
-    # where_clause_for_relations = geom_filter
-    # if g_id:
-    #     column_name="grid"
-    #     grid_filter_base = [
-    #         f"""{column_name} = {ind[0]}""" for ind in g_id]
-    #     grid_filter = " OR ".join(grid_filter_base)
-    #     where_clause_poly = f"({grid_filter}) and ({geom_filter})"
-
-    # if c_id :
-    #     where_clause_poly += f" and (country = {c_id})"
-    #     where_clause_for_relations += f"and (country @> ARRAY[{c_id}])"
-
-    # if country_export : # ignore the geometry take geom from the db itself by using precalculated field
-    #     where_clause_poly = f"(country = {c_id})"
-    #     where_clause_for_relations = f"(country @> ARRAY[{c_id}])"
-    # return where_clause_poly, where_clause_for_relations
-
 
 def raw_currentdata_extraction_query(
     params, g_id, c_id, geometry_dump, ogr_export=False, select_all=False
