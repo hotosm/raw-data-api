@@ -63,7 +63,7 @@ http://127.0.0.1:8000/latest/docs
 
 API docs will be displayed like this upon successfull server startup
 
-![image](https://user-images.githubusercontent.com/36752999/191813795-fdfd46fe-5e6c-4ecf-be9b-f9f351d3d1d7.png)
+![image](https://user-images.githubusercontent.com/13560473/204081940-e680a0d3-dcb4-43ff-ad09-5886671ffaff.png)
 
 - Flower dashboard
 
