@@ -19,29 +19,49 @@
 '''Page contains Main core logic of app'''
 
 import os
+import subprocess
 import sys
 import threading
-from galaxy.config import get_db_connection_params, grid_index_threshold, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling
-from psycopg2 import connect
-from psycopg2.extras import DictCursor
-from psycopg2 import OperationalError
-from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
-from galaxy.query_builder.builder import raw_currentdata_extraction_query_geojson, get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
+import time
+from json import dumps
 from json import loads as json_loads
-from geojson import Feature,FeatureCollection
-from fastapi import HTTPException
+
+import boto3
 import orjson
 from area import area
-import subprocess
-from json import dumps
-import time
-import boto3
+from fastapi import HTTPException
+from geojson import Feature, FeatureCollection
+from psycopg2 import OperationalError, connect
+from psycopg2.extras import DictCursor
+
+from galaxy.config import (
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY,
+    BUCKET_NAME,
+    export_path,
+    get_db_connection_params,
+    grid_index_threshold,
+    level,
+)
+from galaxy.config import logger as logging
+from galaxy.config import use_connection_pooling
+from galaxy.query_builder.builder import (
+    check_last_updated_rawdata,
+    extract_geometry_type_query,
+    get_country_id_query,
+    get_grid_id_query,
+    raw_currentdata_extraction_query,
+    raw_currentdata_extraction_query_quick,
+)
+from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
+
 # import instance for pooling
 if use_connection_pooling:
     from galaxy.db_session import database_instance
 else:
     database_instance = None
 import logging as log
+
 # assigning global variable of pooling so that it
 # will be accessible from any function within this script
 global LOCAL_CON_POOL
@@ -334,6 +354,7 @@ class RawData:
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
         post_geojson = """]}"""
+        logging.debug(extraction_query)
         # writing to the file
         # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
         with open(dump_temp_file_path, 'a', encoding='utf-8') as f:
@@ -356,7 +377,7 @@ class RawData:
         logging.debug("Server side Query Result  Post Processing Done")
 
     @staticmethod
-    def get_grid_id(geom, cur):
+    def get_grid_id(geom, cur, country_export=False):
         """Gets the intersecting related grid id for the geometry that is passed
 
         Args:
@@ -370,15 +391,42 @@ class RawData:
         # generating geometry area in sqkm
         geom_area = area(json_loads(geom.json())) * 1E-6
         # only apply grid in the logic if it exceeds the 5000 Sqkm
-        if int(geom_area) > grid_index_threshold:
+        grid_id = None
+
+        country = None
+
+        if int(geom_area) > grid_index_threshold or country_export:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
-            cur.execute(
-                get_grid_id_query(geometry_dump))
-            grid_id = cur.fetchall()
+            country_query = get_country_id_query(geometry_dump)
+            # check if polygon intersects two countries
+            check_country = cur.execute(country_query)
+            count=0
+            result_country=cur.fetchall()
+            logging.debug(result_country)
+            for s in result_country:
+                count+=1
+            if count == 1 : # intersects with only one country
+                for row in result_country:
+                    country = row[0]
+                    break
+            else : # intersect with multiple countries or no country ,  use grid index instead
+                if country_export : # force country index
+                    if count == 0 :
+                        # geom didn't intersected with any country
+                        logging.warning("Geom didn't intersect with any country")
+                        # use default grid index
+                        cur.execute(get_grid_id_query(geometry_dump))
+                        grid_id = cur.fetchall()
+                    else:
+                        for row in result_country:
+                            country = row[0] # get which has higher % intersection
+                            break
+                else:
+                    cur.execute(get_grid_id_query(geometry_dump)
+                        )
+                    grid_id = cur.fetchall()
             cur.close()
-        else:
-            grid_id = None
-        return grid_id, geometry_dump, geom_area
+        return grid_id, geometry_dump, geom_area , country
 
     @staticmethod
     def to_geojson_raw(results):
@@ -398,8 +446,8 @@ class RawData:
             working_dir: dir where results are saved
         """
         # first check either geometry needs grid or not for querying
-        grid_id, geometry_dump, geom_area = RawData.get_grid_id(
-            self.params.geometry, self.cur)
+        grid_id, geometry_dump, geom_area, country = RawData.get_grid_id(
+            self.params.geometry, self.cur, self.params.country_export)
         output_type = self.params.output_type
         # Check whether the export path exists or not
         working_dir = os.path.join(export_path, exportname)
@@ -413,14 +461,14 @@ class RawData:
             # currently we have only geojson binding function written other than that we have depend on ogr
             if output_type == RawDataOutputType.GEOJSON.value:
                 RawData.query2geojson(self.con, raw_currentdata_extraction_query(
-                    self.params, g_id=grid_id, geometry_dump=geometry_dump), dump_temp_file_path)  # uses own conversion class
+                    self.params, g_id=grid_id, c_id=country, geometry_dump=geometry_dump), dump_temp_file_path)  # uses own conversion class
             elif output_type == RawDataOutputType.SHAPEFILE.value:
                 point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
-                    self.params, ogr_export=True)
+                    self.params, ogr_export=True , g_id=grid_id, c_id=country)
                 RawData.ogr_export_shp(point_query=point_query, line_query=line_query,
                                        poly_query=poly_query, working_dir=working_dir, file_name=self.params.file_name if self.params.file_name else 'Export')  # using ogr2ogr
             else:
-                RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True),
+                RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id,country, geometry_dump, ogr_export=True),
                                    outputtype=output_type, dump_temp_path=dump_temp_file_path, working_dir=working_dir, params=self.params)  # uses ogr export to export
             return geom_area, working_dir
         except Exception as ex:
@@ -442,7 +490,7 @@ class RawData:
 
     def extract_quick_raw_query_geojson(self):
         """Gets geojson for small area : Performs direct query with/without geometry"""
-        query = raw_currentdata_extraction_query_geojson(self.params, inspect_only=True)
+        query = raw_currentdata_extraction_query_quick(self.params, inspect_only=True)
         self.cur.execute(query)
         analyze_fetched = self.cur.fetchall()
         rows = list(filter(lambda x: x.startswith('rows'), analyze_fetched[0][0].split()))
@@ -454,7 +502,7 @@ class RawData:
             RawData.close_con(self.con)
             raise HTTPException(status_code=500, detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction")
 
-        extraction_query = raw_currentdata_extraction_query_geojson(self.params)
+        extraction_query = raw_currentdata_extraction_query_quick(self.params)
         features = []
 
         with self.con.cursor(name='fetch_raw_quick') as cursor:  # using server side cursor
