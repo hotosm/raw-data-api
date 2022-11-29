@@ -272,6 +272,7 @@ class RawData:
             point_file_path = os.path.join(
                 working_dir, f"{file_name}_point.shp")
             # command for ogr2ogr to generate file
+
             cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=point_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Point Shapefile")

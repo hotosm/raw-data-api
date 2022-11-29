@@ -37,13 +37,13 @@ If REDIS is not running check out its [documentation](https://redis.io/docs/gett
 - Clone the Repo to your machine
 
 ```
-git clone https://github.com/hotosm/galaxy-api.git
+git clone https://github.com/hotosm/export-tool-api.git
 ```
 
 Navigate to repo
 
 ```
-cd galaxy-api
+cd export-tool-api
 ```
 
 - Install python dependencies
