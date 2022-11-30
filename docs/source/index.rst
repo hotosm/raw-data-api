@@ -1,13 +1,10 @@
-Welcome to OSM Galaxy's documentation!
-=====================================
+.. export-tool-api documentation master file, created by
+   sphinx-quickstart on Tue Oct 25 15:54:49 2022.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-**galaxy** (src/galaxy) is a Python library for developers developed by Humanitarian OpenStreetMap as part of OSM Galaxy and offers a *simple* and
-*intuitive* API.
-
-.. note::
-
-   This project is under active development.
-
+Welcome to export-tool-api's documentation!
+===========================================
 
 .. toctree::
    :maxdepth: 2

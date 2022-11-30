@@ -12,13 +12,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'OSM Galaxy'
-copyright = '2021, HOT_Tech_Team'
+project = 'export-tool-api'
+copyright = '2022, HOT_Tech_Team'
 author = 'HOT_Tech_Team'
 
 # The full version, including alpha/beta/rc tags
@@ -30,13 +30,7 @@ release = '0.0.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    'sphinx_rtd_theme',
-    'sphinx.ext.duration',
-    'sphinx.ext.doctest',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.githubpages',
+extensions = ['sphinx.ext.autodoc','sphinx_rtd_theme'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

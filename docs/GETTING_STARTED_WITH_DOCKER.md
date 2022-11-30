@@ -9,12 +9,12 @@ cd export-tool-api
 
 ### 2. Configurations
 
-- Create `config.txt` inside /src/ folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer.
+- Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer.
 
 ```
-touch src/config.txt #Linux
-wsl touch src/config.txt #Windows with WSL
-echo >> src/config.txt #Windows without WSL
+touch config.txt #Linux
+wsl touch config.txt #Windows with WSL
+echo >> config.txt #Windows without WSL
 ```
 
 - Database configuration:
@@ -63,7 +63,7 @@ http://127.0.0.1:8000/latest/docs
 
 API docs will be displayed like this upon successfull server startup
 
-![image](https://user-images.githubusercontent.com/36752999/191813795-fdfd46fe-5e6c-4ecf-be9b-f9f351d3d1d7.png)
+![image](https://user-images.githubusercontent.com/13560473/204081940-e680a0d3-dcb4-43ff-ad09-5886671ffaff.png)
 
 - Flower dashboard
 

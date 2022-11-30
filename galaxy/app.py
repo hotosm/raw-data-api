@@ -17,29 +17,51 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 '''Page contains Main core logic of app'''
+
 import os
+import subprocess
 import sys
 import threading
-from src.galaxy.config import get_db_connection_params, grid_index_threshold, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, level, logger as logging, export_path, use_connection_pooling
-from psycopg2 import connect
-from psycopg2.extras import DictCursor
-from psycopg2 import OperationalError
-from src.galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
-from src.galaxy.query_builder.builder import get_grid_id_query, raw_currentdata_extraction_query, check_last_updated_rawdata, extract_geometry_type_query
+import time
+from json import dumps
 from json import loads as json_loads
-from geojson import FeatureCollection
+
+import boto3
 import orjson
 from area import area
-import subprocess
-from json import dumps
-import time
-import boto3
+from fastapi import HTTPException
+from geojson import Feature, FeatureCollection
+from psycopg2 import OperationalError, connect
+from psycopg2.extras import DictCursor
+
+from galaxy.config import (
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY,
+    BUCKET_NAME,
+    export_path,
+    get_db_connection_params,
+    grid_index_threshold,
+    level,
+)
+from galaxy.config import logger as logging
+from galaxy.config import use_connection_pooling
+from galaxy.query_builder.builder import (
+    check_last_updated_rawdata,
+    extract_geometry_type_query,
+    get_country_id_query,
+    get_grid_id_query,
+    raw_currentdata_extraction_query,
+    raw_currentdata_extraction_query_quick,
+)
+from galaxy.validation.models import RawDataCurrentParams, RawDataOutputType
+
 # import instance for pooling
 if use_connection_pooling:
-    from src.galaxy.db_session import database_instance
+    from galaxy.db_session import database_instance
 else:
     database_instance = None
 import logging as log
+
 # assigning global variable of pooling so that it
 # will be accessible from any function within this script
 global LOCAL_CON_POOL
@@ -108,11 +130,11 @@ def run_ogr2ogr_cmd(cmd):
             stderr=subprocess.STDOUT,
             shell=True,
             preexec_fn=os.setsid,
-            timeout=60*60*2  # setting timeout of 2 hour
+            timeout=60*60*6  # setting timeout of 6 hour
         )
         logging.debug(process)
     except Exception as ex:
-        logging.error(ex)
+        logging.error(ex.output)
         # process.kill()
         # # Send the signal to all the process groups
         # os.killpg(os.getpgid(process.pid), signal.SIGTERM)
@@ -210,10 +232,10 @@ class RawData:
             # pydantic model or not , people coming from package they
             # will not have api valdiation so to make sure they will be validated
             # before accessing the class
-            if isinstance(parameters, RawDataCurrentParams) is False:
-                self.params = RawDataCurrentParams(**parameters)
-            else:
-                self.params = parameters
+            # if isinstance(parameters, RawDataCurrentParams) is False:
+            #     self.params = RawDataCurrentParams(**parameters)
+            # else:
+            self.params = parameters
         # only use connection pooling if it is configured in config file
         if use_connection_pooling:
             # if database credentials directly from class is not passed grab from pool
@@ -250,6 +272,7 @@ class RawData:
             point_file_path = os.path.join(
                 working_dir, f"{file_name}_point.shp")
             # command for ogr2ogr to generate file
+
             cmd = '''ogr2ogr -overwrite -f "ESRI Shapefile" {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
                 export_path=point_file_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             logging.debug("Calling ogr2ogr-Point Shapefile")
@@ -284,7 +307,7 @@ class RawData:
             os.remove(query_path)
 
     @staticmethod
-    def ogr_export(query, outputtype, working_dir, dump_temp_path):
+    def ogr_export(query, outputtype, working_dir, dump_temp_path, params):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
         db_items = get_db_connection_params("RAW_DATA")
         # format query if it has " in string"
@@ -294,12 +317,17 @@ class RawData:
             file.write(query)
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype == RawDataOutputType.MBTILES.value:
-            cmd = '''ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM=10 -dsco MAXZOOM=22 {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
-                export_path=dump_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            cmd = '''ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
+                min_zoom=params.min_zoom,max_zoom=params.max_zoom,export_path=dump_temp_path, host=db_items.get('host'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.FLATGEOBUF.value:
             cmd = '''ogr2ogr -overwrite -f FLATGEOBUF {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress VERIFY_BUFFERS=NO'''.format(
+                export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            run_ogr2ogr_cmd(cmd)
+
+        if outputtype == RawDataOutputType.PGDUMP.value:
+            cmd = '''ogr2ogr -overwrite --config PG_USE_COPY YES -f PGDump {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco SRID=4326 -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
@@ -308,8 +336,13 @@ class RawData:
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
 
+        if outputtype == RawDataOutputType.CSV.value:
+            cmd = '''ogr2ogr -overwrite -f CSV  {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco -progress'''.format(
+                export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
+            run_ogr2ogr_cmd(cmd)
+
         if outputtype == RawDataOutputType.GEOPACKAGE.value:
-            cmd = '''ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress'''.format(
+            cmd = '''ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco -progress'''.format(
                 export_path=dump_temp_path, host=db_items.get('host'), port=db_items.get('port'), username=db_items.get('user'), db=db_items.get('database'), password=db_items.get('password'), pg_sql_select=query_path)
             run_ogr2ogr_cmd(cmd)
         # clear query file we don't need it anymore
@@ -321,6 +354,7 @@ class RawData:
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
         post_geojson = """]}"""
+        logging.debug(extraction_query)
         # writing to the file
         # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
         with open(dump_temp_file_path, 'a', encoding='utf-8') as f:
@@ -343,7 +377,7 @@ class RawData:
         logging.debug("Server side Query Result  Post Processing Done")
 
     @staticmethod
-    def get_grid_id(geom, cur):
+    def get_grid_id(geom, cur, country_export=False):
         """Gets the intersecting related grid id for the geometry that is passed
 
         Args:
@@ -357,15 +391,50 @@ class RawData:
         # generating geometry area in sqkm
         geom_area = area(json_loads(geom.json())) * 1E-6
         # only apply grid in the logic if it exceeds the 5000 Sqkm
-        if int(geom_area) > grid_index_threshold:
+        grid_id = None
+
+        country = None
+
+        if int(geom_area) > grid_index_threshold or country_export:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
-            cur.execute(
-                get_grid_id_query(geometry_dump))
-            grid_id = cur.fetchall()
+            country_query = get_country_id_query(geometry_dump)
+            # check if polygon intersects two countries
+            check_country = cur.execute(country_query)
+            count=0
+            result_country=cur.fetchall()
+            logging.debug(result_country)
+            for s in result_country:
+                count+=1
+            if count == 1 : # intersects with only one country
+                for row in result_country:
+                    country = row[0]
+                    break
+            else : # intersect with multiple countries or no country ,  use grid index instead
+                if country_export : # force country index
+                    if count == 0 :
+                        # geom didn't intersected with any country
+                        logging.warning("Geom didn't intersect with any country")
+                        # use default grid index
+                        cur.execute(get_grid_id_query(geometry_dump))
+                        grid_id = cur.fetchall()
+                    else:
+                        for row in result_country:
+                            country = row[0] # get which has higher % intersection
+                            break
+                else:
+                    cur.execute(get_grid_id_query(geometry_dump)
+                        )
+                    grid_id = cur.fetchall()
             cur.close()
-        else:
-            grid_id = None
-        return grid_id, geometry_dump, geom_area
+        return grid_id, geometry_dump, geom_area , country
+
+    @staticmethod
+    def to_geojson_raw(results):
+        """ Responsible for geojson writing"""
+        features = [orjson.loads(row[0]) for row in results]
+        feature_collection = FeatureCollection(features=features)
+
+        return feature_collection
 
     def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
@@ -377,8 +446,8 @@ class RawData:
             working_dir: dir where results are saved
         """
         # first check either geometry needs grid or not for querying
-        grid_id, geometry_dump, geom_area = RawData.get_grid_id(
-            self.params.geometry, self.cur)
+        grid_id, geometry_dump, geom_area, country = RawData.get_grid_id(
+            self.params.geometry, self.cur, self.params.country_export)
         output_type = self.params.output_type
         # Check whether the export path exists or not
         working_dir = os.path.join(export_path, exportname)
@@ -392,15 +461,15 @@ class RawData:
             # currently we have only geojson binding function written other than that we have depend on ogr
             if output_type == RawDataOutputType.GEOJSON.value:
                 RawData.query2geojson(self.con, raw_currentdata_extraction_query(
-                    self.params, g_id=grid_id, geometry_dump=geometry_dump), dump_temp_file_path)  # uses own conversion class
+                    self.params, g_id=grid_id, c_id=country, geometry_dump=geometry_dump), dump_temp_file_path)  # uses own conversion class
             elif output_type == RawDataOutputType.SHAPEFILE.value:
                 point_query, line_query, poly_query, point_schema, line_schema, poly_schema = extract_geometry_type_query(
-                    self.params, ogr_export=True)
+                    self.params, ogr_export=True , g_id=grid_id, c_id=country)
                 RawData.ogr_export_shp(point_query=point_query, line_query=line_query,
                                        poly_query=poly_query, working_dir=working_dir, file_name=self.params.file_name if self.params.file_name else 'Export')  # using ogr2ogr
             else:
-                RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id, geometry_dump, ogr_export=True),
-                                   outputtype=output_type, dump_temp_path=dump_temp_file_path, working_dir=working_dir)  # uses ogr export to export
+                RawData.ogr_export(query=raw_currentdata_extraction_query(self.params, grid_id,country, geometry_dump, ogr_export=True),
+                                   outputtype=output_type, dump_temp_path=dump_temp_file_path, working_dir=working_dir, params=self.params)  # uses ogr export to export
             return geom_area, working_dir
         except Exception as ex:
             logging.error(ex)
@@ -418,6 +487,31 @@ class RawData:
         # closing connection before leaving class
         RawData.close_con(self.con)
         return str(behind_time[0][0])
+
+    def extract_quick_raw_query_geojson(self):
+        """Gets geojson for small area : Performs direct query with/without geometry"""
+        query = raw_currentdata_extraction_query_quick(self.params, inspect_only=True)
+        self.cur.execute(query)
+        analyze_fetched = self.cur.fetchall()
+        rows = list(filter(lambda x: x.startswith('rows'), analyze_fetched[0][0].split()))
+        approx_returned_rows = rows[0].split('=')[1]
+        logging.debug("Approximated query output : %s", approx_returned_rows)
+
+        if int(approx_returned_rows) > 500:
+            self.cur.close()
+            RawData.close_con(self.con)
+            raise HTTPException(status_code=500, detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction")
+
+        extraction_query = raw_currentdata_extraction_query_quick(self.params)
+        features = []
+
+        with self.con.cursor(name='fetch_raw_quick') as cursor:  # using server side cursor
+            cursor.itersize = 500
+            cursor.execute(extraction_query)
+            for row in cursor:
+                features.append(orjson.loads(row[0]))
+            cursor.close()
+        return FeatureCollection(features=features)
 
 
 class S3FileTransfer:

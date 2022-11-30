@@ -1,6 +1,6 @@
 # Export Tool API
 ![Unit test](https://github.com/hotosm/export-tool-api/actions/workflows/Unit-Test.yml/badge.svg)
-![Locust](https://github.com/hotosm/export-tool-api/actions/workflows/locust.yml/badge.svg)
+![Build](https://github.com/hotosm/export-tool-api/actions/workflows/build.yml/badge.svg)
 
 ## Getting Started
 
@@ -37,13 +37,13 @@ If REDIS is not running check out its [documentation](https://redis.io/docs/gett
 - Clone the Repo to your machine
 
 ```
-git clone https://github.com/hotosm/galaxy-api.git
+git clone https://github.com/hotosm/export-tool-api.git
 ```
 
 Navigate to repo
 
 ```
-cd galaxy-api
+cd export-tool-api
 ```
 
 - Install python dependencies
@@ -159,7 +159,7 @@ Navigate to docs Folder and Build .rst files first
 
 ``` cd docs ```
 #### If you want to generate documentation for src
-``` sphinx-apidoc -o source ../src/galaxy ```
+``` sphinx-apidoc -o source ../galaxy ```
 #### If you want to generate documentation for API
 ``` sphinx-apidoc -o source ../API ```
 
