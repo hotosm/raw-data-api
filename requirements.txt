@@ -29,3 +29,6 @@ celery==5.2.7
 flower==1.2.0
 slowapi==0.1.6
 osm-login-python==0.0.2
+
+#documentation
+mkdocs-material==8.5.11
