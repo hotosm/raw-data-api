@@ -202,6 +202,9 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
         master_tag_filter,
     ) = (None, None, None, None, None, None, None, None, None, None)
     if params.filters:
+        params.filters = (
+            params.filters.dict()
+        )  # FIXME: temp fix , since validation model got changed
         (
             tags,
             attributes,
@@ -465,7 +468,9 @@ def raw_currentdata_extraction_query(
     poly_select_condition = select_condition
 
     if params.filters:
-        params.filters = params.filters.dict()
+        params.filters = (
+            params.filters.dict()
+        )  # FIXME: temp fix , since validation model got changed
         (
             tags,
             attributes,
