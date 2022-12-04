@@ -83,11 +83,27 @@ class JoinFilterType(Enum):
     AND = "AND"
 
 
+#
+#     "tags": { # no of rows returned
+#       "point" : {"amenity":["shop"]},
+#       "line" : {},
+#       "polygon" : {"key":["value"]},
+#       "all_geometry" : {"building":['yes']}
+#       },
+#     "attributes": { # no of columns / name
+#       "point": [], column
+#       "line" : [],
+#       "polygon" : [],
+#       "all_geometry" : [],
+#       }
+#      }
+
+
 class TagsFilter(BaseModel):
-    point: Optional[dict[str, List[str]]]
-    line: Optional[dict[str, List[str]]]
-    polygon: Optional[dict[str, List[str]]]
-    all_geometry: Optional[dict[str, List[str]]]
+    point: Optional[dict[str, List]]
+    line: Optional[dict[str, List]]
+    polygon: Optional[dict[str, List]]
+    all_geometry: Optional[dict[str, List]]
 
 
 class AttributeFilter(BaseModel):
