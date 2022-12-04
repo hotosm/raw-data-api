@@ -104,10 +104,10 @@ http://127.0.0.1:5000/
 
 - Check Extraction :
 
-  You can test  with the `/raw-data/current-snapshot/` endpoint  with the following input to check both authentication , database connection and download the export
+  You can test  with the `/snapshot/` endpoint  with the following input to check both authentication , database connection and download the export
 
   ```
-  curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],   [83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json'   http://127.0.0.1:8000/v2/raw-data/current-snapshot/
+  curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],   [83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json'   http://127.0.0.1:8000/latest/snapshot/
   ```
 
 Clean Setup of API can be found in github action workflow , You can follow the steps for more [clarity](/.github/workflows/build.yml).  ```/workflows/build.yml```
