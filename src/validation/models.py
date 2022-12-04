@@ -19,7 +19,7 @@
 """Page contains validation models for application"""
 import json
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from area import area
 from geojson_pydantic import MultiPolygon, Polygon
@@ -100,10 +100,10 @@ class JoinFilterType(Enum):
 
 
 class TagsFilter(BaseModel):
-    point: Optional[dict[str, List]]
-    line: Optional[dict[str, List]]
-    polygon: Optional[dict[str, List]]
-    all_geometry: Optional[dict[str, List]]
+    point: Optional[Dict[str, List[str]]]
+    line: Optional[Dict[str, List[str]]]
+    polygon: Optional[Dict[str, List[str]]]
+    all_geometry: Optional[Dict[str, List[str]]]
 
 
 class AttributeFilter(BaseModel):
