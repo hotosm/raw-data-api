@@ -6,5 +6,5 @@ client = TestClient(app)
 
 
 def test_status():
-    response = client.get("/status/")
+    response = client.get("/latest/status/")
     assert response.status_code == 200
