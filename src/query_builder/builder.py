@@ -465,6 +465,7 @@ def raw_currentdata_extraction_query(
     poly_select_condition = select_condition
 
     if params.filters:
+        params.filters = params.filters.dict()
         (
             tags,
             attributes,
