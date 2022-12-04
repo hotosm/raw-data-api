@@ -138,7 +138,7 @@ def get_osm_current_snapshot_as_file(
                 "summary": "An example with filters and geometry type",
                 "description": "Export tool api supports different kind of filters on both attributes and tags . See filters for more details",
                 "value": {
-                    "outputType": "GeoJSON",
+                    "outputType": "geojson",
                     "fileName": "Pokhara_buildings",
                     "geometry": {
                         "type": "Polygon",
@@ -420,6 +420,7 @@ def get_osm_current_snapshot_as_file(
 
     """
     # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)): # this will use osm login makes it restrict login
+
     task = process_raw_data.delay(params)
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 

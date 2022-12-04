@@ -42,6 +42,7 @@ class BaseModel(PydanticModel):
         alias_generator = to_camel
         allow_population_by_field_name = True
         use_enum_values = True
+        extra = "forbid"
 
 
 class RawDataOutputType(Enum):
@@ -82,6 +83,32 @@ class JoinFilterType(Enum):
     AND = "AND"
 
 
+# class AttributesFilter(BaseModel):
+#     point = List[str]
+#     line = List[str]
+#     polygon = List[str]
+#     all_geometry = List[str]
+
+
+class TagsFilter(BaseModel):
+    point: Optional[dict[str, List[str]]]
+    line: Optional[dict[str, List[str]]]
+    polygon: Optional[dict[str, List[str]]]
+    all_geometry: Optional[dict[str, List[str]]]
+
+
+class AttributeFilter(BaseModel):
+    point: Optional[List[str]]
+    line: Optional[List[str]]
+    polygon: Optional[List[str]]
+    all_geometry: Optional[List[str]]
+
+
+class Filters(BaseModel):
+    tags: Optional[TagsFilter]
+    attributes: Optional[AttributeFilter]
+
+
 class RawDataCurrentParams(BaseModel):
     output_type: Optional[RawDataOutputType] = Field(
         default=RawDataOutputType.GEOJSON.value, example="geojson"
@@ -108,7 +135,7 @@ class RawDataCurrentParams(BaseModel):
             ],
         },
     )
-    filters: Optional[dict] = Field(
+    filters: Optional[Filters] = Field(
         default=None,
         example={
             "tags": {"all_geometry": {"building": []}},
@@ -155,68 +182,70 @@ class RawDataCurrentParams(BaseModel):
                 )
         return value
 
-    @validator("filters", allow_reuse=True)
-    def check_filters_value(cls, value, values):
-        """Checks given fields"""
-        for key, v in value.items():
-            if SupportedFilters.has_value(key):  # check for tags or attributes
-                # check if value is of dict type or not for tags and attributes
-                if isinstance(v, dict):
-                    for k, val in v.items():
-                        # now checking either point line or polygon
-                        if SupportedGeometryFilters.has_value(k):
-                            if (
-                                key == SupportedFilters.TAGS.value
-                            ):  # if it is tag then value should be of dictionary
-                                if isinstance(val, dict):
-                                    # if it is dictionary it should be of type key:['value']
-                                    for osmkey, osmvalue in val.items():
-                                        if isinstance(osmvalue, list):
-                                            pass
-                                        else:
-                                            raise ValueError(
-                                                f"""Osm value --{osmvalue}-- should be inside List : {key}-{k}-{val}-{osmvalue}"""
-                                            )
-                                else:
-                                    raise ValueError(
-                                        f"""Type of {val} filter in {key} - {k} - {val} should be dictionary"""
-                                    )
-                            elif key == SupportedFilters.ATTRIBUTES.value:
-                                # if it is attributes then value should be of list i.e. "point":[]
-                                if isinstance(val, list):
-                                    pass
-                                else:
-                                    raise ValueError(
-                                        f"""Type of {val} filter in {key} - {k} - {val} should be list"""
-                                    )
-                        else:
-                            raise ValueError(
-                                f"""Value {k} for filter {key} - {k} is not supported"""
-                            )
-                else:
-                    raise ValueError(
-                        f"""Value for filter {key} should be of dict Type"""
-                    )
-            else:
-                raise ValueError(
-                    f"""Filter {key} is not supported. Supported filters are 'tags' and 'attributes'"""
-                )
-        return value
-        # "filters" : {
-        #             "tags": { # controls no of rows returned
-        #             "point" : {"amenity":["shop"]},
-        #             "line" : {},
-        #             "polygon" : {"key":["value"]},
-        #             "all_geometry" : {"building":['yes']}
-        #             },
-        #             "attributes": { # controls no of columns / name
-        #             "point": [],
-        #             "line" : [],
-        #             "polygon" : [],
-        #             "all_geometry" : [],
-        #             }
-        #            }
-        #
+    # @validator("filters", allow_reuse=True)
+    # def check_filters_value(cls, value, values):
+    #     """Checks given fields"""
+    #     for key, v in value.items():
+    #         if SupportedFilters.has_value(key):  # check for tags or attributes
+    #             # check if value is of dict type or not for tags and attributes
+    #             if isinstance(v, dict):
+    #                 for k, val in v.items():
+    #                     # now checking either point line or polygon
+    #                     if SupportedGeometryFilters.has_value(k):
+    #                         if (
+    #                             key == SupportedFilters.TAGS.value
+    #                         ):  # if it is tag then value should be of dictionary
+    #                             if isinstance(val, dict):
+    #                                 # if it is dictionary it should be of type key:['value']
+    #                                 for osmkey, osmvalue in val.items():
+    #                                     if isinstance(osmvalue, list):
+    #                                         pass
+    #                                     else:
+    #                                         raise ValueError(
+    #                                             f"""Osm value --{osmvalue}-- should be inside List : {key}-{k}-{val}-{osmvalue}"""
+    #                                         )
+    #                             else:
+    #                                 raise ValueError(
+    #                                     f"""Type of {val} filter in {key} - {k} - {val} should be dictionary"""
+    #                                 )
+    #                         elif key == SupportedFilters.ATTRIBUTES.value:
+    #                             # if it is attributes then value should be of list i.e. "point":[]
+    #                             if isinstance(val, list):
+    #                                 pass
+    #                             else:
+    #                                 raise ValueError(
+    #                                     f"""Type of {val} filter in {key} - {k} - {val} should be list"""
+    #                                 )
+    #                     else:
+    #                         raise ValueError(
+    #                             f"""Value {k} for filter {key} - {k} is not supported"""
+    #                         )
+    #             else:
+    #                 raise ValueError(
+    #                     f"""Value for filter {key} should be of dict Type"""
+    #                 )
+    #         else:
+    #             raise ValueError(
+    #                 f"""Filter {key} is not supported. Supported filters are 'tags' and 'attributes'"""
+    #             )
+    #     return value
+    #     # "filters" :
+    #     # {
+    #     #     "tags": {  # controls no of rows returned
+    #     #         "point": {"amenity": ["shop"]},
+    #     #         "line": {},
+    #     #         "polygon": {"key": ["value"]},
+    #     #         "all_geometry": {"building": ["yes"]},
+    #     #     },
+    #     #     "attributes": {  # controls no of columns / name
+    #     #         "point": [],
+    #     #         "line": [],
+    #     #         "polygon": [],
+    #     #         "all_geometry": [],
+    #     #     },
+    #     # }
+
+    #     #
 
     @validator("geometry", always=True)
     def check_geometry_area(cls, value, values):
