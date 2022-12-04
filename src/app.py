@@ -53,7 +53,7 @@ from src.query_builder.builder import (
     raw_currentdata_extraction_query,
     raw_currentdata_extraction_query_quick,
 )
-from src.validation.models import RawDataCurrentParams, RawDataOutputType
+from src.validation.models import RawDataOutputType
 
 # import instance for pooling
 if use_connection_pooling:
