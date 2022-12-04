@@ -194,7 +194,7 @@ def get_osm_current_snapshot_as_file(
                 "summary": "An example with multiple level of filters",
                 "description": "Export tool api supports multiple level of filters on point line polygon . See filters for more details",
                 "value": {
-                    "fileName": "All_Indonesia",
+                    "fileName": "Example export with all features",
                     "geometry": {
                         "type": "Polygon",
                         "coordinates": [
@@ -419,8 +419,6 @@ def get_osm_current_snapshot_as_file(
     2. Now navigate to /tasks/ with your task id to track progress and result
 
     """
-    # def get_current_data(params:RawDataCurrentParams,background_tasks: BackgroundTasks, user_data=Depends(login_required)): # this will use osm login makes it restrict login
-
     task = process_raw_data.delay(params)
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
