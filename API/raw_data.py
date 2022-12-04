@@ -33,8 +33,9 @@ from src.config import export_rate_limit, limiter
 from src.config import logger as logging
 from src.validation.models import (
     RawDataCurrentParams,
-    RawDataCurrentParamsQuick,
+    SnapshotParamsPlain,
     SnapshotResponse,
+    StatusResponse,
 )
 
 from .api_worker import process_raw_data
@@ -42,7 +43,7 @@ from .api_worker import process_raw_data
 router = APIRouter(prefix="")
 
 
-@router.get("/status/")
+@router.get("/status/", response_model=StatusResponse)
 @version(1)
 def check_database_last_updated():
     """Gives status about how recent the osm data is , it will give the last time that database was updated completely"""
@@ -427,7 +428,7 @@ def get_osm_current_snapshot_as_file(
 @version(1)
 def get_current_snapshot_as_plain_geojson(
     request: Request,
-    params: RawDataCurrentParamsQuick = Body(
+    params: SnapshotParamsPlain = Body(
         default={},
         examples={
             "normal": {
@@ -459,5 +460,5 @@ def get_current_snapshot_as_plain_geojson(
 
 
     """
-    result = RawData(params).extract_quick_raw_query_geojson()
+    result = RawData(params).extract_plain_geojson()
     return result

@@ -246,7 +246,7 @@ class OsmFeatureType(Enum):
     RELATIONS = "relations"
 
 
-class RawDataCurrentParamsQuick(BaseModel):
+class SnapshotParamsPlain(BaseModel):
     bbox: Optional[
         BBox
     ] = None  # xmin: NumType, ymin: NumType, xmax: NumType, ymax: NumType , srid:4326
@@ -309,3 +309,10 @@ class SnapshotTaskResponse(BaseModel):
                 },
             }
         }
+
+
+class StatusResponse(BaseModel):
+    last_updated: str
+
+    class Config:
+        schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}

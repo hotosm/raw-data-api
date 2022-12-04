@@ -655,7 +655,7 @@ def check_last_updated_rawdata():
     return query
 
 
-def raw_currentdata_extraction_query_quick(params, inspect_only=False):
+def raw_extract_plain_geojson(params, inspect_only=False):
     geom_filter_cond = None
     if params.geometry_type == "polygon":
         geom_filter_cond = """ and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""

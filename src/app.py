@@ -51,7 +51,7 @@ from src.query_builder.builder import (
     get_country_id_query,
     get_grid_id_query,
     raw_currentdata_extraction_query,
-    raw_currentdata_extraction_query_quick,
+    raw_extract_plain_geojson,
 )
 from src.validation.models import RawDataOutputType
 
@@ -584,9 +584,9 @@ class RawData:
         RawData.close_con(self.con)
         return str(behind_time[0][0])
 
-    def extract_quick_raw_query_geojson(self):
+    def extract_plain_geojson(self):
         """Gets geojson for small area : Performs direct query with/without geometry"""
-        query = raw_currentdata_extraction_query_quick(self.params, inspect_only=True)
+        query = raw_extract_plain_geojson(self.params, inspect_only=True)
         self.cur.execute(query)
         analyze_fetched = self.cur.fetchall()
         rows = list(
@@ -603,7 +603,7 @@ class RawData:
                 detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction",
             )
 
-        extraction_query = raw_currentdata_extraction_query_quick(self.params)
+        extraction_query = raw_extract_plain_geojson(self.params)
         features = []
 
         with self.con.cursor(
