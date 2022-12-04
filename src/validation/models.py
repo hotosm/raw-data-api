@@ -25,7 +25,7 @@ from area import area
 from geojson_pydantic import MultiPolygon, Polygon
 from geojson_pydantic.types import BBox
 from pydantic import BaseModel as PydanticModel
-from pydantic import validator
+from pydantic import Field, validator
 from typing_extensions import TypedDict
 
 from src.config import allow_bind_zip_filter, config
@@ -83,15 +83,41 @@ class JoinFilterType(Enum):
 
 
 class RawDataCurrentParams(BaseModel):
-    output_type: Optional[RawDataOutputType] = RawDataOutputType.GEOJSON.value
-    min_zoom: Optional[int] = None  # only for if mbtiles is output
-    max_zoom: Optional[int] = None  # only for if mbtiles is output
-    file_name: Optional[str] = None
-    geometry: Union[Polygon, MultiPolygon]
-    filters: Optional[dict] = None
-    join_filter_type: Optional[JoinFilterType] = JoinFilterType.OR.value
-    geometry_type: Optional[List[SupportedGeometryFilters]] = None
-    country_export: Optional[bool] = False
+    output_type: Optional[RawDataOutputType] = Field(
+        default=RawDataOutputType.GEOJSON.value, example="geojson"
+    )
+    min_zoom: Optional[int] = Field(default=None)  # only for if mbtiles is output
+    max_zoom: Optional[int] = Field(default=None)  # only for if mbtiles is output
+    file_name: Optional[str] = Field(default=None, example="My test export")
+    geometry: Union[Polygon, MultiPolygon] = Field(
+        default=None,
+        example={
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+    )
+    filters: Optional[dict] = Field(
+        default=None,
+        example={
+            "tags": {"all_geometry": {"building": []}},
+            "attributes": {"all_geometry": ["name"]},
+        },
+    )
+    join_filter_type: Optional[JoinFilterType] = Field(
+        default=JoinFilterType.OR.value, example="OR"
+    )
+    geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
+        default=None, example=["point", "polygon"]
+    )
+    country_export: Optional[bool] = Field(default=False, example="false")
     if allow_bind_zip_filter:
         bind_zip: Optional[bool] = True
 
@@ -165,6 +191,21 @@ class RawDataCurrentParams(BaseModel):
                     f"""Filter {key} is not supported. Supported filters are 'tags' and 'attributes'"""
                 )
         return value
+        # "filters" : {
+        #             "tags": { # controls no of rows returned
+        #             "point" : {"amenity":["shop"]},
+        #             "line" : {},
+        #             "polygon" : {"key":["value"]},
+        #             "all_geometry" : {"building":['yes']}
+        #             },
+        #             "attributes": { # controls no of columns / name
+        #             "point": [],
+        #             "line" : [],
+        #             "polygon" : [],
+        #             "all_geometry" : [],
+        #             }
+        #            }
+        #
 
     @validator("geometry", always=True)
     def check_geometry_area(cls, value, values):
@@ -186,6 +227,11 @@ class RawDataCurrentParams(BaseModel):
                 f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
             )
         return value
+
+    @validator("geometry_type", allow_reuse=True)
+    def return_unique_value(cls, value):
+        """return unique list"""
+        return list(set(value))
 
 
 class WhereCondition(TypedDict):
@@ -219,3 +265,47 @@ class RawDataCurrentParamsQuick(BaseModel):
                     "length of select attribute must be greater than 2 letters"
                 )
         return value
+
+
+class SnapshotResponse(BaseModel):
+    task_id: str
+    track_link: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
+                "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
+            }
+        }
+
+
+class SnapshotTaskResult(BaseModel):
+    download_url: str
+    file_name: str
+    response_time: str
+    query_area: str
+    binded_file_size: str
+    zip_file_size_bytes: int
+
+
+class SnapshotTaskResponse(BaseModel):
+    id: str
+    status: str
+    result: SnapshotTaskResult
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
+                "status": "SUCCESS",
+                "result": {
+                    "download_url": "https://s3.us-east-1.amazonaws.com/exports-stage.hotosm.org/Raw_Export_3fded368-456f-4ef4-a1b8-c099a7f77ca4_GeoJSON.zip",
+                    "file_name": "Raw_Export_3fded368-456f-4ef4-a1b8-c099a7f77ca4_GeoJSON",
+                    "response_time": "0:00:12.175976",
+                    "query_area": "6 Sq Km ",
+                    "binded_file_size": "7 MB",
+                    "zip_file_size_bytes": 1331601,
+                },
+            }
+        }
