@@ -18,13 +18,13 @@
 # <info@hotosm.org>
 
 from psycopg2 import pool
-from .config import logger as logging
+
 from .config import get_db_connection_params
+from .config import logger as logging
 
 
 class Database:
-    """Handles the all work related to connection pooling
-    """
+    """Handles the all work related to connection pooling"""
 
     def __init__(self):
         self.db_params = get_db_connection_params("RAW_DATA")
@@ -33,16 +33,17 @@ class Database:
         self.con = None
 
     def connect(self):
-        """Connection to the database
-        """
+        """Connection to the database"""
         if not self.threaded_postgresql_pool:
             try:
                 # creating pool through psycopg2 with threaded connection so that there will support from 3 users to 20 users
                 self.threaded_postgresql_pool = pool.ThreadedConnectionPool(
-                    3, 20, **self.db_params)
-                if (self.threaded_postgresql_pool):
+                    3, 20, **self.db_params
+                )
+                if self.threaded_postgresql_pool:
                     logging.info(
-                        "Connection pool created successfully using ThreadedConnectionPool")
+                        "Connection pool created successfully using ThreadedConnectionPool"
+                    )
             except Exception as ex:
                 logging.error(ex)
                 raise ex
@@ -53,7 +54,7 @@ class Database:
         Returns:
             connection
         """
-        if (self.threaded_postgresql_pool):
+        if self.threaded_postgresql_pool:
             # Use getconn() method to Get Connection from connection pool
             pool_conn = self.threaded_postgresql_pool.getconn()
             return pool_conn
@@ -76,8 +77,7 @@ class Database:
             raise ex
 
     def close_all_connection_pool(self):
-        """Closes the connection thread created by thread pooling all at once
-        """
+        """Closes the connection thread created by thread pooling all at once"""
         # closing database connection.
         # use closeall() method to close all
         if self.threaded_postgresql_pool:

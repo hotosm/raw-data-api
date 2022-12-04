@@ -18,22 +18,23 @@
 # <info@hotosm.org>
 """Page contains validation models for application"""
 import json
-from typing import List, Union, Optional
-from pydantic import validator
-from pydantic import BaseModel as PydanticModel
-from geojson_pydantic import Polygon, MultiPolygon
-from typing_extensions import TypedDict
-from geojson_pydantic.types import BBox
 from enum import Enum
+from typing import List, Optional, Union
+
 from area import area
-from galaxy.config import config, allow_bind_zip_filter
+from geojson_pydantic import MultiPolygon, Polygon
+from geojson_pydantic.types import BBox
+from pydantic import BaseModel as PydanticModel
+from pydantic import validator
+from typing_extensions import TypedDict
+
+from src.config import allow_bind_zip_filter, config
 
 
 def to_camel(string: str) -> str:
     split_string = string.split("_")
 
-    return "".join(
-        [split_string[0], *[w.capitalize() for w in split_string[1:]]])
+    return "".join([split_string[0], *[w.capitalize() for w in split_string[1:]]])
 
 
 class BaseModel(PydanticModel):
@@ -43,7 +44,7 @@ class BaseModel(PydanticModel):
         use_enum_values = True
 
 
-class RawDataOutputType (Enum):
+class RawDataOutputType(Enum):
     GEOJSON = "geojson"
     KML = "kml"
     SHAPEFILE = "shp"
@@ -52,6 +53,7 @@ class RawDataOutputType (Enum):
     GEOPACKAGE = "gpkg"
     PGDUMP = "sql"
     CSV = "csv"
+
 
 class SupportedFilters(Enum):
     TAGS = "tags"
@@ -64,10 +66,10 @@ class SupportedFilters(Enum):
 
 
 class SupportedGeometryFilters(Enum):
-    POINT = 'point'
-    LINE = 'line'
-    POLYGON = 'polygon'
-    ALLGEOM = 'all_geometry'
+    POINT = "point"
+    LINE = "line"
+    POLYGON = "polygon"
+    ALLGEOM = "all_geometry"
 
     @classmethod
     def has_value(cls, value):
@@ -75,16 +77,15 @@ class SupportedGeometryFilters(Enum):
         return value in cls._value2member_map_
 
 
-class JoinFilterType (Enum):
+class JoinFilterType(Enum):
     OR = "OR"
     AND = "AND"
 
 
-
 class RawDataCurrentParams(BaseModel):
     output_type: Optional[RawDataOutputType] = RawDataOutputType.GEOJSON.value
-    min_zoom: Optional[int] = None # only for if mbtiles is output
-    max_zoom: Optional[int] = None # only for if mbtiles is output
+    min_zoom: Optional[int] = None  # only for if mbtiles is output
+    max_zoom: Optional[int] = None  # only for if mbtiles is output
     file_name: Optional[str] = None
     geometry: Union[Polygon, MultiPolygon]
     filters: Optional[dict] = None
@@ -97,21 +98,24 @@ class RawDataCurrentParams(BaseModel):
         @validator("bind_zip", allow_reuse=True)
         def check_bind_option(cls, value, values):
             """checks if shp is selected along with bind to zip file"""
-            if value is False and values.get("output_type") == 'shp':
+            if value is False and values.get("output_type") == "shp":
                 raise ValueError(
-                    "Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True")
+                    "Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True"
+                )
             return value
 
     @validator("output_type", allow_reuse=True)
     def check_output_type(cls, value, values):
-        """Checks mbtiles required field """
-        if value  == RawDataOutputType.MBTILES.value:
+        """Checks mbtiles required field"""
+        if value == RawDataOutputType.MBTILES.value:
             if values.get("min_zoom") and values.get("max_zoom"):
-                if values.get("min_zoom") < 0 or values.get("max_zoom") > 22 :
+                if values.get("min_zoom") < 0 or values.get("max_zoom") > 22:
                     raise ValueError("Zoom range should range from 0-22")
                 return value
-            else :
-                raise ValueError("Field min_zoom and max_zoom must be supplied for mbtiles output type")
+            else:
+                raise ValueError(
+                    "Field min_zoom and max_zoom must be supplied for mbtiles output type"
+                )
         return value
 
     @validator("filters", allow_reuse=True)
@@ -124,7 +128,9 @@ class RawDataCurrentParams(BaseModel):
                     for k, val in v.items():
                         # now checking either point line or polygon
                         if SupportedGeometryFilters.has_value(k):
-                            if key == SupportedFilters.TAGS.value:  # if it is tag then value should be of dictionary
+                            if (
+                                key == SupportedFilters.TAGS.value
+                            ):  # if it is tag then value should be of dictionary
                                 if isinstance(val, dict):
                                     # if it is dictionary it should be of type key:['value']
                                     for osmkey, osmvalue in val.items():
@@ -132,37 +138,43 @@ class RawDataCurrentParams(BaseModel):
                                             pass
                                         else:
                                             raise ValueError(
-                                                f"""Osm value --{osmvalue}-- should be inside List : {key}-{k}-{val}-{osmvalue}""")
+                                                f"""Osm value --{osmvalue}-- should be inside List : {key}-{k}-{val}-{osmvalue}"""
+                                            )
                                 else:
                                     raise ValueError(
-                                        f"""Type of {val} filter in {key} - {k} - {val} should be dictionary""")
+                                        f"""Type of {val} filter in {key} - {k} - {val} should be dictionary"""
+                                    )
                             elif key == SupportedFilters.ATTRIBUTES.value:
                                 # if it is attributes then value should be of list i.e. "point":[]
                                 if isinstance(val, list):
                                     pass
                                 else:
                                     raise ValueError(
-                                        f"""Type of {val} filter in {key} - {k} - {val} should be list""")
+                                        f"""Type of {val} filter in {key} - {k} - {val} should be list"""
+                                    )
                         else:
                             raise ValueError(
-                                f"""Value {k} for filter {key} - {k} is not supported""")
+                                f"""Value {k} for filter {key} - {k} is not supported"""
+                            )
                 else:
                     raise ValueError(
-                        f"""Value for filter {key} should be of dict Type""")
+                        f"""Value for filter {key} should be of dict Type"""
+                    )
             else:
                 raise ValueError(
-                    f"""Filter {key} is not supported. Supported filters are 'tags' and 'attributes'""")
+                    f"""Filter {key} is not supported. Supported filters are 'tags' and 'attributes'"""
+                )
         return value
-
 
     @validator("geometry", always=True)
     def check_geometry_area(cls, value, values):
         """Validates geom area_m2"""
         area_m2 = area(json.loads(value.json()))
-        area_km2 = area_m2 * 1E-6
+        area_km2 = area_m2 * 1e-6
 
-        RAWDATA_CURRENT_POLYGON_AREA = int(config.get(
-            "API_CONFIG", "max_area", fallback=100000))
+        RAWDATA_CURRENT_POLYGON_AREA = int(
+            config.get("API_CONFIG", "max_area", fallback=100000)
+        )
 
         output_type = values.get("output_type")
         if output_type:
@@ -171,7 +183,8 @@ class RawDataCurrentParams(BaseModel):
                 RAWDATA_CURRENT_POLYGON_AREA = 2  # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
             raise ValueError(
-                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}""")
+                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
+            )
         return value
 
 
@@ -179,7 +192,8 @@ class WhereCondition(TypedDict):
     key: str
     value: List[str]
 
-class OsmFeatureType (Enum):
+
+class OsmFeatureType(Enum):
     NODES = "nodes"
     WAYS_LINE = "ways_line"
     WAYS_POLY = "ways_poly"
@@ -187,19 +201,21 @@ class OsmFeatureType (Enum):
 
 
 class RawDataCurrentParamsQuick(BaseModel):
-    bbox: Optional[BBox] = None  #xmin: NumType, ymin: NumType, xmax: NumType, ymax: NumType , srid:4326
-    select: Optional[List[str]] = ['*']
-    where: List[WhereCondition] = [{'key': 'building', 'value': ['*']}]
+    bbox: Optional[
+        BBox
+    ] = None  # xmin: NumType, ymin: NumType, xmax: NumType, ymax: NumType , srid:4326
+    select: Optional[List[str]] = ["*"]
+    where: List[WhereCondition] = [{"key": "building", "value": ["*"]}]
     join_by: Optional[JoinFilterType] = JoinFilterType.OR.value
-    look_in: Optional[List[OsmFeatureType]] = ["nodes",  "ways_poly"]
+    look_in: Optional[List[OsmFeatureType]] = ["nodes", "ways_poly"]
     geometry_type: SupportedGeometryFilters = None
 
     @validator("select", always=True)
     def validate_select_statement(cls, value, values):
         """Validates geom area_m2"""
         for v in value:
-            if v != '*' and len(v) < 2:
-                raise ValueError("length of select attribute must be greater than 2 letters")
+            if v != "*" and len(v) < 2:
+                raise ValueError(
+                    "length of select attribute must be greater than 2 letters"
+                )
         return value
-
-

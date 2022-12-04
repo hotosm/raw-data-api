@@ -117,7 +117,7 @@ Clean Setup of API can be found in github action workflow , You can follow the s
 
 ## Run tests
 
-Galaxy-API uses pytest for tests ,Navigate to root Dir, Install package in editable mode
+Export tool-API uses pytest for tests ,Navigate to root Dir, Install package in editable mode
 
 
 ```
@@ -159,7 +159,7 @@ Navigate to docs Folder and Build .rst files first
 
 ``` cd docs ```
 #### If you want to generate documentation for src
-``` sphinx-apidoc -o source ../galaxy ```
+``` sphinx-apidoc -o source ../src ```
 #### If you want to generate documentation for API
 ``` sphinx-apidoc -o source ../API ```
 

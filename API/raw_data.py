@@ -20,28 +20,23 @@
 """[Router Responsible for Raw data API ]
 """
 import os
-from datetime import datetime as dt
-from uuid import uuid4
-import time
-import zipfile
-import requests
-# from .auth import login_required
-import pathlib
 import shutil
-from starlette.background import BackgroundTasks
-import orjson
+import time
 
+import requests
 from fastapi import APIRouter, Request
-from fastapi_versioning import version
 from fastapi.responses import JSONResponse
-# from fastapi import APIRouter, Depends, Request
-from galaxy.query_builder.builder import format_file_name_str
-from galaxy.validation.models import RawDataCurrentParams,RawDataCurrentParamsQuick, RawDataOutputType
-from galaxy.app import RawData, S3FileTransfer
-from .api_worker import process_raw_data
-from galaxy.config import export_rate_limit, use_s3_to_upload, logger as logging, config, limiter, allow_bind_zip_filter
+from fastapi_versioning import version
 
-router = APIRouter(prefix="/raw-data")
+from src.app import RawData
+from src.config import export_rate_limit, limiter
+from src.config import logger as logging
+from src.validation.models import RawDataCurrentParams, RawDataCurrentParamsQuick
+
+from .api_worker import process_raw_data
+
+router = APIRouter(prefix="")
+
 
 @router.get("/status/")
 @version(1)
@@ -52,8 +47,7 @@ def check_current_db_status():
 
 
 def remove_file(path: str) -> None:
-    """Used for removing temp file dir and its all content after zip file is delivered to user
-    """
+    """Used for removing temp file dir and its all content after zip file is delivered to user"""
     try:
         shutil.rmtree(path)
     except OSError as ex:
@@ -76,22 +70,23 @@ def watch_s3_upload(url: str, path: str) -> None:
             check_call = requests.head(url).status_code
             if time.time() - start_time > 300:
                 logging.error(
-                    "Upload time took more than 5 min , Killing watch : %s , URL : %s", path, url)
+                    "Upload time took more than 5 min , Killing watch : %s , URL : %s",
+                    path,
+                    url,
+                )
                 remove_temp_file = False  # don't remove the file if upload fails
                 break
             time.sleep(3)  # check each 3 second
     # once it is verfied file is uploaded finally remove the file
     if remove_temp_file:
-        logging.debug(
-            "File is uploaded at %s , flushing out from %s", url, path)
+        logging.debug("File is uploaded at %s , flushing out from %s", url, path)
         os.unlink(path)
 
 
-@router.post("/current-snapshot/")
+@router.post("/snapshot/")
 @limiter.limit(f"{export_rate_limit}/minute")
 @version(1)
-def get_current_snapshot_of_osm_data(
-    params: RawDataCurrentParams, request: Request):
+def get_current_snapshot_of_osm_data(params: RawDataCurrentParams, request: Request):
     """Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features.
 
     Steps to Run Snapshot :
@@ -258,9 +253,11 @@ def get_current_snapshot_of_osm_data(
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
-@router.post("/current-snapshot/raw-query/")
+@router.post("/snapshot/plain/")
 @version(1)
-def get_curent_snapshot_raw_query_data(params: RawDataCurrentParamsQuick, request: Request):
+def get_curent_snapshot_raw_query_data(
+    params: RawDataCurrentParamsQuick, request: Request
+):
     """Simple API to get osm features as geojson for small region.
     Params :
 

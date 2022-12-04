@@ -19,19 +19,21 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-from configparser import ConfigParser
+import errno
 import logging
 import os
-from slowapi.util import get_remote_address
+from configparser import ConfigParser
+
 from slowapi import Limiter
-import errno
+from slowapi.util import get_remote_address
 
 CONFIG_FILE_PATH = "config.txt"
 use_s3_to_upload = False
 
 if os.path.exists(CONFIG_FILE_PATH) is False:
-    logging.error( FileNotFoundError(errno.ENOENT, os.strerror(
-        errno.ENOENT), CONFIG_FILE_PATH))
+    logging.error(
+        FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), CONFIG_FILE_PATH)
+    )
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
@@ -42,71 +44,74 @@ limiter_storage_uri = config.get(
 # rate limiter for API requests based on the remote ip address and redis as backend
 limiter = Limiter(key_func=get_remote_address, storage_uri=limiter_storage_uri)
 
-export_rate_limit = int(config.get(
-    "API_CONFIG", "export_rate_limit", fallback=5))
+export_rate_limit = int(config.get("API_CONFIG", "export_rate_limit", fallback=5))
 
-grid_index_threshold = int(config.get(
-    "API_CONFIG", "grid_index_threshold", fallback=5000))
+grid_index_threshold = int(
+    config.get("API_CONFIG", "grid_index_threshold", fallback=5000)
+)
 
 # get log level from config
 log_level = config.get("API_CONFIG", "log_level", fallback=None)
 
-if log_level is None or log_level.lower() == 'debug':  # default debug
+if log_level is None or log_level.lower() == "debug":  # default debug
     level = logging.DEBUG
-elif log_level.lower() == 'info':
+elif log_level.lower() == "info":
     level = logging.INFO
-elif log_level.lower() == 'error':
+elif log_level.lower() == "error":
     level = logging.ERROR
-elif log_level.lower() == 'warning':
+elif log_level.lower() == "warning":
     level = logging.WARNING
 else:
     logging.error(
-        "logging config is not supported , Supported fields are : debug,error,warning,info , Logging to default :debug")
+        "logging config is not supported , Supported fields are : debug,error,warning,info , Logging to default :debug"
+    )
     level = logging.DEBUG
 
 # logging.getLogger("fiona").propagate = False  # disable fiona logging
-logging.basicConfig(format='%(asctime)s - %(message)s', level=level)
-logging.getLogger('boto3').propagate = False  # disable boto3 logging
-logging.getLogger('botocore').propagate = False  # disable boto3 logging
-logging.getLogger('s3transfer').propagate = False  # disable boto3 logging
-logging.getLogger('boto').propagate = False  # disable boto3 logging
+logging.basicConfig(format="%(asctime)s - %(message)s", level=level)
+logging.getLogger("boto3").propagate = False  # disable boto3 logging
+logging.getLogger("botocore").propagate = False  # disable boto3 logging
+logging.getLogger("s3transfer").propagate = False  # disable boto3 logging
+logging.getLogger("boto").propagate = False  # disable boto3 logging
 
 
-logger = logging.getLogger('galaxy')
+logger = logging.getLogger("galaxy")
 
-export_path = config.get('API_CONFIG', 'export_path', fallback=None)
+export_path = config.get("API_CONFIG", "export_path", fallback=None)
 if export_path is None:
     export_path = "exports"
 if not os.path.exists(export_path):
     # Create a exports directory because it does not exist
     os.makedirs(export_path)
-allow_bind_zip_filter = config.get(
-    'API_CONFIG', 'allow_bind_zip_filter', fallback=None)
+allow_bind_zip_filter = config.get("API_CONFIG", "allow_bind_zip_filter", fallback=None)
 if allow_bind_zip_filter:
-    allow_bind_zip_filter = True if allow_bind_zip_filter.lower() == 'true' else False
+    allow_bind_zip_filter = True if allow_bind_zip_filter.lower() == "true" else False
 
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 # check either to use connection pooling or not
 use_connection_pooling = config.getboolean(
-    "API_CONFIG", "use_connection_pooling", fallback=False)
+    "API_CONFIG", "use_connection_pooling", fallback=False
+)
 
 # check either to use s3 raw data exports file uploading or not
 file_upload_method = config.get(
-    "EXPORT_UPLOAD", "FILE_UPLOAD_METHOD", fallback='disk').lower()
+    "EXPORT_UPLOAD", "FILE_UPLOAD_METHOD", fallback="disk"
+).lower()
 if file_upload_method == "s3":
     use_s3_to_upload = True
     try:
         AWS_ACCESS_KEY_ID = config.get("EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID")
-        AWS_SECRET_ACCESS_KEY = config.get(
-            "EXPORT_UPLOAD", "AWS_SECRET_ACCESS_KEY")
+        AWS_SECRET_ACCESS_KEY = config.get("EXPORT_UPLOAD", "AWS_SECRET_ACCESS_KEY")
     except Exception as ex:
         logging.debug(ex)
         logging.debug("No aws credentials supplied")
     BUCKET_NAME = config.get(
-        "EXPORT_UPLOAD", "BUCKET_NAME", fallback="exports-stage.hotosm.org")
+        "EXPORT_UPLOAD", "BUCKET_NAME", fallback="exports-stage.hotosm.org"
+    )
 elif file_upload_method not in ["s3", "disk"]:
     logging.error(
-        "value not supported for file_upload_method ,switching to default disk method")
+        "value not supported for file_upload_method ,switching to default disk method"
+    )
     use_s3_to_upload = False
 
 
@@ -122,16 +127,14 @@ def get_db_connection_params(dbIdentifier: str) -> dict:
 
     """
 
-    ALLOWED_SECTION_NAMES = ('UNDERPASS', 'RAW_DATA')
+    ALLOWED_SECTION_NAMES = ("UNDERPASS", "RAW_DATA")
 
     if dbIdentifier not in ALLOWED_SECTION_NAMES:
-        logging.error(
-            f"Invalid dbIdentifier. Pick one of {ALLOWED_SECTION_NAMES}")
+        logging.error(f"Invalid dbIdentifier. Pick one of {ALLOWED_SECTION_NAMES}")
         return None
     try:
         connection_params = dict(config.items(dbIdentifier))
         return connection_params
     except Exception as ex:
-        logging.error(
-            f"""Can't find DB credentials on config :{dbIdentifier}""")
-        logging.error( ex )
+        logging.error(f"""Can't find DB credentials on config :{dbIdentifier}""")
+        logging.error(ex)

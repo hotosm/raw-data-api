@@ -20,8 +20,8 @@
 import re
 from json import dumps
 
-from galaxy.config import logger as logging
-from galaxy.validation.models import SupportedFilters, SupportedGeometryFilters
+from src.config import logger as logging
+from src.validation.models import SupportedFilters, SupportedGeometryFilters
 
 
 def get_grid_id_query(geometry_dump):

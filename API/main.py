@@ -17,18 +17,22 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 import time
+
+import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import sentry_sdk
-from .auth.routers import router as auth_router
-from .raw_data import router as raw_data_router
-from .tasks import router as tasks_router
-from galaxy.db_session import database_instance
-from galaxy.config import limiter, export_path, use_connection_pooling, use_s3_to_upload, logger as logging, config
+from fastapi.staticfiles import StaticFiles
 from fastapi_versioning import VersionedFastAPI
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from fastapi.staticfiles import StaticFiles
+
+from src.config import config, export_path, limiter
+from src.config import logger as logging
+from src.config import use_connection_pooling, use_s3_to_upload
+from src.db_session import database_instance
+
+from .raw_data import router as raw_data_router
+from .tasks import router as tasks_router
 
 # only use sentry if it is specified in config blocks
 if config.get("SENTRY", "dsn", fallback=None):
@@ -37,15 +41,16 @@ if config.get("SENTRY", "dsn", fallback=None):
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
-        traces_sample_rate=config.get("SENTRY", "rate")
+        traces_sample_rate=config.get("SENTRY", "rate"),
     )
 
 
-run_env = config.get("API_CONFIG", "env", fallback='prod')
-if run_env.lower() == 'dev':
+run_env = config.get("API_CONFIG", "env", fallback="prod")
+if run_env.lower() == "dev":
     # This is used for local setup for auth login
     import os
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 app = FastAPI(title="Export tool API")
 # app.include_router(auth_router)
@@ -53,8 +58,9 @@ app.include_router(raw_data_router)
 app.include_router(tasks_router)
 
 
-app = VersionedFastAPI(app, enable_latest=True,
-                       version_format='{major}', prefix_format='/v{major}')
+app = VersionedFastAPI(
+    app, enable_latest=True, version_format="{major}", prefix_format="/v{major}"
+)
 
 if use_s3_to_upload is False:
     # only mount the disk if config is set to disk
@@ -80,8 +86,9 @@ async def add_process_time_header(request, call_next):
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(f'{process_time:0.4f} sec')
+    response.headers["X-Process-Time"] = str(f"{process_time:0.4f} sec")
     return response
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -109,8 +116,7 @@ async def on_startup():
 
 @app.on_event("shutdown")
 def on_shutdown():
-    """Closing all the threads connection from pooling before shuting down the api
-    """
+    """Closing all the threads connection from pooling before shuting down the api"""
     if use_connection_pooling:
         logging.debug("Shutting down connection pool")
         database_instance.close_all_connection_pool()

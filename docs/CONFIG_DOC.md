@@ -29,7 +29,7 @@ port=5432
 ```
 
 ### 3. Setup Oauth for Authentication
-Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local galaxy app to Oauth2applications
+Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local export_tool_api app to Oauth2applications
 
 ![image](https://user-images.githubusercontent.com/36752999/188452619-aababf28-b685-4141-b381-9c25d0367b57.png)
 
@@ -105,7 +105,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 ```
 
-**Tips** : Follow .github/workflows/[unit-test](https://github.com/hotosm/galaxy-api/blob/feature/celery/.github/workflows/unit-test.yml) If you have any confusion on implementation of config file .
+**Tips** : Follow .github/workflows/[unit-test](https://github.com/hotosm/export-tool-api/blob/feature/celery/.github/workflows/unit-test.yml) If you have any confusion on implementation of config file .
 
 ## Optional Configuration [ You can skip this part for basic installation ]
 

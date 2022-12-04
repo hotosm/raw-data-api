@@ -1,9 +1,9 @@
 from celery.result import AsyncResult
-from .api_worker import celery
 from fastapi import APIRouter
-from fastapi_versioning import version
 from fastapi.responses import JSONResponse
+from fastapi_versioning import version
 
+from .api_worker import celery
 
 router = APIRouter(prefix="/tasks")
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/tasks")
 @router.get("/status/{task_id}/")
 @version(1)
 def get_task_status(task_id):
-    """Tracks the request from the task id provided by galaxy api for the request
+    """Tracks the request from the task id provided by export tool api for the request
 
     Args:
 
@@ -42,5 +42,9 @@ def get_task_status(task_id):
 
     """
     task_result = AsyncResult(task_id, app=celery)
-    result = { "id": task_id, "status": task_result.state, "result": task_result.result if task_result.status == 'SUCCESS' else None }
+    result = {
+        "id": task_id,
+        "status": task_result.state,
+        "result": task_result.result if task_result.status == "SUCCESS" else None,
+    }
     return JSONResponse(result)
