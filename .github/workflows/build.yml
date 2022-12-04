@@ -72,4 +72,4 @@ jobs:
           task_link=$(echo "$result" | jq -r .track_link)
       - name : Check result
         run : |
-          curl "http://127.0.0.1:8000/latest${task_link}"  
+          echo curl "http://127.0.0.1:8000/latest${task_link}"  
