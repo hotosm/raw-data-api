@@ -14,7 +14,7 @@ services:
         - '5434:5432'
       volumes:
         - ./postgres-data:/var/lib/postgresql/data
-        - ./tests/src/fixtures/Turkmenistan.sql:/docker-entrypoint-initdb.d/Turkmenistan.sql
+        - ./tests/src/fixtures/maldives.sql:/docker-entrypoint-initdb.d/maldives.sql
 
   redis:
     image: redis
