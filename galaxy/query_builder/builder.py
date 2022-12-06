@@ -39,13 +39,13 @@ def get_grid_id_query(geometry_dump):
 def get_country_id_query(geom_dump):
 
     base_query = f"""select
-                        b.cid
+                        b.ogc_fid
                     from
-                        geoboundaries b
+                        countries_un b
                     where
                         ST_Intersects(ST_GEOMFROMGEOJSON('{geom_dump}') ,
-                        b.boundary)
-                    order by ST_Area(ST_Intersection(b.boundary,ST_MakeValid(ST_GEOMFROMGEOJSON('{geom_dump}')))) desc
+                        b.wkb_geometry)
+                    order by ST_Area(ST_Intersection(b.wkb_geometry,ST_MakeValid(ST_GEOMFROMGEOJSON('{geom_dump}')))) desc
 
                     """
     return base_query
