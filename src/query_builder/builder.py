@@ -429,7 +429,7 @@ def generate_where_clause_indexes_case(
 def raw_currentdata_extraction_query(
     params, g_id, c_id, geometry_dump, ogr_export=False, select_all=False
 ):
-    """Default function to support current snapshot extraction with all of the feature that galaxy has"""
+    """Default function to support current snapshot extraction with all of the feature that export_tool_api has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
 
     base_query = []
