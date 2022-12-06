@@ -27,6 +27,7 @@ import requests
 from fastapi import APIRouter, Body, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
+from geojson import FeatureCollection
 
 from src.app import RawData
 from src.config import export_rate_limit, limiter
@@ -423,7 +424,7 @@ def get_osm_current_snapshot_as_file(
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
-@router.post("/snapshot/plain/")
+@router.post("/snapshot/plain/", response_model=FeatureCollection)
 @version(1)
 def get_current_snapshot_as_plain_geojson(
     request: Request,
