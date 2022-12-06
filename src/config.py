@@ -75,7 +75,7 @@ logging.getLogger("s3transfer").propagate = False  # disable boto3 logging
 logging.getLogger("boto").propagate = False  # disable boto3 logging
 
 
-logger = logging.getLogger("galaxy")
+logger = logging.getLogger("export_tool_api")
 
 export_path = config.get("API_CONFIG", "export_path", fallback=None)
 if export_path is None:
