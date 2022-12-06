@@ -431,7 +431,7 @@ def get_current_snapshot_as_plain_geojson(
         default={},
         examples={
             "normal": {
-                "summary": "Example : Normal Extract",
+                "summary": "Example : Country Boundary",
                 "description": "**Query** to extract administrative boundary of nepal in plain geojson format",
                 "value": {
                     "select": ["name"],
@@ -443,7 +443,21 @@ def get_current_snapshot_as_plain_geojson(
                     "joinBy": "AND",
                     "lookIn": ["relations"],
                 },
-            }
+            },
+            "second": {
+                "summary": "Example : City Boundary",
+                "description": "**Query** to extract city bounadry in plain geojson format",
+                "value": {
+                    "select": ["name"],
+                    "where": [
+                        {"key": "admin_level", "value": ["7"]},
+                        {"key": "boundary", "value": ["administrative"]},
+                        {"key": "name", "value": ["Pokhara"]},
+                    ],
+                    "joinBy": "AND",
+                    "lookIn": ["relations"],
+                },
+            },
         },
     ),
 ):
