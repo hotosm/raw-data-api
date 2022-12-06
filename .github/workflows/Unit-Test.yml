@@ -27,6 +27,12 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
+      
+      - name: Insert sample db data
+        run: |
+          export PGPASSWORD='admin';
+          psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/pokhara.sql
+
 
       - name: Install Dependencies
         run: |
