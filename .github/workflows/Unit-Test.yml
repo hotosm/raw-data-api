@@ -27,24 +27,12 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Clean up PSQL
-        run: |
-          sudo apt-get --purge remove postgresql
-          sudo apt-get purge postgresql*
-          sudo apt-get --purge remove postgresql postgresql-doc postgresql-common
-      - name: Set up postgresql 12
-        uses: harmon758/postgresql-action@v1
-        with:
-          postgresql version: "12"
-      - name: Install Postgis 3 for Psql 12
-        run: |
-          sudo apt-get update
-          sudo apt install postgis postgresql-12-postgis-3
-
+      
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
+          psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/pokhara.sql
+
 
       - name: Install Dependencies
         run: |

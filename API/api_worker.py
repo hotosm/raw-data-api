@@ -1,17 +1,20 @@
 import os
 import pathlib
-import orjson
 import shutil
 import time
-import requests
-from datetime import datetime as dt
 import zipfile
+from datetime import datetime as dt
+
+import orjson
+import requests
 from celery import Celery
-from galaxy.config import config
-from galaxy.query_builder.builder import format_file_name_str
-from galaxy.validation.models import RawDataOutputType
-from galaxy.app import RawData, S3FileTransfer
-from galaxy.config import use_s3_to_upload, logger as logging, config, allow_bind_zip_filter
+
+from src.app import RawData, S3FileTransfer
+from src.config import allow_bind_zip_filter, config
+from src.config import logger as logging
+from src.config import use_s3_to_upload
+from src.query_builder.builder import format_file_name_str
+from src.validation.models import RawDataOutputType
 
 celery = Celery(__name__)
 celery.conf.broker_url = config.get(
@@ -21,10 +24,9 @@ celery.conf.result_backend = config.get(
     "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
 )  # using redis as backend , make sure you have redis server started on your system on port 6379
 
-celery.conf.task_serializer = 'pickle'
-celery.conf.result_serializer = 'pickle'
-celery.conf.accept_content = [
-    'application/json', 'application/x-python-serialize']
+celery.conf.task_serializer = "pickle"
+celery.conf.result_serializer = "pickle"
+celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
 
 
 @celery.task(bind=True, name="process_raw_data")
@@ -33,21 +35,26 @@ def process_raw_data(self, params):
         start_time = dt.now()
         bind_zip = params.bind_zip if allow_bind_zip_filter else True
         # unique id for zip file and geojson for each export
-        params.output_type = params.output_type if params.output_type else RawDataOutputType.GEOJSON.value
-        params.file_name = format_file_name_str(
-            params.file_name) if params.file_name else 'Galaxy_export'
-        exportname = f"{params.file_name}_{params.output_type}_uid_{str(self.request.id)}"
+        params.output_type = (
+            params.output_type
+            if params.output_type
+            else RawDataOutputType.GEOJSON.value
+        )
+        params.file_name = (
+            format_file_name_str(params.file_name) if params.file_name else "Export"
+        )
+        exportname = (
+            f"{params.file_name}_{params.output_type}_uid_{str(self.request.id)}"
+        )
 
         logging.info("Request %s received", exportname)
 
-        geom_area, working_dir = RawData(
-            params).extract_current_data(exportname)
+        geom_area, working_dir = RawData(params).extract_current_data(exportname)
         inside_file_size = 0
         if bind_zip:
-            logging.debug('Zip Binding Started !')
+            logging.debug("Zip Binding Started !")
             # saving file in temp directory instead of memory so that zipping file will not eat memory
-            upload_file_path = os.path.join(
-                working_dir, os.pardir, f"{exportname}.zip")
+            upload_file_path = os.path.join(working_dir, os.pardir, f"{exportname}.zip")
 
             zf = zipfile.ZipFile(upload_file_path, "w", zipfile.ZIP_DEFLATED)
             for file_path in pathlib.Path(working_dir).iterdir():
@@ -55,11 +62,12 @@ def process_raw_data(self, params):
                 inside_file_size += os.path.getsize(file_path)
 
             # Compressing geojson file
-            zf.writestr("clipping_boundary.geojson",
-                        orjson.dumps(dict(params.geometry)))
+            zf.writestr(
+                "clipping_boundary.geojson", orjson.dumps(dict(params.geometry))
+            )
 
             zf.close()
-            logging.debug('Zip Binding Done !')
+            logging.debug("Zip Binding Done !")
         else:
             for file_path in pathlib.Path(working_dir).iterdir():
                 upload_file_path = file_path
@@ -69,7 +77,10 @@ def process_raw_data(self, params):
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
             download_url = file_transfer_obj.upload(
-                upload_file_path, exportname, file_suffix='zip' if bind_zip else params.output_type.lower())
+                upload_file_path,
+                exportname,
+                file_suffix="zip" if bind_zip else params.output_type.lower(),
+            )
         else:
             # give the static file download url back to user served from fastapi static export path
             download_url = str(upload_file_path)
@@ -85,8 +96,16 @@ def process_raw_data(self, params):
         response_time = dt.now() - start_time
         response_time_str = str(response_time)
         logging.info(
-            f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}")
-        return {"download_url": download_url, "file_name": params.file_name, "process_time": response_time_str, "query_area": f"{round(geom_area,2)} Sq Km", "binded_file_size": f"{round(inside_file_size/1000000,2)} MB", "zip_file_size_bytes": zip_file_size}
+            f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}"
+        )
+        return {
+            "download_url": download_url,
+            "file_name": params.file_name,
+            "process_time": response_time_str,
+            "query_area": f"{round(geom_area,2)} Sq Km",
+            "binded_file_size": f"{round(inside_file_size/1000000,2)} MB",
+            "zip_file_size_bytes": zip_file_size,
+        }
 
     except Exception as ex:
         raise ex
@@ -116,12 +135,14 @@ def watch_s3_upload(url: str, path: str) -> None:
             check_call = requests.head(url).status_code
             if time.time() - start_time > 300:
                 logging.error(
-                    "Upload time took more than 5 min , Killing watch : %s , URL : %s", path, url)
+                    "Upload time took more than 5 min , Killing watch : %s , URL : %s",
+                    path,
+                    url,
+                )
                 remove_temp_file = False  # don't remove the file if upload fails
                 break
             time.sleep(3)  # check each 3 second
     # once it is verfied file is uploaded finally remove the file
     if remove_temp_file:
-        logging.debug(
-            "File is uploaded at %s , flushing out from %s", url, path)
+        logging.debug("File is uploaded at %s , flushing out from %s", url, path)
         os.unlink(path)

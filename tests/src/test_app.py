@@ -17,67 +17,10 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-import os.path
 from json import dumps
 
-import testing.postgresql
-
-from galaxy import app
-from galaxy.query_builder.builder import raw_currentdata_extraction_query
-from galaxy.validation.models import RawDataCurrentParams
-
-# Reference to testing.postgresql db instance
-postgresql = None
-
-# Connection to database and query running class from our galaxy module
-
-database = None
-filepath = None
-
-# Generate Postgresql class which shares the generated database so that we could use it in all test function (now we don't need to create db everytime whenever the test runs)
-Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
-
-
-def slurp(path):
-    """Reads and returns the entire contents of a file"""
-    with open(path, "r") as f:
-        return f.read()
-
-
-def setup_module(module):
-    """Module level set-up called once before any tests in this file are
-    executed.  shares a temporary database created in Postgresql and sets it up"""
-
-    print("*****SETUP*****")
-    global postgresql, database, con, cur, db_dict
-
-    postgresql = Postgresql()
-    # passing test credentials to our osm_stat database class for connection
-    """ Default credentials : {'port': **dynamic everytime **, 'host': '127.0.0.1', 'user': 'postgres', 'database': 'test'}"""
-    db_dict = postgresql.dsn()
-    database = app.Database(db_dict)
-    # To Ensure the database is in a known state before calling the function we're testing
-    con, cur = database.connect()
-    # Map of database connection parameters passed to the app we're testing
-    print(postgresql.dsn())
-
-
-def teardown_module(module):
-    """Called after all of the tests in this file have been executed to close
-    the database connection and destroy the temporary database"""
-
-    print("******TEARDOWN******")
-    # close our database connection to avoid memory leaks i.e. available feature in our database class
-    database.close_conn()
-    # clear cached database at end of tests
-    Postgresql.clear_cache()
-    if filepath:
-        if os.path.isfile(filepath) is True:
-            os.remove(filepath)
-
-
-# def test_populate_data():
-#     database.executequery(slurp('tests/src/fixtures/mapathon_summary.sql'))
+from src.query_builder.builder import raw_currentdata_extraction_query
+from src.validation.models import RawDataCurrentParams
 
 
 def test_rawdata_current_snapshot_geometry_query():

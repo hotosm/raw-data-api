@@ -1,8 +1,8 @@
-galaxy
+src
 ======
 
 .. toctree::
    :maxdepth: 4
 
-   galaxy
+   src
    API

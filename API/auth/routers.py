@@ -1,7 +1,8 @@
-
-from fastapi import Request, APIRouter, Depends
-from . import AuthUser, login_required , osm_auth
 import json
+
+from fastapi import APIRouter, Depends, Request
+
+from . import AuthUser, login_required, osm_auth
 
 router = APIRouter(prefix="/auth")
 
@@ -17,7 +18,7 @@ def login_url(request: Request):
     - login_url (string) - URL to authorize user to the application via. Openstreetmap
         OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters
     """
-    login_url=osm_auth.login()
+    login_url = osm_auth.login()
     return json.loads(login_url)
 
 
@@ -33,7 +34,7 @@ def callback(request: Request):
     Returns:
     - access_token (string)
     """
-    access_token=osm_auth.callback(str(request.url))
+    access_token = osm_auth.callback(str(request.url))
 
     return json.loads(access_token)
 
