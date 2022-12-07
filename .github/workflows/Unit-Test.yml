@@ -50,7 +50,8 @@ jobs:
       
       - name : Start Loading
         run : 
-          python underpass/raw/run.py
+          cd underpass/raw
+          python run.py
 
       # - name: Insert sample db data
       #   run: |
