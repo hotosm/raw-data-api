@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgis/postgis:14-3.3
@@ -28,13 +28,35 @@ jobs:
         with:
           python-version: 3.8
       
-      - name: Insert sample db data
-        run: |
-          export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
+      - name : Install necessary dependecies for rawdata loading
+        run : 
+          sudo apt-get update && sudo apt-get install osm2pgsql 
+      - name : check version 
+        run : 
+          osm2pgsql --version
+
+      - name : Clone Base repo
+        run : 
+          git clone https://github.com/hotosm/underpass.git
+
+      - name : Install python requirements for load
+        run:
+          pip install -r underpass/raw/requirements.txt
+
+      - name : Setup db config 
+        run : 
+          cp  config.txt.sample underpass/raw/db_config.txt
+          
+      - name : Setup app config 
+        run : 
+          cp  underpass/raw/app_config_sample.json underpass/raw/app_config.json 
+      
+      - name : Start Loading
+        run : 
+          python underpass/raw/run.py
 
       - name: Install gdal
-        run: |
+        run: 
           sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
 
       - name: Install redis
