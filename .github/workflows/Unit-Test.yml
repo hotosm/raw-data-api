@@ -30,7 +30,7 @@ jobs:
       
       - name : Install necessary dependecies for rawdata loading
         run : 
-          sudo apt-get -y install osm2pgsql 
+          sudo apt-get update && sudo apt-get install osm2pgsql 
       - name : check version 
         run : 
           osm2pgsql --version
