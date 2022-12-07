@@ -30,7 +30,7 @@ jobs:
       
       - name : Install necessary dependecies for rawdata loading
         run : /
-          sudo apt install osm2pgsql && sudo apt-get install osmium-tool
+          sudo apt-get -y install osm2pgsql && sudo apt-get -y install osmium-tool
 
       - name: Insert sample db data
         run: |
