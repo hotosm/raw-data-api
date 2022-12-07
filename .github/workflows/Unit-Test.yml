@@ -36,13 +36,14 @@ jobs:
         run : 
           git clone https://github.com/hotosm/underpass.git
 
-      - name : Setup config 
+      - name : Install python requirements for load
         run:
           pip install -r underpass/raw/requirements.txt
 
-      - name : test
+      - name : Setup Config 
         run : 
-          cp  config.txt.sample underpass/raw/config.txt
+          cp  config.txt.sample underpass/raw/db_config.txt
+          cp  underpass/raw/app_config_sample.json underpass/raw/app_config.json 
 
       - name: Insert sample db data
         run: |
