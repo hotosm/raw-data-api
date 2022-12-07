@@ -31,6 +31,8 @@ jobs:
       - name : Install necessary dependecies for rawdata loading
         run : 
           sudo apt-get -y install osm2pgsql 
+      - name : check version 
+          osm2pgsql --version
 
       - name : Clone Base repo
         run : 
