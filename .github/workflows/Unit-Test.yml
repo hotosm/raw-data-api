@@ -53,7 +53,7 @@ jobs:
           python underpass/raw/run.py
 
       - name: Install gdal
-        run: |
+        run: 
           sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
 
       - name: Install redis
