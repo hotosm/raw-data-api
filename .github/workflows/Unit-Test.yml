@@ -39,11 +39,10 @@ jobs:
       - name : Setup config 
         run:
           pip install -r underpass/raw/requirements.txt
-          touch underpass/raw/config.txt
-          touch underpass/raw/app_config.json 
-          cp  config.txt.sample underpass/raw/config.txt
-          cp  underpass/raw/app_config_sample.json underpass/raw/app_config.json 
 
+      - name : test
+        run : 
+          cp  config.txt.sample underpass/raw/config.txt
 
       - name: Insert sample db data
         run: |
