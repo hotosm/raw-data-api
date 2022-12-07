@@ -39,15 +39,10 @@ jobs:
       - name : Navigate to raw 
         run : 
           cd underpass/raw
-      - name : Install python requirements  for loading 
-        run : 
           pip install -r requirements.txt
-      
-      - name : Setup config for rawdata loading 
-        run : 
           cp ../../config.txt.sample config.txt
           cp app_config_sample.json ./app_config.json 
-
+          cd ../..
 
       - name: Insert sample db data
         run: |
