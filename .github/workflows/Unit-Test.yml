@@ -31,9 +31,7 @@ jobs:
       - name : Install necessary dependecies for rawdata loading
         run : /
           sudo apt install osm2pgsql && sudo apt-get install osmium-tool
-          git clone https://github.com/hotosm/underpass.git && cd underpass/raw && pip install -r requirements.txt 
 
-      
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
