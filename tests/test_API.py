@@ -25,4 +25,12 @@ def test_snapshot():
                     }
                 })
     assert response.status_code == 200
-    
+    res = response.json()
+    track_link = res['track_link']
+    response = client.get(f"/latest{track_link}")
+    assert response.status_code == 200
+    res = response.json()
+    check_status = res["status"]
+    print(check_status)
+    assert check_status == "PENDING" or check_status == "RUNNING" or check_status == "SUCCESS"
+
