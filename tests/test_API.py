@@ -27,7 +27,7 @@ def test_snapshot():
     assert response.status_code == 200
     res = response.json()
     track_link = res['track_link']
-    time.sleep(6)
+    time.sleep(6) # wait for worker to complete task 
     response = client.get(f"/latest{track_link}")
     assert response.status_code == 200
     res = response.json()
@@ -248,7 +248,7 @@ def test_snapshot_filters():
     assert response.status_code == 200
     res = response.json()
     track_link = res['track_link']
-    time.sleep(6)
+    time.sleep(6) # wait for worker to complete task
     response = client.get(f"/latest{track_link}")
     assert response.status_code == 200
     res = response.json()
