@@ -35,12 +35,13 @@ jobs:
       - name : Clone Base repo
         run : 
           git clone https://github.com/hotosm/underpass.git
-      - name : view files 
-        run : 
-          ls
+          
       - name : Setup config 
         run:
           pip install -r underpass/raw/requirements.txt
+          sudo cp  config.txt.sample underpass/raw/config.txt
+          sudo cp  underpass/raw/app_config_sample.json underpass/raw/app_config.json 
+
 
       - name: Insert sample db data
         run: |
