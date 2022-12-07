@@ -27,7 +27,7 @@ def test_snapshot():
     assert response.status_code == 200
     res = response.json()
     track_link = res['track_link']
-    time.sleep(3)
+    time.sleep(6)
     response = client.get(f"/latest{track_link}")
     assert response.status_code == 200
     res = response.json()
