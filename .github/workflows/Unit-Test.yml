@@ -31,7 +31,7 @@ jobs:
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 raw  < tests/fixturespokhara.sql
+          psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
 
 
       - name: Install Dependencies
