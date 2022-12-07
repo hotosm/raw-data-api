@@ -50,13 +50,7 @@ jobs:
       
       - name : Start Loading
         run : 
-          cd underpass/raw
-          python run.py
-
-      # - name: Insert sample db data
-      #   run: |
-      #     export PGPASSWORD='admin';
-      #     psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
+          python underpass/raw/run.py
 
       - name: Install gdal
         run: |
