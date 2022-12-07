@@ -51,12 +51,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
+
       - name: Creating config.txt
         run: |
           mv config.txt.sample config.txt
+
       - name: Launch Worker
         run: |
           celery --app API.api_worker worker --loglevel=INFO &
+          
       - name: Run Tests
         run: |
           py.test -v -s
