@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="export-tool-api",
-    version="0.0.1",
+    version="1.0.12",
     description="The export tool api module makes it simple for you to get osm data stats provided by api in your own project",
     packages=["src"],
     package_dir={"export_tool_api": "src"},
