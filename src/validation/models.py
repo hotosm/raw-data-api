@@ -129,6 +129,27 @@ class RawDataCurrentParams(BaseModel):
         default=None, description="Only for mbtiles"
     )  # only for if mbtiles is output
     file_name: Optional[str] = Field(default=None, example="My test export")
+    geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
+        default=None, example=["point", "polygon"]
+    )
+    join_filter_type: Optional[JoinFilterType] = Field(
+        default=JoinFilterType.OR.value,
+        example="OR",
+        description="Where condition (filters above) join by",
+    )
+    country_export: Optional[bool] = Field(
+        default=False,
+        example="false",
+        description="Intersects the passed geom to country boundary if set to true and exports whole country : Use with Caution , May take hours",
+    )
+    filters: Optional[Filters] = Field(
+        default=None,
+        example={
+            "tags": {"all_geometry": {"building": []}},
+            "attributes": {"all_geometry": ["name"]},
+        },
+        description="Filter for point,line,polygon/ all geometry for both select and where clause",
+    )
     geometry: Union[Polygon, MultiPolygon] = Field(
         default=None,
         example={
@@ -143,27 +164,6 @@ class RawDataCurrentParams(BaseModel):
                 ]
             ],
         },
-    )
-    filters: Optional[Filters] = Field(
-        default=None,
-        example={
-            "tags": {"all_geometry": {"building": []}},
-            "attributes": {"all_geometry": ["name"]},
-        },
-        description="Filter for point,line,polygon/ all geometry for both select and where clause",
-    )
-    join_filter_type: Optional[JoinFilterType] = Field(
-        default=JoinFilterType.OR.value,
-        example="OR",
-        description="Where condition (filters above) join by",
-    )
-    geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
-        default=None, example=["point", "polygon"]
-    )
-    country_export: Optional[bool] = Field(
-        default=False,
-        example="false",
-        description="Intersects the passed geom to country boundary if set to true and exports whole country : Use with Caution , May take hours",
     )
     if allow_bind_zip_filter:
         bind_zip: Optional[bool] = True
