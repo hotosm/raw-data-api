@@ -28,6 +28,14 @@ jobs:
         with:
           python-version: 3.8
       
+      - name : Install necessary dependecies for rawdata loading
+        run : /
+          sudo apt install osm2pgsql && sudo apt-get install osmium-tool
+          git clone https://github.com/hotosm/underpass.git && cd underpass/raw && pip install -r requirements.txt 
+          cp ../../config.txt.sample db_config.txt
+          cp app_config_sample.json app_config.json
+          python run.py
+      
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
