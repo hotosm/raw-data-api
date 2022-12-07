@@ -32,21 +32,21 @@ jobs:
         run : 
           sudo apt-get -y install osm2pgsql && sudo apt-get -y install osmium-tool 
 
-      - name : Clone rawdata base repo 
+      - name : Clone Base repo
         run : 
           git clone https://github.com/hotosm/underpass.git
 
-      - name : Install requirements for rawdata 
+      - name : Navigate to raw 
         run : 
           cd underpass/raw
-      - name : Install requirements 
+      - name : Install python requirements  for loading 
         run : 
           pip install -r requirements.txt
       
       - name : Setup config for rawdata loading 
         run : 
           cp ../../config.txt.sample config.txt
-          cp app_config_sample.json app_config.json 
+          cp app_config_sample.json ./app_config.json 
 
 
       - name: Insert sample db data
