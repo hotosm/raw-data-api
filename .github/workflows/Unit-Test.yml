@@ -40,15 +40,22 @@ jobs:
         run:
           pip install -r underpass/raw/requirements.txt
 
-      - name : Setup Config 
+      - name : Setup db config 
         run : 
           cp  config.txt.sample underpass/raw/db_config.txt
+          
+      - name : Setup app config 
+        run : 
           cp  underpass/raw/app_config_sample.json underpass/raw/app_config.json 
+      
+      - name : Start Loading
+        run : 
+          python underpass/raw/run.py
 
-      - name: Insert sample db data
-        run: |
-          export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
+      # - name: Insert sample db data
+      #   run: |
+      #     export PGPASSWORD='admin';
+      #     psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
 
       - name: Install gdal
         run: |
