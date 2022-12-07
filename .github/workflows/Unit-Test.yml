@@ -38,9 +38,9 @@ jobs:
 
       - name : Setup config 
         run:
-          pip install -r /underpass/raw/requirements.txt
-          cp  config.txt.sample /underpass/raw/config.txt
-          cp  /underpass/raw/app_config_sample.json /underpass/raw/app_config.json 
+          pip install -r ./underpass/raw/requirements.txt
+          cp  config.txt.sample ./underpass/raw/config.txt
+          cp  ./underpass/raw/app_config_sample.json ./underpass/raw/app_config.json 
 
       - name: Insert sample db data
         run: |
