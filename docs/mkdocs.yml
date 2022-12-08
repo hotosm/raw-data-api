@@ -22,7 +22,7 @@ nav:
       - Configurations: 'installation/configurations.md'
   - User Guide: 'user_guide/index.md'
   - Endpoints: 'endpoints.md'
-  - Examples: 'examples/index.md'
+  - Examples: 'examples/Example_Python.ipynb'
   - API: 'api/index.md'
   - Contributing: 'contributing.md'
   - Code of Conduct: 'code_of_conduct.md'

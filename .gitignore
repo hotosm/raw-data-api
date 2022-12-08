@@ -13,3 +13,5 @@ exports
 postgres-data
 *.out
 *.log
+
+Pipfile
