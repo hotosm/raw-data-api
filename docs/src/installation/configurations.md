@@ -2,13 +2,13 @@
 Before getting started on config Make sure you have [Postgres](https://www.postgresql.org/) and [Postgis](https://postgis.net/) setup in your machine.
 
 
-## Compulsary Configuration
+## Compulsory Configuration
 
-### 1. Create ```config.txt``` inside src directory.
+### Create ```config.txt``` inside src directory.
 ![image](https://user-images.githubusercontent.com/36752999/188402566-80dc9633-5d4e-479c-97dc-9e8a4999b385.png)
 
 
-### 2. Prepare your OSM Snapshot Data
+### Prepare your OSM Snapshot Data
 Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from
 ```
 /tests/src/fixtures/raw_data.sql
@@ -28,7 +28,7 @@ database=raw
 port=5432
 ```
 
-### 3. Setup Oauth for Authentication
+### Setup Oauth for Authentication
 Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local galaxy app to Oauth2applications
 
 ![image](https://user-images.githubusercontent.com/36752999/188452619-aababf28-b685-4141-b381-9c25d0367b57.png)
@@ -51,7 +51,7 @@ login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
 secret_key=jnfdsjkfndsjkfnsdkjfnskfn
 ```
 
-### 4. Configure celery and redis
+### Configure celery and redis
 
 API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port . if you are running redis on same machine your broker could be ```redis://localhost:6379/```. You can change the port according to your configuration for the current docker compose use following
 
@@ -61,7 +61,7 @@ CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
 ```
 
-### 5. Finalizing config.txt
+### Finalizing config.txt
 Insert your config blocks with the database credentials where you have underpass ,insight and rawdata in your database along with oauth block
 
 Summary of command :

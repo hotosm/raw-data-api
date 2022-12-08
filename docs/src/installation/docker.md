@@ -1,4 +1,4 @@
-### 1. Initial Setup
+## Initial Setup
 
 - Clone the repository, and change directory to _export-tool-api_ folder on your computer.
 
@@ -7,7 +7,7 @@ git clone https://github.com/hotosm/export-tool-api.git
 cd export-tool-api
 ```
 
-### 2. Configurations
+## Configurations
 
 - Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer.
 
@@ -40,16 +40,16 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 - OSM Authentication:
 
-  - Follow this step to setup OSM OAuth: [Setup Oauth Block](../docs/CONFIG_DOC.md#3-setup-oauth-for-authentication).
+  - Follow this step to setup OSM OAuth: [Setup Oauth Block](./configurations.md#Setup-Oauth-for-Authentication).
   - Update your `config.txt` with the `[OAUTH]` block from the step above.
 
-### 3. Create the Docker images and spin up the containers
+## Create the Docker images and spin up the containers
 
 ```
 docker-compose up -d --build
 ```
 
-### 4. Check the servers
+## Check the servers
 
 By default, Uvicorn would be running on port [8000](http://127.0.0.1:8000/latest/docs), Redis on default port(i.e 6379), Celery with a worker and Flower on port [5000](http://127.0.0.1:5000/).
 
@@ -77,9 +77,9 @@ Flower [dashboard](http://127.0.0.1:5000/) will look like this on successfull in
 
 ![image](https://user-images.githubusercontent.com/36752999/191813613-3859522b-ea68-4370-87b2-ebd1d8880d80.png)
 
-### 5. Proceed to the readme for further configurations: [here](../README.md#check-api-installation).
+## Proceed to the readme for further configurations: [here](./index.md#Installation).
 
-### 6. **Troubleshooting**
+## **Troubleshooting**
 
 **NOTE:** If any of the solutions provided below does not work for you, please don't hesistate to open an issue.
 

@@ -32,3 +32,4 @@ osm-login-python==0.0.2
 
 #documentation
 mkdocs-material==8.5.11
+mkdocs-jupyter

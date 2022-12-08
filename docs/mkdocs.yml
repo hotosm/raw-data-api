@@ -1,4 +1,4 @@
-site_name: HOT Export Tool API
+site_name: Export Tool API
 site_description: Export tool API to allow OSM Data output in different GIS file formats
 
 docs_dir: 'src'
@@ -16,12 +16,20 @@ extra:
       link: 'https://github.com/hotosm'
 
 nav:
-  - Home: 'index.md'
-  - Development:
-      - Code of Conduct: 'code_of_conduct.md'
+  - Export Tool API: 'index.md'
+  - Installation:
+      - Docker Installation: 'installation/docker.md'
+      - Configurations: 'installation/configurations.md'
+  - User Guide: 'user_guide/index.md'
+  - Endpoints: 'endpoints.md'
+  - Examples: 'examples/index.md'
+  - API: 'api/index.md'
+  - Contributing: 'contributing.md'
+  - Code of Conduct: 'code_of_conduct.md'
 
 plugins:
   - search
+  - mkdocs-jupyter
 
 #customization
 theme:
@@ -42,3 +50,9 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
