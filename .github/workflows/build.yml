@@ -32,7 +32,7 @@ jobs:
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 raw  < tests/src/fixtures/raw_data.sql
+          psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
 
       - name: Install gdal
         run: |
@@ -68,4 +68,9 @@ jobs:
           celery --app API.api_worker flower --port=5555 --broker=redis://localhost:6379/ &
       - name: Run rawdata current snapshot
         run: |
-          curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v2/raw-data/current-snapshot/
+          result=$(curl -s -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json' http://127.0.0.1:8000/latest/snapshot/)
+          echo $result
+          task_link=$(echo "$result" | jq -r .track_link)
+          echo curl "http://127.0.0.1:8000/latest${task_link}"  
+          curl "http://127.0.0.1:8000/latest${task_link}"
+ 
