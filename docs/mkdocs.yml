@@ -1,5 +1,5 @@
 site_name: Export Tool API
-site_description: `Export tool API` is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
+site_description: Export tool API is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
 
 docs_dir: 'src'
 site_dir: 'build'
