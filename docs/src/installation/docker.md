@@ -19,7 +19,7 @@ echo >> config.txt #Windows without WSL
 
 - Database configuration:
   - To use the default database(with sample data) shipped with the `Dockerfile`, you can update the `config.txt` with the configurations below. [**Recommended**]
-  - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](../docs/CONFIG_DOC.md).
+  - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](./configurations.md).
 
 ```
 [RAW_DATA]
@@ -77,7 +77,7 @@ Flower [dashboard](http://127.0.0.1:5000/) will look like this on successfull in
 
 ![image](https://user-images.githubusercontent.com/36752999/191813613-3859522b-ea68-4370-87b2-ebd1d8880d80.png)
 
-## Proceed to the readme for further configurations: [here](./index.md#Installation).
+## Proceed to the readme for further configurations: [here](../index.md#Installation).
 
 ## **Troubleshooting**
 
