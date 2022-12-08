@@ -9,13 +9,13 @@ Before getting started on config Make sure you have [Postgres](https://www.postg
 
 
 ### 2. Prepare your OSM Snapshot Data
-Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump from
+Initialize rawdata from [here](https://github.com/hotosm/underpass/tree/master/raw) OR Create database "raw" in your local postgres and insert sample dump of Pokhara city from
 ```
-/tests/src/fixtures/raw_data.sql
+/tests/fixtures/pokhara.sql
 ```
 
 ```
-psql -U postgres -h localhost raw < raw_data.sql
+psql -U postgres -h localhost raw < pokhara.sql
 ```
 Put your credentials on Rawdata block
 
@@ -29,7 +29,7 @@ port=5432
 ```
 
 ### 3. Setup Oauth for Authentication
-Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local galaxy app to Oauth2applications
+Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and register your local export_tool_api app to Oauth2applications
 
 ![image](https://user-images.githubusercontent.com/36752999/188452619-aababf28-b685-4141-b381-9c25d0367b57.png)
 
@@ -72,8 +72,8 @@ Considering You have PSQL-POSTGIS setup  with user **postgres** host **localhost
   export PGPASSWORD='admin';
   psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE raw;"
 
-  cd tests/src/fixtures/
-  psql -U postgres -h localhost -p 5432 raw  < raw_data.sql
+  cd tests/fixtures/
+  psql -U postgres -h localhost -p 5432 raw  < pokhara.sql
 ```
 
 Your config.txt will look like this
@@ -105,7 +105,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 ```
 
-**Tips** : Follow .github/workflows/[unit-test](https://github.com/hotosm/galaxy-api/blob/feature/celery/.github/workflows/unit-test.yml) If you have any confusion on implementation of config file .
+**Tips** : Follow .github/workflows/[unit-test](https://github.com/hotosm/export-tool-api/blob/feature/celery/.github/workflows/unit-test.yml) If you have any confusion on implementation of config file .
 
 ## Optional Configuration [ You can skip this part for basic installation ]
 
