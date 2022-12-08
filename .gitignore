@@ -15,3 +15,4 @@ postgres-data
 *.log
 
 Pipfile
+Pipfile.lock
