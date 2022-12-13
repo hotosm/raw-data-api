@@ -1,10 +1,8 @@
-# Module src.db_session
+Module src.db_session
+=====================
 
-None
-
-None
-
-## Variables
+Variables
+---------
 
 ```python3
 database_instance

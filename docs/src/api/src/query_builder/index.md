@@ -1,9 +1,6 @@
-# Module src.query_builder
+Module src.query_builder
+========================
 
-None
-
-None
-
-## Sub-modules
-
+Sub-modules
+-----------
 * [src.query_builder.builder](builder/)

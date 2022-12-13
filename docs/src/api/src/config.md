@@ -1,10 +1,8 @@
-# Module src.config
+Module src.config
+=================
 
-None
-
-None
-
-## Variables
+Variables
+---------
 
 ```python3
 AWS_ACCESS_KEY_ID
@@ -74,20 +72,18 @@ use_connection_pooling
 use_s3_to_upload
 ```
 
-## Functions
+Functions
+---------
 
     
-### get_db_connection_params
+#### get_db_connection_params
 
 ```python3
 def get_db_connection_params(
     dbIdentifier: str
 ) -> dict
 ```
-
-    
 Return a python dict that can be passed to psycopg2 connections
-
 to authenticate to Postgres Databases
 
 Params: dbIdentifier: Section name of the INI config file containing

@@ -1,10 +1,9 @@
-# Module src.app
-
+Module src.app
+==============
 Page contains Main core logic of app
 
-None
-
-## Variables
+Variables
+---------
 
 ```python3
 AWS_ACCESS_KEY_ID
@@ -42,73 +41,61 @@ level
 use_connection_pooling
 ```
 
-## Functions
+Functions
+---------
 
     
-### check_for_json
+#### check_for_json
 
 ```python3
 def check_for_json(
     result_str
 )
 ```
-
-    
 Check if the Payload is a JSON document
 
 Return: bool:
     True in case of success, False otherwise
 
     
-### dict_none_clean
+#### dict_none_clean
 
 ```python3
 def dict_none_clean(
     to_clean
 )
 ```
-
-    
 Clean DictWriter
 
     
-### print_psycopg2_exception
+#### print_psycopg2_exception
 
 ```python3
 def print_psycopg2_exception(
     err
 )
 ```
-
-    
 Function that handles and parses Psycopg2 exceptions
 
     
-### run_ogr2ogr_cmd
+#### run_ogr2ogr_cmd
 
 ```python3
 def run_ogr2ogr_cmd(
     cmd
 )
 ```
-
-    
 Runs command and monitors the file size until the process runs
 
-**Parameters:**
+Args:
+    cmd (_type_): Command to run for subprocess
+    binding_file_dir (_type_): _description_
 
-| Name | Type | Description | Default |
-|---|---|---|---|
-| cmd | _type_ | Command to run for subprocess | None |
-| binding_file_dir | _type_ | _description_ | None |
+Raises:
+    Exception: If process gets failed
 
-**Raises:**
-
-| Type | Description |
-|---|---|
-| Exception | If process gets failed |
-
-## Classes
+Classes
+-------
 
 ### Database
 
@@ -117,6 +104,8 @@ class Database(
     db_params
 )
 ```
+
+Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class
 
 #### Methods
 
@@ -128,8 +117,6 @@ def close_conn(
     self
 )
 ```
-
-    
 function for clossing connection to avoid memory leaks
 
     
@@ -140,8 +127,6 @@ def connect(
     self
 )
 ```
-
-    
 Database class instance method used to connect to database parameters with error printing
 
     
@@ -153,8 +138,6 @@ def executequery(
     query
 )
 ```
-
-    
 Function to execute query after connection
 
 ### ProgressPercentage
@@ -165,11 +148,10 @@ class ProgressPercentage(
 )
 ```
 
-#### Attributes
+Determines the project percentage of aws s3 upload file call
 
-| Name | Type | Description | Default |
-|---|---|---|---|
-| object | _type_ | _description_ | None |
+Args:
+    object (_type_): _description_
 
 ### RawData
 
@@ -179,6 +161,15 @@ class RawData(
     dbdict=None
 )
 ```
+
+Class responsible for the Rawdata Extraction from available sources ,
+    Currently Works for Underpass source Current Snapshot
+Returns:
+Geojson Zip file
+Supports:
+-Any Key value pair of osm tags
+-A Polygon
+-Osm element type (Optional)
 
 #### Static methods
 
@@ -190,8 +181,6 @@ def close_con(
     con
 )
 ```
-
-    
 Closes connection if exists
 
     
@@ -204,22 +193,14 @@ def get_grid_id(
     country_export=False
 )
 ```
-
-    
 Gets the intersecting related grid id for the geometry that is passed
 
-**Parameters:**
+Args:
+    geom (_type_): _description_
+    cur (_type_): _description_
 
-| Name | Type | Description | Default |
-|---|---|---|---|
-| geom | _type_ | _description_ | None |
-| cur | _type_ | _description_ | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| _type_ | grid id , geometry dump and the area of geometry |
+Returns:
+    _type_: grid id , geometry dump and the area of geometry
 
     
 #### ogr_export
@@ -233,8 +214,6 @@ def ogr_export(
     params
 )
 ```
-
-    
 Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow
 
     
@@ -249,8 +228,6 @@ def ogr_export_shp(
     file_name
 )
 ```
-
-    
 Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow
 
     
@@ -263,8 +240,6 @@ def query2geojson(
     dump_temp_file_path
 )
 ```
-
-    
 Function written from scratch without being dependent on any library, Provides better performance for geojson binding
 
     
@@ -275,8 +250,6 @@ def to_geojson_raw(
     results
 )
 ```
-
-    
 Responsible for geojson writing
 
 #### Methods
@@ -289,8 +262,6 @@ def check_status(
     self
 )
 ```
-
-    
 Gives status about DB update, Substracts with current time and last db update time
 
     
@@ -302,22 +273,13 @@ def extract_current_data(
     exportname
 )
 ```
-
-    
 Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
+Args:
+    exportname: takes filename as argument to create geojson file passed from routers
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| exportname | None | takes filename as argument to create geojson file passed from routers | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| geom_area | area of polygon supplied
-working_dir: dir where results are saved |
+Returns:
+    geom_area: area of polygon supplied
+    working_dir: dir where results are saved
 
     
 #### extract_plain_geojson
@@ -327,8 +289,6 @@ def extract_plain_geojson(
     self
 )
 ```
-
-    
 Gets geojson for small area : Performs direct query with/without geometry
 
 ### S3FileTransfer
@@ -338,6 +298,8 @@ class S3FileTransfer(
     
 )
 ```
+
+Responsible for the file transfer to s3 from API maachine
 
 #### Methods
 
@@ -350,8 +312,6 @@ def get_bucket_location(
     bucket_name
 )
 ```
-
-    
 Provides the bucket location on aws, takes bucket_name as string -- name of repo on s3
 
     
@@ -362,8 +322,6 @@ def list_buckets(
     self
 )
 ```
-
-    
 used to list all the buckets available on s3
 
     
@@ -377,10 +335,7 @@ def upload(
     file_suffix='zip'
 )
 ```
-
-    
 Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
-
 Parameters :file_path --- your local file path to upload ,
     file_prefix -- prefix for the filename which is stored
 sample function call :
