@@ -1,10 +1,8 @@
-# Module src.db_connection
+Module src.db_connection
+========================
 
-None
-
-None
-
-## Classes
+Classes
+-------
 
 ### Database
 
@@ -13,6 +11,8 @@ class Database(
     
 )
 ```
+
+Handles the all work related to connection pooling
 
 #### Methods
 
@@ -24,8 +24,6 @@ def close_all_connection_pool(
     self
 )
 ```
-
-    
 Closes the connection thread created by thread pooling all at once
 
     
@@ -36,8 +34,6 @@ def connect(
     self
 )
 ```
-
-    
 Connection to the database
 
     
@@ -48,15 +44,10 @@ def get_conn_from_pool(
     self
 )
 ```
-
-    
 Function to get connection from the pool instead of new connection
 
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | connection |
+Returns:
+    connection
 
     
 #### release_conn_from_pool
@@ -67,18 +58,10 @@ def release_conn_from_pool(
     pool_con
 )
 ```
-
-    
 Can be used to release specific connection after its use from the pool , so that it can be used by another process
 
-**Parameters:**
+Args:
+    pool_con (_type_): define which connection to remove from pool
 
-| Name | Type | Description | Default |
-|---|---|---|---|
-| pool_con | _type_ | define which connection to remove from pool | None |
-
-**Raises:**
-
-| Type | Description |
-|---|---|
-| ex | error if connection doesnot exists or misbehave of function |
+Raises:
+    ex: error if connection doesnot exists or misbehave of function

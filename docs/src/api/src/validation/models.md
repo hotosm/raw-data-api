@@ -1,19 +1,19 @@
-# Module src.validation.models
-
+Module src.validation.models
+============================
 Page contains validation models for application
 
-None
-
-## Variables
+Variables
+---------
 
 ```python3
 allow_bind_zip_filter
 ```
 
-## Functions
+Functions
+---------
 
     
-### to_camel
+#### to_camel
 
 ```python3
 def to_camel(
@@ -21,9 +21,8 @@ def to_camel(
 ) -> str
 ```
 
-    
-
-## Classes
+Classes
+-------
 
 ### AttributeFilter
 
@@ -57,10 +56,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -72,8 +68,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -90,8 +84,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -99,8 +91,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -117,8 +107,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -127,8 +115,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -143,8 +129,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -152,8 +136,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -164,8 +146,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -182,25 +162,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -218,8 +187,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -241,8 +208,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -290,10 +255,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -305,8 +267,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -323,8 +283,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -332,8 +290,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -350,8 +306,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -360,8 +314,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -376,8 +328,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -385,8 +335,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -397,8 +345,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -415,25 +361,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -451,8 +386,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -474,8 +407,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -512,10 +443,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -527,8 +455,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -545,8 +471,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -554,8 +478,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -572,8 +494,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -582,8 +502,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -598,8 +516,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -607,8 +523,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -619,8 +533,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -637,25 +549,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -673,8 +574,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -696,8 +595,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -711,6 +608,8 @@ class JoinFilterType(
     **kwargs
 )
 ```
+
+An enumeration.
 
 #### Ancestors (in MRO)
 
@@ -743,6 +642,8 @@ class OsmFeatureType(
     **kwargs
 )
 ```
+
+An enumeration.
 
 #### Ancestors (in MRO)
 
@@ -806,8 +707,6 @@ def check_geometry_area(
     values
 )
 ```
-
-    
 Validates geom area_m2
 
     
@@ -819,8 +718,6 @@ def check_output_type(
     values
 )
 ```
-
-    
 Checks mbtiles required field
 
     
@@ -832,10 +729,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -847,8 +741,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -865,8 +757,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -874,8 +764,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -892,8 +780,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### return_unique_value
 
 ```python3
@@ -901,8 +787,6 @@ def return_unique_value(
     value
 )
 ```
-
-    
 return unique list
 
     
@@ -914,8 +798,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -930,8 +812,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -939,8 +819,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -951,8 +829,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -969,25 +845,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -1005,8 +870,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -1028,8 +891,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -1043,6 +904,8 @@ class RawDataOutputType(
     **kwargs
 )
 ```
+
+An enumeration.
 
 #### Ancestors (in MRO)
 
@@ -1122,10 +985,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -1137,8 +997,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -1155,8 +1013,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -1164,8 +1020,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -1182,8 +1036,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -1192,8 +1044,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -1208,8 +1058,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -1217,8 +1065,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -1231,8 +1077,6 @@ def validate(
 ```
 
     
-
-    
 #### validate_select_statement
 
 ```python3
@@ -1241,8 +1085,6 @@ def validate_select_statement(
     values
 )
 ```
-
-    
 Validates geom area_m2
 
 #### Methods
@@ -1260,25 +1102,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -1296,8 +1127,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -1319,8 +1148,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -1362,10 +1189,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -1377,8 +1201,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -1395,8 +1217,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -1404,8 +1224,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -1422,8 +1240,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -1432,8 +1248,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -1448,8 +1262,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -1457,8 +1269,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -1469,8 +1279,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -1487,25 +1295,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -1523,8 +1320,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -1546,8 +1341,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -1589,10 +1382,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -1604,8 +1394,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -1622,8 +1410,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -1631,8 +1417,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -1649,8 +1433,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -1659,8 +1441,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -1675,8 +1455,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -1684,8 +1462,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -1696,8 +1472,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -1714,25 +1488,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -1750,8 +1513,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -1773,8 +1534,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -1816,10 +1575,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -1831,8 +1587,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -1849,8 +1603,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -1858,8 +1610,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -1876,8 +1626,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -1886,8 +1634,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -1902,8 +1648,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -1911,8 +1655,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -1923,8 +1665,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -1941,25 +1681,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -1977,8 +1706,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -2000,8 +1727,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -2043,10 +1768,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -2058,8 +1780,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -2076,8 +1796,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -2085,8 +1803,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -2103,8 +1819,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -2113,8 +1827,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -2129,8 +1841,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -2138,8 +1848,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -2150,8 +1858,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -2168,25 +1874,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -2204,8 +1899,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -2227,8 +1920,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -2242,6 +1933,8 @@ class SupportedFilters(
     **kwargs
 )
 ```
+
+An enumeration.
 
 #### Ancestors (in MRO)
 
@@ -2274,6 +1967,8 @@ class SupportedGeometryFilters(
     **kwargs
 )
 ```
+
+An enumeration.
 
 #### Ancestors (in MRO)
 
@@ -2337,10 +2032,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -2352,8 +2044,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -2370,8 +2060,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -2379,8 +2067,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -2397,8 +2083,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -2407,8 +2091,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -2423,8 +2105,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -2432,8 +2112,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -2444,8 +2122,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -2462,25 +2138,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -2498,8 +2163,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -2521,8 +2184,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.
@@ -2536,6 +2197,16 @@ class WhereCondition(
     **kwargs
 )
 ```
+
+dict() -> new empty dictionary
+dict(mapping) -> new dictionary initialized from a mapping object's
+    (key, value) pairs
+dict(iterable) -> new dictionary initialized as if via:
+    d = {}
+    for k, v in iterable:
+        d[k] = v
+dict(**kwargs) -> new dictionary initialized with the name=value pairs
+    in the keyword argument list.  For example:  dict(one=1, two=2)
 
 #### Ancestors (in MRO)
 
@@ -2551,8 +2222,6 @@ def clear(
     ...
 )
 ```
-
-    
 D.clear() -> None.  Remove all items from D.
 
     
@@ -2563,8 +2232,6 @@ def copy(
     ...
 )
 ```
-
-    
 D.copy() -> a shallow copy of D
 
     
@@ -2577,8 +2244,6 @@ def fromkeys(
     /
 )
 ```
-
-    
 Create a new dictionary with keys from iterable and values set to value.
 
     
@@ -2592,8 +2257,6 @@ def get(
     /
 )
 ```
-
-    
 Return the value for key if key is in the dictionary, else default.
 
     
@@ -2604,8 +2267,6 @@ def items(
     ...
 )
 ```
-
-    
 D.items() -> a set-like object providing a view on D's items
 
     
@@ -2616,8 +2277,6 @@ def keys(
     ...
 )
 ```
-
-    
 D.keys() -> a set-like object providing a view on D's keys
 
     
@@ -2628,8 +2287,6 @@ def pop(
     ...
 )
 ```
-
-    
 D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
 
 If the key is not found, return the default if given; otherwise,
@@ -2644,8 +2301,6 @@ def popitem(
     /
 )
 ```
-
-    
 Remove and return a (key, value) pair as a 2-tuple.
 
 Pairs are returned in LIFO (last-in, first-out) order.
@@ -2662,8 +2317,6 @@ def setdefault(
     /
 )
 ```
-
-    
 Insert key with a value of default if key is not in the dictionary.
 
 Return the value for key if key is in the dictionary, else default.
@@ -2676,10 +2329,7 @@ def update(
     ...
 )
 ```
-
-    
 D.update([E, ]**F) -> None.  Update D from dict/iterable E and F.
-
 If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
 If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
 In either case, this is followed by: for k in F:  D[k] = F[k]
@@ -2692,6 +2342,4 @@ def values(
     ...
 )
 ```
-
-    
 D.values() -> an object providing a view on D's values

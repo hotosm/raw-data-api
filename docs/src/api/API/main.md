@@ -1,10 +1,8 @@
-# Module API.main
+Module API.main
+===============
 
-None
-
-None
-
-## Variables
+Variables
+---------
 
 ```python3
 app
@@ -30,10 +28,11 @@ use_connection_pooling
 use_s3_to_upload
 ```
 
-## Functions
+Functions
+---------
 
     
-### add_process_time_header
+#### add_process_time_header
 
 ```python3
 def add_process_time_header(
@@ -41,49 +40,34 @@ def add_process_time_header(
     call_next
 )
 ```
-
-    
 Times request and knows response time and pass it to header in every request
 
-**Parameters:**
+Args:
+    request (_type_): _description_
+    call_next (_type_): _description_
 
-| Name | Type | Description | Default |
-|---|---|---|---|
-| request | _type_ | _description_ | None |
-| call_next | _type_ | _description_ | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | header with process time |
+Returns:
+    header with process time
 
     
-### on_shutdown
+#### on_shutdown
 
 ```python3
 def on_shutdown(
     
 )
 ```
-
-    
 Closing all the threads connection from pooling before shuting down the api
 
     
-### on_startup
+#### on_startup
 
 ```python3
 def on_startup(
     
 )
 ```
-
-    
 Fires up 3 idle conenction with threaded connection pooling before starting the API
 
-**Raises:**
-
-| Type | Description |
-|---|---|
-| e | if connection is rejected to database |
+Raises:
+    e: if connection is rejected to database

@@ -1,23 +1,22 @@
-# Module API.auth
+Module API.auth
+===============
 
-None
-
-None
-
-## Sub-modules
-
+Sub-modules
+-----------
 * [API.auth.routers](routers/)
 
-## Variables
+Variables
+---------
 
 ```python3
 osm_auth
 ```
 
-## Functions
+Functions
+---------
 
     
-### login_required
+#### login_required
 
 ```python3
 def login_required(
@@ -25,9 +24,8 @@ def login_required(
 )
 ```
 
-    
-
-## Classes
+Classes
+-------
 
 ### AuthUser
 
@@ -64,10 +62,7 @@ def construct(
     **values: Any
 ) -> 'Model'
 ```
-
-    
 Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.
-
 Default values are respected, but no other validation is performed.
 Behaves as if `Config.extra = 'allow'` was set since it adds all passed values
 
@@ -79,8 +74,6 @@ def from_orm(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_file
@@ -97,8 +90,6 @@ def parse_file(
 ```
 
     
-
-    
 #### parse_obj
 
 ```python3
@@ -106,8 +97,6 @@ def parse_obj(
     obj: Any
 ) -> 'Model'
 ```
-
-    
 
     
 #### parse_raw
@@ -124,8 +113,6 @@ def parse_raw(
 ```
 
     
-
-    
 #### schema
 
 ```python3
@@ -134,8 +121,6 @@ def schema(
     ref_template: 'unicode' = '#/definitions/{model}'
 ) -> 'DictStrAny'
 ```
-
-    
 
     
 #### schema_json
@@ -150,8 +135,6 @@ def schema_json(
 ```
 
     
-
-    
 #### update_forward_refs
 
 ```python3
@@ -159,8 +142,6 @@ def update_forward_refs(
     **localns: Any
 ) -> None
 ```
-
-    
 Try to update ForwardRefs on fields based on this Model, globalns and localns.
 
     
@@ -171,8 +152,6 @@ def validate(
     value: Any
 ) -> 'Model'
 ```
-
-    
 
 #### Methods
 
@@ -189,25 +168,14 @@ def copy(
     deep: bool = False
 ) -> 'Model'
 ```
-
-    
 Duplicate a model, optionally choose which fields to include, exclude and change.
 
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| include | None | fields to include in new model | None |
-| exclude | None | fields to exclude from new model, as with values this takes precedence over include | None |
-| update | None | values to change/add in the new model. Note: the data is not validated before creating
-the new model: you should trust this data | None |
-| deep | None | set to `True` to make a deep copy of the model | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| None | new model instance |
+:param include: fields to include in new model
+:param exclude: fields to exclude from new model, as with values this takes precedence over include
+:param update: values to change/add in the new model. Note: the data is not validated before creating
+    the new model: you should trust this data
+:param deep: set to `True` to make a deep copy of the model
+:return: new model instance
 
     
 #### dict
@@ -225,8 +193,6 @@ def dict(
     exclude_none: bool = False
 ) -> 'DictStrAny'
 ```
-
-    
 Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.
 
     
@@ -248,8 +214,6 @@ def json(
     **dumps_kwargs: Any
 ) -> 'unicode'
 ```
-
-    
 Generate a JSON representation of the model, `include` and `exclude` arguments as per `dict()`.
 
 `encoder` is an optional function to supply as `default` to json.dumps(), other arguments as per `json.dumps()`.

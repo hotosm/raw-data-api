@@ -1,11 +1,8 @@
-# Module src
+Module src
+==========
 
-None
-
-None
-
-## Sub-modules
-
+Sub-modules
+-----------
 * [src.app](app/)
 * [src.config](config/)
 * [src.db_connection](db_connection/)

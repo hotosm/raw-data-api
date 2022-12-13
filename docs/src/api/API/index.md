@@ -1,11 +1,8 @@
-# Module API
+Module API
+==========
 
-None
-
-None
-
-## Sub-modules
-
+Sub-modules
+-----------
 * [API.api_worker](api_worker/)
 * [API.auth](auth/)
 * [API.main](main/)

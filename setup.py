@@ -9,12 +9,16 @@ setuptools.setup(
     description="The export tool api module makes it simple for you to get osm data stats provided by api in your own project",
     packages=["src"],
     package_dir={"export_tool_api": "src"},
-    extras_require={
-        "dev": [
-            "pytest == 3.7",
-            "psycopg2",
-        ]
-    },
+    install_requires=[
+        "pytest == 3.7",
+        "psycopg2",
+        "boto3==1.24.38",
+        "fastapi==0.65.2",
+        "geojson == 2.5.0",
+        "area==1.1.1",
+        "orjson==3.6.7",
+        "slowapi==0.1.6",
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",

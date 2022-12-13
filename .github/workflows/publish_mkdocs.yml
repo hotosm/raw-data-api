@@ -23,7 +23,7 @@ jobs:
           publish_branch: gh-pages
       - name: Install Dependencies
         run: |
-          ls 
+          pip install -r requirements.txt
           pip install -e .
           python -m pip install mkdocs-material pdocs mkdocs-jupyter
       - name: Update API docs

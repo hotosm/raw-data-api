@@ -1,9 +1,6 @@
-# Module src.validation
+Module src.validation
+=====================
 
-None
-
-None
-
-## Sub-modules
-
+Sub-modules
+-----------
 * [src.validation.models](models/)

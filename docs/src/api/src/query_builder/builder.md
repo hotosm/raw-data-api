@@ -1,13 +1,12 @@
-# Module src.query_builder.builder
-
+Module src.query_builder.builder
+================================
 Page Contains Query logic required for application
 
-None
-
-## Functions
+Functions
+---------
 
     
-### check_last_updated_rawdata
+#### check_last_updated_rawdata
 
 ```python3
 def check_last_updated_rawdata(
@@ -16,9 +15,7 @@ def check_last_updated_rawdata(
 ```
 
     
-
-    
-### create_column_filter
+#### create_column_filter
 
 ```python3
 def create_column_filter(
@@ -27,24 +24,20 @@ def create_column_filter(
     output_type='geojson'
 )
 ```
-
-    
 generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction
 
     
-### create_geom_filter
+#### create_geom_filter
 
 ```python3
 def create_geom_filter(
     geom
 )
 ```
-
-    
 generates geometry intersection filter - Rawdata extraction
 
     
-### extract_attributes_tags
+#### extract_attributes_tags
 
 ```python3
 def extract_attributes_tags(
@@ -53,9 +46,7 @@ def extract_attributes_tags(
 ```
 
     
-
-    
-### extract_geometry_type_query
+#### extract_geometry_type_query
 
 ```python3
 def extract_geometry_type_query(
@@ -65,12 +56,10 @@ def extract_geometry_type_query(
     c_id=None
 )
 ```
-
-    
 used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction
 
     
-### format_file_name_str
+#### format_file_name_str
 
 ```python3
 def format_file_name_str(
@@ -79,9 +68,7 @@ def format_file_name_str(
 ```
 
     
-
-    
-### generate_tag_filter_query
+#### generate_tag_filter_query
 
 ```python3
 def generate_tag_filter_query(
@@ -92,9 +79,7 @@ def generate_tag_filter_query(
 ```
 
     
-
-    
-### generate_where_clause_indexes_case
+#### generate_where_clause_indexes_case
 
 ```python3
 def generate_where_clause_indexes_case(
@@ -107,9 +92,7 @@ def generate_where_clause_indexes_case(
 ```
 
     
-
-    
-### get_country_id_query
+#### get_country_id_query
 
 ```python3
 def get_country_id_query(
@@ -118,9 +101,7 @@ def get_country_id_query(
 ```
 
     
-
-    
-### get_grid_id_query
+#### get_grid_id_query
 
 ```python3
 def get_grid_id_query(
@@ -129,9 +110,7 @@ def get_grid_id_query(
 ```
 
     
-
-    
-### get_query_as_geojson
+#### get_query_as_geojson
 
 ```python3
 def get_query_as_geojson(
@@ -141,9 +120,7 @@ def get_query_as_geojson(
 ```
 
     
-
-    
-### raw_currentdata_extraction_query
+#### raw_currentdata_extraction_query
 
 ```python3
 def raw_currentdata_extraction_query(
@@ -155,12 +132,10 @@ def raw_currentdata_extraction_query(
     select_all=False
 )
 ```
-
-    
 Default function to support current snapshot extraction with all of the feature that export_tool_api has
 
     
-### raw_extract_plain_geojson
+#### raw_extract_plain_geojson
 
 ```python3
 def raw_extract_plain_geojson(
@@ -170,9 +145,7 @@ def raw_extract_plain_geojson(
 ```
 
     
-
-    
-### remove_spaces
+#### remove_spaces
 
 ```python3
 def remove_spaces(
