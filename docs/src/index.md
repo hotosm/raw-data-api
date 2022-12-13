@@ -13,7 +13,7 @@
 
 - **Fast**: Built on top of [FastAPI](https://fastapi.tiangolo.com/)
 - OAUTH 2.0 Authentication with [OpenStreetMap(OSM)](https://openstreetmap.org)
-- Multiple GIS formats support via [GDAL's ogr2ogr](https://gdal.org/programs/ogr2ogr.html) - see table below for currently supported formats.
+- Multiple GIS formats support via [GDAL's ogr2ogr](https://gdal.org/programs/ogr2ogr.html) - see table below for currently supported formats. Out of which , GeoJSON Follows Own Export tool API conversion script 
 
   | Formats        | Status             |
   | -------------- | ------------------ |
@@ -30,7 +30,7 @@
 
 Export Tool API can be installed through `docker` or locally on your computer.
 
-- To install with docker see [docker installation](./installation/docker.md).
+- To install with docker see [docker installation](./docs/src/installation/docker.md).
 - To install locally, continue below.
 
 NOTE: The installation guide below is only tested to work on Ubuntu, we recommend using docker for other operating systems.
@@ -80,7 +80,7 @@ pip install -r requirements.txt
 
 ### Additional required configurations for Export Tool API
 
-Setup the necessary configurations for Export Tool API from [configurations](./installation/configurations.md).
+Setup the necessary configurations for Export Tool API from [configurations](./docs/src/installation/configurations.md).
 
 ### Start the Server
 
@@ -122,11 +122,11 @@ http://127.0.0.1:5000/
 
 - Confirm that Authetication works
 
-    1. Hit the `/auth/login/` endpoint
-    2. Hit the `url` returned on the response
-    3. You will get an `access_token`
-    4. You can use the `access_token` in all endpoints that requires authentication.
-    5. To check token pass token in /auth/me/. It should return your OpenStreetMap (OSM) profile
+  1. Hit the `/auth/login/` endpoint
+  2. Hit the `url` returned on the response
+  3. You will get an `access_token`
+  4. You can use the `access_token` in all endpoints that requires authentication.
+  5. To check token pass token in /auth/me/. It should return your OpenStreetMap (OSM) profile
 
 - Try extracting some data:
 
@@ -135,7 +135,6 @@ http://127.0.0.1:5000/
 ```
 curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],   [83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json'   http://127.0.0.1:8000/v2/raw-data/current-snapshot/
 ```
-
 
 ## Tests
 
@@ -159,7 +158,7 @@ py.test -k test function name
 
 ## Contribution & Development
 
-see [CONTRIBUTING](./contributing.md)
+see [CONTRIBUTING](./docs/src/contributing.md)
 
 ## License
 
@@ -167,4 +166,4 @@ see [LICENSE](https://github.com/hotosm/export-tool-api/blob/develop/LICENSE)
 
 ## Authors
 
-Created by [HOTOSM](https://hotosm.org)
+Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/export-tool-api/graphs/contributors) 

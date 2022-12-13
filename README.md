@@ -166,4 +166,4 @@ see [LICENSE](https://github.com/hotosm/export-tool-api/blob/develop/LICENSE)
 
 ## Authors
 
-Created by [HOTOSM](https://hotosm.org)
+Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/export-tool-api/graphs/contributors) 
