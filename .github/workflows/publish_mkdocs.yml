@@ -1,0 +1,35 @@
+name: Build and Publish Documentation to GitHub Pages
+on:
+  push:
+    branches:
+      - mkdocs
+    paths:
+      # Only rebuild documentation when docs have changed
+      - 'docs/**'
+      - '.github/workflows/publish_mkdocs.yml'
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          publish_branch: gh-pages
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install mkdocs-material pdocs mkdocs-jupyter
+      # - name: Update API docs
+      #   run: |
+      #     pdocs as_markdown \
+      #       -o docs/src/api \
+      #       --exclude_source \
+      #       --overwrite \
+      #       ./src/ \
+      #       ./API/ \
+      - name: Deploy Documentation
+        run: python -m mkdocs  gh-deploy --force -f docs/mkdocs.yml

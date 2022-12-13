@@ -13,3 +13,6 @@ exports
 postgres-data
 *.out
 *.log
+
+Pipfile
+Pipfile.lock

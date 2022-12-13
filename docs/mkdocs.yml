@@ -1,0 +1,60 @@
+site_name: Export Tool API
+site_description: Export tool API is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
+
+docs_dir: 'src'
+site_dir: 'build'
+
+#header
+repo_name: 'hotosm/export-tool-api'
+repo_url: 'https://github.com/hotosm/export-tool-api'
+site_url: 'https://hotosm.github.io/export-tool-api/'
+
+#Footer
+extra:
+  social:
+    - icon: 'fontawesome/brands/github'
+      link: 'https://github.com/hotosm'
+
+#Navigation
+nav:
+  - Export Tool API: 'index.md'
+  - Installation:
+      - Docker Installation: 'installation/docker.md'
+      - Configurations: 'installation/configurations.md'
+  # - User Guide: 'user_guide/index.md'
+  # - Endpoints: 'endpoints.md'
+  - Examples: 'examples/Example_Python.ipynb'
+  # - API: 'api/index.md'
+  - Contributing: 'contributing.md'
+  - Code of Conduct: 'code_of_conduct.md'
+
+
+plugins:
+  - search
+  - mkdocs-jupyter #for jupyter notebook support
+
+#customization
+theme:
+  name: material
+  #internalization
+  language: en
+  palette:
+    # Palette toggle for light mode
+    - media: '(prefers-color-scheme: light)'
+      primary: pink
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji: #for emoji support e.g checkmarks
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
