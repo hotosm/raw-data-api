@@ -24,7 +24,8 @@ nav:
   # - User Guide: 'user_guide/index.md'
   # - Endpoints: 'endpoints.md'
   - Examples: 'examples/Example_Python.ipynb'
-  # - API: 'api/index.md'
+  - API Code: 'api/index.md'
+  - Source Code: 'src/index.md'
   - Contributing: 'contributing.md'
   - Code of Conduct: 'code_of_conduct.md'
 
@@ -45,13 +46,7 @@ theme:
       scheme: default
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
-    # Palette toggle for dark mode
-    - media: '(prefers-color-scheme: dark)'
-      scheme: slate
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
+
 
 markdown_extensions:
   - attr_list
