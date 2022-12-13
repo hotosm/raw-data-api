@@ -25,7 +25,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install -e .
-          python -m pip install mkdocs-material pdocs mkdocs-jupyter
+          mv config.txt.sample config.txt
       - name: Update API docs
         run: |
           pdocs as_markdown -o docs/src/api --exclude_source --overwrite src API
