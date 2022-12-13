@@ -24,8 +24,8 @@ nav:
   # - User Guide: 'user_guide/index.md'
   # - Endpoints: 'endpoints.md'
   - Examples: 'examples/Example_Python.ipynb'
-  - API Code: 'api/index.md'
-  - Source Code: 'src/index.md'
+  - API Code: 'api/API/index.md'
+  - Source Code: 'api/src/index.md'
   - Contributing: 'contributing.md'
   - Code of Conduct: 'code_of_conduct.md'
 
