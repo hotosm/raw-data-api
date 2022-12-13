@@ -17,7 +17,7 @@ extra:
 
 #Navigation
 nav:
-  - Export Tool API: 'https://raw.githubusercontent.com/hotosm/export-tool-api/README.md'
+  - Export Tool API: 'https://raw.githubusercontent.com/hotosm/export-tool-api/develop/README.md'
   - Installation:
       - Docker Installation: 'installation/docker.md'
       - Configurations: 'installation/configurations.md'
