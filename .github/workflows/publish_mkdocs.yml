@@ -28,11 +28,6 @@ jobs:
           python -m pip install mkdocs-material pdocs mkdocs-jupyter
       - name: Update API docs
         run: |
-          pdocs as_markdown \
-            -o docs/src/api \
-            --exclude_source \
-            --overwrite \
-              src \
-              API \
+          pdocs as_markdown -o docs/src/api --exclude_source --overwrite src API
       - name: Deploy Documentation
         run: python -m mkdocs  gh-deploy --force -f docs/mkdocs.yml
