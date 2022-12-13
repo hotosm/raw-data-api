@@ -13,7 +13,7 @@
 
 - **Fast**: Built on top of [FastAPI](https://fastapi.tiangolo.com/)
 - OAUTH 2.0 Authentication with [OpenStreetMap(OSM)](https://openstreetmap.org)
-- Multiple GIS formats support via [GDAL's ogr2ogr](https://gdal.org/programs/ogr2ogr.html) - see table below for currently supported formats.
+- Multiple GIS formats support via [GDAL's ogr2ogr](https://gdal.org/programs/ogr2ogr.html) - see table below for currently supported formats. Out of which , GeoJSON Follows Own Export tool API conversion script 
 
   | Formats        | Status             |
   | -------------- | ------------------ |
