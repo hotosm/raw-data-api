@@ -13,7 +13,7 @@
 
 - **Fast**: Built on top of [FastAPI](https://fastapi.tiangolo.com/)
 - OAUTH 2.0 Authentication with [OpenStreetMap(OSM)](https://openstreetmap.org)
-- Multiple GIS formats support via [GDAL's ogr2ogr](https://gdal.org/programs/ogr2ogr.html) - see table below for currently supported formats.
+- Multiple GIS formats support via [GDAL's ogr2ogr](https://gdal.org/programs/ogr2ogr.html) - see table below for currently supported formats. Out of which , GeoJSON Follows Own Export tool API conversion script 
 
   | Formats        | Status             |
   | -------------- | ------------------ |
@@ -136,7 +136,6 @@ http://127.0.0.1:5000/
 curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],   [83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json'   http://127.0.0.1:8000/v2/raw-data/current-snapshot/
 ```
 
-
 ## Tests
 
 - Export Tool API uses pytest for tests, navigate to the root directory and install package in editable mode:
@@ -167,4 +166,4 @@ see [LICENSE](https://github.com/hotosm/export-tool-api/blob/develop/LICENSE)
 
 ## Authors
 
-Created by [HOTOSM](https://hotosm.org)
+Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/export-tool-api/graphs/contributors) 
