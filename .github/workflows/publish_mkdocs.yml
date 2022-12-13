@@ -4,7 +4,6 @@ on:
     branches:
       - develop
       - master
-      - fix/build
     paths:
       # Only rebuild documentation when docs have changed
       - 'docs/**'
