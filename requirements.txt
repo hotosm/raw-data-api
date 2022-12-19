@@ -30,4 +30,5 @@ osm-login-python==0.0.2
 #''' required for generating documentations '''
 mkdocs-material==8.5.11
 mkdocs-jupyter==0.22.0
+neoteroi-mkdocs==0.1.2
 pdocs==1.0.1
