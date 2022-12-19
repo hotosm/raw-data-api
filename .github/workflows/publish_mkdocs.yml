@@ -4,6 +4,7 @@ on:
     branches:
       - develop
       - master
+      - enhance/workflow
     paths:
       # Only rebuild documentation when docs have changed
       - 'docs/**'
