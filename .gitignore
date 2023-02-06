@@ -16,3 +16,7 @@ postgres-data
 
 Pipfile
 Pipfile.lock
+.terraform.lock.hcl
+.terraform
+.terraform/*
+*.tfstate
