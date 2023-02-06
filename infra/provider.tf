@@ -5,7 +5,7 @@ terraform {
     organization = "hotosm"
 
     workspaces {
-      name = "osm-stats"
+      name = "raw-data"
     }
   }
 
