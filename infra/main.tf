@@ -124,7 +124,7 @@ resource "azurerm_linux_virtual_machine" "raw-data-backend" {
   }
 
   admin_ssh_key {
-    public_key = ""
+    public_key = public_key = file("~/.ssh/id_rsa.pub")
     username   = lookup(var.admin_usernames, "backend")
   }
 }

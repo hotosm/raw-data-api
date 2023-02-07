@@ -51,7 +51,7 @@ variable "disk_size" {
 variable "server_skus" {
   type = map(any)
   default = {
-    database = "Standard_D2ds_v4"
+    database = "GP_Standard_D2ds_v4"
     backend  = "Standard_F2"
   }
 }
