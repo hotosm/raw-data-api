@@ -48,7 +48,7 @@ resource "azurerm_key_vault" "raw-data" {
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    // object_id = ""
+    object_id = data.azurerm_client_config.current.object_id
 
     certificate_permissions = [
     ]
@@ -95,7 +95,7 @@ resource "azurerm_linux_virtual_machine" "raw-data-backend" {
   admin_username        = lookup(var.admin_usernames, "backend")
   location              = var.arm_location
   name                  = "raw_data_backend-${var.deployment_environment}"
-  network_interface_ids = azurerm_network_interface.raw-data-backend.id
+  network_interface_ids = [azurerm_network_interface.raw-data-backend.id]
   resource_group_name   = azurerm_resource_group.raw-data.name
   size                  = lookup(var.server_skus, "backend")
 
