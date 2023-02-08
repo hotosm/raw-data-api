@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 """[Responsible for Field Update of Rawdata Table's , It will be one time update for all elements ]
 Raises:
     err: [Database Connection Error]
@@ -17,14 +16,11 @@ import sys
 import time
 from configparser import ConfigParser
 from enum import Enum
+from tqdm import tqdm
 
 from psycopg2 import *
 from psycopg2.extras import *
 
-config = ConfigParser()
-working_dir = os.path.realpath(os.path.dirname(__file__))
-config_path = os.path.join(working_dir, "db_config.txt")
-config.read(config_path)
 
 from dateutil.relativedelta import relativedelta
 
@@ -61,18 +57,17 @@ def assign_end_wrt_frequency(start, frequency):
 class Database:
     """[Database Class responsible for connection , query execution and time tracking, can be used from multiple funtion and class returns result ,connection and cursor]"""
 
-    def __init__(self, db_params):
+    def __init__(self, db_params=None):
         """Database class constructor"""
-
         self.db_params = db_params
 
     def connect(self):
         """Database class instance method used to connect to database parameters with error printing"""
 
         try:
-            self.conn = connect(**self.db_params)
+            self.conn = connect(**self.db_params) if self.db_params else connect( host=os.environ["PGHOST"],port=os.environ["PGPORT"],user=os.environ["PGUSER"],password=os.environ["PGPASSWORD"],database=os.environ["PGDATABASE"])
             self.cur = self.conn.cursor(cursor_factory=DictCursor)
-            logging.debug("Database connection has been Successful...")
+            # logging.debug("Database connection has been Successful...")
             return self.conn, self.cur
         except OperationalError as err:
             """pass exception to function"""
@@ -120,16 +115,16 @@ class Database:
                 if self.cursor:
                     self.cursor.close()
                     self.conn.close()
-                    logging.debug("Connection closed")
+                    # logging.debug("Connection closed")
         except Exception as err:
             raise err
 
 
-class Underpass:
-    """This class connects to Underpass database and responsible for Values derived from database"""
+class Raw:
+    """This class connects to Raw database and responsible for Values derived from database"""
 
     def __init__(self, parameters=None):
-        self.database = Database(dict(config.items("RAW_DATA")))
+        self.database = Database()
         self.con, self.cur = self.database.connect()
         self.params = parameters
 
@@ -157,39 +152,47 @@ class Underpass:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-            query = f"""update
-                {target_table} as w
+            query = f"""
+            WITH table_filtered AS(
+                SELECT osm_id,{target_geom}
+                FROM {target_table}
+                WHERE ("timestamp" >= '{start}'
+                and "timestamp" <= '{end}') and {target_column} is null
+            )
+            UPDATE {target_table} wp
                 set
-                    {target_column} = array((
+                    {target_column} = array(
                     select
-                        b.{source_column}
-                    from
-                        {source_table} b
-                    where
-                        ST_Intersects( w.{target_geom} ,
-                        b.{source_geom})
-                        ))
+                        distinct {source_table}.{source_column}
+                    FROM table_filtered tf
+                    JOIN {source_table} 
+                    ON ST_Intersects( tf.{target_geom} , {source_table}.{source_geom})
+                    WHERE tf.osm_id = wp.osm_id
+                        )
                 where (
                 "timestamp" >= '{start}'
-                and "timestamp" <= '{end}' )"""
+                and "timestamp" <= '{end}' ) and {target_column} is null"""
         else:
-            query = f"""update
-                {target_table} as w
-                set
-                    {target_column} = (
-                    select
-                        b.{source_column}
-                    from
-                        {source_table} b
-                    where
-                        ST_Intersects( w.{target_geom} ,
-                        b.{source_geom})
-                    limit 1	)::int
-                where 
-                "timestamp" >= '{start}'
-                and "timestamp" <= '{end}'"""
-        result = self.database.executequery(query)
-        logging.debug(f"""Changed Row : {result}""")
+            query = f"""
+            WITH table_filtered AS(
+                SELECT {target_geom}
+                FROM {target_table}
+                WHERE "timestamp" >= '{start}'
+                and "timestamp" <= '{end}'
+            )
+            UPDATE {target_table}
+            SET {target_column} = (
+                SELECT {source_table}.{source_column}
+                FROM table_filtered
+                JOIN {source_table}
+                ON ST_Intersects( table_filtered.{target_geom} , {source_table}.{source_geom})
+                LIMIT 1
+            )::int
+            where 
+            ("timestamp" >= '{start}'
+            and "timestamp" <= '{end}') and {target_column} is null"""
+        self.database.executequery(query)
+        # logging.debug(f"""Changed Row : {result}""")
 
     def batch_update(
         self,
@@ -211,48 +214,42 @@ class Underpass:
             start_batch_date, end = self.getMax_timestamp(target_table)
         if end_batch_date is None:
             start, end_batch_date = self.getMax_timestamp(target_table)
-        batch_start_time = time.time()
         # Type checking
         if not isinstance(batch_frequency, BatchFrequency):
             raise TypeError("Batch Frequency Invalid")
         # Considering date is in yyyy-mm-dd H:M:S format
         logging.debug(
-            f"""----------Update Field Function has been started for target = {target_table}:{target_column} from source = {source_table}:{source_column} , Range {start_batch_date} - {end_batch_date} , frequency {batch_frequency.value}----------"""
+            f"""----------Update has been started for target = {target_table}:{target_column} from source = {source_table}:{source_column} , Range {start_batch_date} - {end_batch_date} , frequency {batch_frequency.value}----------"""
         )
         looping_date = start_batch_date
-        loop_count = 1
-        while looping_date >= end_batch_date:
-            start_time = time.time()
-            start_date = looping_date
-            end_date = assign_end_wrt_frequency(start_date, batch_frequency)
-            self.update_field(
-                end_date,
-                start_date,
-                target_table,
-                target_column,
-                target_geom,
-                source_table,
-                source_column,
-                source_geom,
-                insert_type,
-            )
-            logging.debug(
-                f"""Batch {loop_count} Update from {end_date} to {start_date} - {target_table}:{target_column} , Completed in {str(datetime.timedelta(seconds=(time.time() - start_time)))}\nTotal time elapsed : {str(datetime.timedelta(seconds=(time.time() - batch_start_time)))}"""
-            )
-            loop_count += 1
-            looping_date = end_date
-
+        with tqdm(total=(start_batch_date - end_batch_date).days, desc=f"Updating {target_table}:{target_column}") as pbar:
+            while looping_date >= end_batch_date:
+                start_date = looping_date
+                end_date = assign_end_wrt_frequency(start_date, batch_frequency)
+                self.update_field(
+                    end_date,
+                    start_date,
+                    target_table,
+                    target_column,
+                    target_geom,
+                    source_table,
+                    source_column,
+                    source_geom,
+                    insert_type,
+                )
+                pbar.update(1)
+                looping_date = end_date
         # closing connection
         self.database.close_conn()
         logging.debug(
-            f"""-----Total Operation Took for {target_table}:{target_column}-- {str(datetime.timedelta(seconds=(time.time() - batch_start_time)))} for {start_batch_date} to {end_batch_date} with batch frequency {batch_frequency.value} -----"""
+            f"""-----Update complete for {target_table}:{target_column}-- from {start_batch_date} to {end_batch_date} with batch frequency {batch_frequency.value} -----"""
         )
 
 
 # The parser is only called if this script is called as a script/executable (via command line) but not when imported by another script
 if __name__ == "__main__":
     # connection to the database
-    connect = Underpass()
+    connect = Raw()
     """You can get min and max timestamp available in the table as well which will be default or you can pass it through arguments"""
     argParser = argparse.ArgumentParser(description="Updates Field column of Table")
     argParser.add_argument(

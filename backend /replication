@@ -38,10 +38,7 @@ from textwrap import dedent
 
 import pytz
 
-config = ConfigParser()
-working_dir = os.path.realpath(os.path.dirname(__file__))
-config_path = os.path.join(working_dir, "db_config.txt")
-config.read(config_path)
+
 
 
 missing_modules = []
@@ -62,10 +59,6 @@ except ImportError:
     missing_modules.append("osmium")
 
 LOG = logging.getLogger()
-
-with open(os.path.join(working_dir, "app_config.json"), "r") as openfile:
-    # Reading from json file
-    json_config = json.load(openfile)
 
 
 def pretty_format_timedelta(seconds):
@@ -93,7 +86,7 @@ def pretty_format_timedelta(seconds):
 
 def connect(args):
     """Create a connection from the config file"""
-    return psycopg.connect(**dict(config.items("RAW_DATA")))
+    return psycopg.connect(host=os.environ["PGHOST"],port=os.environ["PGPORT"],user=os.environ["PGUSER"],password=os.environ["PGPASSWORD"],database=os.environ["PGDATABASE"])
 
 
 def compute_database_date(conn, prefix):
@@ -437,13 +430,13 @@ def update(conn, args):
 
     osm2pgsql.extend(args.extra_params)
 
-    osm2pgsql.extend(("-d", dict(config.items("RAW_DATA"))["database"]))
+    osm2pgsql.extend(("-d", os.environ["PGDATABASE"]))
 
-    osm2pgsql.extend(("-U", dict(config.items("RAW_DATA"))["user"]))
+    osm2pgsql.extend(("-U", os.environ["PGUSER"]))
 
-    osm2pgsql.extend(("-H", dict(config.items("RAW_DATA"))["host"]))
+    osm2pgsql.extend(("-H", os.environ["PGHOST"]))
 
-    osm2pgsql.extend(("-P", dict(config.items("RAW_DATA"))["port"]))
+    osm2pgsql.extend(("-P", os.environ["PGPORT"] ))
     osm2pgsql.append(str(outfile))
     LOG.debug("Calling osm2pgsql with: %s", " ".join(osm2pgsql))
     # return 1
@@ -492,35 +485,34 @@ def update(conn, args):
                 conn,
                 grid_timestamp,
                 "nodes",
-                json_config["replication"]["country"]
-                if json_config["replication"]["country"]
+                args.country
+                if args.country
                 else None,
             )
             update_country(
                 conn,
                 grid_timestamp,
                 "ways_poly",
-                json_config["replication"]["country"]
-                if json_config["replication"]["country"]
+                args.country
+                if args.country
                 else None,
             )
             update_country(
                 conn,
                 grid_timestamp,
                 "ways_line",
-                json_config["replication"]["country"]
-                if json_config["replication"]["country"]
+                args.country
+                if args.country
                 else None,
             )
             update_country(
                 conn,
                 grid_timestamp,
                 "relations",
-                json_config["replication"]["country"]
-                if json_config["replication"]["country"]
+                args.country
+                if args.country
                 else None,
             )
-            update_grid(conn, grid_timestamp, args.grid)
             LOG.info(f"Updating field  took {round(time.time()-start_time)}s overall.")
             grid_timestamp = nextstate.timestamp
         if args.once:
@@ -529,58 +521,22 @@ def update(conn, args):
     return 0
 
 
-def update_grid(conn, timestamp, table_name):
-    """Updates grid column in table , It intersects it's newly inserted data's geometry to the boundaries loaded to underpass and populates info , in order to use multicolumn indexes with geometry"""
-    with conn.cursor() as cur:
-        update_query = f"""update
-        {table_name} as w
-        set
-            grid = (
-            select
-                b.poly_id
-            from
-                grid b
-            where
-                ST_Intersects( w.geom ,
-                b.geom)
-            limit 1	)::int
-        where "timestamp" >= '{timestamp}'"""
-        cur.execute(update_query)
-        LOG.info(f"""Grid Update >= {timestamp} : {cur.statusmessage} """)
-    conn.commit()
-
-
 def update_country(conn, timestamp, table_name, c_id=None):
     """Updates country column in table , It intersects it's newly inserted data's geometry to the boundaries loaded to underpass and populates info , in order to use multicolumn indexes with geometry"""
     with conn.cursor() as cur:
-        if table_name.lower() == "ways_poly" or table_name.lower() == "nodes":
-            update_query = f"""update
-                {table_name} as w
-                set
-                    country = (
-                    select
-                        b.ogc_fid
-                    from
-                        countries_un b
-                    where
-                        ST_Intersects( w.geom ,
-                        b.wkb_geometry)
-                        limit 1 )::int
-                where "timestamp" >= '{timestamp}'"""
-        else:
-            update_query = f"""update
-                {table_name} as w
-                set
-                    country = array((
-                    select
-                        b.ogc_fid
-                    from
-                        countries_un b
-                    where
-                        ST_Intersects( w.geom ,
-                        b.wkb_geometry)
-                        ))
-                where "timestamp" >= '{timestamp}'"""
+        update_query = f"""update
+            {table_name} as w
+            set
+                country = array((
+                select
+                    b.fid
+                from
+                    countries_un b
+                where
+                    ST_Intersects( w.geom ,
+                    b.geometry)
+                    ))
+            where "timestamp" >= '{timestamp}'"""
         cur.execute(update_query)
         LOG.info(
             f"""Country {table_name} Complete >= {timestamp} : {cur.statusmessage} """
@@ -589,20 +545,12 @@ def update_country(conn, timestamp, table_name, c_id=None):
     if c_id:
         # delete data outside country
         with conn.cursor() as cur:
-            if table_name.lower() == "ways_poly" or table_name.lower() == "nodes":
-                delete_query = f"""delete from 
-                {table_name} 
-                where
-                    "timestamp" >= '{timestamp}'
-                    and (NOT (country = {c_id}) or country is null)
-                    """
-            else:
-                delete_query = f"""delete from 
-                {table_name} 
-                where
-                    "timestamp" >= '{timestamp}'
-                    and (NOT ({c_id} = ANY (country) ) or country is null )
-                    """
+            delete_query = f"""delete from 
+            {table_name} 
+            where
+                "timestamp" >= '{timestamp}'
+                and (NOT ({c_id} = ANY (country) ) or country is null )
+                """
             cur.execute(delete_query)
             LOG.info(
                 f"""Cleanup {table_name} Complete >= {timestamp} : {cur.statusmessage} """
@@ -721,10 +669,9 @@ def get_parser():
         help="Post-processing script to run after each execution of osm2pgsql.",
     )
     cmd.add_argument(
-        "--grid",
-        default="ways_poly",
-        action="store_true",
-        help="Update grid column of table",
+        "--country",
+        type=int,
+        help="Country fid to filter on replication",
     )
     # Arguments for status
     cmd = subs.add_parser(

@@ -17,37 +17,52 @@
     pip install -r requirements.txt
     ```
 
- - Input Your DB Credentials 
- 
-    Create ***db_config.txt*** file in the directory and Put your credentials inside it like this
-
-    ```
-    [RAW_DATA]
-
-    host=localhost
-    user=
-    password=
-    database=
-    port=
-    ```
  - Start the Process
 
-    Run.py Automates all the workflow / commands that you need 
+    You can either export your db params as env variables or pass to script 
     ```
-    python run.py
+    export PGHOST=localhost
+    export PGPORT=5432
+    export PGUSER=admin
+    export PGPASSWORD=admin
+    export PGDATABASE=postgres
+    ```
+    Run App , For Insert 
+    ```
+    python app --insert --replication
     ```
 
-    >Script will ask you few question about how you want to do it , it will ask for source , ask for whether you want to run replication or not . On source you can either pass download link or pass filepath where you have downloaded file . You can Download Planet pbf file[Here](https://planet.osm.org/pbf/) or Use Geofabrik Pbf file [Here](https://osm-internal.download.geofabrik.de/index.html) with full metadata (Tested with .pbf file) , you can pass download link to script itself . Follow example app_config json to know more
+    Only start replication 
+
+    ```
+    python app --replication
+    ```
+    Run Replication minutely 
+    ```
+    python app --replication --run_minutely
+    ```
+
+    Options : 
+        ```
+        -h, --help            show this help message and exit
+        --source SOURCE       Data source link or file path
+        --host HOST           DB host
+        --port PORT           DB port
+        --user USER           DB user
+        --password PASSWORD   DB password
+        --database DATABASE   DB name
+        --include_ref         Include ref in output tables
+        --replication         Prepare tables for replication and Runs Replication
+        --run_minutely        Runs replication every minute
+        --country COUNTRY     Fid of the country , if you are loading country , it will filter replication data
+        --insert              Run osm2pgsql to insert data , Initial Creation Step
+        --update              Run Update on table fields for country info
+        --download_dir DOWNLOAD_DIR
+                                The directory to download the source file to
+        --post_index          Run Post index only on table
+        ```
+
+
+    >You can Download Planet pbf file [Here](https://planet.osm.org/pbf/) or Use Geofabrik Pbf file [Here](https://osm-internal.download.geofabrik.de/index.html) with full metadata (Tested with .pbf file) , you can pass download link to script itself . Follow -h help
 
     If you are interested on Manual setup find Guide [here](./Manual.md) 
-
-
-  ### Quickly Get started with Sample Data :  
-  
-- Create ```app_config.json``` on root and copy content of sample.json 
-    ``` 
-    cp app_config_sample.json app_config.json
-    ```
-- Hit ```python run.py```
-    
-    Script will create replication ready tables on database . You can change replication now to true ``` "replicaton":{"now":true}``` in config and rerun the script to start replciation 

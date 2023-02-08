@@ -3,3 +3,4 @@ DateTime
 python-dateutil
 wget
 osmium
+tqdm

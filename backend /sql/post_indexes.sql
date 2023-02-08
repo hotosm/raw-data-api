@@ -9,11 +9,13 @@ create extension if not exists intarray;
 CREATE INDEX CONCURRENTLY  IF NOT EXISTS   nodes_country_idx ON public.nodes USING btree (country);
 CREATE INDEX CONCURRENTLY  IF NOT EXISTS  nodes_geom_idx ON public.nodes USING gist (geom);
 
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_geom_idx ON public.ways_line USING gist (geom);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_country_idx ON public.ways_line USING gin (country gin__int_ops);
 
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_grid_geom_idx ON public.ways_poly USING gist (grid, geom);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_country_idx ON public.ways_poly USING btree (country);
+CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_country_idx ON public.ways_line USING gin (country gin__int_ops);
+CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_geom_idx ON public.ways_line USING gist (geom);
+
+
+CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_country_idx ON public.ways_poly USING gin (country gin__int_ops);
+CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_geom_idx ON public.ways_poly USING gist (geom);
 
 CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_geom_idx ON public.relations USING gist (geom);
 CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_country_idx ON public.relations USING gin (country gin__int_ops);
@@ -22,4 +24,4 @@ CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_country_idx ON public.relati
 
 CLUSTER nodes USING nodes_geom_idx;
 CLUSTER ways_line USING ways_line_geom_idx;
-CLUSTER ways_poly USING ways_poly_grid_geom_idx;
+CLUSTER ways_poly USING ways_poly_geom_idx;
