@@ -34,7 +34,7 @@ resource "azurerm_key_vault" "raw-data" {
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
-  enabled_for_deployment          = true
+  enabled_for_deployment          = false
   enabled_for_disk_encryption     = false
   enabled_for_template_deployment = true
   enable_rbac_authorization       = false
@@ -101,8 +101,8 @@ resource "azurerm_linux_virtual_machine" "raw-data-backend" {
 
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "22.04-LTS"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
 
