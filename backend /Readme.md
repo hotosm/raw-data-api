@@ -4,9 +4,9 @@
     ```
     sudo apt-get install osm2pgsql
     ```
-- Clone underpass and navigate to raw dir
+- Clone rawdata and navigate to backend dir
     ```
-    git clone https://github.com/hotosm/underpass.git && cd underpass/raw
+    git clone https://github.com/hotosm/export-tool-api.git && cd backend
     ```
 
 - Install Requirements

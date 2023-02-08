@@ -457,39 +457,47 @@ class RawData:
         # only apply grid in the logic if it exceeds the 5000 Sqkm
         grid_id = None
 
-        country = None
+        # country = None
 
         if int(geom_area) > grid_index_threshold or country_export:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
             country_query = get_country_id_query(geometry_dump)
             # check if polygon intersects two countries
-            check_country = cur.execute(country_query)
-            count = 0
+            cur.execute(country_query)
+            # count = 0
             result_country = cur.fetchall()
             logging.debug(result_country)
-            for s in result_country:
-                count += 1
-            if count == 1:  # intersects with only one country
-                for row in result_country:
-                    country = row[0]
-                    break
-            else:  # intersect with multiple countries or no country ,  use grid index instead
-                if country_export:  # force country index
-                    if count == 0:
-                        # geom didn't intersected with any country
-                        logging.warning("Geom didn't intersect with any country")
-                        # use default grid index
-                        cur.execute(get_grid_id_query(geometry_dump))
-                        grid_id = cur.fetchall()
-                    else:
-                        for row in result_country:
-                            country = row[0]  # get which has higher % intersection
-                            break
-                else:
-                    cur.execute(get_grid_id_query(geometry_dump))
-                    grid_id = cur.fetchall()
+            countries = [f[0] for f in result_country] 
+            if country_export:
+                if len(countries)>0:
+                    for row in result_country:
+                        countries = row[0]  # get which has higher % intersection
+                        break
+            # for s in result_country:
+            #     count += 1
+            # if count == 1:  # intersects with only one country
+            #     for row in result_country:
+            #         country = row[0]
+            #         break
+            # else:  # intersect with multiple countries or no country ,  use grid index instead
+            #     if country_export:  # force country index
+            #         # if count == 0:
+            #         #     # geom didn't intersected with any country
+            #         #     logging.warning("Geom didn't intersect with any country")
+            #         #     # use default grid index
+            #         #     #TODO
+            #         #     # cur.execute(get_grid_id_query(geometry_dump))
+            #         #     # grid_id = cur.fetchall()
+            #         # else:
+            #         for row in result_country:
+            #             country = row[0]  # get which has higher % intersection
+            #             break
+            #     else:
+            #         country=coun
+            #     #     cur.execute(get_grid_id_query(geometry_dump))
+            #     #     grid_id = cur.fetchall()
             cur.close()
-        return grid_id, geometry_dump, geom_area, country
+        return grid_id, geometry_dump, geom_area, countries if len(countries)>0 else None
 
     @staticmethod
     def to_geojson_raw(results):

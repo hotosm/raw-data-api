@@ -39,13 +39,13 @@ def get_grid_id_query(geometry_dump):
 def get_country_id_query(geom_dump):
 
     base_query = f"""select
-                        b.ogc_fid
+                        b.fid
                     from
                         countries_un b
                     where
                         ST_Intersects(ST_GEOMFROMGEOJSON('{geom_dump}') ,
-                        b.wkb_geometry)
-                    order by ST_Area(ST_Intersection(b.wkb_geometry,ST_MakeValid(ST_GEOMFROMGEOJSON('{geom_dump}')))) desc
+                        b.geometry)
+                    order by ST_Area(ST_Intersection(b.geometry,ST_MakeValid(ST_GEOMFROMGEOJSON('{geom_dump}')))) desc
 
                     """
     return base_query
@@ -410,18 +410,12 @@ def generate_where_clause_indexes_case(
             grid_filter = " OR ".join(grid_filter_base)
             where_clause = f"({grid_filter}) and ({geom_filter})"
     if c_id:
-        if table_name == "ways_poly" or table_name == "nodes":
-            where_clause += f" and (country = {c_id})"
-        else:
-            where_clause += f"and (country @> ARRAY[{c_id}])"
+        where_clause += f"and (country @> ARRAY{c_id})"
     if (
         country_export
     ):  # ignore the geometry take geom from the db itself by using precalculated field
         if c_id:
-            where_clause = f"(country @> ARRAY[{c_id}])"
-            if table_name == "ways_poly" or table_name == "nodes":
-
-                where_clause = f"(country = {c_id})"
+            where_clause = f"(country @> ARRAY{c_id})"
 
     return where_clause
 
