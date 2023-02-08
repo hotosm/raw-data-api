@@ -1,4 +1,22 @@
 #!/usr/bin/env python3
+# Copyright (C) 2021 Humanitarian OpenStreetmap Team
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Humanitarian OpenStreetmap Team
+# 1100 13th Street NW Suite 800 Washington, D.C. 20005
+# <info@hotosm.org>
 import argparse
 import datetime
 import os
@@ -14,25 +32,37 @@ import wget
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=str, help="Data source link or file path")
-    args = [("PGHOST", "--host", "DB host"),
+    args = [
+        ("PGHOST", "--host", "DB host"),
         ("PGPORT", "--port", "DB port"),
         ("PGUSER", "--user", "DB user"),
         ("PGPASSWORD", "--password", "DB password"),
-        ("PGDATABASE", "--database", "DB name")]
+        ("PGDATABASE", "--database", "DB name"),
+    ]
 
     for env, arg, help_text in args:
         default = os.getenv(env)
-        parser.add_argument(arg, type=str, help=help_text, default=default, required=(not default))
-
+        parser.add_argument(
+            arg, type=str, help=help_text, default=default, required=(not default)
+        )
 
     parser.add_argument(
-        "--include_ref",default=False, action="store_true", help="Include ref in output tables"
+        "--include_ref",
+        default=False,
+        action="store_true",
+        help="Include ref in output tables",
     )
     parser.add_argument(
-        "--replication",default=False, action="store_true", help="Prepare tables for replication and Runs Replication"
+        "--replication",
+        default=False,
+        action="store_true",
+        help="Prepare tables for replication and Runs Replication",
     )
     parser.add_argument(
-        "--run_minutely",default=False, action="store_true", help="Runs replication every minute"
+        "--run_minutely",
+        default=False,
+        action="store_true",
+        help="Runs replication every minute",
     )
     parser.add_argument(
         "--country",
@@ -53,7 +83,12 @@ def parse_arguments():
     parser.add_argument(
         "--download_dir", type=str, help="The directory to download the source file to"
     )
-    parser.add_argument("--post_index",default=False,action="store_true",help="Run Post index only on table")
+    parser.add_argument(
+        "--post_index",
+        default=False,
+        action="store_true",
+        help="Run Post index only on table",
+    )
     return parser.parse_args()
 
 
@@ -71,6 +106,7 @@ def run_subprocess_cmd(cmd):
         print(e.output)
         sys.exit()
 
+
 def run_subprocess_cmd_parallel(cmds):
     procs = [subprocess.Popen(i, env=os.environ) for i in cmds]
     for p in procs:
@@ -78,7 +114,7 @@ def run_subprocess_cmd_parallel(cmds):
 
 
 if __name__ == "__main__":
-    
+
     args = parse_arguments()
 
     os.environ["PGHOST"] = args.host
@@ -128,7 +164,7 @@ if __name__ == "__main__":
             lua_path,
             source_path,
         ]
-        if not args.replication :
+        if not args.replication:
             osm2pgsql.append("--drop")
         run_subprocess_cmd(osm2pgsql)
 
@@ -231,12 +267,12 @@ if __name__ == "__main__":
             "array",
         ]
         update_cmd_list.append(field_update_cmd)
-    
+
     if len(update_cmd_list) > 1:
         run_subprocess_cmd_parallel(update_cmd_list)
-    
+
     if args.insert or args.post_index:
-            ## build post indexes
+        ## build post indexes
         basic_index_cmd = [
             "psql",
             "-a",
@@ -250,7 +286,7 @@ if __name__ == "__main__":
     if args.replication:
         print("Starting Replication")
         replication_init = ["python", os.path.join(working_dir, "replication"), "init"]
-        run_subprocess_cmd(replication_init)   
+        run_subprocess_cmd(replication_init)
         while True:  # run replication forever
             # --max-diff-size 10 mb as default
             start = time.time()
@@ -263,9 +299,9 @@ if __name__ == "__main__":
                 "--max-diff-size",
                 "10",
             ]
-            if args.country : 
-                replication_cmd.extend(["--country",args.country])
+            if args.country:
+                replication_cmd.extend(["--country", args.country])
             run_subprocess_cmd(replication_cmd)
             if args.run_minutely:
                 if (time.time() - start) < 60:
-                    time.sleep(60)    
+                    time.sleep(60)
