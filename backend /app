@@ -280,9 +280,9 @@ if __name__ == "__main__":
             os.path.join(working_dir, "sql/post_indexes.sql"),
         ]
         run_subprocess_cmd(basic_index_cmd)
-    print(
-        f"\nProcess Finished.  Total time taken : {str(datetime.timedelta(seconds=(time.time() - start_time)))}"
-    )
+        print(
+            f"\nProcess Finished.  Total time taken : {str(datetime.timedelta(seconds=(time.time() - start_time)))}"
+        )
     if args.replication:
         print("Starting Replication")
         replication_init = ["python", os.path.join(working_dir, "replication"), "init"]
@@ -300,7 +300,7 @@ if __name__ == "__main__":
                 "10",
             ]
             if args.country:
-                replication_cmd.extend(["--country", args.country])
+                replication_cmd.extend(["--country", f"{args.country}"])
             run_subprocess_cmd(replication_cmd)
             if args.run_minutely:
                 if (time.time() - start) < 60:

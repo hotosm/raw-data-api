@@ -40,6 +40,9 @@ CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_country_idx ON public.relati
 
 -- Clustering command , it is recommended for larger datasets , It will be easy for indexes to find right files faster , will also reduce coutry geom index size since all related rows will be clustered as block 
 
+-- clustering nodes
 CLUSTER nodes USING nodes_geom_idx;
+-- clustering ways_line
 CLUSTER ways_line USING ways_line_geom_idx;
+-- clustering ways_poly
 CLUSTER ways_poly USING ways_poly_geom_idx;

@@ -33,13 +33,11 @@ import sys
 import time
 from configparser import ConfigParser
 from enum import Enum
-from tqdm import tqdm
-
-from psycopg2 import *
-from psycopg2.extras import *
-
 
 from dateutil.relativedelta import relativedelta
+from psycopg2 import *
+from psycopg2.extras import *
+from tqdm import tqdm
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.DEBUG)
 
@@ -82,7 +80,17 @@ class Database:
         """Database class instance method used to connect to database parameters with error printing"""
 
         try:
-            self.conn = connect(**self.db_params) if self.db_params else connect( host=os.environ["PGHOST"],port=os.environ["PGPORT"],user=os.environ["PGUSER"],password=os.environ["PGPASSWORD"],database=os.environ["PGDATABASE"])
+            self.conn = (
+                connect(**self.db_params)
+                if self.db_params
+                else connect(
+                    host=os.environ["PGHOST"],
+                    port=os.environ["PGPORT"],
+                    user=os.environ["PGUSER"],
+                    password=os.environ["PGPASSWORD"],
+                    database=os.environ["PGDATABASE"],
+                )
+            )
             self.cur = self.conn.cursor(cursor_factory=DictCursor)
             # logging.debug("Database connection has been Successful...")
             return self.conn, self.cur
@@ -174,21 +182,20 @@ class Raw:
                 SELECT osm_id,{target_geom}
                 FROM {target_table}
                 WHERE ("timestamp" >= '{start}'
-                and "timestamp" <= '{end}') and {target_column} is null
+                and "timestamp" <= '{end}') 
             )
-            UPDATE {target_table} wp
+            update
+                {target_table} as wp
                 set
-                    {target_column} = array(
-                    select
-                        distinct {source_table}.{source_column}
-                    FROM table_filtered tf
-                    JOIN {source_table} 
-                    ON ST_Intersects( tf.{target_geom} , {source_table}.{source_geom})
-                    WHERE tf.osm_id = wp.osm_id
-                        )
-                where (
-                "timestamp" >= '{start}'
-                and "timestamp" <= '{end}' ) and {target_column} is null"""
+                {target_column} = array((
+                select
+                    cu.{source_column}
+                from {source_table} cu 
+                where ST_Intersects(tf.{target_geom},cu.{source_geom})
+                        ))
+                from table_filtered tf
+            where
+                wp.osm_id = tf.osm_id"""
         else:
             query = f"""
             WITH table_filtered AS(
@@ -239,7 +246,10 @@ class Raw:
             f"""----------Update has been started for target = {target_table}:{target_column} from source = {source_table}:{source_column} , Range {start_batch_date} - {end_batch_date} , frequency {batch_frequency.value}----------"""
         )
         looping_date = start_batch_date
-        with tqdm(total=(start_batch_date - end_batch_date).days, desc=f"Updating {target_table}:{target_column}") as pbar:
+        with tqdm(
+            total=(start_batch_date - end_batch_date).days,
+            desc=f"Updating {target_table}:{target_column}",
+        ) as pbar:
             while looping_date >= end_batch_date:
                 start_date = looping_date
                 end_date = assign_end_wrt_frequency(start_date, batch_frequency)
