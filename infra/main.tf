@@ -20,6 +20,8 @@ resource "azurerm_subnet" "raw-data" {
   resource_group_name  = azurerm_resource_group.raw-data.name
   virtual_network_name = azurerm_virtual_network.raw-data.name
   address_prefixes     = [cidrsubnet(azurerm_virtual_network.raw-data.address_space[0], 8, 0)]
+
+  service_endpoints = ["Microsoft.KeyVault"]
 }
 
 resource "random_string" "raw_data_db_password" {
