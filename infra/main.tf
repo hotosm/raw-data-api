@@ -29,17 +29,14 @@ resource "random_string" "raw_data_db_password" {
   override_special = "*()-_=+[]{}<>"
 }
 
+/** Key Vault stores database password
+**/
 resource "azurerm_key_vault" "raw-data" {
   name                = join("-", [var.project_name, var.deployment_environment])
   location            = azurerm_resource_group.raw-data.location
   resource_group_name = azurerm_resource_group.raw-data.name
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
-
-  enabled_for_deployment          = false
-  enabled_for_disk_encryption     = false
-  enabled_for_template_deployment = true
-  enable_rbac_authorization       = false
 
   network_acls {
     bypass                     = "AzureServices"
@@ -52,10 +49,9 @@ resource "azurerm_key_vault" "raw-data" {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = data.azurerm_client_config.current.object_id
 
-    certificate_permissions = [
-    ]
-
     key_permissions = [
+      "Create",
+      "Get",
     ]
 
     secret_permissions = [
@@ -70,15 +66,16 @@ resource "azurerm_key_vault" "raw-data" {
   purge_protection_enabled      = false
   public_network_access_enabled = false
   soft_delete_retention_days    = 7
-  contact {
-    email = "yogesh.girikumar@hotosm.org"
-    name  = "Yogesh Girikumar"
-    phone = "+1 123 456 789"
-  }
 
   tags = {
   }
 
+}
+
+resource "azurerm_key_vault_secret" "raw-data-db" {
+  name         = join("-", [var.project_name, "database", var.deployment_environment])
+  value        = random_string.raw_data_db_password.result
+  key_vault_id = azurerm_key_vault.raw-data.id
 }
 
 resource "azurerm_network_interface" "raw-data-backend" {
