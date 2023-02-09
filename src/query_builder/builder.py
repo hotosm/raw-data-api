@@ -25,7 +25,6 @@ from src.validation.models import SupportedFilters, SupportedGeometryFilters
 
 
 def get_grid_id_query(geometry_dump):
-
     base_query = f"""select
                         b.poly_id
                     from
@@ -37,7 +36,6 @@ def get_grid_id_query(geometry_dump):
 
 
 def get_country_id_query(geom_dump):
-
     base_query = f"""select
                         b.fid::int as fid
                     from
@@ -145,7 +143,6 @@ def generate_tag_filter_query(filter, join_by="OR", user_for_geojson=False):
 
     else:
         for key, value in filter.items():
-
             if len(value) > 1:
                 v_l = []
                 for lil in value:
@@ -416,7 +413,6 @@ def generate_where_clause_indexes_case(
     ):  # ignore the geometry take geom from the db itself by using precalculated field
         if c_id:
             where_clause = f"(country @> ARRAY{c_id})"
-
     return where_clause
 
 

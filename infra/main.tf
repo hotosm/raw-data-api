@@ -7,7 +7,7 @@ resource "azurerm_resource_group" "raw-data" {
 }
 
 resource "azurerm_virtual_network" "raw-data" {
-  name                = "raw-data-${var.deployment_environment}"
+  name                = join("-", [var.project_name, var.deployment_environment])
   resource_group_name = azurerm_resource_group.raw-data.name
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.raw-data.location
@@ -16,7 +16,7 @@ resource "azurerm_virtual_network" "raw-data" {
 }
 
 resource "azurerm_subnet" "raw-data" {
-  name                 = "raw-data-${var.deployment_environment}"
+  name                 = join("-", [var.project_name, var.deployment_environment])
   resource_group_name  = azurerm_resource_group.raw-data.name
   virtual_network_name = azurerm_virtual_network.raw-data.name
   address_prefixes     = [cidrsubnet(azurerm_virtual_network.raw-data.address_space[0], 8, 0)]
@@ -28,19 +28,19 @@ resource "random_string" "raw_data_db_password" {
 }
 
 resource "azurerm_key_vault" "raw-data" {
-  name                = "raw-data-${var.deployment_environment}"
+  name                = join("-", [var.project_name, var.deployment_environment])
   location            = azurerm_resource_group.raw-data.location
   resource_group_name = azurerm_resource_group.raw-data.name
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
-  enabled_for_deployment          = true
+  enabled_for_deployment          = false
   enabled_for_disk_encryption     = false
   enabled_for_template_deployment = true
   enable_rbac_authorization       = false
 
   network_acls {
-    bypass                     = "None"  // or "AzureServices"
+    bypass                     = "AzureServices"
     default_action             = "Allow" // Todo: Deny
     ip_rules                   = []
     virtual_network_subnet_ids = [azurerm_subnet.raw-data.id]
@@ -80,7 +80,7 @@ resource "azurerm_key_vault" "raw-data" {
 }
 
 resource "azurerm_network_interface" "raw-data-backend" {
-  name                = "raw-data-${var.deployment_environment}"
+  name                = join("-", [var.project_name, var.deployment_environment])
   location            = azurerm_resource_group.raw-data.location
   resource_group_name = azurerm_resource_group.raw-data.name
 
@@ -94,15 +94,15 @@ resource "azurerm_network_interface" "raw-data-backend" {
 resource "azurerm_linux_virtual_machine" "raw-data-backend" {
   admin_username        = lookup(var.admin_usernames, "backend")
   location              = var.arm_location
-  name                  = "raw_data_backend-${var.deployment_environment}"
+  name                  = join("-", [var.project_name, "backend", var.deployment_environment])
   network_interface_ids = [azurerm_network_interface.raw-data-backend.id]
   resource_group_name   = azurerm_resource_group.raw-data.name
   size                  = lookup(var.server_skus, "backend")
 
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "22.04-LTS"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
 
@@ -119,18 +119,18 @@ resource "azurerm_linux_virtual_machine" "raw-data-backend" {
     caching              = "None"
     storage_account_type = "StandardSSD_LRS" // StandardSSD_ZRS
     disk_size_gb         = lookup(var.disk_size, "backend_os")
-    name                 = "raw-data-${var.deployment_environment}"
+    name                 = join("-", [var.project_name, var.deployment_environment])
 
   }
 
   admin_ssh_key {
-    public_key = ""
+    public_key = var.ssh_public_key
     username   = lookup(var.admin_usernames, "backend")
   }
 }
 
 resource "azurerm_postgresql_flexible_server" "raw-data" {
-  name                = "raw-data-${var.deployment_environment}"
+  name                = join("-", [var.project_name, var.deployment_environment])
   resource_group_name = azurerm_resource_group.raw-data.name
   location            = azurerm_resource_group.raw-data.location
   sku_name            = lookup(var.server_skus, "database")
