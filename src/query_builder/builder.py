@@ -39,7 +39,7 @@ def get_grid_id_query(geometry_dump):
 def get_country_id_query(geom_dump):
 
     base_query = f"""select
-                        b.fid
+                        b.fid::int as fid
                     from
                         countries_un b
                     where

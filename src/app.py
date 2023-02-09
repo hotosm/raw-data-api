@@ -456,6 +456,7 @@ class RawData:
         geom_area = area(json_loads(geom.json())) * 1e-6
         # only apply grid in the logic if it exceeds the 5000 Sqkm
         grid_id = None
+        countries = []
 
         # country = None
 
@@ -467,11 +468,12 @@ class RawData:
             # count = 0
             result_country = cur.fetchall()
             logging.debug(result_country)
-            countries = [f[0] for f in result_country] 
+            
+            countries = [int(f[0]) for f in result_country] 
             if country_export:
                 if len(countries)>0:
                     for row in result_country:
-                        countries = row[0]  # get which has higher % intersection
+                        countries = [row[0]]  # get which has higher % intersection
                         break
             # for s in result_country:
             #     count += 1
