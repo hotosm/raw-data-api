@@ -40,7 +40,7 @@ resource "azurerm_key_vault" "raw-data" {
   enable_rbac_authorization       = false
 
   network_acls {
-    bypass                     = "None"  // or "AzureServices"
+    bypass                     = "AzureServices"
     default_action             = "Allow" // Todo: Deny
     ip_rules                   = []
     virtual_network_subnet_ids = [azurerm_subnet.raw-data.id]
