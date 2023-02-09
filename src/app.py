@@ -468,10 +468,10 @@ class RawData:
             # count = 0
             result_country = cur.fetchall()
             logging.debug(result_country)
-            
-            countries = [int(f[0]) for f in result_country] 
+
+            countries = [int(f[0]) for f in result_country]
             if country_export:
-                if len(countries)>0:
+                if len(countries) > 0:
                     for row in result_country:
                         countries = [row[0]]  # get which has higher % intersection
                         break
@@ -499,7 +499,12 @@ class RawData:
             #     #     cur.execute(get_grid_id_query(geometry_dump))
             #     #     grid_id = cur.fetchall()
             cur.close()
-        return grid_id, geometry_dump, geom_area, countries if len(countries)>0 else None
+        return (
+            grid_id,
+            geometry_dump,
+            geom_area,
+            countries if len(countries) > 0 else None,
+        )
 
     @staticmethod
     def to_geojson_raw(results):
