@@ -56,6 +56,7 @@ resource "azurerm_key_vault" "raw-data" {
     ]
 
     secret_permissions = [
+      "Set",
       "Get",
       "List",
     ]
