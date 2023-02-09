@@ -19,7 +19,7 @@ def get_task_status(
     task_id
 )
 ```
-Tracks the request from the task id provided by export tool api for the request
+Tracks the request from the task id provided by Raw Data API  for the request
 
 Args:
 
