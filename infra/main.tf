@@ -51,7 +51,7 @@ resource "azurerm_key_vault" "raw-data" {
     object_id = data.azurerm_client_config.current.object_id
 
     key_permissions = [
-      "Create",
+      "List",
       "Get",
     ]
 
@@ -64,9 +64,8 @@ resource "azurerm_key_vault" "raw-data" {
     ]
   }
 
-  purge_protection_enabled      = false
-  public_network_access_enabled = false
-  soft_delete_retention_days    = 7
+  purge_protection_enabled   = false
+  soft_delete_retention_days = 7
 
   tags = {
   }
