@@ -1,3 +1,4 @@
+data "tfe_ip_ranges" "addresses" {}
 
 data "azurerm_client_config" "current" {}
 
@@ -41,7 +42,7 @@ resource "azurerm_key_vault" "raw-data" {
   network_acls {
     bypass                     = "AzureServices"
     default_action             = "Allow" // Todo: Deny
-    ip_rules                   = []
+    ip_rules                   = data.tfe_ip_ranges.addresses.api
     virtual_network_subnet_ids = [azurerm_subnet.raw-data.id]
   }
 
@@ -135,12 +136,15 @@ resource "azurerm_postgresql_flexible_server" "raw-data" {
   sku_name            = lookup(var.server_skus, "database")
 
   administrator_login    = lookup(var.admin_usernames, "database")
-  administrator_password = random_string.raw_data_db_password.result
+  administrator_password = azurerm_key_vault_secret.raw-data-db.value
+
   authentication {
   }
+
   backup_retention_days        = 7
   geo_redundant_backup_enabled = false
   storage_mb                   = 2097152
+
   tags = {
   }
 
