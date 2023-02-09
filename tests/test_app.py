@@ -24,7 +24,6 @@ from src.validation.models import RawDataCurrentParams
 
 
 def test_rawdata_current_snapshot_geometry_query():
-
     test_param = {
         "geometry": {
             "type": "Polygon",
