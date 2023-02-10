@@ -43,24 +43,25 @@
     ```
 
     Options : 
-        ```
-        -h, --help            show this help message and exit
-        --source SOURCE       Data source link or file path
-        --host HOST           DB host
-        --port PORT           DB port
-        --user USER           DB user
-        --password PASSWORD   DB password
-        --database DATABASE   DB name
-        --include_ref         Include ref in output tables
-        --replication         Prepare tables for replication and Runs Replication
-        --run_minutely        Runs replication every minute
-        --country COUNTRY     Fid of the country , if you are loading country , it will filter replication data
-        --insert              Run osm2pgsql to insert data , Initial Creation Step
-        --update              Run Update on table fields for country info
-        --download_dir DOWNLOAD_DIR
-                                The directory to download the source file to
-        --post_index          Run Post index only on table
-        ```
+    
+    ```
+    -h, --help            show this help message and exit
+    --source SOURCE       Data source link or file path
+    --host HOST           DB host
+    --port PORT           DB port
+    --user USER           DB user
+    --password PASSWORD   DB password
+    --database DATABASE   DB name
+    --include_ref         Include ref in output tables
+    --replication         Prepare tables for replication and Runs Replication
+    --run_minutely        Runs replication every minute
+    --country COUNTRY     Fid of the country , if you are loading country , it will filter replication data
+    --insert              Run osm2pgsql to insert data , Initial Creation Step
+    --update              Run Update on table fields for country info
+    --download_dir DOWNLOAD_DIR
+                            The directory to download the source file to
+    --post_index          Run Post index only on table
+    ```
 
 
     >You can Download Planet pbf file [Here](https://planet.osm.org/pbf/) or Use Geofabrik Pbf file [Here](https://osm-internal.download.geofabrik.de/index.html) with full metadata (Tested with .pbf file) , you can pass download link to script itself . Follow -h help
