@@ -160,3 +160,9 @@ resource "azurerm_postgresql_flexible_server" "raw-data" {
   version = 14
   zone    = "1"
 }
+
+resource "azurerm_postgresql_flexible_server_configuration" "raw-data-postgis" {
+  name      = join("-", [var.project_name, var.deployment_environment])
+  server_id = azurerm_postgresql_flexible_server.raw-data.id
+  value     = "BTREE_GIST,INTARRAY,POSTGIS"
+}
