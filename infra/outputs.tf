@@ -23,5 +23,12 @@ output "default_backend_ssh_string" {
 
 output "raw-data-redis-endpoint" {
   description = "Redis cache service endpoint"
-  value       = azurerm_redis_cache.raw-data-queue.hostname
+  value = join(
+    ":",
+    [
+      azurerm_redis_cache.raw-data-queue.hostname,
+      azurerm_redis_cache.raw-data-queue.ssl_port
+    ]
+  )
 }
+
