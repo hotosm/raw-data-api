@@ -1,0 +1,45 @@
+name: 'Terraform Checks'
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  terraform-hcl-format-check:
+    name: 'Code formating'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Check code formating
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Initialise modules
+        id: init
+        run: terraform init
+
+      - name: Validate template
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Run Terrascan
+        id: terrascan
+        uses: tenable/terrascan-action@main
+        with:
+          iac_type: 'terraform'
+          iac_dir: "./infra"
+          iac_version: 'v14'
+          policy_type: 'all'
+          only_warn: true
+
