@@ -166,3 +166,17 @@ resource "azurerm_postgresql_flexible_server_configuration" "raw-data-postgis" {
   server_id = azurerm_postgresql_flexible_server.raw-data.id
   value     = "BTREE_GIST,INTARRAY,POSTGIS"
 }
+
+resource "azurerm_redis_cache" "raw-data-queue" {
+  name                = join("-", [var.project_name, var.deployment_environment])
+  resource_group_name = azurerm_resource_group.raw-data.name
+  location            = azurerm_resource_group.raw-data.location
+  capacity            = 0
+  family              = "C"
+  sku_name            = "Basic"
+
+  minimum_tls_version = "1.2"
+  redis_version       = 6
+
+
+}
