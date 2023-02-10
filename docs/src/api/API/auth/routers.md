@@ -19,7 +19,7 @@ def callback(
     request: starlette.requests.Request
 )
 ```
-Performs token exchange between OpenStreetMap and Export tool API
+Performs token exchange between OpenStreetMap and Raw Data API 
 
 Core will use Oauth secret key from configuration while deserializing token,
 provides access token that can be used for authorized endpoints.

@@ -1,1 +1,1490 @@
-{"openapi":"3.0.2","info":{"title":"Export tool API","version":"1"},"servers":[{"url":"/latest"}],"paths":{"/status/":{"get":{"summary":"Check Database Last Updated","description":"Gives status about how recent the osm data is , it will give the last time that database was updated completely","operationId":"check_database_last_updated_status__get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/StatusResponse"}}}}}}},"/snapshot/":{"post":{"summary":"Get Osm Current Snapshot As File","description":"Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features.\n\nSteps to Run Snapshot :\n\n1.  Post the your request here and your request will be on queue, endpoint will return as following :\n    {\n        \"task_id\": \"your task_id\",\n        \"track_link\": \"/tasks/task_id/\"\n    }\n2. Now navigate to /tasks/ with your task id to track progress and result","operationId":"get_osm_current_snapshot_as_file_snapshot__post","requestBody":{"content":{"application/json":{"schema":{"title":"Params","allOf":[{"$ref":"#/components/schemas/RawDataCurrentParams"}],"default":{}},"examples":{"normal":{"summary":"Example : Extract Evertyhing in the area","description":"**Query** to Extract everything in the area , You can pass your geometry only and you will get everything on that area","value":{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}},"fileformats":{"summary":"An example with different file formats and filename","description":"Export tool api can export data into multiple file formats . See outputype for more details","value":{"outputType":"shp","fileName":"Pokhara_all_features","geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}},"filters":{"summary":"An example with filters and geometry type","description":"Export tool api supports different kind of filters on both attributes and tags . See filters for more details","value":{"outputType":"geojson","fileName":"Pokhara_buildings","geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]},"filters":{"tags":{"all_geometry":{"building":[]}},"attributes":{"all_geometry":["name"]}},"geometryType":["point","polygon"]}},"filters2":{"summary":"An example with more filters","description":"Export tool api supports different kind of filters on both attributes and tags . See filters for more details","value":{"geometry":{"type":"Polygon","coordinates":[[[83.585701,28.046607],[83.585701,28.382561],[84.391823,28.382561],[84.391823,28.046607],[83.585701,28.046607]]]},"fileName":"my export","outputType":"geojson","geometryType":["point","polygon"],"filters":{"tags":{"all_geometry":{"building":[],"amenity":["cafe","restaurant","pub"]}},"attributes":{"all_geometry":["name","addr"]}},"joinFilterType":"OR"}},"allfilters":{"summary":"An example with multiple level of filters","description":"Export tool api supports multiple level of filters on point line polygon . See filters for more details","value":{"fileName":"Example export with all features","geometry":{"type":"Polygon","coordinates":[[[83.585701,28.046607],[83.585701,28.382561],[84.391823,28.382561],[84.391823,28.046607],[83.585701,28.046607]]]},"outputType":"geojson","geometryType":["point","line","polygon"],"filters":{"tags":{"point":{"amenity":["bank","ferry_terminal","bus_station","fuel","kindergarten","school","college","university","place_of_worship","marketplace","clinic","hospital","police","fire_station"],"building":["bank","aerodrome","ferry_terminal","train_station","bus_station","pumping_station","power_substation","kindergarten","school","college","university","mosque "," church "," temple","supermarket","marketplace","clinic","hospital","police","fire_station","stadium "," sports_centre","governor_office "," townhall "," subdistrict_office "," village_office "," community_group_office","government_office"],"man_made":["tower","water_tower","pumping_station"],"tower:type":["communication"],"aeroway":["aerodrome"],"railway":["station"],"emergency":["fire_hydrant"],"landuse":["reservoir","recreation_gound"],"waterway":["floodgate"],"natural":["spring"],"power":["tower","substation"],"shop":["supermarket"],"leisure":["stadium "," sports_centre "," pitch "," swimming_pool","park"],"office":["government"]},"line":{"highway":["motorway "," trunk "," primary "," secondary "," tertiary "," service "," residential "," pedestrian "," path "," living_street "," track"],"railway":["rail"],"man_made":["embankment"],"waterway":[]},"polygon":{"amenity":["bank","ferry_terminal","bus_station","fuel","kindergarten","school","college","university","place_of_worship","marketplace","clinic","hospital","police","fire_station"],"building":["bank","aerodrome","ferry_terminal","train_station","bus_station","pumping_station","power_substation","power_plant","kindergarten","school","college","university","mosque "," church "," temple","supermarket","marketplace","clinic","hospital","police","fire_station","stadium "," sports_centre","governor_office "," townhall "," subdistrict_office "," village_office "," community_group_office","government_office"],"man_made":["tower","water_tower","pumping_station"],"tower:type":["communication"],"aeroway":["aerodrome"],"railway":["station"],"landuse":["reservoir","recreation_gound"],"waterway":[],"natural":["spring"],"power":["substation","plant"],"shop":["supermarket"],"leisure":["stadium "," sports_centre "," pitch "," swimming_pool","park"],"office":["government"],"type":["boundary"],"boundary":["administrative"]}},"attributes":{"point":["building","ground_floor:height","capacity:persons","building:structure","building:condition","name","admin_level","building:material","office","building:roof","backup_generator","access:roof","building:levels","building:floor","addr:full","addr:city","source"],"line":["width","source","waterway","name"],"polygon":["landslide_prone","name","admin_level","type","is_in:town","flood_prone","is_in:province","is_in:city","is_in:municipality","is_in:RW","is_in:village","source","boundary"]}}}}}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SnapshotResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/snapshot/plain/":{"post":{"summary":"Get Current Snapshot As Plain Geojson","description":"Simple API to get osm features as geojson for small region. This is designed only for querying small data for large data follow /snapshot/\n\nParams ::\n\n    bbox: Optional List = takes xmin, ymin, xmax, ymax uses srid=4326\n    select: List = this is select query  you can pass [*] to select all attribute\n    where: List[WhereCondition] = [{'key': 'building', 'value': ['*']},{'key':'amenity','value':['school','college']}]\n    join_by: Optional[JoinFilterType] = or/ and\n    look_in: Optional[List[OsmFeatureType]] = [\"nodes\", \"ways_poly\",\"ways_line\",\"relations\"] : tables name","operationId":"get_current_snapshot_as_plain_geojson_snapshot_plain__post","requestBody":{"content":{"application/json":{"schema":{"title":"Params","allOf":[{"$ref":"#/components/schemas/SnapshotParamsPlain"}],"default":{}},"examples":{"normal":{"summary":"Example : Country Boundary","description":"**Query** to extract administrative boundary of nepal in plain geojson format","value":{"select":["name"],"where":[{"key":"admin_level","value":["2"]},{"key":"boundary","value":["administrative"]},{"key":"name:en","value":["Nepal"]}],"joinBy":"AND","lookIn":["relations"]}},"second":{"summary":"Example : City Boundary","description":"**Query** to extract city bounadry in plain geojson format","value":{"select":["name"],"where":[{"key":"admin_level","value":["7"]},{"key":"boundary","value":["administrative"]},{"key":"name","value":["Pokhara"]}],"joinBy":"AND","lookIn":["relations"]}}}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"title":"Response Get Current Snapshot As Plain Geojson Snapshot Plain  Post","type":"object"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/tasks/status/{task_id}/":{"get":{"summary":"Get Task Status","description":"Tracks the request from the task id provided by export tool api for the request\n\nArgs:\n\n    task_id ([type]): [Unique id provided on response from /snapshot/]\n\nReturns:\n\n    id: Id of the task\n    status : SUCCESS / PENDING\n    result : Result of task\n\nSuccessful task will have additional nested json inside","operationId":"get_task_status_tasks_status__task_id___get","parameters":[{"required":true,"schema":{"title":"Task Id"},"name":"task_id","in":"path"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SnapshotTaskResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}}},"components":{"schemas":{"AttributeFilter":{"title":"AttributeFilter","type":"object","properties":{"point":{"title":"Point","type":"array","items":{"type":"string"}},"line":{"title":"Line","type":"array","items":{"type":"string"}},"polygon":{"title":"Polygon","type":"array","items":{"type":"string"}},"allGeometry":{"title":"Allgeometry","type":"array","items":{"type":"string"}}},"additionalProperties":false},"Filters":{"title":"Filters","type":"object","properties":{"tags":{"$ref":"#/components/schemas/TagsFilter"},"attributes":{"$ref":"#/components/schemas/AttributeFilter"}},"additionalProperties":false},"HTTPValidationError":{"title":"HTTPValidationError","type":"object","properties":{"detail":{"title":"Detail","type":"array","items":{"$ref":"#/components/schemas/ValidationError"}}}},"JoinFilterType":{"title":"JoinFilterType","enum":["OR","AND"],"description":"An enumeration."},"MultiPolygon":{"title":"MultiPolygon","required":["coordinates"],"type":"object","properties":{"coordinates":{"title":"Coordinates","type":"array","items":{"type":"array","items":{"type":"array","items":{"anyOf":[{"type":"array","minItems":2,"maxItems":2,"items":[{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]}]},{"type":"array","minItems":3,"maxItems":3,"items":[{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]}]}]}}}},"type":{"title":"Type","type":"string","default":"MultiPolygon"}},"description":"MultiPolygon Model"},"OsmFeatureType":{"title":"OsmFeatureType","enum":["nodes","ways_line","ways_poly","relations"],"description":"An enumeration."},"Polygon":{"title":"Polygon","required":["coordinates"],"type":"object","properties":{"coordinates":{"title":"Coordinates","type":"array","items":{"type":"array","items":{"anyOf":[{"type":"array","minItems":2,"maxItems":2,"items":[{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]}]},{"type":"array","minItems":3,"maxItems":3,"items":[{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]}]}]}}},"type":{"title":"Type","type":"string","default":"Polygon"}},"description":"Polygon Model"},"RawDataCurrentParams":{"title":"RawDataCurrentParams","type":"object","properties":{"outputType":{"allOf":[{"$ref":"#/components/schemas/RawDataOutputType"}],"default":"geojson","example":"geojson"},"minZoom":{"title":"Minzoom","type":"integer","description":"Only for mbtiles"},"maxZoom":{"title":"Maxzoom","type":"integer","description":"Only for mbtiles"},"fileName":{"title":"Filename","type":"string","example":"My test export"},"geometryType":{"type":"array","items":{"$ref":"#/components/schemas/SupportedGeometryFilters"},"example":["point","polygon"]},"joinFilterType":{"allOf":[{"$ref":"#/components/schemas/JoinFilterType"}],"description":"Where condition (filters above) join by","default":"OR","example":"OR"},"countryExport":{"title":"Countryexport","type":"boolean","description":"Intersects the passed geom to country boundary if set to true and exports whole country : Use with Caution , May take hours","default":false,"example":"false"},"filters":{"title":"Filters","allOf":[{"$ref":"#/components/schemas/Filters"}],"description":"Filter for point,line,polygon/ all geometry for both select and where clause","example":{"tags":{"all_geometry":{"building":[]}},"attributes":{"all_geometry":["name"]}}},"geometry":{"title":"Geometry","anyOf":[{"$ref":"#/components/schemas/Polygon"},{"$ref":"#/components/schemas/MultiPolygon"}],"example":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}},"additionalProperties":false},"RawDataOutputType":{"title":"RawDataOutputType","enum":["geojson","kml","shp","fgb","mbtiles","gpkg","sql","csv"],"description":"An enumeration."},"SnapshotParamsPlain":{"title":"SnapshotParamsPlain","type":"object","properties":{"bbox":{"title":"Bbox","anyOf":[{"type":"array","minItems":4,"maxItems":4,"items":[{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]}]},{"type":"array","minItems":6,"maxItems":6,"items":[{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]},{"anyOf":[{"type":"number"},{"type":"integer"}]}]}]},"select":{"title":"Select","type":"array","items":{"type":"string"},"default":["*"]},"where":{"title":"Where","type":"array","items":{"$ref":"#/components/schemas/WhereCondition"},"default":[{"key":"building","value":["*"]}]},"joinBy":{"allOf":[{"$ref":"#/components/schemas/JoinFilterType"}],"default":"OR"},"lookIn":{"type":"array","items":{"$ref":"#/components/schemas/OsmFeatureType"},"default":["nodes","ways_poly"]},"geometryType":{"$ref":"#/components/schemas/SupportedGeometryFilters"}},"additionalProperties":false},"SnapshotResponse":{"title":"SnapshotResponse","required":["taskId","trackLink"],"type":"object","properties":{"taskId":{"title":"Taskid","type":"string"},"trackLink":{"title":"Tracklink","type":"string"}},"additionalProperties":false,"example":{"task_id":"aa539af6-83d4-4aa3-879e-abf14fffa03f","track_link":"/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/"}},"SnapshotTaskResponse":{"title":"SnapshotTaskResponse","required":["id","status","result"],"type":"object","properties":{"id":{"title":"Id","type":"string"},"status":{"title":"Status","type":"string"},"result":{"$ref":"#/components/schemas/SnapshotTaskResult"}},"additionalProperties":false,"example":{"id":"3fded368-456f-4ef4-a1b8-c099a7f77ca4","status":"SUCCESS","result":{"download_url":"https://s3.us-east-1.amazonaws.com/exports-stage.hotosm.org/Raw_Export_3fded368-456f-4ef4-a1b8-c099a7f77ca4_GeoJSON.zip","file_name":"Raw_Export_3fded368-456f-4ef4-a1b8-c099a7f77ca4_GeoJSON","response_time":"0:00:12.175976","query_area":"6 Sq Km ","binded_file_size":"7 MB","zip_file_size_bytes":1331601}}},"SnapshotTaskResult":{"title":"SnapshotTaskResult","required":["downloadUrl","fileName","responseTime","queryArea","bindedFileSize","zipFileSizeBytes"],"type":"object","properties":{"downloadUrl":{"title":"Downloadurl","type":"string"},"fileName":{"title":"Filename","type":"string"},"responseTime":{"title":"Responsetime","type":"string"},"queryArea":{"title":"Queryarea","type":"string"},"bindedFileSize":{"title":"Bindedfilesize","type":"string"},"zipFileSizeBytes":{"title":"Zipfilesizebytes","type":"integer"}},"additionalProperties":false},"StatusResponse":{"title":"StatusResponse","required":["lastUpdated"],"type":"object","properties":{"lastUpdated":{"title":"Lastupdated","type":"string"}},"additionalProperties":false,"example":{"lastUpdated":"2022-06-27 19:59:24+05:45"}},"SupportedGeometryFilters":{"title":"SupportedGeometryFilters","enum":["point","line","polygon","all_geometry"],"description":"An enumeration."},"TagsFilter":{"title":"TagsFilter","type":"object","properties":{"point":{"title":"Point","type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"line":{"title":"Line","type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"polygon":{"title":"Polygon","type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"allGeometry":{"title":"Allgeometry","type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"additionalProperties":false},"ValidationError":{"title":"ValidationError","required":["loc","msg","type"],"type":"object","properties":{"loc":{"title":"Location","type":"array","items":{"type":"string"}},"msg":{"title":"Message","type":"string"},"type":{"title":"Error Type","type":"string"}}},"WhereCondition":{"title":"WhereCondition","required":["key","value"],"type":"object","properties":{"key":{"title":"Key","type":"string"},"value":{"title":"Value","type":"array","items":{"type":"string"}}},"additionalProperties":false}}}}
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Raw Data API ",
+        "version": "1"
+    },
+    "servers": [
+        {
+            "url": "/latest"
+        }
+    ],
+    "paths": {
+        "/status/": {
+            "get": {
+                "summary": "Check Database Last Updated",
+                "description": "Gives status about how recent the osm data is , it will give the last time that database was updated completely",
+                "operationId": "check_database_last_updated_status__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/snapshot/": {
+            "post": {
+                "summary": "Get Osm Current Snapshot As File",
+                "description": "Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features.\n\nSteps to Run Snapshot :\n\n1.  Post the your request here and your request will be on queue, endpoint will return as following :\n    {\n        \"task_id\": \"your task_id\",\n        \"track_link\": \"/tasks/task_id/\"\n    }\n2. Now navigate to /tasks/ with your task id to track progress and result",
+                "operationId": "get_osm_current_snapshot_as_file_snapshot__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "title": "Params",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/RawDataCurrentParams"
+                                    }
+                                ],
+                                "default": {}
+                            },
+                            "examples": {
+                                "normal": {
+                                    "summary": "Example : Extract Evertyhing in the area",
+                                    "description": "**Query** to Extract everything in the area , You can pass your geometry only and you will get everything on that area",
+                                    "value": {
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        83.96919250488281,
+                                                        28.194446860487773
+                                                    ],
+                                                    [
+                                                        83.99751663208006,
+                                                        28.194446860487773
+                                                    ],
+                                                    [
+                                                        83.99751663208006,
+                                                        28.214869548073377
+                                                    ],
+                                                    [
+                                                        83.96919250488281,
+                                                        28.214869548073377
+                                                    ],
+                                                    [
+                                                        83.96919250488281,
+                                                        28.194446860487773
+                                                    ]
+                                                ]
+                                            ]
+                                        }
+                                    }
+                                },
+                                "fileformats": {
+                                    "summary": "An example with different file formats and filename",
+                                    "description": "Raw Data API  can export data into multiple file formats . See outputype for more details",
+                                    "value": {
+                                        "outputType": "shp",
+                                        "fileName": "Pokhara_all_features",
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        83.96919250488281,
+                                                        28.194446860487773
+                                                    ],
+                                                    [
+                                                        83.99751663208006,
+                                                        28.194446860487773
+                                                    ],
+                                                    [
+                                                        83.99751663208006,
+                                                        28.214869548073377
+                                                    ],
+                                                    [
+                                                        83.96919250488281,
+                                                        28.214869548073377
+                                                    ],
+                                                    [
+                                                        83.96919250488281,
+                                                        28.194446860487773
+                                                    ]
+                                                ]
+                                            ]
+                                        }
+                                    }
+                                },
+                                "filters": {
+                                    "summary": "An example with filters and geometry type",
+                                    "description": "Raw Data API  supports different kind of filters on both attributes and tags . See filters for more details",
+                                    "value": {
+                                        "outputType": "geojson",
+                                        "fileName": "Pokhara_buildings",
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        83.96919250488281,
+                                                        28.194446860487773
+                                                    ],
+                                                    [
+                                                        83.99751663208006,
+                                                        28.194446860487773
+                                                    ],
+                                                    [
+                                                        83.99751663208006,
+                                                        28.214869548073377
+                                                    ],
+                                                    [
+                                                        83.96919250488281,
+                                                        28.214869548073377
+                                                    ],
+                                                    [
+                                                        83.96919250488281,
+                                                        28.194446860487773
+                                                    ]
+                                                ]
+                                            ]
+                                        },
+                                        "filters": {
+                                            "tags": {
+                                                "all_geometry": {
+                                                    "building": []
+                                                }
+                                            },
+                                            "attributes": {
+                                                "all_geometry": [
+                                                    "name"
+                                                ]
+                                            }
+                                        },
+                                        "geometryType": [
+                                            "point",
+                                            "polygon"
+                                        ]
+                                    }
+                                },
+                                "filters2": {
+                                    "summary": "An example with more filters",
+                                    "description": "Raw Data API  supports different kind of filters on both attributes and tags . See filters for more details",
+                                    "value": {
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        83.585701,
+                                                        28.046607
+                                                    ],
+                                                    [
+                                                        83.585701,
+                                                        28.382561
+                                                    ],
+                                                    [
+                                                        84.391823,
+                                                        28.382561
+                                                    ],
+                                                    [
+                                                        84.391823,
+                                                        28.046607
+                                                    ],
+                                                    [
+                                                        83.585701,
+                                                        28.046607
+                                                    ]
+                                                ]
+                                            ]
+                                        },
+                                        "fileName": "my export",
+                                        "outputType": "geojson",
+                                        "geometryType": [
+                                            "point",
+                                            "polygon"
+                                        ],
+                                        "filters": {
+                                            "tags": {
+                                                "all_geometry": {
+                                                    "building": [],
+                                                    "amenity": [
+                                                        "cafe",
+                                                        "restaurant",
+                                                        "pub"
+                                                    ]
+                                                }
+                                            },
+                                            "attributes": {
+                                                "all_geometry": [
+                                                    "name",
+                                                    "addr"
+                                                ]
+                                            }
+                                        },
+                                        "joinFilterType": "OR"
+                                    }
+                                },
+                                "allfilters": {
+                                    "summary": "An example with multiple level of filters",
+                                    "description": "Raw Data API  supports multiple level of filters on point line polygon . See filters for more details",
+                                    "value": {
+                                        "fileName": "Example export with all features",
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        83.585701,
+                                                        28.046607
+                                                    ],
+                                                    [
+                                                        83.585701,
+                                                        28.382561
+                                                    ],
+                                                    [
+                                                        84.391823,
+                                                        28.382561
+                                                    ],
+                                                    [
+                                                        84.391823,
+                                                        28.046607
+                                                    ],
+                                                    [
+                                                        83.585701,
+                                                        28.046607
+                                                    ]
+                                                ]
+                                            ]
+                                        },
+                                        "outputType": "geojson",
+                                        "geometryType": [
+                                            "point",
+                                            "line",
+                                            "polygon"
+                                        ],
+                                        "filters": {
+                                            "tags": {
+                                                "point": {
+                                                    "amenity": [
+                                                        "bank",
+                                                        "ferry_terminal",
+                                                        "bus_station",
+                                                        "fuel",
+                                                        "kindergarten",
+                                                        "school",
+                                                        "college",
+                                                        "university",
+                                                        "place_of_worship",
+                                                        "marketplace",
+                                                        "clinic",
+                                                        "hospital",
+                                                        "police",
+                                                        "fire_station"
+                                                    ],
+                                                    "building": [
+                                                        "bank",
+                                                        "aerodrome",
+                                                        "ferry_terminal",
+                                                        "train_station",
+                                                        "bus_station",
+                                                        "pumping_station",
+                                                        "power_substation",
+                                                        "kindergarten",
+                                                        "school",
+                                                        "college",
+                                                        "university",
+                                                        "mosque ",
+                                                        " church ",
+                                                        " temple",
+                                                        "supermarket",
+                                                        "marketplace",
+                                                        "clinic",
+                                                        "hospital",
+                                                        "police",
+                                                        "fire_station",
+                                                        "stadium ",
+                                                        " sports_centre",
+                                                        "governor_office ",
+                                                        " townhall ",
+                                                        " subdistrict_office ",
+                                                        " village_office ",
+                                                        " community_group_office",
+                                                        "government_office"
+                                                    ],
+                                                    "man_made": [
+                                                        "tower",
+                                                        "water_tower",
+                                                        "pumping_station"
+                                                    ],
+                                                    "tower:type": [
+                                                        "communication"
+                                                    ],
+                                                    "aeroway": [
+                                                        "aerodrome"
+                                                    ],
+                                                    "railway": [
+                                                        "station"
+                                                    ],
+                                                    "emergency": [
+                                                        "fire_hydrant"
+                                                    ],
+                                                    "landuse": [
+                                                        "reservoir",
+                                                        "recreation_gound"
+                                                    ],
+                                                    "waterway": [
+                                                        "floodgate"
+                                                    ],
+                                                    "natural": [
+                                                        "spring"
+                                                    ],
+                                                    "power": [
+                                                        "tower",
+                                                        "substation"
+                                                    ],
+                                                    "shop": [
+                                                        "supermarket"
+                                                    ],
+                                                    "leisure": [
+                                                        "stadium ",
+                                                        " sports_centre ",
+                                                        " pitch ",
+                                                        " swimming_pool",
+                                                        "park"
+                                                    ],
+                                                    "office": [
+                                                        "government"
+                                                    ]
+                                                },
+                                                "line": {
+                                                    "highway": [
+                                                        "motorway ",
+                                                        " trunk ",
+                                                        " primary ",
+                                                        " secondary ",
+                                                        " tertiary ",
+                                                        " service ",
+                                                        " residential ",
+                                                        " pedestrian ",
+                                                        " path ",
+                                                        " living_street ",
+                                                        " track"
+                                                    ],
+                                                    "railway": [
+                                                        "rail"
+                                                    ],
+                                                    "man_made": [
+                                                        "embankment"
+                                                    ],
+                                                    "waterway": []
+                                                },
+                                                "polygon": {
+                                                    "amenity": [
+                                                        "bank",
+                                                        "ferry_terminal",
+                                                        "bus_station",
+                                                        "fuel",
+                                                        "kindergarten",
+                                                        "school",
+                                                        "college",
+                                                        "university",
+                                                        "place_of_worship",
+                                                        "marketplace",
+                                                        "clinic",
+                                                        "hospital",
+                                                        "police",
+                                                        "fire_station"
+                                                    ],
+                                                    "building": [
+                                                        "bank",
+                                                        "aerodrome",
+                                                        "ferry_terminal",
+                                                        "train_station",
+                                                        "bus_station",
+                                                        "pumping_station",
+                                                        "power_substation",
+                                                        "power_plant",
+                                                        "kindergarten",
+                                                        "school",
+                                                        "college",
+                                                        "university",
+                                                        "mosque ",
+                                                        " church ",
+                                                        " temple",
+                                                        "supermarket",
+                                                        "marketplace",
+                                                        "clinic",
+                                                        "hospital",
+                                                        "police",
+                                                        "fire_station",
+                                                        "stadium ",
+                                                        " sports_centre",
+                                                        "governor_office ",
+                                                        " townhall ",
+                                                        " subdistrict_office ",
+                                                        " village_office ",
+                                                        " community_group_office",
+                                                        "government_office"
+                                                    ],
+                                                    "man_made": [
+                                                        "tower",
+                                                        "water_tower",
+                                                        "pumping_station"
+                                                    ],
+                                                    "tower:type": [
+                                                        "communication"
+                                                    ],
+                                                    "aeroway": [
+                                                        "aerodrome"
+                                                    ],
+                                                    "railway": [
+                                                        "station"
+                                                    ],
+                                                    "landuse": [
+                                                        "reservoir",
+                                                        "recreation_gound"
+                                                    ],
+                                                    "waterway": [],
+                                                    "natural": [
+                                                        "spring"
+                                                    ],
+                                                    "power": [
+                                                        "substation",
+                                                        "plant"
+                                                    ],
+                                                    "shop": [
+                                                        "supermarket"
+                                                    ],
+                                                    "leisure": [
+                                                        "stadium ",
+                                                        " sports_centre ",
+                                                        " pitch ",
+                                                        " swimming_pool",
+                                                        "park"
+                                                    ],
+                                                    "office": [
+                                                        "government"
+                                                    ],
+                                                    "type": [
+                                                        "boundary"
+                                                    ],
+                                                    "boundary": [
+                                                        "administrative"
+                                                    ]
+                                                }
+                                            },
+                                            "attributes": {
+                                                "point": [
+                                                    "building",
+                                                    "ground_floor:height",
+                                                    "capacity:persons",
+                                                    "building:structure",
+                                                    "building:condition",
+                                                    "name",
+                                                    "admin_level",
+                                                    "building:material",
+                                                    "office",
+                                                    "building:roof",
+                                                    "backup_generator",
+                                                    "access:roof",
+                                                    "building:levels",
+                                                    "building:floor",
+                                                    "addr:full",
+                                                    "addr:city",
+                                                    "source"
+                                                ],
+                                                "line": [
+                                                    "width",
+                                                    "source",
+                                                    "waterway",
+                                                    "name"
+                                                ],
+                                                "polygon": [
+                                                    "landslide_prone",
+                                                    "name",
+                                                    "admin_level",
+                                                    "type",
+                                                    "is_in:town",
+                                                    "flood_prone",
+                                                    "is_in:province",
+                                                    "is_in:city",
+                                                    "is_in:municipality",
+                                                    "is_in:RW",
+                                                    "is_in:village",
+                                                    "source",
+                                                    "boundary"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SnapshotResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/snapshot/plain/": {
+            "post": {
+                "summary": "Get Current Snapshot As Plain Geojson",
+                "description": "Simple API to get osm features as geojson for small region. This is designed only for querying small data for large data follow /snapshot/\n\nParams ::\n\n    bbox: Optional List = takes xmin, ymin, xmax, ymax uses srid=4326\n    select: List = this is select query  you can pass [*] to select all attribute\n    where: List[WhereCondition] = [{'key': 'building', 'value': ['*']},{'key':'amenity','value':['school','college']}]\n    join_by: Optional[JoinFilterType] = or/ and\n    look_in: Optional[List[OsmFeatureType]] = [\"nodes\", \"ways_poly\",\"ways_line\",\"relations\"] : tables name",
+                "operationId": "get_current_snapshot_as_plain_geojson_snapshot_plain__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "title": "Params",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/SnapshotParamsPlain"
+                                    }
+                                ],
+                                "default": {}
+                            },
+                            "examples": {
+                                "normal": {
+                                    "summary": "Example : Country Boundary",
+                                    "description": "**Query** to extract administrative boundary of nepal in plain geojson format",
+                                    "value": {
+                                        "select": [
+                                            "name"
+                                        ],
+                                        "where": [
+                                            {
+                                                "key": "admin_level",
+                                                "value": [
+                                                    "2"
+                                                ]
+                                            },
+                                            {
+                                                "key": "boundary",
+                                                "value": [
+                                                    "administrative"
+                                                ]
+                                            },
+                                            {
+                                                "key": "name:en",
+                                                "value": [
+                                                    "Nepal"
+                                                ]
+                                            }
+                                        ],
+                                        "joinBy": "AND",
+                                        "lookIn": [
+                                            "relations"
+                                        ]
+                                    }
+                                },
+                                "second": {
+                                    "summary": "Example : City Boundary",
+                                    "description": "**Query** to extract city bounadry in plain geojson format",
+                                    "value": {
+                                        "select": [
+                                            "name"
+                                        ],
+                                        "where": [
+                                            {
+                                                "key": "admin_level",
+                                                "value": [
+                                                    "7"
+                                                ]
+                                            },
+                                            {
+                                                "key": "boundary",
+                                                "value": [
+                                                    "administrative"
+                                                ]
+                                            },
+                                            {
+                                                "key": "name",
+                                                "value": [
+                                                    "Pokhara"
+                                                ]
+                                            }
+                                        ],
+                                        "joinBy": "AND",
+                                        "lookIn": [
+                                            "relations"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response Get Current Snapshot As Plain Geojson Snapshot Plain  Post",
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/status/{task_id}/": {
+            "get": {
+                "summary": "Get Task Status",
+                "description": "Tracks the request from the task id provided by Raw Data API  for the request\n\nArgs:\n\n    task_id ([type]): [Unique id provided on response from /snapshot/]\n\nReturns:\n\n    id: Id of the task\n    status : SUCCESS / PENDING\n    result : Result of task\n\nSuccessful task will have additional nested json inside",
+                "operationId": "get_task_status_tasks_status__task_id___get",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "title": "Task Id"
+                        },
+                        "name": "task_id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SnapshotTaskResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AttributeFilter": {
+                "title": "AttributeFilter",
+                "type": "object",
+                "properties": {
+                    "point": {
+                        "title": "Point",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "line": {
+                        "title": "Line",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "polygon": {
+                        "title": "Polygon",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "allGeometry": {
+                        "title": "Allgeometry",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "Filters": {
+                "title": "Filters",
+                "type": "object",
+                "properties": {
+                    "tags": {
+                        "$ref": "#/components/schemas/TagsFilter"
+                    },
+                    "attributes": {
+                        "$ref": "#/components/schemas/AttributeFilter"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "HTTPValidationError": {
+                "title": "HTTPValidationError",
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "title": "Detail",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
+                    }
+                }
+            },
+            "JoinFilterType": {
+                "title": "JoinFilterType",
+                "enum": [
+                    "OR",
+                    "AND"
+                ],
+                "description": "An enumeration."
+            },
+            "MultiPolygon": {
+                "title": "MultiPolygon",
+                "required": [
+                    "coordinates"
+                ],
+                "type": "object",
+                "properties": {
+                    "coordinates": {
+                        "title": "Coordinates",
+                        "type": "array",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "array",
+                                            "minItems": 2,
+                                            "maxItems": 2,
+                                            "items": [
+                                                {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "array",
+                                            "minItems": 3,
+                                            "maxItems": 3,
+                                            "items": [
+                                                {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "type": {
+                        "title": "Type",
+                        "type": "string",
+                        "default": "MultiPolygon"
+                    }
+                },
+                "description": "MultiPolygon Model"
+            },
+            "OsmFeatureType": {
+                "title": "OsmFeatureType",
+                "enum": [
+                    "nodes",
+                    "ways_line",
+                    "ways_poly",
+                    "relations"
+                ],
+                "description": "An enumeration."
+            },
+            "Polygon": {
+                "title": "Polygon",
+                "required": [
+                    "coordinates"
+                ],
+                "type": "object",
+                "properties": {
+                    "coordinates": {
+                        "title": "Coordinates",
+                        "type": "array",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "type": "array",
+                                        "minItems": 2,
+                                        "maxItems": 2,
+                                        "items": [
+                                            {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "minItems": 3,
+                                        "maxItems": 3,
+                                        "items": [
+                                            {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "type": {
+                        "title": "Type",
+                        "type": "string",
+                        "default": "Polygon"
+                    }
+                },
+                "description": "Polygon Model"
+            },
+            "RawDataCurrentParams": {
+                "title": "RawDataCurrentParams",
+                "type": "object",
+                "properties": {
+                    "outputType": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/RawDataOutputType"
+                            }
+                        ],
+                        "default": "geojson",
+                        "example": "geojson"
+                    },
+                    "minZoom": {
+                        "title": "Minzoom",
+                        "type": "integer",
+                        "description": "Only for mbtiles"
+                    },
+                    "maxZoom": {
+                        "title": "Maxzoom",
+                        "type": "integer",
+                        "description": "Only for mbtiles"
+                    },
+                    "fileName": {
+                        "title": "Filename",
+                        "type": "string",
+                        "example": "My test export"
+                    },
+                    "geometryType": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SupportedGeometryFilters"
+                        },
+                        "example": [
+                            "point",
+                            "polygon"
+                        ]
+                    },
+                    "joinFilterType": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/JoinFilterType"
+                            }
+                        ],
+                        "description": "Where condition (filters above) join by",
+                        "default": "OR",
+                        "example": "OR"
+                    },
+                    "countryExport": {
+                        "title": "Countryexport",
+                        "type": "boolean",
+                        "description": "Intersects the passed geom to country boundary if set to true and exports whole country : Use with Caution , May take hours",
+                        "default": false,
+                        "example": "false"
+                    },
+                    "filters": {
+                        "title": "Filters",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Filters"
+                            }
+                        ],
+                        "description": "Filter for point,line,polygon/ all geometry for both select and where clause",
+                        "example": {
+                            "tags": {
+                                "all_geometry": {
+                                    "building": []
+                                }
+                            },
+                            "attributes": {
+                                "all_geometry": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    },
+                    "geometry": {
+                        "title": "Geometry",
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Polygon"
+                            },
+                            {
+                                "$ref": "#/components/schemas/MultiPolygon"
+                            }
+                        ],
+                        "example": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [
+                                        83.96919250488281,
+                                        28.194446860487773
+                                    ],
+                                    [
+                                        83.99751663208006,
+                                        28.194446860487773
+                                    ],
+                                    [
+                                        83.99751663208006,
+                                        28.214869548073377
+                                    ],
+                                    [
+                                        83.96919250488281,
+                                        28.214869548073377
+                                    ],
+                                    [
+                                        83.96919250488281,
+                                        28.194446860487773
+                                    ]
+                                ]
+                            ]
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "RawDataOutputType": {
+                "title": "RawDataOutputType",
+                "enum": [
+                    "geojson",
+                    "kml",
+                    "shp",
+                    "fgb",
+                    "mbtiles",
+                    "gpkg",
+                    "sql",
+                    "csv"
+                ],
+                "description": "An enumeration."
+            },
+            "SnapshotParamsPlain": {
+                "title": "SnapshotParamsPlain",
+                "type": "object",
+                "properties": {
+                    "bbox": {
+                        "title": "Bbox",
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "minItems": 4,
+                                "maxItems": 4,
+                                "items": [
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "minItems": 6,
+                                "maxItems": 6,
+                                "items": [
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "select": {
+                        "title": "Select",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "*"
+                        ]
+                    },
+                    "where": {
+                        "title": "Where",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/WhereCondition"
+                        },
+                        "default": [
+                            {
+                                "key": "building",
+                                "value": [
+                                    "*"
+                                ]
+                            }
+                        ]
+                    },
+                    "joinBy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/JoinFilterType"
+                            }
+                        ],
+                        "default": "OR"
+                    },
+                    "lookIn": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OsmFeatureType"
+                        },
+                        "default": [
+                            "nodes",
+                            "ways_poly"
+                        ]
+                    },
+                    "geometryType": {
+                        "$ref": "#/components/schemas/SupportedGeometryFilters"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SnapshotResponse": {
+                "title": "SnapshotResponse",
+                "required": [
+                    "taskId",
+                    "trackLink"
+                ],
+                "type": "object",
+                "properties": {
+                    "taskId": {
+                        "title": "Taskid",
+                        "type": "string"
+                    },
+                    "trackLink": {
+                        "title": "Tracklink",
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false,
+                "example": {
+                    "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
+                    "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/"
+                }
+            },
+            "SnapshotTaskResponse": {
+                "title": "SnapshotTaskResponse",
+                "required": [
+                    "id",
+                    "status",
+                    "result"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "string"
+                    },
+                    "status": {
+                        "title": "Status",
+                        "type": "string"
+                    },
+                    "result": {
+                        "$ref": "#/components/schemas/SnapshotTaskResult"
+                    }
+                },
+                "additionalProperties": false,
+                "example": {
+                    "id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
+                    "status": "SUCCESS",
+                    "result": {
+                        "download_url": "https://s3.us-east-1.amazonaws.com/exports-stage.hotosm.org/Raw_Export_3fded368-456f-4ef4-a1b8-c099a7f77ca4_GeoJSON.zip",
+                        "file_name": "Raw_Export_3fded368-456f-4ef4-a1b8-c099a7f77ca4_GeoJSON",
+                        "response_time": "0:00:12.175976",
+                        "query_area": "6 Sq Km ",
+                        "binded_file_size": "7 MB",
+                        "zip_file_size_bytes": 1331601
+                    }
+                }
+            },
+            "SnapshotTaskResult": {
+                "title": "SnapshotTaskResult",
+                "required": [
+                    "downloadUrl",
+                    "fileName",
+                    "responseTime",
+                    "queryArea",
+                    "bindedFileSize",
+                    "zipFileSizeBytes"
+                ],
+                "type": "object",
+                "properties": {
+                    "downloadUrl": {
+                        "title": "Downloadurl",
+                        "type": "string"
+                    },
+                    "fileName": {
+                        "title": "Filename",
+                        "type": "string"
+                    },
+                    "responseTime": {
+                        "title": "Responsetime",
+                        "type": "string"
+                    },
+                    "queryArea": {
+                        "title": "Queryarea",
+                        "type": "string"
+                    },
+                    "bindedFileSize": {
+                        "title": "Bindedfilesize",
+                        "type": "string"
+                    },
+                    "zipFileSizeBytes": {
+                        "title": "Zipfilesizebytes",
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "StatusResponse": {
+                "title": "StatusResponse",
+                "required": [
+                    "lastUpdated"
+                ],
+                "type": "object",
+                "properties": {
+                    "lastUpdated": {
+                        "title": "Lastupdated",
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false,
+                "example": {
+                    "lastUpdated": "2022-06-27 19:59:24+05:45"
+                }
+            },
+            "SupportedGeometryFilters": {
+                "title": "SupportedGeometryFilters",
+                "enum": [
+                    "point",
+                    "line",
+                    "polygon",
+                    "all_geometry"
+                ],
+                "description": "An enumeration."
+            },
+            "TagsFilter": {
+                "title": "TagsFilter",
+                "type": "object",
+                "properties": {
+                    "point": {
+                        "title": "Point",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "line": {
+                        "title": "Line",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "polygon": {
+                        "title": "Polygon",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "allGeometry": {
+                        "title": "Allgeometry",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ValidationError": {
+                "title": "ValidationError",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "loc": {
+                        "title": "Location",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "msg": {
+                        "title": "Message",
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Error Type",
+                        "type": "string"
+                    }
+                }
+            },
+            "WhereCondition": {
+                "title": "WhereCondition",
+                "required": [
+                    "key",
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "title": "Key",
+                        "type": "string"
+                    },
+                    "value": {
+                        "title": "Value",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            }
+        }
+    }
+}

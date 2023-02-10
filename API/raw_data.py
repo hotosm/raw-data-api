@@ -117,7 +117,7 @@ def get_osm_current_snapshot_as_file(
             },
             "fileformats": {
                 "summary": "An example with different file formats and filename",
-                "description": "Export tool api can export data into multiple file formats . See outputype for more details",
+                "description": "Raw Data API  can export data into multiple file formats . See outputype for more details",
                 "value": {
                     "outputType": "shp",
                     "fileName": "Pokhara_all_features",
@@ -137,7 +137,7 @@ def get_osm_current_snapshot_as_file(
             },
             "filters": {
                 "summary": "An example with filters and geometry type",
-                "description": "Export tool api supports different kind of filters on both attributes and tags . See filters for more details",
+                "description": "Raw Data API  supports different kind of filters on both attributes and tags . See filters for more details",
                 "value": {
                     "outputType": "geojson",
                     "fileName": "Pokhara_buildings",
@@ -162,7 +162,7 @@ def get_osm_current_snapshot_as_file(
             },
             "filters2": {
                 "summary": "An example with more filters",
-                "description": "Export tool api supports different kind of filters on both attributes and tags . See filters for more details",
+                "description": "Raw Data API  supports different kind of filters on both attributes and tags . See filters for more details",
                 "value": {
                     "geometry": {
                         "type": "Polygon",
@@ -193,7 +193,7 @@ def get_osm_current_snapshot_as_file(
             },
             "allfilters": {
                 "summary": "An example with multiple level of filters",
-                "description": "Export tool api supports multiple level of filters on point line polygon . See filters for more details",
+                "description": "Raw Data API  supports multiple level of filters on point line polygon . See filters for more details",
                 "value": {
                     "fileName": "Example export with all features",
                     "geometry": {

@@ -1,0 +1,307 @@
+#!/usr/bin/env python3
+# Copyright (C) 2021 Humanitarian OpenStreetmap Team
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Humanitarian OpenStreetmap Team
+# 1100 13th Street NW Suite 800 Washington, D.C. 20005
+# <info@hotosm.org>
+import argparse
+import datetime
+import os
+import subprocess
+import sys
+import time
+from os.path import exists
+from urllib.parse import urlparse
+
+import wget
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", type=str, help="Data source link or file path")
+    args = [
+        ("PGHOST", "--host", "DB host"),
+        ("PGPORT", "--port", "DB port"),
+        ("PGUSER", "--user", "DB user"),
+        ("PGPASSWORD", "--password", "DB password"),
+        ("PGDATABASE", "--database", "DB name"),
+    ]
+
+    for env, arg, help_text in args:
+        default = os.getenv(env)
+        parser.add_argument(
+            arg, type=str, help=help_text, default=default, required=(not default)
+        )
+
+    parser.add_argument(
+        "--include_ref",
+        default=False,
+        action="store_true",
+        help="Include ref in output tables",
+    )
+    parser.add_argument(
+        "--replication",
+        default=False,
+        action="store_true",
+        help="Prepare tables for replication and Runs Replication",
+    )
+    parser.add_argument(
+        "--run_minutely",
+        default=False,
+        action="store_true",
+        help="Runs replication every minute",
+    )
+    parser.add_argument(
+        "--country",
+        type=int,
+        help="Fid of the country , if you are loading country , it will filter replication data",
+    )
+    parser.add_argument(
+        "--insert",
+        action="store_true",
+        help="Run osm2pgsql to insert data , Initial Creation Step",
+    )
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Run Update on table fields for country info",
+    )
+
+    parser.add_argument(
+        "--download_dir", type=str, help="The directory to download the source file to"
+    )
+    parser.add_argument(
+        "--post_index",
+        default=False,
+        action="store_true",
+        help="Run Post index only on table",
+    )
+    return parser.parse_args()
+
+
+def is_local(url):
+    url_parsed = urlparse(url)
+    if url_parsed.scheme in ("file", ""):  # Possibly a local file
+        return exists(url_parsed.path)
+    return False
+
+
+def run_subprocess_cmd(cmd):
+    try:
+        subprocess.check_output(cmd, env=os.environ)
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        sys.exit()
+
+
+def run_subprocess_cmd_parallel(cmds):
+    procs = [subprocess.Popen(i, env=os.environ) for i in cmds]
+    for p in procs:
+        p.wait()
+
+
+if __name__ == "__main__":
+
+    args = parse_arguments()
+
+    os.environ["PGHOST"] = args.host
+    os.environ["PGPORT"] = args.port
+    os.environ["PGUSER"] = args.user
+    os.environ["PGPASSWORD"] = args.password
+    os.environ["PGDATABASE"] = args.database
+    start_time = time.time()
+
+    working_dir = os.path.realpath(os.path.dirname(__file__))
+    lua_path = (
+        os.path.join(working_dir, "raw_with_ref.lua")
+        if args.include_ref
+        else os.path.join(working_dir, "raw.lua")
+    )
+    if not args.source:
+        source_path = os.path.join(working_dir, "sample_data/pokhara_all.osm.pbf")
+    else:
+        source_path = args.source
+
+    if not is_local(source_path):
+        download_dir = (
+            args.download_dir
+            if args.download_dir
+            else os.path.join(working_dir, "data")
+        )
+        if not exists(download_dir):
+            os.mkdir(download_dir)
+
+        # Extract the filename from the URL
+        filename = os.path.basename(source_path)
+        target_path = os.path.join(download_dir, filename)
+        if not exists(target_path):
+            print(f"Starting download for: {target_path}")
+            response = wget.download(source_path, target_path)
+
+        source_path = target_path
+
+    if args.insert:
+        osm2pgsql = [
+            "osm2pgsql",
+            "--create",
+            "--slim",
+            "--extra-attributes",
+            "--output=flex",
+            "--style",
+            lua_path,
+            source_path,
+        ]
+        if not args.replication:
+            osm2pgsql.append("--drop")
+        run_subprocess_cmd(osm2pgsql)
+
+        basic_index_cmd = [
+            "psql",
+            "-a",
+            "-f",
+            os.path.join(working_dir, "sql/pre_indexes.sql"),
+        ]
+        run_subprocess_cmd(basic_index_cmd)
+
+        country_table = [
+            "psql",
+            "-a",
+            "-f",
+            os.path.join(working_dir, "sql/countries_un.sql"),
+        ]
+        run_subprocess_cmd(country_table)
+
+    update_cmd_list = []
+    if args.update or args.insert:
+        ## initiate country update for nodes
+        field_update_cmd = [
+            "python",
+            os.path.join(working_dir, "field_update"),
+            "-target_table",
+            "nodes",
+            "--target_column",
+            "country",
+            "--target_geom",
+            "geom",
+            "--source_table",
+            "countries_un",
+            "--source_column",
+            "fid",
+            "--source_geom",
+            "geometry",
+            "--type",
+            "array",
+        ]
+        update_cmd_list.append(field_update_cmd)
+
+        ## initiate country update for ways_poly
+        field_update_cmd = [
+            "python",
+            os.path.join(working_dir, "field_update"),
+            "--target_table",
+            "ways_poly",
+            "--target_column",
+            "country",
+            "--target_geom",
+            "geom",
+            "--source_table",
+            "countries_un",
+            "--source_column",
+            "fid",
+            "--source_geom",
+            "geometry",
+            "--type",
+            "array",
+        ]
+        update_cmd_list.append(field_update_cmd)
+
+        field_update_cmd = [
+            "python",
+            os.path.join(working_dir, "field_update"),
+            "--target_table",
+            "ways_line",
+            "--target_column",
+            "country",
+            "--target_geom",
+            "geom",
+            "--source_table",
+            "countries_un",
+            "--source_column",
+            "fid",
+            "--source_geom",
+            "geometry",
+            "--type",
+            "array",
+        ]
+        update_cmd_list.append(field_update_cmd)
+
+        field_update_cmd = [
+            "python",
+            os.path.join(working_dir, "field_update"),
+            "--target_table",
+            "relations",
+            "--target_column",
+            "country",
+            "--target_geom",
+            "geom",
+            "--source_table",
+            "countries_un",
+            "--source_column",
+            "fid",
+            "--source_geom",
+            "geometry",
+            "--type",
+            "array",
+        ]
+        update_cmd_list.append(field_update_cmd)
+
+    if len(update_cmd_list) > 1:
+        run_subprocess_cmd_parallel(update_cmd_list)
+
+    if args.insert or args.post_index:
+        ## build post indexes
+        basic_index_cmd = [
+            "psql",
+            "-a",
+            "-f",
+            os.path.join(working_dir, "sql/post_indexes.sql"),
+        ]
+        run_subprocess_cmd(basic_index_cmd)
+        print(
+            f"\nProcess Finished.  Total time taken : {str(datetime.timedelta(seconds=(time.time() - start_time)))}"
+        )
+    if args.replication:
+        print("Starting Replication")
+        replication_init = ["python", os.path.join(working_dir, "replication"), "init"]
+        run_subprocess_cmd(replication_init)
+        while True:  # run replication forever
+            # --max-diff-size 10 mb as default
+            start = time.time()
+            replication_cmd = [
+                "python",
+                os.path.join(working_dir, "replication"),
+                "update",
+                "-s",
+                "raw.lua",
+                "--max-diff-size",
+                "10",
+            ]
+            if args.country:
+                replication_cmd.extend(["--country", f"{args.country}"])
+            run_subprocess_cmd(replication_cmd)
+            if args.run_minutely:
+                if (time.time() - start) < 60:
+                    time.sleep(60)

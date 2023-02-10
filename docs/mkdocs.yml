@@ -1,5 +1,5 @@
-site_name: Export Tool API
-site_description: Export tool API is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
+site_name: Raw Data API 
+site_description: Raw Data API  is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
 
 docs_dir: "src"
 site_dir: "build"
@@ -17,7 +17,7 @@ extra:
 
 #Navigation
 nav:
-  - Export Tool API: "index.md"
+  - Raw Data API : "index.md"
   - Installation:
       - Docker Installation: "installation/docker.md"
       - Configurations: "installation/configurations.md"
