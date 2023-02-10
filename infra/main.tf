@@ -162,7 +162,7 @@ resource "azurerm_postgresql_flexible_server" "raw-data" {
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "raw-data-postgis" {
-  name      = join("-", [var.project_name, var.deployment_environment])
+  name      = "azure.extensions"
   server_id = azurerm_postgresql_flexible_server.raw-data.id
   value     = "BTREE_GIST,INTARRAY,POSTGIS"
 }
