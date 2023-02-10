@@ -79,6 +79,13 @@ resource "azurerm_key_vault_secret" "raw-data-db" {
   key_vault_id = azurerm_key_vault.raw-data.id
 }
 
+resource "azurerm_public_ip" "raw-data-backend" {
+  name                = join("-", [var.project_name, "backend", var.deployment_environment])
+  resource_group_name = azurerm_resource_group.raw-data.name
+  location            = azurerm_resource_group.raw-data.location
+  allocation_method   = "Static" // or "Dynamic"
+}
+
 resource "azurerm_network_interface" "raw-data-backend" {
   name                = join("-", [var.project_name, var.deployment_environment])
   location            = azurerm_resource_group.raw-data.location
@@ -88,6 +95,8 @@ resource "azurerm_network_interface" "raw-data-backend" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.raw-data.id
     private_ip_address_allocation = "Dynamic"
+    primary                       = true
+    public_ip_address_id          = azurerm_public_ip.raw-data-backend.id
   }
 }
 
