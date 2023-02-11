@@ -287,10 +287,7 @@ if __name__ == "__main__":
         print("Starting Replication")
         replication_init = ["python", os.path.join(working_dir, "replication"), "init"]
         run_subprocess_cmd(replication_init)
-        while True:  # run replication forever
-            # --max-diff-size 10 mb as default
-            start = time.time()
-            replication_cmd = [
+        replication_cmd = [
                 "python",
                 os.path.join(working_dir, "replication"),
                 "update",
@@ -299,9 +296,13 @@ if __name__ == "__main__":
                 "--max-diff-size",
                 "10",
             ]
-            if args.country:
-                replication_cmd.extend(["--country", f"{args.country}"])
-            run_subprocess_cmd(replication_cmd)
-            if args.run_minutely:
+        if args.country:
+            replication_cmd.extend(["--country", f"{args.country}"])
+        run_subprocess_cmd(replication_cmd)
+        if args.run_minutely:
+            while True:  # run replication forever
+                # --max-diff-size 10 mb as default
+                start = time.time()
+                run_subprocess_cmd(replication_cmd)
                 if (time.time() - start) < 60:
                     time.sleep(60)
