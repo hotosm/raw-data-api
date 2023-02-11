@@ -1,6 +1,6 @@
 ## Getting Started
 
-- Install [osm2pgsql > v1.6.0](https://osm2pgsql.org/doc/install.html)
+- Install [osm2pgsql >= v1.6.0](https://osm2pgsql.org/doc/install.html)
   ```
   sudo apt-get install osm2pgsql
   ```
