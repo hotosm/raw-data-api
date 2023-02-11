@@ -407,12 +407,14 @@ def generate_where_clause_indexes_case(
             grid_filter = " OR ".join(grid_filter_base)
             where_clause = f"({grid_filter}) and ({geom_filter})"
     if c_id:
-        c_id=",".join(str(num) for num in c_id)
+        c_id = ",".join(str(num) for num in c_id)
         # if table_name == "ways_poly" or table_name == "nodes":
         #     where_clause += f" and (country IN ({c_id}))"
         # else:
         where_clause += f"and (country @> ARRAY[{c_id}])"
-    if country_export:  # ignore the geometry take geom from the db itself by using precalculated field
+    if (
+        country_export
+    ):  # ignore the geometry take geom from the db itself by using precalculated field
         if c_id:
             # if table_name == "ways_poly" or table_name == "nodes":
             #     where_clause = f"country IN ({c_id})"
@@ -420,8 +422,9 @@ def generate_where_clause_indexes_case(
             where_clause = f"country @> ARRAY[{c_id}]"
     return where_clause
 
+
 def get_country_geojson(c_id):
-    query=f"SELECT ST_AsGeoJSON(geometry) as geom from countries_geofabrik where ogc_fid={c_id}"
+    query = f"SELECT ST_AsGeoJSON(geometry) as geom from countries_geofabrik where ogc_fid={c_id}"
     return query
 
 
@@ -695,3 +698,30 @@ def raw_extract_plain_geojson(params, inspect_only=False):
         final_query = f"""EXPLAIN
         {final_query}"""
     return final_query
+
+
+def get_countries_query(q):
+    query = "Select ST_AsGeoJSON(cf.*) FROM countries_geofabrik cf"
+    if q:
+        query += f" WHERE name ILIKE '%{q}%'"
+    return query
+
+
+def get_osm_feature_query(osm_id):
+    select_condition = "osm_id ,tags,changeset,timestamp,geom"
+    query = f"""SELECT ST_AsGeoJSON(n.*)
+        FROM (select {select_condition} from nodes) n 
+        WHERE osm_id = {osm_id}
+        UNION
+        SELECT ST_AsGeoJSON(wl.*)
+        FROM (select {select_condition} from ways_line) wl 
+        WHERE osm_id = {osm_id}
+        UNION
+        SELECT ST_AsGeoJSON(wp.*)
+        FROM (select {select_condition} from ways_poly) wp 
+        WHERE osm_id = {osm_id}
+        UNION
+        SELECT ST_AsGeoJSON(r.*)
+        FROM (select {select_condition} from relations) r 
+        WHERE osm_id = {osm_id}"""
+    return query

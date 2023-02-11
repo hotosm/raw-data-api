@@ -107,7 +107,7 @@ port=
   For Example to update nodes table ( nodes and ways_poly are of type int and rest of them are of type array)
 
   ```
-  python field_update -target_table nodes --target_column country --target_geom geom --source_table countries_geofabrik --source_column ogc_fid --source_geom wkb_geometry --type int
+  python field_update -target_table nodes --target_column country --target_geom geom --source_table countries_geofabrik --source_column ogc_fid --source_geom geometry --type int
   ```
 
 - **Create Geo Indexes & Cluster** :

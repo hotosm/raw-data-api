@@ -48,10 +48,12 @@ from src.config import use_connection_pooling
 from src.query_builder.builder import (
     check_last_updated_rawdata,
     extract_geometry_type_query,
+    get_countries_query,
+    get_country_geojson,
     get_country_id_query,
+    get_osm_feature_query,
     raw_currentdata_extraction_query,
     raw_extract_plain_geojson,
-    get_country_geojson
 )
 from src.validation.models import RawDataOutputType
 
@@ -123,10 +125,13 @@ def run_ogr2ogr_cmd(cmd):
         Exception: If process gets failed
     """
     try:
-        subprocess.check_output(cmd, env=os.environ ,shell=True,preexec_fn=os.setsid,timeout=60 * 60 * 6)
+        subprocess.check_output(
+            cmd, env=os.environ, shell=True, preexec_fn=os.setsid, timeout=60 * 60 * 6
+        )
     except subprocess.CalledProcessError as ex:
         logging.error(ex.output)
         raise ex
+
 
 class Database:
     """Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class"""
@@ -455,8 +460,8 @@ class RawData:
             logging.debug(result_country)
 
             countries = [int(f[0]) for f in result_country]
-            
-            if country_export:# if it is country export it needs to be only one geom
+
+            if country_export:  # if it is country export it needs to be only one geom
                 if len(countries) > 0:
                     for row in result_country:
                         countries = [row[0]]  # get which has higher % intersection
@@ -469,7 +474,9 @@ class RawData:
             grid_id,
             geometry_dump,
             geom_area,
-            countries if len(countries) > 0 and len(countries) <= 3 else None, # don't go thorugh countires if they are more than 3 
+            countries
+            if len(countries) > 0 and len(countries) <= 3
+            else None,  # don't go thorugh countires if they are more than 3
         )
 
     @staticmethod
@@ -547,7 +554,7 @@ class RawData:
                     working_dir=working_dir,
                     params=self.params,
                 )  # uses ogr export to export
-            return geom_area,geometry_dump, working_dir
+            return geom_area, geometry_dump, working_dir
         except Exception as ex:
             logging.error(ex)
             raise ex
@@ -564,6 +571,26 @@ class RawData:
         # closing connection before leaving class
         RawData.close_con(self.con)
         return str(behind_time[0][0])
+
+    def get_countries_list(self, q):
+        query = get_countries_query(q)
+        self.cur.execute(query)
+        get_fetched = self.cur.fetchall()
+        features = []
+        for row in get_fetched:
+            features.append(orjson.loads(row[0]))
+        self.cur.close()
+        return FeatureCollection(features=features)
+
+    def get_osm_feature(self, osm_id):
+        query = get_osm_feature_query(osm_id)
+        self.cur.execute(query)
+        get_fetched = self.cur.fetchall()
+        features = []
+        for row in get_fetched:
+            features.append(orjson.loads(row[0]))
+        self.cur.close()
+        return FeatureCollection(features=features)
 
     def extract_plain_geojson(self):
         """Gets geojson for small area : Performs direct query with/without geometry"""
