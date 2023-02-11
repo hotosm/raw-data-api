@@ -183,38 +183,41 @@ class Raw:
                 FROM {target_table}
                 WHERE ("timestamp" >= '{start}'
                 and "timestamp" <= '{end}') 
+            ),
+            array_aggregated AS (
+            SELECT tf.osm_id, array_agg(cu.{source_column}) AS aa_fids
+            FROM table_filtered tf
+            JOIN {source_table} cu ON ST_Intersects(tf.{target_geom}, cu.{source_geom})
+            GROUP BY tf.osm_id
             )
             update
                 {target_table} as wp
-                set
-                {target_column} = array((
+            set {target_column} =aa.aa_fids
+            from array_aggregated aa
+            where wp.osm_id = aa.osm_id"""
+        else:
+            query = f"""
+            WITH table_filtered AS(
+                SELECT osm_id,{target_geom}
+                FROM {target_table}
+                WHERE ("timestamp" >= '{start}'
+                and "timestamp" <= '{end}') 
+            )
+            update
+                {target_table} as wp
+                SET
+                {target_column} = (
                 select
                     cu.{source_column}
                 from {source_table} cu 
                 where ST_Intersects(tf.{target_geom},cu.{source_geom})
-                        ))
+                LIMIT 1
+                        )::int
                 from table_filtered tf
             where
                 wp.osm_id = tf.osm_id"""
-        else:
-            query = f"""
-            WITH table_filtered AS(
-                SELECT {target_geom}
-                FROM {target_table}
-                WHERE "timestamp" >= '{start}'
-                and "timestamp" <= '{end}'
-            )
-            UPDATE {target_table}
-            SET {target_column} = (
-                SELECT {source_table}.{source_column}
-                FROM table_filtered
-                JOIN {source_table}
-                ON ST_Intersects( table_filtered.{target_geom} , {source_table}.{source_geom})
-                LIMIT 1
-            )::int
-            where 
-            ("timestamp" >= '{start}'
-            and "timestamp" <= '{end}') and {target_column} is null"""
+                        
+
         self.database.executequery(query)
         # logging.debug(f"""Changed Row : {result}""")
 

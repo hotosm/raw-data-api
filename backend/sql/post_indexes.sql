@@ -32,7 +32,7 @@ CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_country_idx ON public.ways_l
 CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_geom_idx ON public.ways_line USING gist (geom);
 
 
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_country_idx ON public.ways_poly USING gin (country gin__int_ops);
+CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_country_idx ON public.ways_poly USING btree (country);
 CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_geom_idx ON public.ways_poly USING gist (geom);
 
 CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_geom_idx ON public.relations USING gist (geom);

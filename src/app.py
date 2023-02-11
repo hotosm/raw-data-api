@@ -49,9 +49,9 @@ from src.query_builder.builder import (
     check_last_updated_rawdata,
     extract_geometry_type_query,
     get_country_id_query,
-    get_grid_id_query,
     raw_currentdata_extraction_query,
     raw_extract_plain_geojson,
+    get_country_geojson
 )
 from src.validation.models import RawDataOutputType
 
@@ -123,25 +123,10 @@ def run_ogr2ogr_cmd(cmd):
         Exception: If process gets failed
     """
     try:
-        # start_time=time.time()
-        logging.debug("Calling command : %s", cmd)
-        process = subprocess.check_output(
-            cmd,
-            stderr=subprocess.STDOUT,
-            shell=True,
-            preexec_fn=os.setsid,
-            timeout=60 * 60 * 6,  # setting timeout of 6 hour
-        )
-        logging.debug(process)
-    except Exception as ex:
+        subprocess.check_output(cmd, env=os.environ ,shell=True,preexec_fn=os.setsid,timeout=60 * 60 * 6)
+    except subprocess.CalledProcessError as ex:
         logging.error(ex.output)
-        # process.kill()
-        # # Send the signal to all the process groups
-        # os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-        # if os.path.exists(binding_file_dir):
-        #     shutil.rmtree(binding_file_dir)
         raise ex
-
 
 class Database:
     """Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class"""
@@ -157,7 +142,7 @@ class Database:
         try:
             self.conn = connect(**self.db_params)
             self.cur = self.conn.cursor(cursor_factory=DictCursor)
-            logging.debug("Database connection has been Successful...")
+            # logging.debug("Database connection has been Successful...")
             return self.conn, self.cur
         except OperationalError as err:
             """pass exception to function"""
@@ -470,40 +455,21 @@ class RawData:
             logging.debug(result_country)
 
             countries = [int(f[0]) for f in result_country]
-            if country_export:
+            
+            if country_export:# if it is country export it needs to be only one geom
                 if len(countries) > 0:
                     for row in result_country:
                         countries = [row[0]]  # get which has higher % intersection
                         break
-            # for s in result_country:
-            #     count += 1
-            # if count == 1:  # intersects with only one country
-            #     for row in result_country:
-            #         country = row[0]
-            #         break
-            # else:  # intersect with multiple countries or no country ,  use grid index instead
-            #     if country_export:  # force country index
-            #         # if count == 0:
-            #         #     # geom didn't intersected with any country
-            #         #     logging.warning("Geom didn't intersect with any country")
-            #         #     # use default grid index
-            #         #     #TODO
-            #         #     # cur.execute(get_grid_id_query(geometry_dump))
-            #         #     # grid_id = cur.fetchall()
-            #         # else:
-            #         for row in result_country:
-            #             country = row[0]  # get which has higher % intersection
-            #             break
-            #     else:
-            #         country=coun
-            #     #     cur.execute(get_grid_id_query(geometry_dump))
-            #     #     grid_id = cur.fetchall()
+                    cur.execute(get_country_geojson(countries[0]))
+                    geometry_dump = cur.fetchone()[0]
+                    # print(geometry_dump)
             cur.close()
         return (
             grid_id,
             geometry_dump,
             geom_area,
-            countries if len(countries) > 0 else None,
+            countries if len(countries) > 0 and len(countries) <= 3 else None, # don't go thorugh countires if they are more than 3 
         )
 
     @staticmethod
@@ -581,7 +547,7 @@ class RawData:
                     working_dir=working_dir,
                     params=self.params,
                 )  # uses ogr export to export
-            return geom_area, working_dir
+            return geom_area,geometry_dump, working_dir
         except Exception as ex:
             logging.error(ex)
             raise ex

@@ -38,7 +38,7 @@ tables.nodes = osm2pgsql.define_table{
         { column = 'timestamp', sql_type = 'timestamp' },
         { column = 'tags', type = 'jsonb' },
         { column = 'geom', type = 'point', projection = srid },
-        { column = 'country', sql_type= 'int[]', create_only = true },
+        { column = 'country', type= 'int', create_only = true },
     }
 
 }
@@ -73,7 +73,7 @@ tables.ways_poly = osm2pgsql.define_table{
     -- This will store tags as jsonb type  
         { column = 'tags', type = 'jsonb' },
         { column = 'geom', type = 'polygon', projection = srid },
-        { column = 'country', sql_type= 'int[]', create_only = true },
+        { column = 'country', type= 'int', create_only = true },
     }
 
 }

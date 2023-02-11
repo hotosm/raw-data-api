@@ -49,7 +49,7 @@ def process_raw_data(self, params):
 
         logging.info("Request %s received", exportname)
 
-        geom_area, working_dir = RawData(params).extract_current_data(exportname)
+        geom_area,geom_dump, working_dir = RawData(params).extract_current_data(exportname)
         inside_file_size = 0
         if bind_zip:
             logging.debug("Zip Binding Started !")
@@ -63,7 +63,7 @@ def process_raw_data(self, params):
 
             # Compressing geojson file
             zf.writestr(
-                "clipping_boundary.geojson", orjson.dumps(dict(params.geometry))
+                "clipping_boundary.geojson", geom_dump
             )
 
             zf.close()
