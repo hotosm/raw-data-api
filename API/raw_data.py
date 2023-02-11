@@ -437,55 +437,55 @@ def get_osm_feature(osm_id: int):
     return RawData().get_osm_feature(osm_id)
 
 
-# @router.post("/snapshot/plain/", response_model=FeatureCollection)
-# @version(1)
-# def get_current_snapshot_as_plain_geojson(
-#     request: Request,
-#     params: SnapshotParamsPlain = Body(
-#         default={},
-#         examples={
-#             "normal": {
-#                 "summary": "Example : Country Boundary",
-#                 "description": "**Query** to extract administrative boundary of nepal in plain geojson format",
-#                 "value": {
-#                     "select": ["name"],
-#                     "where": [
-#                         {"key": "admin_level", "value": ["2"]},
-#                         {"key": "boundary", "value": ["administrative"]},
-#                         {"key": "name:en", "value": ["Nepal"]},
-#                     ],
-#                     "joinBy": "AND",
-#                     "lookIn": ["relations"],
-#                 },
-#             },
-#             "second": {
-#                 "summary": "Example : City Boundary",
-#                 "description": "**Query** to extract city bounadry in plain geojson format",
-#                 "value": {
-#                     "select": ["name"],
-#                     "where": [
-#                         {"key": "admin_level", "value": ["7"]},
-#                         {"key": "boundary", "value": ["administrative"]},
-#                         {"key": "name", "value": ["Pokhara"]},
-#                     ],
-#                     "joinBy": "AND",
-#                     "lookIn": ["relations"],
-#                 },
-#             },
-#         },
-#     ),
-# ):
-#     """Simple API to get osm features as geojson for small region. This is designed only for querying small data for large data follow /snapshot/
+@router.post("/snapshot/plain/", response_model=FeatureCollection)
+@version(1)
+def get_current_snapshot_as_plain_geojson(
+    request: Request,
+    params: SnapshotParamsPlain = Body(
+        default={},
+        examples={
+            "normal": {
+                "summary": "Example : Country Boundary",
+                "description": "**Query** to extract administrative boundary of nepal in plain geojson format",
+                "value": {
+                    "select": ["name"],
+                    "where": [
+                        {"key": "admin_level", "value": ["2"]},
+                        {"key": "boundary", "value": ["administrative"]},
+                        {"key": "name:en", "value": ["Nepal"]},
+                    ],
+                    "joinBy": "AND",
+                    "lookIn": ["relations"],
+                },
+            },
+            "second": {
+                "summary": "Example : City Boundary",
+                "description": "**Query** to extract city bounadry in plain geojson format",
+                "value": {
+                    "select": ["name"],
+                    "where": [
+                        {"key": "admin_level", "value": ["7"]},
+                        {"key": "boundary", "value": ["administrative"]},
+                        {"key": "name", "value": ["Pokhara"]},
+                    ],
+                    "joinBy": "AND",
+                    "lookIn": ["relations"],
+                },
+            },
+        },
+    ),
+):
+    """Simple API to get osm features as geojson for small region. This is designed only for querying small data for large data follow /snapshot/
 
-#     Params ::
+    Params ::
 
-#         bbox: Optional List = takes xmin, ymin, xmax, ymax uses srid=4326
-#         select: List = this is select query  you can pass [*] to select all attribute
-#         where: List[WhereCondition] = [{'key': 'building', 'value': ['*']},{'key':'amenity','value':['school','college']}]
-#         join_by: Optional[JoinFilterType] = or/ and
-#         look_in: Optional[List[OsmFeatureType]] = ["nodes", "ways_poly","ways_line","relations"] : tables name
+        bbox: Optional List = takes xmin, ymin, xmax, ymax uses srid=4326
+        select: List = this is select query  you can pass [*] to select all attribute
+        where: List[WhereCondition] = [{'key': 'building', 'value': ['*']},{'key':'amenity','value':['school','college']}]
+        join_by: Optional[JoinFilterType] = or/ and
+        look_in: Optional[List[OsmFeatureType]] = ["nodes", "ways_poly","ways_line","relations"] : tables name
 
 
-#     """
-#     result = RawData(params).extract_plain_geojson()
-#     return result
+    """
+    result = RawData(params).extract_plain_geojson()
+    return result
