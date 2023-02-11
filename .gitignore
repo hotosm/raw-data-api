@@ -20,3 +20,7 @@ Pipfile.lock
 .terraform
 .terraform/*
 *.tfstate
+
+#backend 
+backend/data
+backend/.env

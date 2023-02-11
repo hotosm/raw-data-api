@@ -20,7 +20,7 @@
 
 - Start the Process
 
-  You can either export your db params as env variables or pass to script
+  You can either export your db params as env variables or pass to script , or create .env and hit `source .env`
 
   ```
   export PGHOST=localhost
