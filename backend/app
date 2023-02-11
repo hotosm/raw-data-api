@@ -25,6 +25,7 @@ import sys
 import time
 from os.path import exists
 from urllib.parse import urlparse
+from multiprocessing import Pool
 
 import wget
 
@@ -106,12 +107,10 @@ def run_subprocess_cmd(cmd):
         print(e.output)
         sys.exit()
 
-
 def run_subprocess_cmd_parallel(cmds):
-    procs = [subprocess.Popen(i, env=os.environ) for i in cmds]
-    for p in procs:
-        p.wait()
 
+    with Pool(processes=len(cmds)) as pool:
+        pool.map(run_subprocess_cmd, cmds)
 
 if __name__ == "__main__":
 
