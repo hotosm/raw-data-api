@@ -23,9 +23,9 @@ import os
 import subprocess
 import sys
 import time
+from multiprocessing import Pool
 from os.path import exists
 from urllib.parse import urlparse
-from multiprocessing import Pool
 
 import wget
 
@@ -67,6 +67,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "--country",
+        nargs="+",
         type=int,
         help="ogc_fid of the country , if you are loading country , it will filter replication data",
     )
@@ -107,10 +108,12 @@ def run_subprocess_cmd(cmd):
         print(ex.output)
         raise ex
 
+
 def run_subprocess_cmd_parallel(cmds):
 
     with Pool(processes=len(cmds)) as pool:
         pool.map(run_subprocess_cmd, cmds)
+
 
 if __name__ == "__main__":
 
@@ -287,16 +290,17 @@ if __name__ == "__main__":
         replication_init = ["python", os.path.join(working_dir, "replication"), "init"]
         run_subprocess_cmd(replication_init)
         replication_cmd = [
-                "python",
-                os.path.join(working_dir, "replication"),
-                "update",
-                "-s",
-                "raw.lua",
-                "--max-diff-size",
-                "10",
-            ]
+            "python",
+            os.path.join(working_dir, "replication"),
+            "update",
+            "-s",
+            "raw.lua",
+            "--max-diff-size",
+            "10",
+        ]
         if args.country:
-            replication_cmd.extend(["--country", f"{args.country}"])
+            replication_cmd.extend(["--country"])
+            replication_cmd.extend([str(x) for x in args.country])
         run_subprocess_cmd(replication_cmd)
         if args.run_minutely:
             while True:  # run replication forever

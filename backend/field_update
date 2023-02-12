@@ -216,7 +216,6 @@ class Raw:
                 from table_filtered tf
             where
                 wp.osm_id = tf.osm_id"""
-                        
 
         self.database.executequery(query)
         # logging.debug(f"""Changed Row : {result}""")
@@ -249,8 +248,15 @@ class Raw:
             f"""----------Update has been started for target = {target_table}:{target_column} from source = {source_table}:{source_column} , Range {start_batch_date} - {end_batch_date} , frequency {batch_frequency.value}----------"""
         )
         looping_date = start_batch_date
+        loop_count = 0
+        if batch_frequency == BatchFrequency.WEEKLY:
+            while looping_date >= end_batch_date:
+                loop_count += 1
+                looping_date -= relativedelta(weeks=1)
+        else:
+            loop_count = (looping_date - end_batch_date).days
         with tqdm(
-            total=(start_batch_date - end_batch_date).days,
+            total=loop_count,
             desc=f"Updating {target_table}:{target_column}",
         ) as pbar:
             while looping_date >= end_batch_date:
