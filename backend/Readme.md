@@ -45,7 +45,7 @@
   - For eg : To import Turkey and Enable replication later on
 
     ```
-    python app --insert --replication --source https://download.geofabrik.de/europe/turkey-latest.osm.pbf --country 42
+    python app --insert --replication --source https://download.geofabrik.de/europe/turkey-latest.osm.pbf --country 127
     ```
 
     > Here Insert option will do the import after downloading osm.pbf file from source , You can supply filepath of already downloaded file to --source as well . Replication will enable and Prepare the tables for replication and start the replication right away until data becomes now , Country parameter is read from fid of /backend/countries which will make sure to only maintains the replication data for that country
