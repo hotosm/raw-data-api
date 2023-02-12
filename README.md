@@ -3,9 +3,9 @@
 ![Unit test](https://github.com/hotosm/export-tool-api/actions/workflows/Unit-Test.yml/badge.svg)
 ![Build](https://github.com/hotosm/export-tool-api/actions/workflows/build.yml/badge.svg)
 
-**Documentation**: [hotosm.github.io/export-tool-api](https://hotosm.github.io/raw-data-api/)
+**Documentation**: [hotosm.github.io/raw-data-api](https://hotosm.github.io/raw-data-api/)
 
-**Source Code**: [github.com/hotosm/export-tool-api](https://github.com/hotosm/raw-data-api)
+**Source Code**: [github.com/hotosm/raw-data-api](https://github.com/hotosm/raw-data-api)
 
 `Raw Data API ` is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
 
@@ -28,6 +28,7 @@
 
 ## Installation
 
+#### To setup Backend Follow [Backend_Installation](./backend/Readme.md)
 Raw Data API  can be installed through `docker` or locally on your computer.
 
 - To install with docker see [docker installation](./docs/src/installation/docker.md).
