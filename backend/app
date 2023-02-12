@@ -32,7 +32,9 @@ import wget
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", type=str, help="Data source link or file path")
+    parser.add_argument(
+        "--source", type=str, nargs="+", help="Data source link or file path"
+    )
     args = [
         ("PGHOST", "--host", "DB host"),
         ("PGPORT", "--port", "DB port"),
@@ -122,6 +124,15 @@ def run_subprocess_cmd_parallel(cmds):
         pool.map(run_subprocess_cmd, cmds)
 
 
+def download_file(download_dir, source_path):
+    filename = os.path.basename(source_path)
+    target_path = os.path.join(download_dir, filename)
+    if not os.path.exists(target_path):
+        print(f"\nStarting download for: {target_path}")
+        response = wget.download(source_path, target_path)
+    return target_path
+
+
 if __name__ == "__main__":
 
     args = parse_arguments()
@@ -140,27 +151,56 @@ if __name__ == "__main__":
         else os.path.join(working_dir, "raw.lua")
     )
     if not args.source:
-        source_path = os.path.join(working_dir, "sample_data/pokhara_all.osm.pbf")
+        source_paths = [os.path.join(working_dir, "sample_data/pokhara_all.osm.pbf")]
     else:
-        source_path = args.source
+        source_paths = args.source
 
-    if not is_local(source_path):
-        download_dir = (
-            args.download_dir
-            if args.download_dir
-            else os.path.join(working_dir, "data")
-        )
-        if not exists(download_dir):
-            os.mkdir(download_dir)
+    download_dir = (
+        args.download_dir if args.download_dir else os.path.join(working_dir, "data")
+    )
+    if not os.path.exists(download_dir):
+        os.makedirs(download_dir)
 
-        # Extract the filename from the URL
-        filename = os.path.basename(source_path)
-        target_path = os.path.join(download_dir, filename)
-        if not exists(target_path):
-            print(f"Starting download for: {target_path}")
-            response = wget.download(source_path, target_path)
+    target_paths = []
+    for source_path in source_paths:
+        if not os.path.isfile(source_path):
+            target_paths.append(download_file(download_dir, source_path))
+        else:
+            target_paths.append(source_path)
+    if len(target_paths) > 1:
+        merg_file_path = os.path.join(download_dir, "merged_data.pbf")
+        if not os.path.exists(merg_file_path):
+            print("Merging OSM files\n")
+            cmd = [
+                "osmium",
+                "merge",
+                *target_paths,
+                "-o",
+                os.path.join(download_dir, "merged_data.pbf"),
+            ]
+            subprocess.run(cmd, check=True)
+        source_path = merg_file_path
+    else:
+        source_path = target_paths[0]
+    # Use osmium to merge the files
 
-        source_path = target_path
+    # if not is_local(source_path):
+    #     download_dir = (
+    #         args.download_dir
+    #         if args.download_dir
+    #         else os.path.join(working_dir, "data")
+    #     )
+    #     if not exists(download_dir):
+    #         os.mkdir(download_dir)
+
+    #     # Extract the filename from the URL
+    #     filename = os.path.basename(source_path)
+    #     target_path = os.path.join(download_dir, filename)
+    #     if not exists(target_path):
+    #         print(f"Starting download for: {target_path}")
+    #         response = wget.download(source_path, target_path)
+
+    #     source_path = target_path
 
     if args.insert:
         osm2pgsql = [
