@@ -54,6 +54,13 @@ def parse_arguments():
         help="Include ref in output tables",
     )
     parser.add_argument(
+        "--fq",
+        type=str,
+        choices=["d", "w", "m"],
+        default="d",
+        help="Field update frequency for updating country during insert , default is daily",
+    )
+    parser.add_argument(
         "--replication",
         default=False,
         action="store_true",
@@ -206,6 +213,8 @@ if __name__ == "__main__":
             "geometry",
             "--type",
             "array",
+            "--f",
+            args.fq,
         ]
         update_cmd_list.append(field_update_cmd)
 
@@ -227,6 +236,8 @@ if __name__ == "__main__":
             "geometry",
             "--type",
             "array",
+            "--f",
+            args.fq,
         ]
         update_cmd_list.append(field_update_cmd)
 
@@ -247,6 +258,8 @@ if __name__ == "__main__":
             "geometry",
             "--type",
             "array",
+            "--f",
+            args.fq,
         ]
         update_cmd_list.append(field_update_cmd)
 
@@ -267,6 +280,8 @@ if __name__ == "__main__":
             "geometry",
             "--type",
             "array",
+            "--f",
+            args.fq,
         ]
         update_cmd_list.append(field_update_cmd)
 

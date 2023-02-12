@@ -249,10 +249,16 @@ class Raw:
         )
         looping_date = start_batch_date
         loop_count = 0
+        freq_date = start_batch_date
+
         if batch_frequency == BatchFrequency.WEEKLY:
-            while looping_date >= end_batch_date:
+            while freq_date >= end_batch_date:
                 loop_count += 1
-                looping_date -= relativedelta(weeks=1)
+                freq_date -= relativedelta(weeks=1)
+        elif batch_frequency == BatchFrequency.MONTHLY:
+            while freq_date >= end_batch_date:
+                loop_count += 1
+                freq_date -= relativedelta(months=1)
         else:
             loop_count = (looping_date - end_batch_date).days
         with tqdm(
