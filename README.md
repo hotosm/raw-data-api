@@ -3,9 +3,9 @@
 ![Unit test](https://github.com/hotosm/export-tool-api/actions/workflows/Unit-Test.yml/badge.svg)
 ![Build](https://github.com/hotosm/export-tool-api/actions/workflows/build.yml/badge.svg)
 
-**Documentation**: [hotosm.github.io/export-tool-api](https://hotosm.github.io/export-tool-api/)
+**Documentation**: [hotosm.github.io/export-tool-api](https://hotosm.github.io/raw-data-api/)
 
-**Source Code**: [github.com/hotosm/export-tool-api](https://github.com/hotosm/export-tool-api)
+**Source Code**: [github.com/hotosm/export-tool-api](https://github.com/hotosm/raw-data-api)
 
 `Raw Data API ` is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
 
