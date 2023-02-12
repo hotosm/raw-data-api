@@ -424,6 +424,19 @@ def get_osm_current_snapshot_as_file(
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
+@router.get("/countries/", response_model=FeatureCollection)
+@version(1)
+def get_countries(q: str = ""):
+    result = RawData().get_countries_list(q)
+    return result
+
+
+@router.get("/osm_id/", response_model=FeatureCollection)
+@version(1)
+def get_osm_feature(osm_id: int):
+    return RawData().get_osm_feature(osm_id)
+
+
 @router.post("/snapshot/plain/", response_model=FeatureCollection)
 @version(1)
 def get_current_snapshot_as_plain_geojson(
