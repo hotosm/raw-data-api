@@ -573,6 +573,14 @@ class RawData:
         return str(behind_time[0][0])
 
     def get_countries_list(self, q):
+        """Gets Countries list from the database
+
+        Args:
+            q (_type_): list filter query string
+
+        Returns:
+            featurecollection: geojson of country
+        """
         query = get_countries_query(q)
         self.cur.execute(query)
         get_fetched = self.cur.fetchall()
@@ -583,6 +591,14 @@ class RawData:
         return FeatureCollection(features=features)
 
     def get_osm_feature(self, osm_id):
+        """Returns geometry of osm_id in geojson
+
+        Args:
+            osm_id (_type_): osm_id of feature
+
+        Returns:
+            featurecollection: Geojson
+        """
         query = get_osm_feature_query(osm_id)
         self.cur.execute(query)
         get_fetched = self.cur.fetchall()
