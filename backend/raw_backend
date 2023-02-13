@@ -170,7 +170,7 @@ if __name__ == "__main__":
     if len(target_paths) > 1:
         merg_file_path = os.path.join(download_dir, "merged_data.pbf")
         if not os.path.exists(merg_file_path):
-            print("Merging OSM files\n")
+            print("\nMerging OSM files")
             cmd = [
                 "osmium",
                 "merge",

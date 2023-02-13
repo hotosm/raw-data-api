@@ -37,7 +37,7 @@
   - Test with the sample data
 
     ```
-    python app --insert
+    python raw_backend --insert
     ```
 
     > This will insert the sample data provided on the code , You can check your backend setup with this
@@ -45,7 +45,7 @@
   - For eg : To import Turkey and Enable replication later on
 
     ```
-    python app --insert --replication --source https://download.geofabrik.de/europe/turkey-latest.osm.pbf --country 127
+    python raw_backend --insert --replication --source https://download.geofabrik.de/europe/turkey-latest.osm.pbf --country 127
     ```
 
     > Here Insert option will do the import after downloading osm.pbf file from source , You can supply filepath of already downloaded file to --source as well . Replication will enable and Prepare the tables for replication and start the replication right away until data becomes now , Country parameter is read from fid of /backend/countries which will make sure to only maintains the replication data for that country
@@ -53,7 +53,7 @@
   To Run Replication only
 
   ```
-  python app --replication
+  python raw_backend --replication
   ```
 
   > By Default this command will run replciation until data becomes up to date and die ! You can run this script on your custom frequency by specifying your cron / prefeered way to wake the script do the job and sleep
@@ -61,7 +61,7 @@
   Run Replication minutely
 
   ```
-  python app --replication --run_minutely
+  python raw_backend --replication --run_minutely
   ```
 
   > This is another option to run the script and keep database up to date by running it minutely you can directly tell the script you want to run the app minutely. By this app will sleep for 60 sec before making another request and it will run forever until it is killed . You can simply enable this in your system
