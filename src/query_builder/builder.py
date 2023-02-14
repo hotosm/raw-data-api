@@ -119,9 +119,28 @@ def create_column_filter(columns, create_schema=False, output_type="geojson"):
         return """osm_id ,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
-def generate_tag_filter_query(filter, join_by="OR", user_for_geojson=False):
+def create_tag_sql_logic(key, value, filter_list):
+    if len(value) > 1:
+        v_l = []
+        for lil in value:
+            v_l.append(f""" '{lil.strip()}' """)
+        v_l_join = ", ".join(v_l)
+        value_tuple = f"""({v_l_join})"""
+
+        k = f""" '{key.strip()}' """
+        filter_list.append("""tags ->> """ + k + """IN """ + value_tuple + """""")
+    elif len(value) == 1:
+        filter_list.append(f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+    else:
+        filter_list.append(f"""tags ? '{key.strip()}'""")
+    return filter_list
+
+
+def generate_tag_filter_query(filter, join_by="OR", plain_query_filter=False):
     incoming_filter = []
-    if user_for_geojson:
+    or_filters = []
+    and_filters = []
+    if plain_query_filter:
         for item in filter:
             key = item["key"]
             value = item["value"]
@@ -140,30 +159,28 @@ def generate_tag_filter_query(filter, join_by="OR", user_for_geojson=False):
                 incoming_filter.append(f"({sub_append_join})")
             else:
                 incoming_filter.append(f"""tags ? '{key.strip()}'""")
+        tag_filter = join_by.join(incoming_filter)
+        return tag_filter
 
     else:
+
         for key, value in filter.items():
-            if len(value) > 1:
-                v_l = []
-                for lil in value:
-                    v_l.append(f""" '{lil.strip()}' """)
-                v_l_join = " , ".join(v_l)
-                value_tuple = f"""({v_l_join})"""
+            if key == "join_or":
+                if value:
+                    for key, value in value.items():
+                        or_filters = create_tag_sql_logic(key, value, or_filters)
+            if key == "join_and":
+                if value:
+                    for key, value in value.items():
+                        and_filters = create_tag_sql_logic(key, value, and_filters)
 
-                k = f""" '{key.strip()}' """
-                incoming_filter.append(
-                    """tags ->> """ + k + """IN """ + value_tuple + """"""
-                )
-            elif len(value) == 1:
-                incoming_filter.append(
-                    f"""tags ->> '{key.strip()}' = '{value[0].strip()}'"""
-                )
-            else:
-                incoming_filter.append(f"""tags ? '{key.strip()}'""")
+        or_filters = "OR".join(or_filters)
 
-    tag_filter = f" {join_by} ".join(incoming_filter)
-
-    return tag_filter
+        tag_filter = f"({or_filters})"
+        if len(and_filters) > 0:
+            and_filters = "AND".join(and_filters)
+            tag_filter += f" AND {and_filters}"
+        return tag_filter
 
 
 def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
@@ -224,9 +241,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
             create_schema=True,
         )
     if master_tag_filter:
-        attribute_filter = generate_tag_filter_query(
-            master_tag_filter, params.join_filter_type
-        )
+        attribute_filter = generate_tag_filter_query(master_tag_filter)
     if params.geometry_type is None:  # fix me
         params.geometry_type = ["point", "line", "polygon"]
 
@@ -249,9 +264,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
                         where
                             {where_clause_for_nodes}"""
             if point_tag_filter:
-                attribute_filter = generate_tag_filter_query(
-                    point_tag_filter, params.join_filter_type
-                )
+                attribute_filter = generate_tag_filter_query(point_tag_filter)
             if attribute_filter:
                 query_point += f""" and ({attribute_filter})"""
             point_schema = schema
@@ -287,9 +300,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
                 where
                     {where_clause_for_rel}"""
             if line_tag_filter:
-                attribute_filter = generate_tag_filter_query(
-                    line_tag_filter, params.join_filter_type
-                )
+                attribute_filter = generate_tag_filter_query(line_tag_filter)
             if attribute_filter:
                 query_ways_line += f""" and ({attribute_filter})"""
                 query_relations_line += f""" and ({attribute_filter})"""
@@ -329,9 +340,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
                 where
                     {where_clause_for_relations}"""
             if poly_tag_filter:
-                attribute_filter = generate_tag_filter_query(
-                    poly_tag_filter, params.join_filter_type
-                )
+                attribute_filter = generate_tag_filter_query(poly_tag_filter)
             if attribute_filter:
                 query_ways_poly += f""" and ({attribute_filter})"""
                 query_relations_poly += f""" and ({attribute_filter})"""
@@ -539,25 +548,17 @@ def raw_currentdata_extraction_query(
         if (
             master_tag_filter
         ):  # if master tag is supplied then other tags should be ignored and master tag will be used
-            master_tag = generate_tag_filter_query(
-                master_tag_filter, params.join_filter_type
-            )
+            master_tag = generate_tag_filter_query(master_tag_filter)
             point_tag = master_tag
             line_tag = master_tag
             poly_tag = master_tag
         else:
             if point_tag_filter:
-                point_tag = generate_tag_filter_query(
-                    point_tag_filter, params.join_filter_type
-                )
+                point_tag = generate_tag_filter_query(point_tag_filter)
             if line_tag_filter:
-                line_tag = generate_tag_filter_query(
-                    line_tag_filter, params.join_filter_type
-                )
+                line_tag = generate_tag_filter_query(line_tag_filter)
             if poly_tag_filter:
-                poly_tag = generate_tag_filter_query(
-                    poly_tag_filter, params.join_filter_type
-                )
+                poly_tag = generate_tag_filter_query(poly_tag_filter)
 
     # condition for geometry types
     if params.geometry_type is None:
