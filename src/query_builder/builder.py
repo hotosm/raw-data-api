@@ -137,7 +137,7 @@ def create_tag_sql_logic(key, value, filter_list):
 
 
 def generate_tag_filter_query(filter, join_by="OR", plain_query_filter=False):
-    incoming_filter = []
+    final_filter = []
     or_filters = []
     and_filters = []
     if plain_query_filter:
@@ -156,30 +156,29 @@ def generate_tag_filter_query(filter, join_by="OR", plain_query_filter=False):
                     )
                 sub_append_join = " OR ".join(sub_append)
 
-                incoming_filter.append(f"({sub_append_join})")
+                final_filter.append(f"({sub_append_join})")
             else:
-                incoming_filter.append(f"""tags ? '{key.strip()}'""")
-        tag_filter = join_by.join(incoming_filter)
+                final_filter.append(f"""tags ? '{key.strip()}'""")
+        tag_filter = join_by.join(final_filter)
         return tag_filter
 
     else:
 
         for key, value in filter.items():
             if key == "join_or":
+                temp_logic = []
                 if value:
                     for key, value in value.items():
-                        or_filters = create_tag_sql_logic(key, value, or_filters)
+                        temp_logic = create_tag_sql_logic(key, value, temp_logic)
+                        final_filter.append(f"""{"OR".join(temp_logic)}""")
             if key == "join_and":
+                temp_logic = []
                 if value:
                     for key, value in value.items():
-                        and_filters = create_tag_sql_logic(key, value, and_filters)
+                        temp_logic = create_tag_sql_logic(key, value, temp_logic)
+                        final_filter.append(f"""{"AND".join(temp_logic)}""")
 
-        or_filters = "OR".join(or_filters)
-
-        tag_filter = f"({or_filters})"
-        if len(and_filters) > 0:
-            and_filters = "AND".join(and_filters)
-            tag_filter += f" AND {and_filters}"
+        tag_filter = "OR".join(final_filter)
         return tag_filter
 
 
