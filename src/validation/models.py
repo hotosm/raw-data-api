@@ -28,7 +28,7 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
 from typing_extensions import TypedDict
 
-from src.config import allow_bind_zip_filter, config
+from src.config import ALLOW_BIND_ZIP_FILTER, EXPORT_MAX_AREA_SQKM
 
 
 def to_camel(string: str) -> str:
@@ -166,7 +166,7 @@ class RawDataCurrentParams(BaseModel):
             ],
         },
     )
-    if allow_bind_zip_filter:
+    if ALLOW_BIND_ZIP_FILTER:
         bind_zip: Optional[bool] = True
 
         @validator("bind_zip", allow_reuse=True)
@@ -198,9 +198,7 @@ class RawDataCurrentParams(BaseModel):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1e-6
 
-        RAWDATA_CURRENT_POLYGON_AREA = int(
-            config.get("API_CONFIG", "max_area", fallback=100000)
-        )
+        RAWDATA_CURRENT_POLYGON_AREA = EXPORT_MAX_AREA_SQKM
 
         output_type = values.get("output_type")
         if output_type:

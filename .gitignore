@@ -1,5 +1,6 @@
 __pycache__
 config.txt
+.env
 env
 venv
 *.egg-info

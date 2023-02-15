@@ -26,27 +26,32 @@ from fastapi_versioning import VersionedFastAPI
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from src.config import config, export_path, limiter
+from src.config import (
+    EXPORT_PATH,
+    LIMITER,
+    LOG_LEVEL,
+    SENTRY_DSN,
+    SENTRY_RATE,
+    USE_CONNECTION_POOLING,
+    USE_S3_TO_UPLOAD,
+)
 from src.config import logger as logging
-from src.config import use_connection_pooling, use_s3_to_upload
 from src.db_session import database_instance
 
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
 
 # only use sentry if it is specified in config blocks
-if config.get("SENTRY", "dsn", fallback=None):
+if SENTRY_DSN:
     sentry_sdk.init(
-        dsn=config.get("SENTRY", "dsn"),
+        dsn=SENTRY_DSN,
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
-        traces_sample_rate=config.get("SENTRY", "rate"),
+        traces_sample_rate=SENTRY_RATE,
     )
 
-
-run_env = config.get("API_CONFIG", "env", fallback="prod")
-if run_env.lower() == "dev":
+if LOG_LEVEL.lower() == "debug":
     # This is used for local setup for auth login
     import os
 
@@ -62,11 +67,11 @@ app = VersionedFastAPI(
     app, enable_latest=True, version_format="{major}", prefix_format="/v{major}"
 )
 
-if use_s3_to_upload is False:
+if USE_S3_TO_UPLOAD is False:
     # only mount the disk if config is set to disk
-    app.mount("/exports", StaticFiles(directory=export_path), name="exports")
+    app.mount("/exports", StaticFiles(directory=EXPORT_PATH), name="exports")
 
-app.state.limiter = limiter
+app.state.limiter = LIMITER
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 origins = ["*"]
@@ -107,7 +112,7 @@ async def on_startup():
         e: if connection is rejected to database
     """
     try:
-        if use_connection_pooling:
+        if USE_CONNECTION_POOLING:
             database_instance.connect()
     except Exception as e:
         logging.error(e)
@@ -117,6 +122,6 @@ async def on_startup():
 @app.on_event("shutdown")
 def on_shutdown():
     """Closing all the threads connection from pooling before shuting down the api"""
-    if use_connection_pooling:
+    if USE_CONNECTION_POOLING:
         logging.debug("Shutting down connection pool")
         database_instance.close_all_connection_pool()

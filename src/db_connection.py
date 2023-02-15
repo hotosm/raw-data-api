@@ -27,7 +27,7 @@ class Database:
     """Handles the all work related to connection pooling"""
 
     def __init__(self):
-        self.db_params = get_db_connection_params("RAW_DATA")
+        self.db_params = get_db_connection_params()
         self._cursor = None
         self.threaded_postgresql_pool = None
         self.con = None
