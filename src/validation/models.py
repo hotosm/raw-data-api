@@ -99,11 +99,16 @@ class JoinFilterType(Enum):
 #      }
 
 
+class SQLFilter(BaseModel):
+    join_or: Optional[Dict[str, List[str]]]
+    join_and: Optional[Dict[str, List[str]]]
+
+
 class TagsFilter(BaseModel):
-    point: Optional[Dict[str, List[str]]]
-    line: Optional[Dict[str, List[str]]]
-    polygon: Optional[Dict[str, List[str]]]
-    all_geometry: Optional[Dict[str, List[str]]]
+    point: Optional[SQLFilter]
+    line: Optional[SQLFilter]
+    polygon: Optional[SQLFilter]
+    all_geometry: Optional[SQLFilter]
 
 
 class AttributeFilter(BaseModel):
@@ -132,11 +137,7 @@ class RawDataCurrentParams(BaseModel):
     geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
         default=None, example=["point", "polygon"]
     )
-    join_filter_type: Optional[JoinFilterType] = Field(
-        default=JoinFilterType.OR.value,
-        example="OR",
-        description="Where condition (filters above) join by",
-    )
+
     country_export: Optional[bool] = Field(
         default=False,
         example="false",
@@ -145,7 +146,7 @@ class RawDataCurrentParams(BaseModel):
     filters: Optional[Filters] = Field(
         default=None,
         example={
-            "tags": {"all_geometry": {"building": []}},
+            "tags": {"all_geometry": {"join_or": {"building": []}}},
             "attributes": {"all_geometry": ["name"]},
         },
         description="Filter for point,line,polygon/ all geometry for both select and where clause",

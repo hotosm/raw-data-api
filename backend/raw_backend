@@ -182,25 +182,6 @@ if __name__ == "__main__":
         source_path = merg_file_path
     else:
         source_path = target_paths[0]
-    # Use osmium to merge the files
-
-    # if not is_local(source_path):
-    #     download_dir = (
-    #         args.download_dir
-    #         if args.download_dir
-    #         else os.path.join(working_dir, "data")
-    #     )
-    #     if not exists(download_dir):
-    #         os.mkdir(download_dir)
-
-    #     # Extract the filename from the URL
-    #     filename = os.path.basename(source_path)
-    #     target_path = os.path.join(download_dir, filename)
-    #     if not exists(target_path):
-    #         print(f"Starting download for: {target_path}")
-    #         response = wget.download(source_path, target_path)
-
-    #     source_path = target_path
 
     if args.insert:
         osm2pgsql = [
