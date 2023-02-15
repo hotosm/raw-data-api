@@ -29,6 +29,7 @@ from slowapi.util import get_remote_address
 
 CONFIG_FILE_PATH = "config.txt"
 USE_S3_TO_UPLOAD = False
+AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 
 if os.path.exists(CONFIG_FILE_PATH) is False:
     logging.error(
@@ -174,7 +175,7 @@ ALLOW_BIND_ZIP_FILTER = config.get(
 if ALLOW_BIND_ZIP_FILTER:
     ALLOW_BIND_ZIP_FILTER = True if ALLOW_BIND_ZIP_FILTER.lower() == "true" else False
 
-AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
+
 # check either to use connection pooling or not
 USE_CONNECTION_POOLING = config.getboolean(
     "API_CONFIG",

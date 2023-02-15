@@ -682,16 +682,7 @@ class S3FileTransfer:
         start_time = time.time()
 
         try:
-            if level is log.DEBUG:
-                self.s_3.upload_file(
-                    file_path,
-                    BUCKET_NAME,
-                    file_name,
-                    Callback=ProgressPercentage(file_path),
-                )
-            else:
-                self.s_3.upload_file(file_path, BUCKET_NAME, file_name)
-
+            self.s_3.upload_file(file_path, BUCKET_NAME, file_name)
         except Exception as ex:
             logging.error(ex)
             raise ex
@@ -702,31 +693,3 @@ class S3FileTransfer:
             f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
         )
         return object_url
-
-
-class ProgressPercentage(object):
-    """Determines the project percentage of aws s3 upload file call
-
-    Args:
-        object (_type_): _description_
-    """
-
-    def __init__(self, filename):
-        self._filename = filename
-        self._size = float(os.path.getsize(filename))
-        self._seen_so_far = 0
-        self._lock = threading.Lock()
-
-    def __call__(self, bytes_amount):
-        """returns log percentage"""
-        # To simplify, assume this is hooked up to a single filename
-        with self._lock:
-            self._seen_so_far += bytes_amount
-            percentage = (self._seen_so_far / self._size) * 100
-            logging.debug(
-                "\r%s  %s / %s  (%.2f%%)",
-                self._filename,
-                self._seen_so_far,
-                self._size,
-                percentage,
-            )
