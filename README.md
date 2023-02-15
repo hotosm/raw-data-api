@@ -1,7 +1,7 @@
 # Raw Data API 
 
-![Unit test](https://github.com/hotosm/export-tool-api/actions/workflows/Unit-Test.yml/badge.svg)
-![Build](https://github.com/hotosm/export-tool-api/actions/workflows/build.yml/badge.svg)
+![Unit test](https://github.com/hotosm/raw-data-api/actions/workflows/Unit-Test.yml/badge.svg)
+![Build](https://github.com/hotosm/raw-data-api/actions/workflows/build.yml/badge.svg)
 
 **Documentation**: [hotosm.github.io/raw-data-api](https://hotosm.github.io/raw-data-api/)
 
@@ -41,14 +41,18 @@ NOTE: The installation guide below is only tested to work on Ubuntu, we recommen
 - Install [GDAL](https://gdal.org/index.html) on your computer using the command below:
 
 ```
-sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+sudo apt-get update && \
+sudo apt-get -y install gdal-bin python3-gdal && \
+sudo apt-get -y autoremove && \
+sudo apt-get clean
 
 ```
 
 - Install [redis](https://redis.io/docs/getting-started/installation/) on your computer using the command below:
 
 ```
-sudo apt-get install redis
+sudo apt-get -y install redis
+sudo apt-get -y install redis-tools # For client
 ```
 
 - Confirm Redis Installation
@@ -64,13 +68,13 @@ If _redis_ is not running check out its [documentation](https://redis.io/docs/ge
 - Clone the Raw Data API  repository on your computer
 
 ```
-git clone https://github.com/hotosm/export-tool-api.git
+git clone https://github.com/hotosm/raw-data-api.git
 ```
 
 - Navigate to the repository directory
 
 ```
-cd export-tool-api
+cd raw-data-api
 ```
 
 - Install the python dependencies
@@ -82,6 +86,8 @@ pip install -r requirements.txt
 ### Additional required configurations for Raw Data API 
 
 Setup the necessary configurations for Raw Data API  from [configurations](./docs/src/installation/configurations.md).
+
+Setup config.txt in project root.
 
 ### Start the Server
 
@@ -163,8 +169,8 @@ see [CONTRIBUTING](./docs/src/contributing.md)
 
 ## License
 
-see [LICENSE](https://github.com/hotosm/export-tool-api/blob/develop/LICENSE)
+see [LICENSE](https://github.com/hotosm/raw-data-api/blob/develop/LICENSE)
 
 ## Authors
 
-Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/export-tool-api/graphs/contributors) 
+Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/raw-data-api/graphs/contributors) 

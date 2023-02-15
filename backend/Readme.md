@@ -1,24 +1,32 @@
 ## Getting Started
 
-- Install [osm2pgsql >= v1.6.0](https://osm2pgsql.org/doc/install.html)
+- Install [osm2pgsql > v1.6.0](https://osm2pgsql.org/doc/install.html)
   ```
   sudo apt-get install osm2pgsql
   ```
-- Clone rawdata and navigate to backend dir
 
-  ```
-  git clone https://github.com/hotosm/export-tool-api.git && cd backend
-  ```
+- Install other system dependencies that are necessary to build the system
+
+   ```
+   sudo apt -y install python-is-python3 # for sanity
+   sudo apt -y install python3-virtualenv
+   sudo apt -y install libpq-dev # for building psycopg2
+   ```
+
+- Clone rawdata and navigate to backend dir
+    ```
+    git clone https://github.com/hotosm/raw-data-api.git && cd backend
+    ```
 
 - Install Requirements
 
-  Install [psycopg2](https://pypi.org/project/psycopg2/), [osmium](https://pypi.org/project/osmium/) and [dateutil](https://pypi.org/project/python-dateutil/) , wget in your python env . You can install using `requirements.txt` too
+    Install [psycopg2](https://pypi.org/project/psycopg2/), [osmium](https://pypi.org/project/osmium/) and [dateutil](https://pypi.org/project/python-dateutil/) , wget in your python env . You can install using `requirements.txt` too
 
-  ```
-  pip install -r requirements.txt
-  ```
+    ```
+    pip install -r requirements.txt
+    ```
 
-- Start the Process
+  - Start the Process
 
   You can either export your db params as env variables or pass to script , or create .env and hit `source .env`
 
@@ -56,7 +64,7 @@
   python raw_backend --replication
   ```
 
-  > By Default this command will run replciation until data becomes up to date and die ! You can run this script on your custom frequency by specifying your cron / prefeered way to wake the script do the job and sleep
+  > By default this command will run replciation until data becomes up to date and exit ! You can run this script on your custom frequency by specifying your cron / prefeered way to wake the script do the job and sleep
 
   Run Replication minutely
 
@@ -64,7 +72,7 @@
   python raw_backend --replication --run_minutely
   ```
 
-  > This is another option to run the script and keep database up to date by running it minutely you can directly tell the script you want to run the app minutely. By this app will sleep for 60 sec before making another request and it will run forever until it is killed . You can simply enable this in your system
+    > This is another option to run the script and keep database up to date by running it minutely you can directly tell the script you want to run the app minutely. By this app will sleep for 60 sec before making another request and it will run forever until it is killed . You can simply enable this in your system
 
   Options to Run the Script :
 
@@ -87,4 +95,58 @@
   --post_index          Run Post index only on table
   ```
 
-  If you are interested on Manual setup find Guide [here](./Manual.md)
+   If you are interested on Manual setup find Guide [here](./Manual.md)
+
+## Running the backend service via Systemd
+
+- Create a systemd unit file for raw-data-backend service
+
+```
+$ sudo systemctl edit --full --force raw-data-backend.service
+[Unit]
+Description=Raw Data Backend Service
+Documentation=https://github.com/hotosm/raw-data-api/blob/develop/backend/Readme.md
+After=network.target syslog.target
+# Requires=
+# Wants=
+# Conflicts=
+
+[Service]
+Type=simple
+User=sysadm
+WorkingDirectory=/opt/raw-data-api/backend
+ExecStart=/opt/raw-data-api/backend/venv/bin/python app --replication --run_minutely
+# ExecStop=
+# ExecReload=
+Restart=on-failure
+# RemainAfterExit
+EnvironmentFile=/opt/raw-data-api/backend/sensitive.env
+
+[Install]
+WantedBy=multi-user.target
+
+$ sudo systemctl start raw-data-backend.service
+$ sudo systemctl status raw-data-backend.service
+● raw-data-backend.service - Raw Data Backend Service
+     Loaded: loaded (/etc/systemd/system/raw-data-backend.service; disabled; vendor preset: enabled)
+     Active: active (running) since Mon 2023-02-13 14:30:03 UTC; 4min 25s ago
+       Docs: https://github.com/hotosm/raw-data-api/blob/develop/backend/Readme.md
+   Main PID: 50561 (python)
+      Tasks: 9 (limit: 4700)
+     Memory: 94.7M
+        CPU: 14.996s
+     CGroup: /system.slice/raw-data-backend.service
+             ├─50561 /opt/raw-data-api/backend/venv/bin/python app --replication --run_minutely
+             ├─50563 python /opt/raw-data-api/backend/replication update -s raw.lua --max-diff-size 10
+             └─50704 osm2pgsql --append --slim --prefix planet_osm --output=flex --extra-attributes --style raw.lua -d app_backend -U adm_app_backend -H rawdat.postgres.database.azure.com >
+
+Feb 13 14:30:03 raw-data-backend-production systemd[1]: Started Raw Data Backend Service.
+Feb 13 14:30:04 raw-data-backend-production python[50562]: 2023-02-13 14:30:04 [INFO]: Initialised updates for service 'https://planet.openstreetmap.org/replication/minute'.
+Feb 13 14:30:04 raw-data-backend-production python[50562]: 2023-02-13 14:30:04 [INFO]: Starting at sequence 5348603 (2022-12-06 00:59:10+00:00).
+Feb 13 14:30:05 raw-data-backend-production python[50563]: 2023-02-13 14:30:05 [INFO]: Using replication service 'https://planet.openstreetmap.org/replication/minute'. Current sequence 5348603 (2>
+Feb 13 14:30:10 raw-data-backend-production python[50704]: 2023-02-13 14:30:10  osm2pgsql version 1.6.0
+Feb 13 14:30:10 raw-data-backend-production python[50704]: 2023-02-13 14:30:10  Database version: 14.6
+Feb 13 14:30:10 raw-data-backend-production python[50704]: 2023-02-13 14:30:10  PostGIS version: 3.2
+
+```
+
