@@ -157,7 +157,7 @@ def generate_tag_filter_query(filter, join_by=" OR ", plain_query_filter=False):
                 final_filter.append(f"({sub_append_join})")
             else:
                 final_filter.append(f"""tags ? '{key.strip()}'""")
-
+        tag_filter = join_by.join(final_filter)
         return tag_filter
 
     else:
