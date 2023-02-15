@@ -198,7 +198,7 @@ class RawDataCurrentParams(BaseModel):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1e-6
 
-        RAWDATA_CURRENT_POLYGON_AREA = EXPORT_MAX_AREA_SQKM
+        RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
 
         output_type = values.get("output_type")
         if output_type:

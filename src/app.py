@@ -261,7 +261,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -281,7 +281,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -301,7 +301,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -327,7 +327,7 @@ class RawData:
                 export_path=dump_temp_path,
                 host=db_items.get("host"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -339,7 +339,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -351,7 +351,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -363,7 +363,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -375,7 +375,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -387,7 +387,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
