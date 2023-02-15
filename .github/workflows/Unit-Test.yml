@@ -15,7 +15,7 @@ jobs:
     env:
       PGPASSWORD: admin
       PGDATABASE: raw
-      PGPORT: 5432
+      PGPORT: 5434
       PGHOST: localhost
       PGUSER: postgres
     services:
