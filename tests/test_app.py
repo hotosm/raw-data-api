@@ -39,7 +39,7 @@ def test_rawdata_current_snapshot_geometry_query():
         },
         "outputType": "geojson",
         "filters": {
-            "tags": {"point": {"amenity": ["shop", "toilet"]}},
+            "tags": {"point": {"join_or": {"amenity": ["shop", "toilet"]}}},
             "attributes": {"point": ["name"]},
         },
     }
@@ -139,7 +139,7 @@ def test_attribute_filter_rawdata():
         "geometryType": ["polygon", "line"],
         "filters": {
             "attributes": {"line": ["name"]},
-            "tags": {"all_geometry": {"building": ["yes"]}},
+            "tags": {"all_geometry": {"join_or": {"building": ["yes"]}}},
         },
     }
     validated_params = RawDataCurrentParams(**test_param)
