@@ -13,6 +13,13 @@ jobs:
   build:
     timeout-minutes: 4
     runs-on: ubuntu-latest
+    env:
+      PGPASSWORD: admin
+      PGDATABASE: raw
+      PGPORT: 5432
+      PGHOST: localhost
+      PGUSER: postgres
+
     services:
       postgres:
         image: postgis/postgis:14-3.3
