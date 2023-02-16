@@ -44,7 +44,7 @@ jobs:
         run: pip install -r backend/requirements.txt
 
       - name: Start Loading
-        run: python backend/raw_backend --insert
+        run: python backend/raw_backend --insert --fq m
 
       - name: Install gdal
         run: |
