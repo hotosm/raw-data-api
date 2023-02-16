@@ -31,91 +31,65 @@ CONFIG_FILE_PATH = "config.txt"
 USE_S3_TO_UPLOAD = False
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 
-if os.path.exists(CONFIG_FILE_PATH) is False:
-    logging.error(
-        FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), CONFIG_FILE_PATH)
-    )
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
 
 
 ### CELERY BLOCK ####################
-CELERY_BROKER_URL = config.get(
-    "CELERY",
-    "CELERY_BROKER_URL",
-    fallback=os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379"),
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL") or config.get(
+    "CELERY", "CELERY_BROKER_URL", fallback="redis://localhost:6379"
 )
-CELERY_RESULT_BACKEND = config.get(
-    "CELERY",
-    "CELERY_RESULT_BACKEND",
-    fallback=os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379"),
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or config.get(
+    "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
 )
 
 ### API CONFIG BLOCK #######################
 
-RATE_LIMIT_PER_MIN = int(
-    config.get(
-        "API_CONFIG",
-        "RATE_LIMIT_PER_MIN",
-        fallback=os.environ.get("RATE_LIMIT_PER_MIN", 5),
-    )
+RATE_LIMIT_PER_MIN = os.environ.get("RATE_LIMIT_PER_MIN") or int(
+    config.get("API_CONFIG", "RATE_LIMIT_PER_MIN", fallback=5)
 )
 
-RATE_LIMITER_STORAGE_URI = config.get(
-    "API_CONFIG",
-    "RATE_LIMITER_STORAGE_URI",
-    fallback=os.environ.get("RATE_LIMITER_STORAGE_URI", "redis://localhost:6379"),
+RATE_LIMITER_STORAGE_URI = os.environ.get("RATE_LIMITER_STORAGE_URI") or config.get(
+    "API_CONFIG", "RATE_LIMITER_STORAGE_URI", fallback="redis://localhost:6379"
 )
 
-EXPORT_MAX_AREA_SQKM = os.environ.get(
-    "EXPORT_MAX_AREA_SQKM",
-    int(
-        config.get(
-            "API_CONFIG",
-            "EXPORT_MAX_AREA_SQKM",
-            fallback=os.environ.get("EXPORT_MAX_AREA_SQKM", 100000),
-        )
-    ),
+EXPORT_MAX_AREA_SQKM = os.environ.get("EXPORT_MAX_AREA_SQKM") or int(
+    config.get("API_CONFIG", "EXPORT_MAX_AREA_SQKM", fallback=100000)
 )
 
-GRID_INDEX_THRESHOLD = int(
-    config.get(
-        "API_CONFIG", "GRID_INDEX_THRESHOLD", fallback=os.environ.get("LOG_LEVEL", 5000)
-    )
+
+GRID_INDEX_THRESHOLD = os.environ.get("GRID_INDEX_THRESHOLD") or int(
+    config.get("API_CONFIG", "GRID_INDEX_THRESHOLD", fallback=5000)
 )
 
 # get log level from config
-LOG_LEVEL = config.get(
-    "API_CONFIG", "LOG_LEVEL", fallback=os.environ.get("LOG_LEVEL", "debug")
+LOG_LEVEL = os.environ.get("LOG_LEVEL") or config.get(
+    "API_CONFIG", "LOG_LEVEL", fallback="debug"
 )
 
-ALLOW_BIND_ZIP_FILTER = config.get(
-    "API_CONFIG",
-    "ALLOW_BIND_ZIP_FILTER",
-    fallback=os.environ.get("ALLOW_BIND_ZIP_FILTER", None),
+ALLOW_BIND_ZIP_FILTER = os.environ.get("ALLOW_BIND_ZIP_FILTER") or config.get(
+    "API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=None
 )
 
 ####################
 
 ### EXPORT_UPLOAD CONFIG BLOCK
-FILE_UPLOAD_METHOD = config.get(
-    "EXPORT_UPLOAD",
-    "FILE_UPLOAD_METHOD",
-    fallback=os.environ.get("FILE_UPLOAD_METHOD", "disk"),
-).lower()
+FILE_UPLOAD_METHOD = os.environ.get("FILE_UPLOAD_METHOD") or config.get(
+    "EXPORT_UPLOAD", "FILE_UPLOAD_METHOD", fallback="disk"
+)
 
 
-if FILE_UPLOAD_METHOD not in ["s3", "disk"]:
+if FILE_UPLOAD_METHOD.lower() not in ["s3", "disk"]:
     logging.error(
         "value not supported for file_upload_method ,switching to default disk method"
     )
     USE_S3_TO_UPLOAD = False
 
-if FILE_UPLOAD_METHOD == "s3":
+if FILE_UPLOAD_METHOD.lower() == "s3":
     USE_S3_TO_UPLOAD = True
-    BUCKET_NAME = config.get(
-        "EXPORT_UPLOAD", "BUCKET_NAME", fallback=os.environ.get("BUCKET_NAME")
+    BUCKET_NAME = os.environ.get("BUCKET_NAME") or config.get(
+        "EXPORT_UPLOAD", "BUCKET_NAME"
     )
     if not BUCKET_NAME:
         raise ValueError("Value of BUCKET_NAME couldn't found")
@@ -123,13 +97,11 @@ if FILE_UPLOAD_METHOD == "s3":
 ##################
 
 ## SENTRY BLOCK ########
-SENTRY_DSN = os.environ.get(
-    "SENTRY_DSN",
-    config.get("SENTRY", "SENTRY_DSN", fallback=os.environ.get("SENTRY_DSN", None)),
+SENTRY_DSN = os.environ.get("SENTRY_DSN") or config.get(
+    "SENTRY", "SENTRY_DSN", fallback=None
 )
-SENTRY_RATE = os.environ.get(
-    "SENTRY_RATE",
-    config.get("SENTRY", "SENTRY_RATE", fallback=os.environ.get("SENTRY_RATE", None)),
+SENTRY_RATE = os.environ.get("SENTRY_RATE") or config.get(
+    "SENTRY", "SENTRY_RATE", fallback=None
 )
 
 # rate limiter for API requests based on the remote ip address and redis as backend
@@ -160,27 +132,20 @@ logging.getLogger("boto").propagate = False  # disable boto3 logging
 
 logger = logging.getLogger("raw_data_api")
 
-EXPORT_PATH = config.get(
-    "API_CONFIG", "EXPORT_PATH", fallback=os.environ.get("EXPORT_PATH", "exports")
+EXPORT_PATH = os.environ.get("EXPORT_PATH") or config.get(
+    "API_CONFIG", "EXPORT_PATH", fallback="exports"
 )
 
 if not os.path.exists(EXPORT_PATH):
     # Create a exports directory because it does not exist
     os.makedirs(EXPORT_PATH)
-ALLOW_BIND_ZIP_FILTER = config.get(
-    "API_CONFIG",
-    "ALLOW_BIND_ZIP_FILTER",
-    fallback=os.environ.get("ALLOW_BIND_ZIP_FILTER", None),
+ALLOW_BIND_ZIP_FILTER = os.environ.get("ALLOW_BIND_ZIP_FILTER") or config.getboolean(
+    "API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=False
 )
-if ALLOW_BIND_ZIP_FILTER:
-    ALLOW_BIND_ZIP_FILTER = True if ALLOW_BIND_ZIP_FILTER.lower() == "true" else False
-
 
 # check either to use connection pooling or not
-USE_CONNECTION_POOLING = config.getboolean(
-    "API_CONFIG",
-    "USE_CONNECTION_POOLING",
-    fallback=os.environ.get("USE_CONNECTION_POOLING", False),
+USE_CONNECTION_POOLING = os.environ.get("USE_CONNECTION_POOLING") or config.getboolean(
+    "API_CONFIG", "USE_CONNECTION_POOLING", fallback=False
 )
 
 
@@ -195,15 +160,11 @@ def get_db_connection_params() -> dict:
     """
     try:
         connection_params = {
-            "host": config.get("DB", "PGHOST", fallback=os.environ.get("PGHOST")),
-            "port": config.get("DB", "PGPORT", fallback=os.environ.get("PGPORT")),
-            "dbname": config.get(
-                "DB", "PGDATABASE", fallback=os.environ.get("PGDATABASE")
-            ),
-            "user": config.get("DB", "PGUSER", fallback=os.environ.get("PGUSER")),
-            "password": config.get(
-                "DB", "PGPASSWORD", fallback=os.environ.get("PGPASSWORD")
-            ),
+            "host": os.environ.get("PGHOST") or config.get("DB", "PGHOST"),
+            "port": os.environ.get("PGPORT") or config.get("DB", "PGPORT"),
+            "dbname": os.environ.get("PGDATABASE") or config.get("DB", "PGDATABASE"),
+            "user": os.environ.get("PGUSER") or config.get("DB", "PGUSER"),
+            "password": os.environ.get("PGPASSWORD") or config.get("DB", "PGPASSWORD"),
         }
         if any(value is None for value in connection_params.values()):
             raise ValueError(
@@ -219,23 +180,19 @@ def get_db_connection_params() -> dict:
 
 def get_oauth_credentials() -> tuple:
     """Gets oauth credentials from the env file and returns a config dict"""
-    osm_url = config.get("OAUTH", "OSM_URL", fallback=os.environ.get("OSM_URL"))
-
-    osm_url = config.get("OAUTH", "OSM_URL", fallback=os.environ.get("OSM_URL"))
-    client_id = config.get(
-        "OAUTH", "OSM_CLIENT_ID", fallback=os.environ.get("OSM_CLIENT_ID")
+    osm_url = os.environ.get("OSM_URL") or config.get("OAUTH", "OSM_URL")
+    client_id = os.environ.get("OSM_CLIENT_ID") or config.get("OAUTH", "OSM_CLIENT_ID")
+    client_secret = os.environ.get("OSM_CLIENT_SECRET") or config.get(
+        "OAUTH", "OSM_CLIENT_SECRET"
     )
-    client_secret = config.get(
-        "OAUTH", "OSM_CLIENT_SECRET", fallback=os.environ.get("OSM_CLIENT_SECRET")
+    secret_key = os.environ.get("APP_SECRET_KEY") or config.get(
+        "OAUTH", "APP_SECRET_KEY"
     )
-    secret_key = config.get(
-        "OAUTH", "APP_SECRET_KEY", fallback=os.environ.get("APP_SECRET_KEY")
+    login_redirect_uri = os.environ.get("LOGIN_REDIRECT_URI") or config.get(
+        "OAUTH", "LOGIN_REDIRECT_URI"
     )
-    login_redirect_uri = config.get(
-        "OAUTH", "LOGIN_REDIRECT_URI", fallback=os.environ.get("LOGIN_REDIRECT_URI")
-    )
-    scope = config.get(
-        "OAUTH", "OSM_PERMISSION_SCOPE", fallback=os.environ.get("OSM_PERMISSION_SCOPE")
+    scope = os.environ.get("OSM_PERMISSION_SCOPE") or config.get(
+        "OAUTH", "OSM_PERMISSION_SCOPE"
     )
     oauth_cred = (
         osm_url,
