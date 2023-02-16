@@ -34,7 +34,7 @@ def test_snapshot():
     res = response.json()
     track_link = res["track_link"]
     time.sleep(6)  # wait for worker to complete task
-    response = client.get(f"/latest{track_link}")
+    response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
     check_status = res["status"]
@@ -265,7 +265,36 @@ def test_snapshot_filters():
     res = response.json()
     track_link = res["track_link"]
     time.sleep(6)  # wait for worker to complete task
-    response = client.get(f"/latest{track_link}")
+    response = client.get(f"/v1{track_link}")
+    assert response.status_code == 200
+    res = response.json()
+    check_status = res["status"]
+    assert check_status == "SUCCESS"
+
+
+def test_snapshot_and_filter():
+    response = client.post(
+        "/v1/snapshot/",
+        json={
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            }
+        },
+    )
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    time.sleep(6)  # wait for worker to complete task
+    response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
     check_status = res["status"]
