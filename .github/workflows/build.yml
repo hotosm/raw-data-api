@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     timeout-minutes: 4
-    runs-on: ubuntu-v1
+    runs-on: ubuntu-latest
     env:
       PGPASSWORD: admin
       PGDATABASE: raw
