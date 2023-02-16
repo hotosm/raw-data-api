@@ -216,7 +216,7 @@ def test_and_filters():
         },
     }
     validated_params = RawDataCurrentParams(**test_param)
-    expected_query = f"""select ST_AsGeoJSON(t0.*) from (select
+    expected_query = """select ST_AsGeoJSON(t0.*) from (select
             osm_id , tags ->> 'building' as building , tags ->> 'destroyed:building' as destroyed_building , tags ->> 'damage:date' as damage_date , tags ->> 'name' as name , tags ->> 'source' as source , geom
             from
                 ways_poly
