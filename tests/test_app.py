@@ -49,7 +49,7 @@ def test_rawdata_current_snapshot_geometry_query():
                     from
                         nodes
                     where
-                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) and (tags ->>  'amenity' IN ( 'shop'  ,  'toilet' ))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
+                        ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'), geom) and (tags ->>  'amenity' IN ( 'shop' ,  'toilet' ))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
             osm_id ,version,tags,changeset,timestamp,geom
             from
                 ways_line

@@ -101,7 +101,6 @@ tables.rels = osm2pgsql.define_table{
         { column = 'geom', type = 'geometry', projection = srid },
         { column = 'country',sql_type= 'int[]', create_only = true },
         
-
     }
 }
 
@@ -109,7 +108,6 @@ tables.rels = osm2pgsql.define_table{
 function clean_tags(tags)
     tags.odbl = nil
     tags.created_by = nil
-    tags.source = nil
     tags['source:ref'] = nil
 
     return next(tags) == nil

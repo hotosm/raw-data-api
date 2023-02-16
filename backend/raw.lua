@@ -99,9 +99,7 @@ tables.rels = osm2pgsql.define_table{
 function clean_tags(tags)
     tags.odbl = nil
     tags.created_by = nil
-    tags.source = nil
     tags['source:ref'] = nil
-
     return next(tags) == nil
 end
 
