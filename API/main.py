@@ -64,7 +64,7 @@ app.include_router(tasks_router)
 
 
 app = VersionedFastAPI(
-    app, enable_latest=True, version_format="{major}", prefix_format="/v{major}"
+    app, enable_latest=False, version_format="{major}", prefix_format="/v{major}"
 )
 
 if USE_S3_TO_UPLOAD is False:

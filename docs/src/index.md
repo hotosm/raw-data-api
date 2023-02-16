@@ -1,11 +1,11 @@
-# Raw Data API 
+# Raw Data API
 
-![Unit test](https://github.com/hotosm/export-tool-api/actions/workflows/Unit-Test.yml/badge.svg)
-![Build](https://github.com/hotosm/export-tool-api/actions/workflows/build.yml/badge.svg)
+![Unit test](https://github.com/hotosm/raw-data-api/actions/workflows/Unit-Test.yml/badge.svg)
+![Build](https://github.com/hotosm/raw-data-api/actions/workflows/build.yml/badge.svg)
 
-**Documentation**: [hotosm.github.io/export-tool-api](https://hotosm.github.io/export-tool-api/)
+**Documentation**: [hotosm.github.io/raw-data-api](https://hotosm.github.io/raw-data-api/)
 
-**Source Code**: [github.com/hotosm/export-tool-api](https://github.com/hotosm/export-tool-api)
+**Source Code**: [github.com/hotosm/raw-data-api](https://github.com/hotosm/raw-data-api)
 
 `Raw Data API ` is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
 
@@ -13,7 +13,7 @@
 
 - **Fast**: Built on top of [FastAPI](https://fastapi.tiangolo.com/)
 - OAUTH 2.0 Authentication with [OpenStreetMap(OSM)](https://openstreetmap.org)
-- Multiple GIS formats support via [GDAL's ogr2ogr](https://gdal.org/programs/ogr2ogr.html) - see table below for currently supported formats. Out of which , GeoJSON Follows Own Raw Data API  conversion script 
+- Multiple GIS formats support via [GDAL's ogr2ogr](https://gdal.org/programs/ogr2ogr.html) - see table below for currently supported formats. Out of which , GeoJSON Follows Own Raw Data API conversion script
 
   | Formats        | Status             |
   | -------------- | ------------------ |
@@ -28,9 +28,11 @@
 
 ## Installation
 
-Raw Data API  can be installed through `docker` or locally on your computer.
+#### To setup Backend Follow [Backend_Installation](./backend/Readme.md)
 
-- To install with docker see [docker installation](./installation/docker.md).
+Raw Data API can be installed through `docker` or locally on your computer.
+
+- To install with docker see [docker installation](./docs/src/installation/docker.md).
 - To install locally, continue below.
 
 NOTE: The installation guide below is only tested to work on Ubuntu, we recommend using docker for other operating systems.
@@ -40,14 +42,18 @@ NOTE: The installation guide below is only tested to work on Ubuntu, we recommen
 - Install [GDAL](https://gdal.org/index.html) on your computer using the command below:
 
 ```
-sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+sudo apt-get update && \
+sudo apt-get -y install gdal-bin python3-gdal && \
+sudo apt-get -y autoremove && \
+sudo apt-get clean
 
 ```
 
 - Install [redis](https://redis.io/docs/getting-started/installation/) on your computer using the command below:
 
 ```
-sudo apt-get install redis
+sudo apt-get -y install redis
+sudo apt-get -y install redis-tools # For client
 ```
 
 - Confirm Redis Installation
@@ -60,16 +66,16 @@ Type `ping` it should return `pong`.
 
 If _redis_ is not running check out its [documentation](https://redis.io/docs/getting-started/)
 
-- Clone the Raw Data API  repository on your computer
+- Clone the Raw Data API repository on your computer
 
 ```
-git clone https://github.com/hotosm/export-tool-api.git
+git clone https://github.com/hotosm/raw-data-api.git
 ```
 
 - Navigate to the repository directory
 
 ```
-cd export-tool-api
+cd raw-data-api
 ```
 
 - Install the python dependencies
@@ -78,9 +84,11 @@ cd export-tool-api
 pip install -r requirements.txt
 ```
 
-### Additional required configurations for Raw Data API 
+### Additional required configurations for Raw Data API
 
-Setup the necessary configurations for Raw Data API  from [configurations](./installation/configurations.md).
+Setup the necessary configurations for Raw Data API from [configurations](./docs/src/installation/configurations.md).
+
+Setup config.txt in project root.
 
 ### Start the Server
 
@@ -98,18 +106,18 @@ celery --app API.api_worker worker --loglevel=INFO
 
 ### Start flower for monitoring queue [OPTIONAL]
 
-Raw Data API  uses flower for monitoring the Celery distributed queue. Run this command on a different shell , if you are running redis on same machine your broker could be `redis://localhost:6379//`.
+Raw Data API uses flower for monitoring the Celery distributed queue. Run this command on a different shell , if you are running redis on same machine your broker could be `redis://localhost:6379//`.
 
 ```
 celery --broker=redis://redis:6379// --app API.api_worker flower --port=5000
 ```
 
-### Navigate to the docs to view Raw Data API  endpoints
+### Navigate to the docs to view Raw Data API endpoints
 
-After sucessfully starting the server, visit [http://127.0.0.1:8000/latest/docs](http://127.0.0.1:8000/latest/docs) on your browser to view the API docs.
+After sucessfully starting the server, visit [http://127.0.0.1:8000/v1/docs](http://127.0.0.1:8000/v1/docs) on your browser to view the API docs.
 
 ```
-http://127.0.0.1:8000/latest/docs
+http://127.0.0.1:8000/v1/docs
 ```
 
 Flower dashboard should be available on port `5000` on your localhost.
@@ -122,11 +130,11 @@ http://127.0.0.1:5000/
 
 - Confirm that Authetication works
 
-    1. Hit the `/auth/login/` endpoint
-    2. Hit the `url` returned on the response
-    3. You will get an `access_token`
-    4. You can use the `access_token` in all endpoints that requires authentication.
-    5. To check token pass token in /auth/me/. It should return your OpenStreetMap (OSM) profile
+  1. Hit the `/auth/login/` endpoint
+  2. Hit the `url` returned on the response
+  3. You will get an `access_token`
+  4. You can use the `access_token` in all endpoints that requires authentication.
+  5. To check token pass token in /auth/me/. It should return your OpenStreetMap (OSM) profile
 
 - Try extracting some data:
 
@@ -138,7 +146,7 @@ curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194
 
 ## Tests
 
-- Raw Data API  uses pytest for tests, navigate to the root directory and install package in editable mode:
+- Raw Data API uses pytest for tests, navigate to the root directory and install package in editable mode:
 
 ```
 pip install -e .
@@ -158,12 +166,12 @@ py.test -k test function name
 
 ## Contribution & Development
 
-see [CONTRIBUTING](./contributing.md)
+see [CONTRIBUTING](./docs/src/contributing.md)
 
 ## License
 
-see [LICENSE](https://github.com/hotosm/export-tool-api/blob/develop/LICENSE)
+see [LICENSE](https://github.com/hotosm/raw-data-api/blob/develop/LICENSE)
 
 ## Authors
 
-Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/export-tool-api/graphs/contributors) 
+Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/raw-data-api/graphs/contributors)

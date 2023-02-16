@@ -38,7 +38,7 @@ Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and regist
 Check on read user preferences and Enter redirect URI as following
 
 ```
-http://127.0.0.1:8000/latest/auth/callback/
+http://127.0.0.1:8000/v1/auth/callback/
 ```
 
 Grab Client ID and Client Secret and put it inside config.txt as OAUTH Block , you can generate secret key for your application by yourself
@@ -49,7 +49,7 @@ OSM_CLIENT_ID= your client id
 OSM_CLIENT_SECRET= your client secret
 OSM_URL=https://www.openstreetmap.org
 OSM_PERMISSION_SCOPE=read_prefs
-LOGIN_REDIRECT_URI=http://127.0.0.1:8000/latest/auth/callback/
+LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
 APP_SECRET_KEY=your generated secret key
 ```
 
@@ -94,7 +94,7 @@ OSM_CLIENT_ID= your client id
 OSM_CLIENT_SECRET= your client secret
 OSM_URL=https://www.openstreetmap.org
 OSM_PERMISSION_SCOPE=read_prefs
-LOGIN_REDIRECT_URI=http://127.0.0.1:8000/latest/auth/callback/
+LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
 APP_SECRET_KEY=jnfdsjkfndsjkfnsdkjfnskfn
 
 [API_CONFIG]

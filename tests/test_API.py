@@ -8,13 +8,13 @@ client = TestClient(app)
 
 
 def test_status():
-    response = client.get("/latest/status/")
+    response = client.get("/v1/status/")
     assert response.status_code == 200
 
 
 def test_snapshot():
     response = client.post(
-        "/latest/snapshot/",
+        "/v1/snapshot/",
         json={
             "geometry": {
                 "type": "Polygon",
@@ -43,7 +43,7 @@ def test_snapshot():
 
 def test_snapshot_filters():
     response = client.post(
-        "/latest/snapshot/",
+        "/v1/snapshot/",
         json={
             "fileName": "Example export with all features",
             "geometry": {
@@ -274,7 +274,7 @@ def test_snapshot_filters():
 
 # def test_snapshot_plain():
 #     response = client.post(
-#         "/latest/snapshot/plain/",
+#         "/v1/snapshot/plain/",
 #         json={
 #             "select": ["name"],
 #             "where": [

@@ -19,19 +19,18 @@ echo >> config.txt #Windows without WSL
 
 - Database configuration:
   - To use the default database(with sample data) shipped with the `Dockerfile`, you can update the `config.txt` with the configurations below. [**Recommended**]
-  - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](./configurations.md).
+  - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](./configurations.md). or export them as system env variables
 
 ```
-[RAW_DATA]
-host=pgsql
-user=postgres
-password=admin
-database=raw
-port=5432
+[DB]
+PGHOST=pgsql
+PGUSER=postgres
+PGPASSWORD=admin
+PGDATABASE=raw
+PGPORT=5432
 
 [API_CONFIG]
-env=dev
-limiter_storage_uri=redis://redis:6379
+RATE_LIMITER_STORAGE_URI=redis://redis:6379
 
 [CELERY]
 CELERY_BROKER_URL=redis://redis:6379/0
@@ -51,14 +50,14 @@ docker-compose up -d --build
 
 ## Check the servers
 
-By default, Uvicorn would be running on port [8000](http://127.0.0.1:8000/latest/docs), Redis on default port(i.e 6379), Celery with a worker and Flower on port [5000](http://127.0.0.1:5000/).
+By default, Uvicorn would be running on port [8000](http://127.0.0.1:8000/v1/docs), Redis on default port(i.e 6379), Celery with a worker and Flower on port [5000](http://127.0.0.1:5000/).
 
 - API Documentation
 
 Visit the route below to access the API documentation.
 
 ```
-http://127.0.0.1:8000/latest/docs
+http://127.0.0.1:8000/v1/docs
 ```
 
 API docs will be displayed like this upon successfull server startup

@@ -1,18 +1,17 @@
-name: 'Terraform Checks'
+name: "Terraform Checks"
 
 on:
   push:
     branches:
-      - main
-      - develop
+      - master
+
   pull_request:
     branches:
-      - main
-      - develop
+      - master
 
 jobs:
   terraform-hcl-format-check:
-    name: 'Code formating'
+    name: "Code formating"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,9 +39,8 @@ jobs:
         id: terrascan
         uses: tenable/terrascan-action@main
         with:
-          iac_type: 'terraform'
+          iac_type: "terraform"
           iac_dir: "./infra"
-          iac_version: 'v14'
-          policy_type: 'all'
+          iac_version: "v14"
+          policy_type: "all"
           only_warn: true
-
