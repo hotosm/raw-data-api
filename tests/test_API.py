@@ -276,18 +276,45 @@ def test_snapshot_and_filter():
     response = client.post(
         "/v1/snapshot/",
         json={
+            "fileName": "Destroyed_Buildings_Turkey",
             "geometry": {
                 "type": "Polygon",
                 "coordinates": [
                     [
-                        [83.96919250488281, 28.194446860487773],
-                        [83.99751663208006, 28.194446860487773],
-                        [83.99751663208006, 28.214869548073377],
-                        [83.96919250488281, 28.214869548073377],
-                        [83.96919250488281, 28.194446860487773],
+                        [36.70588085657477, 37.1979648807274],
+                        [36.70588085657477, 37.1651408422983],
+                        [36.759267544807194, 37.1651408422983],
+                        [36.759267544807194, 37.1979648807274],
+                        [36.70588085657477, 37.1979648807274],
                     ]
                 ],
-            }
+            },
+            "outputType": "geojson",
+            "geometryType": ["polygon"],
+            "filters": {
+                "tags": {
+                    "point": {},
+                    "line": {},
+                    "polygon": {
+                        "join_or": {},
+                        "join_and": {
+                            "destroyed:building": ["yes"],
+                            "damage:date": ["2023-02-06"],
+                        },
+                    },
+                },
+                "attributes": {
+                    "point": [],
+                    "line": [],
+                    "polygon": [
+                        "building",
+                        "destroyed:building",
+                        "damage:date",
+                        "name",
+                        "source",
+                    ],
+                },
+            },
         },
     )
     assert response.status_code == 200

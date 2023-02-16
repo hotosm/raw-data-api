@@ -171,3 +171,64 @@ def test_attribute_filter_rawdata():
         geometry_dump=dumps(dict(validated_params.geometry)),
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
+
+
+def test_and_filters():
+    test_param = {
+        "fileName": "Destroyed_Buildings_Turkey",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [36.70588085657477, 37.1979648807274],
+                    [36.70588085657477, 37.1651408422983],
+                    [36.759267544807194, 37.1651408422983],
+                    [36.759267544807194, 37.1979648807274],
+                    [36.70588085657477, 37.1979648807274],
+                ]
+            ],
+        },
+        "outputType": "geojson",
+        "geometryType": ["polygon"],
+        "filters": {
+            "tags": {
+                "point": {},
+                "line": {},
+                "polygon": {
+                    "join_or": {},
+                    "join_and": {
+                        "destroyed:building": ["yes"],
+                        "damage:date": ["2023-02-06"],
+                    },
+                },
+            },
+            "attributes": {
+                "point": [],
+                "line": [],
+                "polygon": [
+                    "building",
+                    "destroyed:building",
+                    "damage:date",
+                    "name",
+                    "source",
+                ],
+            },
+        },
+    }
+    validated_params = RawDataCurrentParams(**test_param)
+    expected_query = f"""select ST_AsGeoJSON(t0.*) from (select
+            osm_id , tags ->> 'building' as building , tags ->> 'destroyed:building' as destroyed_building , tags ->> 'damage:date' as damage_date , tags ->> 'name' as name , tags ->> 'source' as source , geom
+            from
+                ways_poly
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[36.70588085657477, 37.1979648807274], [36.70588085657477, 37.1651408422983], [36.759267544807194, 37.1651408422983], [36.759267544807194, 37.1979648807274], [36.70588085657477, 37.1979648807274]]], "type": "Polygon"}'), geom) and (tags ->> 'destroyed:building' = 'yes' AND tags ->> 'damage:date' = '2023-02-06')) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
+            osm_id , tags ->> 'building' as building , tags ->> 'destroyed:building' as destroyed_building , tags ->> 'damage:date' as damage_date , tags ->> 'name' as name , tags ->> 'source' as source , geom
+            from
+                relations
+            where
+                ST_intersects(ST_GEOMFROMGEOJSON('{"coordinates": [[[36.70588085657477, 37.1979648807274], [36.70588085657477, 37.1651408422983], [36.759267544807194, 37.1651408422983], [36.759267544807194, 37.1979648807274], [36.70588085657477, 37.1979648807274]]], "type": "Polygon"}'), geom) and (tags ->> 'destroyed:building' = 'yes' AND tags ->> 'damage:date' = '2023-02-06') and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')) t1"""
+    query_result = raw_currentdata_extraction_query(
+        validated_params,
+        geometry_dump=dumps(dict(validated_params.geometry)),
+    )
+    assert query_result.encode("utf-8") == expected_query.encode("utf-8")
