@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - develop
+      - test/branch
   pull_request:
     branches:
       - master
@@ -11,7 +12,7 @@ on:
 
 jobs:
   build:
-    timeout-minutes: 4
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     env:
       PGPASSWORD: admin
@@ -64,17 +65,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
-      - name: Creating config.txt
-        run: |
-          mv config.txt.sample config.txt
       - name: Run uvicorn server
         run: |
-          uvicorn API.main:app &
+          uvicorn API.main:app &> uvicorn.log &
         env:
           PORT: 8000
       - name: Run celery server
         run: |
-          celery --app API.api_worker worker --loglevel=INFO &
+          celery --app API.api_worker worker --loglevel=DEBUG &> worker.log &
       - name: Run flower dashboard
         run: |
           celery --app API.api_worker flower --port=5555 --broker=redis://localhost:6379/ &
@@ -82,6 +80,8 @@ jobs:
         run: |
           result=$(curl -s -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/snapshot/)
           echo $result
+          tail uvicorn.log
+          tail worker.log
           task_link=$(echo "$result" | jq -r .track_link)
           echo curl "http://127.0.0.1:8000/v1${task_link}"  
           curl "http://127.0.0.1:8000/v1${task_link}"
