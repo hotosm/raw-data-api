@@ -20,4 +20,3 @@ COPY . /app
 
 RUN pip install -e .
 
-HEALTHCHECK CMD curl -f http://localhost:8000/latest/docs || exit 1

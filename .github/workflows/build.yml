@@ -11,8 +11,15 @@ on:
 
 jobs:
   build:
-    timeout-minutes: 4
+    timeout-minutes: 10
     runs-on: ubuntu-latest
+    env:
+      PGPASSWORD: admin
+      PGDATABASE: raw
+      PGPORT: 5434
+      PGHOST: localhost
+      PGUSER: postgres
+
     services:
       postgres:
         image: postgis/postgis:14-3.3
@@ -28,32 +35,16 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name : Install necessary dependecies for rawdata loading
-        run : 
-          sudo apt-get update && sudo apt-get install osm2pgsql 
-      - name : check version 
-        run : 
-          osm2pgsql --version
+      - name: Install necessary dependecies for rawdata loading
+        run: sudo apt-get update && sudo apt-get install osm2pgsql
+      - name: check version
+        run: osm2pgsql --version
 
-      - name : Clone Base repo
-        run : 
-          git clone https://github.com/hotosm/underpass.git
+      - name: Install python requirements for load
+        run: pip install -r backend/requirements.txt
 
-      - name : Install python requirements for load
-        run:
-          pip install -r underpass/raw/requirements.txt
-
-      - name : Setup db config 
-        run : 
-          cp  config.txt.sample underpass/raw/db_config.txt
-          
-      - name : Setup app config 
-        run : 
-          cp  underpass/raw/app_config_sample.json underpass/raw/app_config.json 
-      
-      - name : Start Loading
-        run : 
-          python underpass/raw/run.py
+      - name: Start Loading
+        run: python backend/raw_backend --insert --fq m
 
       - name: Install gdal
         run: |
@@ -73,25 +64,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
-      - name: Creating config.txt
-        run: |
-          mv config.txt.sample config.txt
       - name: Run uvicorn server
         run: |
-          uvicorn API.main:app &
+          uvicorn API.main:app &> uvicorn.log &
         env:
           PORT: 8000
       - name: Run celery server
         run: |
-          celery --app API.api_worker worker --loglevel=INFO &
+          celery --app API.api_worker worker --loglevel=DEBUG &> worker.log &
       - name: Run flower dashboard
         run: |
           celery --app API.api_worker flower --port=5555 --broker=redis://localhost:6379/ &
       - name: Run rawdata current snapshot
         run: |
-          result=$(curl -s -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json' http://127.0.0.1:8000/latest/snapshot/)
+          result=$(curl -s -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],[83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json' http://127.0.0.1:8000/v1/snapshot/)
           echo $result
+          tail uvicorn.log
+          tail worker.log
           task_link=$(echo "$result" | jq -r .track_link)
-          echo curl "http://127.0.0.1:8000/latest${task_link}"  
-          curl "http://127.0.0.1:8000/latest${task_link}"
- 
+          echo curl "http://127.0.0.1:8000/v1${task_link}"  
+          curl "http://127.0.0.1:8000/v1${task_link}"

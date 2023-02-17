@@ -34,17 +34,12 @@ from geojson import FeatureCollection
 from psycopg2 import OperationalError, connect
 from psycopg2.extras import DictCursor
 
-from src.config import (
-    AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY,
-    BUCKET_NAME,
-    export_path,
-    get_db_connection_params,
-    grid_index_threshold,
-    level,
-)
+from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
+from src.config import EXPORT_PATH as export_path
+from src.config import GRID_INDEX_THRESHOLD as grid_index_threshold
+from src.config import USE_CONNECTION_POOLING as use_connection_pooling
+from src.config import get_db_connection_params, level
 from src.config import logger as logging
-from src.config import use_connection_pooling
 from src.query_builder.builder import (
     check_last_updated_rawdata,
     extract_geometry_type_query,
@@ -234,7 +229,7 @@ class RawData:
         else:
             # else use our default db class
             if not dbdict:
-                dbdict = get_db_connection_params("RAW_DATA")
+                dbdict = get_db_connection_params()
             self.d_b = Database(dict(dbdict))
             self.con, self.cur = self.d_b.connect()
 
@@ -251,7 +246,7 @@ class RawData:
     @staticmethod
     def ogr_export_shp(point_query, line_query, poly_query, working_dir, file_name):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
-        db_items = get_db_connection_params("RAW_DATA")
+        db_items = get_db_connection_params()
         if point_query:
             query_path = os.path.join(working_dir, "point.sql")
             # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
@@ -266,7 +261,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -286,7 +281,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -306,7 +301,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -318,7 +313,7 @@ class RawData:
     @staticmethod
     def ogr_export(query, outputtype, working_dir, dump_temp_path, params):
         """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
-        db_items = get_db_connection_params("RAW_DATA")
+        db_items = get_db_connection_params()
         # format query if it has " in string"
         query_path = os.path.join(working_dir, "export_query.sql")
         # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
@@ -332,7 +327,7 @@ class RawData:
                 export_path=dump_temp_path,
                 host=db_items.get("host"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -344,7 +339,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -356,7 +351,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -368,7 +363,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -380,7 +375,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -392,7 +387,7 @@ class RawData:
                 host=db_items.get("host"),
                 port=db_items.get("port"),
                 username=db_items.get("user"),
-                db=db_items.get("database"),
+                db=db_items.get("dbname"),
                 password=db_items.get("password"),
                 pg_sql_select=query_path,
             )
@@ -687,16 +682,7 @@ class S3FileTransfer:
         start_time = time.time()
 
         try:
-            if level is log.DEBUG:
-                self.s_3.upload_file(
-                    file_path,
-                    BUCKET_NAME,
-                    file_name,
-                    Callback=ProgressPercentage(file_path),
-                )
-            else:
-                self.s_3.upload_file(file_path, BUCKET_NAME, file_name)
-
+            self.s_3.upload_file(file_path, BUCKET_NAME, file_name)
         except Exception as ex:
             logging.error(ex)
             raise ex
@@ -707,31 +693,3 @@ class S3FileTransfer:
             f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
         )
         return object_url
-
-
-class ProgressPercentage(object):
-    """Determines the project percentage of aws s3 upload file call
-
-    Args:
-        object (_type_): _description_
-    """
-
-    def __init__(self, filename):
-        self._filename = filename
-        self._size = float(os.path.getsize(filename))
-        self._seen_so_far = 0
-        self._lock = threading.Lock()
-
-    def __call__(self, bytes_amount):
-        """returns log percentage"""
-        # To simplify, assume this is hooked up to a single filename
-        with self._lock:
-            self._seen_so_far += bytes_amount
-            percentage = (self._seen_so_far / self._size) * 100
-            logging.debug(
-                "\r%s  %s / %s  (%.2f%%)",
-                self._filename,
-                self._seen_so_far,
-                self._size,
-                percentage,
-            )

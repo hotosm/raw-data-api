@@ -9,20 +9,17 @@ import requests
 from celery import Celery
 
 from src.app import RawData, S3FileTransfer
-from src.config import allow_bind_zip_filter, config
+from src.config import ALLOW_BIND_ZIP_FILTER
+from src.config import CELERY_BROKER_URL as celery_broker_uri
+from src.config import CELERY_RESULT_BACKEND as celery_backend
+from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
 from src.config import logger as logging
-from src.config import use_s3_to_upload
 from src.query_builder.builder import format_file_name_str
 from src.validation.models import RawDataOutputType
 
 celery = Celery(__name__)
-celery.conf.broker_url = config.get(
-    "CELERY", "CELERY_BROKER_URL", fallback="redis://localhost:6379"
-)
-celery.conf.result_backend = config.get(
-    "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
-)  # using redis as backend , make sure you have redis server started on your system on port 6379
-
+celery.conf.broker_url = celery_broker_uri
+celery.conf.result_backend = celery_backend
 celery.conf.task_serializer = "pickle"
 celery.conf.result_serializer = "pickle"
 celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
@@ -32,7 +29,7 @@ celery.conf.accept_content = ["application/json", "application/x-python-serializ
 def process_raw_data(self, params):
     try:
         start_time = dt.now()
-        bind_zip = params.bind_zip if allow_bind_zip_filter else True
+        bind_zip = params.bind_zip if ALLOW_BIND_ZIP_FILTER else True
         # unique id for zip file and geojson for each export
         params.output_type = (
             params.output_type

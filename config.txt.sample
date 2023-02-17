@@ -1,21 +1,21 @@
-[RAW_DATA]
-host=localhost
-user=postgres
-password=admin
-database=raw
-port=5434
+[DB]
+PGHOST=localhost
+PGUSER=postgres
+PGPASSWORD=admin
+PGDATABASE=raw
+PGPORT=5432
 
 [OAUTH]
-client_id=
-client_secret=
-url=https://www.openstreetmap.org
-scope=read_prefs
-login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
-secret_key=PutSomethingRandmHere
+OSM_CLIENT_ID= your client id
+OSM_CLIENT_SECRET= your client secret
+OSM_URL=https://www.openstreetmap.org
+OSM_PERMISSION_SCOPE=read_prefs
+LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
+APP_SECRET_KEY=
 
 [API_CONFIG]
-env=dev
-limiter_storage_uri=redis://localhost:6379
+LOG_LEVEL=debug
+RATE_LIMITER_STORAGE_URI=redis://redis:6379
 
 [CELERY]
 CELERY_BROKER_URL=redis://localhost:6379/0

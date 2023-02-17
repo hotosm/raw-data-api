@@ -30,14 +30,10 @@ from fastapi_versioning import version
 from geojson import FeatureCollection
 
 from src.app import RawData
-from src.config import export_rate_limit, limiter
+from src.config import LIMITER as limiter
+from src.config import RATE_LIMIT_PER_MIN as export_rate_limit
 from src.config import logger as logging
-from src.validation.models import (
-    RawDataCurrentParams,
-    SnapshotParamsPlain,
-    SnapshotResponse,
-    StatusResponse,
-)
+from src.validation.models import RawDataCurrentParams, SnapshotResponse, StatusResponse
 
 from .api_worker import process_raw_data
 

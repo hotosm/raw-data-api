@@ -1,18 +1,20 @@
-from fastapi.testclient import TestClient
 import time
+
+from fastapi.testclient import TestClient
+
 from API.main import app
 
 client = TestClient(app)
 
 
 def test_status():
-    response = client.get("/latest/status/")
+    response = client.get("/v1/status/")
     assert response.status_code == 200
 
 
 def test_snapshot():
     response = client.post(
-        "/latest/snapshot/",
+        "/v1/snapshot/",
         json={
             "geometry": {
                 "type": "Polygon",
@@ -32,7 +34,7 @@ def test_snapshot():
     res = response.json()
     track_link = res["track_link"]
     time.sleep(6)  # wait for worker to complete task
-    response = client.get(f"/latest{track_link}")
+    response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
     check_status = res["status"]
@@ -41,7 +43,7 @@ def test_snapshot():
 
 def test_snapshot_filters():
     response = client.post(
-        "/latest/snapshot/",
+        "/v1/snapshot/",
         json={
             "fileName": "Example export with all features",
             "geometry": {
@@ -61,156 +63,162 @@ def test_snapshot_filters():
             "filters": {
                 "tags": {
                     "point": {
-                        "amenity": [
-                            "bank",
-                            "ferry_terminal",
-                            "bus_station",
-                            "fuel",
-                            "kindergarten",
-                            "school",
-                            "college",
-                            "university",
-                            "place_of_worship",
-                            "marketplace",
-                            "clinic",
-                            "hospital",
-                            "police",
-                            "fire_station",
-                        ],
-                        "building": [
-                            "bank",
-                            "aerodrome",
-                            "ferry_terminal",
-                            "train_station",
-                            "bus_station",
-                            "pumping_station",
-                            "power_substation",
-                            "kindergarten",
-                            "school",
-                            "college",
-                            "university",
-                            "mosque ",
-                            " church ",
-                            " temple",
-                            "supermarket",
-                            "marketplace",
-                            "clinic",
-                            "hospital",
-                            "police",
-                            "fire_station",
-                            "stadium ",
-                            " sports_centre",
-                            "governor_office ",
-                            " townhall ",
-                            " subdistrict_office ",
-                            " village_office ",
-                            " community_group_office",
-                            "government_office",
-                        ],
-                        "man_made": ["tower", "water_tower", "pumping_station"],
-                        "tower:type": ["communication"],
-                        "aeroway": ["aerodrome"],
-                        "railway": ["station"],
-                        "emergency": ["fire_hydrant"],
-                        "landuse": ["reservoir", "recreation_gound"],
-                        "waterway": ["floodgate"],
-                        "natural": ["spring"],
-                        "power": ["tower", "substation"],
-                        "shop": ["supermarket"],
-                        "leisure": [
-                            "stadium ",
-                            " sports_centre ",
-                            " pitch ",
-                            " swimming_pool",
-                            "park",
-                        ],
-                        "office": ["government"],
+                        "join_or": {
+                            "amenity": [
+                                "bank",
+                                "ferry_terminal",
+                                "bus_station",
+                                "fuel",
+                                "kindergarten",
+                                "school",
+                                "college",
+                                "university",
+                                "place_of_worship",
+                                "marketplace",
+                                "clinic",
+                                "hospital",
+                                "police",
+                                "fire_station",
+                            ],
+                            "building": [
+                                "bank",
+                                "aerodrome",
+                                "ferry_terminal",
+                                "train_station",
+                                "bus_station",
+                                "pumping_station",
+                                "power_substation",
+                                "kindergarten",
+                                "school",
+                                "college",
+                                "university",
+                                "mosque ",
+                                " church ",
+                                " temple",
+                                "supermarket",
+                                "marketplace",
+                                "clinic",
+                                "hospital",
+                                "police",
+                                "fire_station",
+                                "stadium ",
+                                " sports_centre",
+                                "governor_office ",
+                                " townhall ",
+                                " subdistrict_office ",
+                                " village_office ",
+                                " community_group_office",
+                                "government_office",
+                            ],
+                            "man_made": ["tower", "water_tower", "pumping_station"],
+                            "tower:type": ["communication"],
+                            "aeroway": ["aerodrome"],
+                            "railway": ["station"],
+                            "emergency": ["fire_hydrant"],
+                            "landuse": ["reservoir", "recreation_gound"],
+                            "waterway": ["floodgate"],
+                            "natural": ["spring"],
+                            "power": ["tower", "substation"],
+                            "shop": ["supermarket"],
+                            "leisure": [
+                                "stadium ",
+                                " sports_centre ",
+                                " pitch ",
+                                " swimming_pool",
+                                "park",
+                            ],
+                            "office": ["government"],
+                        }
                     },
                     "line": {
-                        "highway": [
-                            "motorway ",
-                            " trunk ",
-                            " primary ",
-                            " secondary ",
-                            " tertiary ",
-                            " service ",
-                            " residential ",
-                            " pedestrian ",
-                            " path ",
-                            " living_street ",
-                            " track",
-                        ],
-                        "railway": ["rail"],
-                        "man_made": ["embankment"],
-                        "waterway": [],
+                        "join_or": {
+                            "highway": [
+                                "motorway ",
+                                " trunk ",
+                                " primary ",
+                                " secondary ",
+                                " tertiary ",
+                                " service ",
+                                " residential ",
+                                " pedestrian ",
+                                " path ",
+                                " living_street ",
+                                " track",
+                            ],
+                            "railway": ["rail"],
+                            "man_made": ["embankment"],
+                            "waterway": [],
+                        }
                     },
                     "polygon": {
-                        "amenity": [
-                            "bank",
-                            "ferry_terminal",
-                            "bus_station",
-                            "fuel",
-                            "kindergarten",
-                            "school",
-                            "college",
-                            "university",
-                            "place_of_worship",
-                            "marketplace",
-                            "clinic",
-                            "hospital",
-                            "police",
-                            "fire_station",
-                        ],
-                        "building": [
-                            "bank",
-                            "aerodrome",
-                            "ferry_terminal",
-                            "train_station",
-                            "bus_station",
-                            "pumping_station",
-                            "power_substation",
-                            "power_plant",
-                            "kindergarten",
-                            "school",
-                            "college",
-                            "university",
-                            "mosque ",
-                            " church ",
-                            " temple",
-                            "supermarket",
-                            "marketplace",
-                            "clinic",
-                            "hospital",
-                            "police",
-                            "fire_station",
-                            "stadium ",
-                            " sports_centre",
-                            "governor_office ",
-                            " townhall ",
-                            " subdistrict_office ",
-                            " village_office ",
-                            " community_group_office",
-                            "government_office",
-                        ],
-                        "man_made": ["tower", "water_tower", "pumping_station"],
-                        "tower:type": ["communication"],
-                        "aeroway": ["aerodrome"],
-                        "railway": ["station"],
-                        "landuse": ["reservoir", "recreation_gound"],
-                        "waterway": [],
-                        "natural": ["spring"],
-                        "power": ["substation", "plant"],
-                        "shop": ["supermarket"],
-                        "leisure": [
-                            "stadium ",
-                            " sports_centre ",
-                            " pitch ",
-                            " swimming_pool",
-                            "park",
-                        ],
-                        "office": ["government"],
-                        "type": ["boundary"],
-                        "boundary": ["administrative"],
+                        "join_or": {
+                            "amenity": [
+                                "bank",
+                                "ferry_terminal",
+                                "bus_station",
+                                "fuel",
+                                "kindergarten",
+                                "school",
+                                "college",
+                                "university",
+                                "place_of_worship",
+                                "marketplace",
+                                "clinic",
+                                "hospital",
+                                "police",
+                                "fire_station",
+                            ],
+                            "building": [
+                                "bank",
+                                "aerodrome",
+                                "ferry_terminal",
+                                "train_station",
+                                "bus_station",
+                                "pumping_station",
+                                "power_substation",
+                                "power_plant",
+                                "kindergarten",
+                                "school",
+                                "college",
+                                "university",
+                                "mosque ",
+                                " church ",
+                                " temple",
+                                "supermarket",
+                                "marketplace",
+                                "clinic",
+                                "hospital",
+                                "police",
+                                "fire_station",
+                                "stadium ",
+                                " sports_centre",
+                                "governor_office ",
+                                " townhall ",
+                                " subdistrict_office ",
+                                " village_office ",
+                                " community_group_office",
+                                "government_office",
+                            ],
+                            "man_made": ["tower", "water_tower", "pumping_station"],
+                            "tower:type": ["communication"],
+                            "aeroway": ["aerodrome"],
+                            "railway": ["station"],
+                            "landuse": ["reservoir", "recreation_gound"],
+                            "waterway": [],
+                            "natural": ["spring"],
+                            "power": ["substation", "plant"],
+                            "shop": ["supermarket"],
+                            "leisure": [
+                                "stadium ",
+                                " sports_centre ",
+                                " pitch ",
+                                " swimming_pool",
+                                "park",
+                            ],
+                            "office": ["government"],
+                            "type": ["boundary"],
+                            "boundary": ["administrative"],
+                        },
                     },
                 },
                 "attributes": {
@@ -257,25 +265,81 @@ def test_snapshot_filters():
     res = response.json()
     track_link = res["track_link"]
     time.sleep(6)  # wait for worker to complete task
-    response = client.get(f"/latest{track_link}")
+    response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
     check_status = res["status"]
     assert check_status == "SUCCESS"
 
 
-def test_snapshot_plain():
+def test_snapshot_and_filter():
     response = client.post(
-        "/latest/snapshot/plain/",
+        "/v1/snapshot/",
         json={
-            "select": ["name"],
-            "where": [
-                {"key": "admin_level", "value": ["7"]},
-                {"key": "boundary", "value": ["administrative"]},
-                {"key": "name", "value": ["Pokhara"]},
-            ],
-            "joinBy": "AND",
-            "lookIn": ["relations"],
+            "fileName": "Destroyed_Buildings_Turkey",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [36.70588085657477, 37.1979648807274],
+                        [36.70588085657477, 37.1651408422983],
+                        [36.759267544807194, 37.1651408422983],
+                        [36.759267544807194, 37.1979648807274],
+                        [36.70588085657477, 37.1979648807274],
+                    ]
+                ],
+            },
+            "outputType": "geojson",
+            "geometryType": ["polygon"],
+            "filters": {
+                "tags": {
+                    "point": {},
+                    "line": {},
+                    "polygon": {
+                        "join_or": {},
+                        "join_and": {
+                            "destroyed:building": ["yes"],
+                            "damage:date": ["2023-02-06"],
+                        },
+                    },
+                },
+                "attributes": {
+                    "point": [],
+                    "line": [],
+                    "polygon": [
+                        "building",
+                        "destroyed:building",
+                        "damage:date",
+                        "name",
+                        "source",
+                    ],
+                },
+            },
         },
     )
     assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    time.sleep(6)  # wait for worker to complete task
+    response = client.get(f"/v1{track_link}")
+    assert response.status_code == 200
+    res = response.json()
+    check_status = res["status"]
+    assert check_status == "SUCCESS"
+
+
+# def test_snapshot_plain():
+#     response = client.post(
+#         "/v1/snapshot/plain/",
+#         json={
+#             "select": ["name"],
+#             "where": [
+#                 {"key": "admin_level", "value": ["7"]},
+#                 {"key": "boundary", "value": ["administrative"]},
+#                 {"key": "name", "value": ["Pokhara"]},
+#             ],
+#             "joinBy": "AND",
+#             "lookIn": ["relations"],
+#         },
+#     )
+#     assert response.status_code == 200

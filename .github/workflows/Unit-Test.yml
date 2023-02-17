@@ -12,6 +12,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      PGPASSWORD: admin
+      PGDATABASE: raw
+      PGPORT: 5434
+      PGHOST: localhost
+      PGUSER: postgres
     services:
       postgres:
         image: postgis/postgis:14-3.3
@@ -27,15 +33,14 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      
+
       - name: Insert sample db data
         run: |
           export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
 
       - name: Install gdal
-        run: 
-          sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+        run: sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
 
       - name: Install redis
         run: |
@@ -52,14 +57,10 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Creating config.txt
-        run: |
-          mv config.txt.sample config.txt
-
       - name: Launch Worker
         run: |
           celery --app API.api_worker worker --loglevel=INFO &
-          
+
       - name: Run Tests
         run: |
           py.test -v -s

@@ -3,7 +3,8 @@ Before getting started on config Make sure you have [Postgres](https://www.postg
 ## Compulsory Configuration
 
 ### Create `config.txt` inside root directory.
-It should be on the same place where ```config.txt.sample```
+
+It should be on the same place where `config.txt.sample`
 
 ### Prepare your OSM Snapshot Data
 
@@ -20,12 +21,12 @@ psql -U postgres -h localhost raw < pokhara.sql
 Put your credentials on Rawdata block
 
 ```
-[RAW_DATA]
-host=localhost
-user=postgres
-password=admin
-database=raw
-port=5432
+[DB]
+PGHOST=localhost
+PGUSER=postgres
+PGPASSWORD=admin
+PGDATABASE=raw
+PGPORT=5432
 ```
 
 ### Setup Oauth for Authentication
@@ -37,19 +38,19 @@ Login to [OSM](https://www.openstreetmap.org/) , Click on My Settings and regist
 Check on read user preferences and Enter redirect URI as following
 
 ```
-http://127.0.0.1:8000/latest/auth/callback/
+http://127.0.0.1:8000/v1/auth/callback/
 ```
 
 Grab Client ID and Client Secret and put it inside config.txt as OAUTH Block , you can generate secret key for your application by yourself
 
 ```
 [OAUTH]
-client_id= your client id
-client_secret= your client secret
-url=https://www.openstreetmap.org
-scope=read_prefs
-login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
-secret_key=jnfdsjkfndsjkfnsdkjfnskfn
+OSM_CLIENT_ID= your client id
+OSM_CLIENT_SECRET= your client secret
+OSM_URL=https://www.openstreetmap.org
+OSM_PERMISSION_SCOPE=read_prefs
+LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
+APP_SECRET_KEY=your generated secret key
 ```
 
 ### Configure celery and redis
@@ -81,29 +82,28 @@ Considering You have PSQL-POSTGIS setup with user **postgres** host **localhost*
 Your config.txt will look like this
 
 ```
-[RAW_DATA]
-host=localhost
-user=postgres
-password=admin
-database=raw
-port=5432
+[DB]
+PGHOST=localhost
+PGUSER=postgres
+PGPASSWORD=admin
+PGDATABASE=raw
+PGPORT=5432
 
 [OAUTH]
-client_id= your client id
-client_secret= your client secret
-url=https://www.openstreetmap.org
-scope=read_prefs
-login_redirect_uri=http://127.0.0.1:8000/latest/auth/callback/
-secret_key=jnfdsjkfndsjkfnsdkjfnskfn
+OSM_CLIENT_ID= your client id
+OSM_CLIENT_SECRET= your client secret
+OSM_URL=https://www.openstreetmap.org
+OSM_PERMISSION_SCOPE=read_prefs
+LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
+APP_SECRET_KEY=jnfdsjkfndsjkfnsdkjfnskfn
 
 [API_CONFIG]
-env=dev
-log_level=debug
-limiter_storage_uri=redis://redis:6379
+LOG_LEVEL=debug
+RATE_LIMITER_STORAGE_URI=redis://redis:6379
 
-[CELERY]
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
+[API_CONFIG]
+LOG_LEVEL=debug
+RATE_LIMITER_STORAGE_URI=redis://redis:6379
 
 ```
 
@@ -115,17 +115,14 @@ You can further customize API if you wish with API_CONFIG Block
 
 ```
 [API_CONFIG]
-export_path=exports # used to store export path
-api_host=http://127.0.0.1 # you can define this if you have different host
-api_port=8000
-max_area=100000 # max area to support for rawdata input
-use_connection_pooling=True # default it will not use connection pooling but you can configure api to use to for psycopg2 connections
-log_level=info #options are info,debug,warning,error
-env=dev # default is dev , supported values are dev and prod
-allow_bind_zip_filter=true # option to configure export output zipped/unzipped Default all output will be zipped
-limiter_storage_uri=redis://localhost:6379 # API uses redis as backend for rate limiting
-grid_index_threshold=5000 # value in sqkm to apply grid index filter
-export_rate_limit=5 # no of requests per minute - default is 5 requests per minute
+EXPORT_PATH=exports # used to store export path
+EXPORT_MAX_AREA_SQKM=100000 # max area to support for rawdata input
+USE_CONNECTION_POOLING=True # default it will not use connection pooling but you can configure api to use to for psycopg2 connections
+LOG_LEVEL=info #options are info,debug,warning,error
+ALLOW_BIND_ZIP_FILTER=true # option to configure export output zipped/unzipped Default all output will be zipped
+RATE_LIMITER_STORAGE_URI=redis://localhost:6379 # API uses redis as backend for rate limiting
+GRID_INDEX_THRESHOLD=5000 # value in sqkm to apply grid index filter
+RATE_LIMIT_PER_MIN=5 # no of requests per minute - default is 5 requests per minute
 ```
 
 Based on your requirement you can also customize rawdata exports parameter using EXPORT_UPLOAD block
@@ -137,3 +134,13 @@ AWS_ACCESS_KEY_ID= your id
 AWS_SECRET_ACCESS_KEY= yourkey
 BUCKET_NAME= your bucket name
 ```
+
+Sentry Config :
+
+```
+[SENTRY]
+SENTRY_DSN=
+SENTRY_RATE=
+```
+
+### You can export config variables without block as system env variables too

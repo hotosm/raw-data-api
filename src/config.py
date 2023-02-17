@@ -28,38 +28,93 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 CONFIG_FILE_PATH = "config.txt"
-use_s3_to_upload = False
+USE_S3_TO_UPLOAD = False
+AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 
-if os.path.exists(CONFIG_FILE_PATH) is False:
-    logging.error(
-        FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), CONFIG_FILE_PATH)
-    )
 
 config = ConfigParser()
 config.read(CONFIG_FILE_PATH)
 
-limiter_storage_uri = config.get(
-    "API_CONFIG", "limiter_storage_uri", fallback="redis://localhost:6379"
+
+### CELERY BLOCK ####################
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL") or config.get(
+    "CELERY", "CELERY_BROKER_URL", fallback="redis://localhost:6379"
 )
-# rate limiter for API requests based on the remote ip address and redis as backend
-limiter = Limiter(key_func=get_remote_address, storage_uri=limiter_storage_uri)
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or config.get(
+    "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
+)
 
-export_rate_limit = int(config.get("API_CONFIG", "export_rate_limit", fallback=5))
+### API CONFIG BLOCK #######################
 
-grid_index_threshold = int(
-    config.get("API_CONFIG", "grid_index_threshold", fallback=5000)
+RATE_LIMIT_PER_MIN = os.environ.get("RATE_LIMIT_PER_MIN") or int(
+    config.get("API_CONFIG", "RATE_LIMIT_PER_MIN", fallback=5)
+)
+
+RATE_LIMITER_STORAGE_URI = os.environ.get("RATE_LIMITER_STORAGE_URI") or config.get(
+    "API_CONFIG", "RATE_LIMITER_STORAGE_URI", fallback="redis://localhost:6379"
+)
+
+EXPORT_MAX_AREA_SQKM = os.environ.get("EXPORT_MAX_AREA_SQKM") or int(
+    config.get("API_CONFIG", "EXPORT_MAX_AREA_SQKM", fallback=100000)
+)
+
+
+GRID_INDEX_THRESHOLD = os.environ.get("GRID_INDEX_THRESHOLD") or int(
+    config.get("API_CONFIG", "GRID_INDEX_THRESHOLD", fallback=5000)
 )
 
 # get log level from config
-log_level = config.get("API_CONFIG", "log_level", fallback=None)
+LOG_LEVEL = os.environ.get("LOG_LEVEL") or config.get(
+    "API_CONFIG", "LOG_LEVEL", fallback="debug"
+)
 
-if log_level is None or log_level.lower() == "debug":  # default debug
+ALLOW_BIND_ZIP_FILTER = os.environ.get("ALLOW_BIND_ZIP_FILTER") or config.get(
+    "API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=None
+)
+
+####################
+
+### EXPORT_UPLOAD CONFIG BLOCK
+FILE_UPLOAD_METHOD = os.environ.get("FILE_UPLOAD_METHOD") or config.get(
+    "EXPORT_UPLOAD", "FILE_UPLOAD_METHOD", fallback="disk"
+)
+
+
+if FILE_UPLOAD_METHOD.lower() not in ["s3", "disk"]:
+    logging.error(
+        "value not supported for file_upload_method ,switching to default disk method"
+    )
+    USE_S3_TO_UPLOAD = False
+
+if FILE_UPLOAD_METHOD.lower() == "s3":
+    USE_S3_TO_UPLOAD = True
+    BUCKET_NAME = os.environ.get("BUCKET_NAME") or config.get(
+        "EXPORT_UPLOAD", "BUCKET_NAME"
+    )
+    if not BUCKET_NAME:
+        raise ValueError("Value of BUCKET_NAME couldn't found")
+
+##################
+
+## SENTRY BLOCK ########
+SENTRY_DSN = os.environ.get("SENTRY_DSN") or config.get(
+    "SENTRY", "SENTRY_DSN", fallback=None
+)
+SENTRY_RATE = os.environ.get("SENTRY_RATE") or config.get(
+    "SENTRY", "SENTRY_RATE", fallback=None
+)
+
+# rate limiter for API requests based on the remote ip address and redis as backend
+LIMITER = Limiter(key_func=get_remote_address, storage_uri=RATE_LIMITER_STORAGE_URI)
+
+
+if LOG_LEVEL.lower() == "debug":  # default debug
     level = logging.DEBUG
-elif log_level.lower() == "info":
+elif LOG_LEVEL.lower() == "info":
     level = logging.INFO
-elif log_level.lower() == "error":
+elif LOG_LEVEL.lower() == "error":
     level = logging.ERROR
-elif log_level.lower() == "warning":
+elif LOG_LEVEL.lower() == "warning":
     level = logging.WARNING
 else:
     logging.error(
@@ -75,66 +130,79 @@ logging.getLogger("s3transfer").propagate = False  # disable boto3 logging
 logging.getLogger("boto").propagate = False  # disable boto3 logging
 
 
-logger = logging.getLogger("export_tool_api")
+logger = logging.getLogger("raw_data_api")
 
-export_path = config.get("API_CONFIG", "export_path", fallback=None)
-if export_path is None:
-    export_path = "exports"
-if not os.path.exists(export_path):
-    # Create a exports directory because it does not exist
-    os.makedirs(export_path)
-allow_bind_zip_filter = config.get("API_CONFIG", "allow_bind_zip_filter", fallback=None)
-if allow_bind_zip_filter:
-    allow_bind_zip_filter = True if allow_bind_zip_filter.lower() == "true" else False
-
-AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
-# check either to use connection pooling or not
-use_connection_pooling = config.getboolean(
-    "API_CONFIG", "use_connection_pooling", fallback=False
+EXPORT_PATH = os.environ.get("EXPORT_PATH") or config.get(
+    "API_CONFIG", "EXPORT_PATH", fallback="exports"
 )
 
-# check either to use s3 raw data exports file uploading or not
-file_upload_method = config.get(
-    "EXPORT_UPLOAD", "FILE_UPLOAD_METHOD", fallback="disk"
-).lower()
-if file_upload_method == "s3":
-    use_s3_to_upload = True
-    try:
-        AWS_ACCESS_KEY_ID = config.get("EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID")
-        AWS_SECRET_ACCESS_KEY = config.get("EXPORT_UPLOAD", "AWS_SECRET_ACCESS_KEY")
-    except Exception as ex:
-        logging.debug(ex)
-        logging.debug("No aws credentials supplied")
-    BUCKET_NAME = config.get(
-        "EXPORT_UPLOAD", "BUCKET_NAME", fallback="exports-stage.hotosm.org"
-    )
-elif file_upload_method not in ["s3", "disk"]:
-    logging.error(
-        "value not supported for file_upload_method ,switching to default disk method"
-    )
-    use_s3_to_upload = False
+if not os.path.exists(EXPORT_PATH):
+    # Create a exports directory because it does not exist
+    os.makedirs(EXPORT_PATH)
+ALLOW_BIND_ZIP_FILTER = os.environ.get("ALLOW_BIND_ZIP_FILTER") or config.getboolean(
+    "API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=False
+)
+
+# check either to use connection pooling or not
+USE_CONNECTION_POOLING = os.environ.get("USE_CONNECTION_POOLING") or config.getboolean(
+    "API_CONFIG", "USE_CONNECTION_POOLING", fallback=False
+)
 
 
-def get_db_connection_params(dbIdentifier: str) -> dict:
+def get_db_connection_params() -> dict:
     """Return a python dict that can be passed to psycopg2 connections
     to authenticate to Postgres Databases
 
-    Params: dbIdentifier: Section name of the INI config file containing
-            database connection parameters
 
     Returns: connection_params (dict): PostgreSQL connection parameters
              corresponding to the configuration section.
 
     """
-
-    ALLOWED_SECTION_NAMES = ("UNDERPASS", "RAW_DATA")
-
-    if dbIdentifier not in ALLOWED_SECTION_NAMES:
-        logging.error(f"Invalid dbIdentifier. Pick one of {ALLOWED_SECTION_NAMES}")
-        return None
     try:
-        connection_params = dict(config.items(dbIdentifier))
-        return connection_params
+        connection_params = {
+            "host": os.environ.get("PGHOST") or config.get("DB", "PGHOST"),
+            "port": os.environ.get("PGPORT") or config.get("DB", "PGPORT"),
+            "dbname": os.environ.get("PGDATABASE") or config.get("DB", "PGDATABASE"),
+            "user": os.environ.get("PGUSER") or config.get("DB", "PGUSER"),
+            "password": os.environ.get("PGPASSWORD") or config.get("DB", "PGPASSWORD"),
+        }
+        if any(value is None for value in connection_params.values()):
+            raise ValueError(
+                "Connection Params Value Error :  Couldn't be Loaded , Check DB Credentials"
+            )
     except Exception as ex:
-        logging.error(f"""Can't find DB credentials on config :{dbIdentifier}""")
-        logging.error(ex)
+        logging.error(
+            "Can't find database credentials , Either export them as env variable or include in config Block DB"
+        )
+        raise ex
+    return connection_params
+
+
+def get_oauth_credentials() -> tuple:
+    """Gets oauth credentials from the env file and returns a config dict"""
+    osm_url = os.environ.get("OSM_URL") or config.get("OAUTH", "OSM_URL")
+    client_id = os.environ.get("OSM_CLIENT_ID") or config.get("OAUTH", "OSM_CLIENT_ID")
+    client_secret = os.environ.get("OSM_CLIENT_SECRET") or config.get(
+        "OAUTH", "OSM_CLIENT_SECRET"
+    )
+    secret_key = os.environ.get("APP_SECRET_KEY") or config.get(
+        "OAUTH", "APP_SECRET_KEY"
+    )
+    login_redirect_uri = os.environ.get("LOGIN_REDIRECT_URI") or config.get(
+        "OAUTH", "LOGIN_REDIRECT_URI"
+    )
+    scope = os.environ.get("OSM_PERMISSION_SCOPE") or config.get(
+        "OAUTH", "OSM_PERMISSION_SCOPE"
+    )
+    oauth_cred = (
+        osm_url,
+        client_id,
+        client_secret,
+        secret_key,
+        login_redirect_uri,
+        scope,
+    )
+    if any(item is None for item in oauth_cred):
+        raise ValueError("Oauth Credentials can't be loaded")
+
+    return oauth_cred
