@@ -91,6 +91,12 @@ if FILE_UPLOAD_METHOD.lower() == "s3":
     BUCKET_NAME = os.environ.get("BUCKET_NAME") or config.get(
         "EXPORT_UPLOAD", "BUCKET_NAME"
     )
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID") or config.get(
+        "EXPORT_UPLOAD", "AWS_ACCESS_KEY_ID", fallback=None
+    )
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY") or config.get(
+        "EXPORT_UPLOAD", "AWS_SECRET_ACCESS_KEY", fallback=None
+    )
     if not BUCKET_NAME:
         raise ValueError("Value of BUCKET_NAME couldn't found")
 
