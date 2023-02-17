@@ -118,6 +118,13 @@ def run_subprocess_cmd(cmd):
         raise ex
 
 
+def run_replication_cmd(cmd):
+    try:
+        subprocess.check_output(cmd, env=os.environ, timeout=3600)  # timeout of 1 hour
+    except subprocess.CalledProcessError as ex:
+        print(ex.output)  # Don't raise error keep the process trying
+
+
 def run_subprocess_cmd_parallel(cmds):
 
     with Pool(processes=len(cmds)) as pool:
@@ -342,6 +349,6 @@ if __name__ == "__main__":
             while True:  # run replication forever
                 # --max-diff-size 10 mb as default
                 start = time.time()
-                run_subprocess_cmd(replication_cmd)
+                run_replication_cmd(replication_cmd)
                 if (time.time() - start) < 60:
                     time.sleep(60)
