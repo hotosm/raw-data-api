@@ -43,6 +43,7 @@ logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.DEBUG)
 
 
 class BatchFrequency(Enum):
+    HOURLY = "h"
     DAILY = "d"
     WEEKLY = "w"
     MONTHLY = "m"
@@ -55,7 +56,8 @@ class BatchFrequency(Enum):
 
 def assign_end_wrt_frequency(start, frequency):
     #     logging.debug( f"""frequency Osm  {frequency}""")
-
+    if frequency == BatchFrequency.HOURLY:
+        end = start - relativedelta(hours=1)
     if frequency == BatchFrequency.YEARLY:
         end = start - relativedelta(years=1)
     if frequency == BatchFrequency.MONTHLY:
@@ -177,17 +179,43 @@ class Raw:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-            query = f"""UPDATE {target_table} n
-            SET {target_column} = cte.aa_fids
-            FROM (
-            SELECT tf.osm_id, array_agg(cu.ogc_fid) AS aa_fids
-            FROM {target_table} tf
-            JOIN {source_table} cu ON ST_Intersects(tf.{target_geom}, cu.{source_geom})
-            WHERE tf.timestamp >= '{start}'
-            AND tf.timestamp <= '{end}'
-            GROUP BY tf.osm_id
-            ) cte
-            WHERE n.osm_id = cte.osm_id;"""
+            query = f"""with t1 as(
+                        select
+                            osm_id ,
+                            array((
+                            select
+                                b.{source_column}
+                            from
+                                {source_table} b
+                            where
+                                ST_Intersects( tf.{target_geom} ,
+                                b.{source_geom})
+                                            )) as cids
+                        from
+                            {target_table} tf
+                        where
+                            tf.timestamp >= '{start}'
+                            and tf.timestamp <= '{end}'
+                        )
+                        update
+                            {target_table} n
+                        set
+                            {target_column} = t1.cids
+                        from
+                            t1
+                        where
+                            n.osm_id = t1.osm_id"""
+            # query = f"""UPDATE {target_table} n
+            # SET {target_column} = cte.aa_fids
+            # FROM (
+            # SELECT tf.osm_id, array_agg(cu.{source_column}) AS aa_fids
+            # FROM {target_table} tf
+            # JOIN {source_table} cu ON ST_Intersects(tf.{target_geom}, cu.{source_geom})
+            # WHERE tf.timestamp >= '{start}'
+            # AND tf.timestamp <= '{end}'
+            # GROUP BY tf.osm_id
+            # ) cte
+            # WHERE n.osm_id = cte.osm_id;"""
 
         else:
             query = f"""
@@ -253,6 +281,10 @@ class Raw:
             while freq_date >= end_batch_date:
                 loop_count += 1
                 freq_date -= relativedelta(months=1)
+        elif batch_frequency == BatchFrequency.HOURLY:
+            while freq_date >= end_batch_date:
+                loop_count += 1
+                freq_date -= relativedelta(hours=1)
         else:
             loop_count = (looping_date - end_batch_date).days
         with tqdm(

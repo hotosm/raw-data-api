@@ -58,7 +58,7 @@ def parse_arguments():
     parser.add_argument(
         "--fq",
         type=str,
-        choices=["d", "w", "m"],
+        choices=["d", "w", "m", "h"],
         default="d",
         help="Field update frequency for updating country during insert , default is daily",
     )
