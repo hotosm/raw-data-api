@@ -179,43 +179,43 @@ class Raw:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-            query = f"""with t1 as(
-                        select
-                            osm_id ,
-                            array((
-                            select
-                                b.{source_column}
-                            from
-                                {source_table} b
-                            where
-                                ST_Intersects( tf.{target_geom} ,
-                                b.{source_geom})
-                                            )) as cids
-                        from
-                            {target_table} tf
-                        where
-                            tf.timestamp >= '{start}'
-                            and tf.timestamp <= '{end}'
-                        )
-                        update
-                            {target_table} n
-                        set
-                            {target_column} = t1.cids
-                        from
-                            t1
-                        where
-                            n.osm_id = t1.osm_id"""
-            # query = f"""UPDATE {target_table} n
-            # SET {target_column} = cte.aa_fids
-            # FROM (
-            # SELECT tf.osm_id, array_agg(cu.{source_column}) AS aa_fids
-            # FROM {target_table} tf
-            # JOIN {source_table} cu ON ST_Intersects(tf.{target_geom}, cu.{source_geom})
-            # WHERE tf.timestamp >= '{start}'
-            # AND tf.timestamp <= '{end}'
-            # GROUP BY tf.osm_id
-            # ) cte
-            # WHERE n.osm_id = cte.osm_id;"""
+            # query = f"""with t1 as(
+            #             select
+            #                 osm_id ,
+            #                 array((
+            #                 select
+            #                     b.{source_column}
+            #                 from
+            #                     {source_table} b
+            #                 where
+            #                     ST_Intersects( tf.{target_geom} ,
+            #                     b.{source_geom})
+            #                                 )) as cids
+            #             from
+            #                 {target_table} tf
+            #             where
+            #                 tf.timestamp >= '{start}'
+            #                 and tf.timestamp <= '{end}'
+            #             )
+            #             update
+            #                 {target_table} n
+            #             set
+            #                 {target_column} = t1.cids
+            #             from
+            #                 t1
+            #             where
+            #                 n.osm_id = t1.osm_id"""
+            query = f"""UPDATE {target_table} n
+            SET {target_column} = cte.aa_fids
+            FROM (
+            SELECT tf.osm_id, array_agg(cu.{source_column}) AS aa_fids
+            FROM {target_table} tf
+            JOIN {source_table} cu ON ST_Intersects(tf.{target_geom}, cu.{source_geom})
+            WHERE tf.timestamp >= '{start}'
+            AND tf.timestamp <= '{end}'
+            GROUP BY tf.osm_id
+            ) cte
+            WHERE n.osm_id = cte.osm_id;"""
 
         else:
             query = f"""
