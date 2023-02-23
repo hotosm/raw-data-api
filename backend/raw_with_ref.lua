@@ -107,9 +107,8 @@ tables.rels = osm2pgsql.define_table{
 -- Returns true if there are no tags left.
 function clean_tags(tags)
     tags.odbl = nil
-    tags.created_by = nil
+    -- tags.created_by = nil
     tags['source:ref'] = nil
-
     return next(tags) == nil
 end
 
