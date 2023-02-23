@@ -179,33 +179,56 @@ class Raw:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-            temp_table = f"temp_table_{target_table}_{target_column}"
-            select_query = f"""
-            SELECT tf.osm_id, array_agg(cu.{source_column}) AS aa_fids
-            FROM {target_table} tf
-            JOIN {source_table} cu ON ST_Intersects(tf.{target_geom}, cu.{source_geom})
-            WHERE tf.timestamp >= '{start}'
-            AND tf.timestamp <= '{end}'
-            GROUP BY tf.osm_id
-            """
-            insert_query = f"""
-            CREATE TEMPORARY TABLE {temp_table} AS
-            {select_query}
-            """
-            self.database.executequery(insert_query)
+            # Define the batch size
+            batch_size = 1000
 
-            # Update the target table from the temporary table
-            update_query = f"""
-            UPDATE {target_table} n
-            SET {target_column} = cte.aa_fids
-            FROM {temp_table} cte
-            WHERE n.osm_id = cte.osm_id
-            """
-            self.database.executequery(update_query)
+            # Select the data to be updated using a subquery
+            # select_query = f"""
+            # SELECT n.osm_id, array_agg(cu.{source_column}) AS aa_fids
+            # FROM {target_table} n
+            # JOIN {source_table} cu ON ST_Intersects(n.{target_geom}, cu.{source_geom})
+            # WHERE n.timestamp >= '{start}'
+            # AND n.timestamp <= '{end}'
+            # GROUP BY n.osm_id
+            # """
+            select_query = f"""select
+                            osm_id ,
+                            array((
+                            select
+                                b.{source_column}
+                            from
+                                {source_table} b
+                            where
+                                ST_Intersects( tf.{target_geom} ,
+                                b.{source_geom})
+                                            )) as cids
+                        from
+                            {target_table} tf
+                        where
+                            tf.timestamp >= '{start}'
+                            and tf.timestamp <= '{end}'"""
 
-            # Drop the temporary table
-            drop_query = f"DROP TABLE IF EXISTS {temp_table}"
-            self.database.executequery(drop_query)
+            # Execute the select query and fetch the results in batches
+            self.cur.execute(select_query)
+            while True:
+                rows = self.cur.fetchmany(batch_size)
+                if not rows:
+                    break
+
+                # Update the target table in batches
+                for row in rows:
+                    osm_id, aa_fids = row
+                    update_query = f"""
+                    UPDATE {target_table} n
+                    SET {target_column} = %s
+                    WHERE n.osm_id = %s
+                    """
+                    self.cur.execute(update_query, (aa_fids, osm_id))
+
+                # Commit the changes for each batch
+                self.con.commit()
+                if self.cur.rowcount < batch_size:
+                    break
 
         else:
             query = f"""
