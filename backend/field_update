@@ -179,43 +179,33 @@ class Raw:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-            # query = f"""with t1 as(
-            #             select
-            #                 osm_id ,
-            #                 array((
-            #                 select
-            #                     b.{source_column}
-            #                 from
-            #                     {source_table} b
-            #                 where
-            #                     ST_Intersects( tf.{target_geom} ,
-            #                     b.{source_geom})
-            #                                 )) as cids
-            #             from
-            #                 {target_table} tf
-            #             where
-            #                 tf.timestamp >= '{start}'
-            #                 and tf.timestamp <= '{end}'
-            #             )
-            #             update
-            #                 {target_table} n
-            #             set
-            #                 {target_column} = t1.cids
-            #             from
-            #                 t1
-            #             where
-            #                 n.osm_id = t1.osm_id"""
-            query = f"""UPDATE {target_table} n
-            SET {target_column} = cte.aa_fids
-            FROM (
+            temp_table = f"temp_table_{target_table}_{target_column}"
+            select_query = f"""
             SELECT tf.osm_id, array_agg(cu.{source_column}) AS aa_fids
             FROM {target_table} tf
             JOIN {source_table} cu ON ST_Intersects(tf.{target_geom}, cu.{source_geom})
             WHERE tf.timestamp >= '{start}'
             AND tf.timestamp <= '{end}'
             GROUP BY tf.osm_id
-            ) cte
-            WHERE n.osm_id = cte.osm_id;"""
+            """
+            insert_query = f"""
+            CREATE TEMPORARY TABLE {temp_table} AS
+            {select_query}
+            """
+            self.database.executequery(insert_query)
+
+            # Update the target table from the temporary table
+            update_query = f"""
+            UPDATE {target_table} n
+            SET {target_column} = cte.aa_fids
+            FROM {temp_table} cte
+            WHERE n.osm_id = cte.osm_id
+            """
+            self.database.executequery(update_query)
+
+            # Drop the temporary table
+            drop_query = f"DROP TABLE IF EXISTS {temp_table}"
+            self.database.executequery(drop_query)
 
         else:
             query = f"""
@@ -239,7 +229,7 @@ class Raw:
             where
                 wp.osm_id = tf.osm_id"""
 
-        self.database.executequery(query)
+            self.database.executequery(query)
         # logging.debug(f"""Changed Row : {result}""")
 
     def batch_update(
