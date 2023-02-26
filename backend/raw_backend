@@ -221,6 +221,10 @@ if __name__ == "__main__":
         ]
         run_subprocess_cmd(country_table)
 
+        if args.replication: # initialize replication 
+            replication_init = ["python", os.path.join(working_dir, "replication"), "init"]
+            run_subprocess_cmd(replication_init)
+
     update_cmd_list = []
     if args.update or args.insert:
         ## initiate country update for nodes
@@ -330,8 +334,7 @@ if __name__ == "__main__":
         )
     if args.replication:
         print("Starting Replication")
-        replication_init = ["python", os.path.join(working_dir, "replication"), "init"]
-        run_subprocess_cmd(replication_init)
+
         replication_cmd = [
             "python",
             os.path.join(working_dir, "replication"),
