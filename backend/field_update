@@ -153,6 +153,7 @@ class Raw:
     def __init__(self, parameters=None):
         self.database = Database()
         self.con, self.cur = self.database.connect()
+
         self.params = parameters
 
     def getMax_timestamp(self, table):
@@ -180,17 +181,24 @@ class Raw:
         """Function that updates column of table"""
         if insert_type.lower() == "array":
             # Define the batch size
-            batch_size = 1000
+            batch_size = 500
 
             # Select the data to be updated using a subquery
             # select_query = f"""
+            # with t1 as (
             # SELECT n.osm_id, array_agg(cu.{source_column}) AS aa_fids
             # FROM {target_table} n
             # JOIN {source_table} cu ON ST_Intersects(n.{target_geom}, cu.{source_geom})
             # WHERE n.timestamp >= '{start}'
             # AND n.timestamp <= '{end}'
-            # GROUP BY n.osm_id
+            # GROUP BY n.osm_id )
+            # update {target_table} uw
+            # set {target_column}= t1.aa_fids
+            # from t1
+            # where t1.osm_id= uw.osm_id
             # """
+            # self.database.executequery(select_query)
+
             select_query = f"""select
                             osm_id ,
                             array((
@@ -208,27 +216,35 @@ class Raw:
                             tf.timestamp >= '{start}'
                             and tf.timestamp <= '{end}'"""
 
-            # Execute the select query and fetch the results in batches
-            self.cur.execute(select_query)
+            # Execute the select query and fetch the results in batches+
+            self.server_side_cur = self.con.cursor(name="raw_server_side_cursor")
+            self.server_side_cur.execute(select_query)
+            # Update the target table in batches
             while True:
-                rows = self.cur.fetchmany(batch_size)
+                # Fetch the next batch of rows
+                rows = self.server_side_cur.fetchmany(batch_size)
                 if not rows:
                     break
 
-                # Update the target table in batches
+                # Process the rows in batches
+                update_values = []
+                osm_ids = []
                 for row in rows:
                     osm_id, aa_fids = row
-                    update_query = f"""
-                    UPDATE {target_table} n
-                    SET {target_column} = %s
-                    WHERE n.osm_id = %s
-                    """
-                    self.cur.execute(update_query, (aa_fids, osm_id))
+                    osm_ids.append(osm_id)
+                    update_values.append(f"({osm_id}, ARRAY{aa_fids})")
 
-                # Commit the changes for each batch
-                self.con.commit()
-                if self.cur.rowcount < batch_size:
-                    break
+                # Update the target table for this batch of rows
+                update_query = f"""
+                UPDATE {target_table} n
+                SET {target_column} = x.{target_column}
+                FROM (VALUES {','.join(update_values)}) AS x(osm_id, {target_column})
+                WHERE n.osm_id = x.osm_id;
+                """
+                self.cur.execute(update_query)
+
+            self.server_side_cur.close()
+            self.con.commit()
 
         else:
             query = f"""
