@@ -184,64 +184,64 @@ class Raw:
             batch_size = 500
 
             # Select the data to be updated using a subquery
-            # select_query = f"""
-            # with t1 as (
-            # SELECT n.osm_id, array_agg(cu.{source_column}) AS aa_fids
-            # FROM {target_table} n
-            # JOIN {source_table} cu ON ST_Intersects(n.{target_geom}, cu.{source_geom})
-            # WHERE n.timestamp >= '{start}'
-            # AND n.timestamp <= '{end}'
-            # GROUP BY n.osm_id )
-            # update {target_table} uw
-            # set {target_column}= t1.aa_fids
-            # from t1
-            # where t1.osm_id= uw.osm_id
-            # """
-            # self.database.executequery(select_query)
+            select_query = f"""
+            with t1 as (
+            SELECT n.osm_id, array_agg(cu.{source_column}) AS aa_fids
+            FROM {target_table} n
+            JOIN {source_table} cu ON ST_Intersects(n.{target_geom}, cu.{source_geom})
+            WHERE n.timestamp >= '{start}'
+            AND n.timestamp <= '{end}'
+            GROUP BY n.osm_id )
+            update {target_table} uw
+            set {target_column}= t1.aa_fids
+            from t1
+            where t1.osm_id= uw.osm_id
+            """
+            self.database.executequery(select_query)
 
-            select_query = f"""select
-                            osm_id ,
-                            array((
-                            select
-                                b.{source_column}
-                            from
-                                {source_table} b
-                            where
-                                ST_Intersects( tf.{target_geom} ,
-                                b.{source_geom})
-                                            )) as cids
-                        from
-                            {target_table} tf
-                        where
-                            tf.timestamp >= '{start}'
-                            and tf.timestamp <= '{end}'"""
+            # select_query = f"""select
+            #                 osm_id ,
+            #                 array((
+            #                 select
+            #                     b.{source_column}
+            #                 from
+            #                     {source_table} b
+            #                 where
+            #                     ST_Intersects( tf.{target_geom} ,
+            #                     b.{source_geom})
+            #                                 )) as cids
+            #             from
+            #                 {target_table} tf
+            #             where
+            #                 tf.timestamp >= '{start}'
+            #                 and tf.timestamp <= '{end}'"""
 
-            # Execute the select query and fetch the results in batches+
-            self.server_side_cur = self.con.cursor(name="raw_server_side_cursor")
-            self.server_side_cur.execute(select_query)
-            # Update the target table in batches
-            while True:
-                # Fetch the next batch of rows
-                rows = self.server_side_cur.fetchmany(batch_size)
-                if not rows:
-                    break
+            # # Execute the select query and fetch the results in batches+
+            # self.server_side_cur = self.con.cursor(name="raw_server_side_cursor")
+            # self.server_side_cur.execute(select_query)
+            # # Update the target table in batches
+            # while True:
+            #     # Fetch the next batch of rows
+            #     rows = self.server_side_cur.fetchmany(batch_size)
+            #     if not rows:
+            #         break
 
-                # Process the rows in batches
-                update_values = []
-                osm_ids = []
-                for row in rows:
-                    osm_id, aa_fids = row
-                    osm_ids.append(osm_id)
-                    update_values.append(f"({osm_id}, ARRAY{aa_fids})")
+            #     # Process the rows in batches
+            #     update_values = []
+            #     osm_ids = []
+            #     for row in rows:
+            #         osm_id, aa_fids = row
+            #         osm_ids.append(osm_id)
+            #         update_values.append(f"({osm_id}, ARRAY{aa_fids})")
 
-                # Update the target table for this batch of rows
-                update_query = f"""
-                UPDATE {target_table} n
-                SET {target_column} = x.{target_column}
-                FROM (VALUES {','.join(update_values)}) AS x(osm_id, {target_column})
-                WHERE n.osm_id = x.osm_id;
-                """
-                self.cur.execute(update_query)
+            #     # Update the target table for this batch of rows
+            #     update_query = f"""
+            #     UPDATE {target_table} n
+            #     SET {target_column} = x.{target_column}
+            #     FROM (VALUES {','.join(update_values)}) AS x(osm_id, {target_column})
+            #     WHERE n.osm_id = x.osm_id;
+            #     """
+            #     self.cur.execute(update_query)
 
             self.server_side_cur.close()
             self.con.commit()
