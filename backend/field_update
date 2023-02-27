@@ -243,8 +243,8 @@ class Raw:
             #     """
             #     self.cur.execute(update_query)
 
-            self.server_side_cur.close()
-            self.con.commit()
+            # self.server_side_cur.close()
+            # self.con.commit()
 
         else:
             query = f"""
