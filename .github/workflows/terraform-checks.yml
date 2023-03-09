@@ -4,12 +4,18 @@ on:
   push:
     branches:
       - master
+      - main
+      - develop
+      - "deployment/**"
     paths:
       - infra/**
 
   pull_request:
     branches:
       - master
+      - main
+      - develop
+      - "deployment/**"
     paths:
       - infra/**
 
