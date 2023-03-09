@@ -171,7 +171,7 @@ resource "azurerm_postgresql_flexible_server" "raw-data" {
   name = join("-", [
     var.project_name,
     var.deployment_environment,
-    random_pet.raw_data
+    random_pet.raw_data.id
   ])
   resource_group_name = azurerm_resource_group.raw-data.name
   location            = azurerm_resource_group.raw-data.location
@@ -210,7 +210,7 @@ resource "azurerm_redis_cache" "raw-data-queue" {
   name = join("-", [
     var.project_name,
     var.deployment_environment,
-    random_pet.raw_data
+    random_pet.raw_data.id
   ])
   resource_group_name = azurerm_resource_group.raw-data.name
   location            = azurerm_resource_group.raw-data.location
@@ -220,6 +220,4 @@ resource "azurerm_redis_cache" "raw-data-queue" {
 
   minimum_tls_version = "1.2"
   redis_version       = 6
-
-
 }
