@@ -21,17 +21,19 @@ on:
 
 jobs:
   terraform-CI-checks-staging:
-    name: "Terraform Staging Checks"
+    name: "Formatting and validation Checks for Staging"
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: infra
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_CLOUD_TOKEN }}
 
       - name: Check code formating
         id: fmt
@@ -46,17 +48,19 @@ jobs:
         run: terraform validate -no-color
 
   terraform-CI-check-production:
-    name: "Terraform Production Checks"
+    name: "Formatting and validation Checks for Production"
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: infra/production
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_CLOUD_TOKEN }}
 
       - name: Check code formating
         id: fmt
@@ -78,10 +82,7 @@ jobs:
         working-directory: infra
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: actions/checkout@v3
 
       - name: Run Terrascan on staging
         id: terrascan
@@ -101,10 +102,7 @@ jobs:
         working-directory: infra/production
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: actions/checkout@v3
 
       - name: Run Terrascan on production
         id: terrascan
@@ -118,7 +116,7 @@ jobs:
 
   checkov-staging:
     runs-on: ubuntu-latest
-    name: checkov-tests-staging
+    name: "Checkov Staging Checks1"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -133,7 +131,7 @@ jobs:
 
   checkov-production:
     runs-on: ubuntu-latest
-    name: checkov-tests-production
+    name: "Checkov Production Checks"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
