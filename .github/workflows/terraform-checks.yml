@@ -116,7 +116,7 @@ jobs:
 
   checkov-staging:
     runs-on: ubuntu-latest
-    name: "Checkov Staging Checks1"
+    name: "Checkov Staging Checks"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -125,7 +125,6 @@ jobs:
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: infra/
-          soft_fail: true
           output_format: cli,sarif
           output_file_path: console,results.sarif
 
@@ -140,7 +139,6 @@ jobs:
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: infra/production/
-          soft_fail: true
           output_format: cli,sarif
           output_file_path: console,results.sarif
 
