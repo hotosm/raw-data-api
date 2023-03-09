@@ -36,7 +36,11 @@ resource "azurerm_subnet" "raw-data" {
 /** Key Vault stores database password
 **/
 resource "azurerm_key_vault" "raw-data" {
-  name                = join("-", [var.project_name, var.deployment_environment])
+  name = join("-", [
+    var.project_name,
+    var.deployment_environment,
+    random_pet.raw_data.id
+  ])
   location            = azurerm_resource_group.raw-data.location
   resource_group_name = azurerm_resource_group.raw-data.name
   sku_name            = "standard"
