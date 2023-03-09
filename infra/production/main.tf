@@ -2,8 +2,16 @@ data "tfe_ip_ranges" "addresses" {}
 
 data "azurerm_client_config" "current" {}
 
+resource "random_string" "raw_data_db_password" {
+  length           = 20
+  override_special = "*()-_=+[]{}<>"
+}
+
+resource "random_pet" "raw_data" {
+}
+
 resource "azurerm_resource_group" "raw-data" {
-  name     = var.project_name
+  name     = join("-", [var.project_name, random_pet.raw_data.id])
   location = var.arm_location
 }
 
@@ -23,14 +31,6 @@ resource "azurerm_subnet" "raw-data" {
   address_prefixes     = [cidrsubnet(azurerm_virtual_network.raw-data.address_space[0], 8, 0)]
 
   service_endpoints = ["Microsoft.KeyVault"]
-}
-
-resource "random_string" "raw_data_db_password" {
-  length           = 20
-  override_special = "*()-_=+[]{}<>"
-}
-
-resource "random_pet" "raw_data" {
 }
 
 /** Key Vault stores database password
