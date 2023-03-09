@@ -4,14 +4,18 @@ on:
   push:
     branches:
       - master
+    paths:
+      - infra/**
 
   pull_request:
     branches:
       - master
+    paths:
+      - infra/**
 
 jobs:
-  terraform-hcl-format-check:
-    name: "Code formating"
+  terraform-CI-checks-staging:
+    name: "Terraform Staging Checks"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -35,7 +39,45 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
-      - name: Run Terrascan
+  terraform-CI-check-production:
+    name: "Terraform Production Checks"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Check code formating
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Initialise modules
+        id: init
+        run: terraform init
+
+      - name: Validate template
+        id: validate
+        run: terraform validate -no-color
+
+  terrascan-staging:
+    name: "Terrascan Staging Checks"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Run Terrascan on staging
         id: terrascan
         uses: tenable/terrascan-action@main
         with:
@@ -44,3 +86,57 @@ jobs:
           iac_version: "v14"
           policy_type: "all"
           only_warn: true
+
+  terrascan-production:
+    name: "Terrascan Production Checks"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Run Terrascan on production
+        id: terrascan
+        uses: tenable/terrascan-action@main
+        with:
+          iac_type: "terraform"
+          iac_dir: "./infra/production"
+          iac_version: "v14"
+          policy_type: "all"
+          only_warn: true
+
+  checkov-staging:
+    runs-on: ubuntu-latest
+    name: checkov-tests-staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Checkov GitHub Action
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: infra/
+          soft_fail: true
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+
+  checkov-production:
+    runs-on: ubuntu-latest
+    name: checkov-tests-production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Checkov GitHub Action
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: infra/production/
+          soft_fail: true
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+
