@@ -92,7 +92,6 @@ jobs:
           iac_dir: "./infra"
           iac_version: "v14"
           policy_type: "all"
-          only_warn: true
 
   terrascan-production:
     name: "Terrascan Production Checks"
@@ -112,7 +111,6 @@ jobs:
           iac_dir: "./infra/production"
           iac_version: "v14"
           policy_type: "all"
-          only_warn: true
 
   checkov-staging:
     runs-on: ubuntu-latest
