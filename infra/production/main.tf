@@ -10,6 +10,7 @@ resource "random_string" "raw_data_db_password" {
 resource "random_string" "raw_data" {
   length  = 3
   special = false
+  upper   = false
 }
 
 resource "azurerm_resource_group" "raw-data" {
