@@ -7,11 +7,13 @@ resource "random_string" "raw_data_db_password" {
   override_special = "*()-_=+[]{}<>"
 }
 
-resource "random_pet" "raw_data" {
+resource "random_string" "raw_data" {
+  length  = 3
+  special = false
 }
 
 resource "azurerm_resource_group" "raw-data" {
-  name     = join("-", [var.project_name, random_pet.raw_data.id])
+  name     = join("-", [var.project_name, random_string.raw_data.id])
   location = var.arm_location
 }
 
@@ -34,12 +36,13 @@ resource "azurerm_subnet" "raw-data" {
 }
 
 /** Key Vault stores database password
-**/
+ ** Key Vault name has a length constraint 8-24 chars
+ **/
 resource "azurerm_key_vault" "raw-data" {
   name = join("-", [
     var.project_name,
     var.deployment_environment,
-    random_pet.raw_data.id
+    random_string.raw_data.id
   ])
   location            = azurerm_resource_group.raw-data.location
   resource_group_name = azurerm_resource_group.raw-data.name
@@ -175,7 +178,7 @@ resource "azurerm_postgresql_flexible_server" "raw-data" {
   name = join("-", [
     var.project_name,
     var.deployment_environment,
-    random_pet.raw_data.id
+    random_string.raw_data.id
   ])
   resource_group_name = azurerm_resource_group.raw-data.name
   location            = azurerm_resource_group.raw-data.location
@@ -214,7 +217,7 @@ resource "azurerm_redis_cache" "raw-data-queue" {
   name = join("-", [
     var.project_name,
     var.deployment_environment,
-    random_pet.raw_data.id
+    random_string.raw_data.id
   ])
   resource_group_name = azurerm_resource_group.raw-data.name
   location            = azurerm_resource_group.raw-data.location
