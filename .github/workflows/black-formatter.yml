@@ -1,6 +1,8 @@
 name: black-action
 on:
   push:
+    paths-ignore:
+      - 'infra/**'
     branches:
       - master
       - develop

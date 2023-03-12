@@ -1,6 +1,8 @@
 name: black-action
 on:
   pull_request:
+    paths-ignore:
+      - 'infra/**'
     branches:
       - master
       - develop
