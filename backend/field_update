@@ -182,7 +182,7 @@ class Raw:
         if insert_type.lower() == "array":
             select_geom = (
                 f"ST_Centroid({target_geom}) AS geom"
-                if target_table == "ways_poly"
+                if target_table in ["ways_poly", "nodes"]
                 else f"{target_geom} as geom"
             )
 
