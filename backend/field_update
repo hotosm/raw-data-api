@@ -180,50 +180,41 @@ class Raw:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-            if target_table == "ways_poly":
-                select_query = f"""WITH 
-                t1 AS (
-                    SELECT 
-                        osm_id,
-                        ST_Centroid({target_geom}) AS centroid_geom
-                    FROM 
-                        {target_table}
-                    WHERE 
-                        timestamp BETWEEN '{start}'::timestamp AND '{end}'::timestamp
-                ),
-                t2 AS (
-                    SELECT 
-                        t1.osm_id,
-                        array_agg(cg.{source_column}) AS aa_fids
-                    FROM 
-                        t1
-                    INNER JOIN 
-                        {source_table} cg ON ST_Intersects(t1.centroid_geom, cg.{source_geom})
-                    GROUP BY 
-                        t1.osm_id
-                )
-                UPDATE 
-                    {target_table} uw
-                SET 
-                    {target_column} = t2.aa_fids
+            select_geom = (
+                f"ST_Centroid({target_geom}) AS geom"
+                if target_table == "ways_poly"
+                else f"{target_geom}as geom"
+            )
+
+            select_query = f"""WITH 
+            t1 AS (
+                SELECT 
+                    osm_id,
+                    {select_geom}
                 FROM 
-                    t2
+                    {target_table}
                 WHERE 
-                    t2.osm_id = uw.osm_id;"""
-            else:
-                # Select the data to be updated using a subquery
-                select_query = f"""
-                with t1 as (
-                SELECT n.osm_id, array_agg(cu.{source_column}) AS aa_fids
-                FROM {target_table} n
-                INNER JOIN {source_table} cu ON ST_Intersects(n.{target_geom}, cu.{source_geom})
-                WHERE n.timestamp BETWEEN '{start}'::timestamp AND '{end}'::timestamp
-                GROUP BY n.osm_id )
-                update {target_table} uw
-                set {target_column}= t1.aa_fids
-                from t1
-                where t1.osm_id= uw.osm_id
-                """
+                    timestamp BETWEEN '{start}'::timestamp AND '{end}'::timestamp
+            ),
+            t2 AS (
+                SELECT 
+                    t1.osm_id,
+                    array_agg(cg.{source_column}) AS aa_fids
+                FROM 
+                    t1
+                INNER JOIN 
+                    {source_table} cg ON ST_Intersects(t1.geom, cg.{source_geom})
+                GROUP BY 
+                    t1.osm_id
+            )
+            UPDATE 
+                {target_table} uw
+            SET 
+                {target_column} = t2.aa_fids
+            FROM 
+                t2
+            WHERE 
+                t2.osm_id = uw.osm_id;"""
             self.database.executequery(select_query)
 
         else:
