@@ -2,11 +2,6 @@ data "tfe_ip_ranges" "addresses" {}
 
 data "azurerm_client_config" "current" {}
 
-data "azuread_group" "admin" {
-  display_name     = "Admin"
-  security_enabled = true
-}
-
 resource "random_string" "raw_data_db_password" {
   length           = 20
   override_special = "*()-_=+[]{}<>"
@@ -78,7 +73,7 @@ resource "azurerm_key_vault" "raw-data" {
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azuread_group.admin.object_id
+    object_id = var.azuread_admin_group_object_id
 
     key_permissions = [
       "List",
