@@ -180,17 +180,12 @@ class Raw:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-            select_geom = (
-                f"ST_Centroid({target_geom}) AS geom"
-                if target_table in ["ways_poly", "nodes"]
-                else f"{target_geom} as geom"
-            )
 
             select_query = f"""WITH 
             t1 AS (
                 SELECT 
                     osm_id,
-                    {select_geom}
+                    ST_Centroid({target_geom}) AS geom
                 FROM 
                     {target_table}
                 WHERE 
