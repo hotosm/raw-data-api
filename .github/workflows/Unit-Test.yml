@@ -1,6 +1,8 @@
 name: Unit Test
 on:
   push:
+    paths-ignore:
+      - 'infra/**'
     branches:
       - master
       - develop
