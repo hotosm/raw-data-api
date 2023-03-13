@@ -183,7 +183,7 @@ class Raw:
             select_geom = (
                 f"ST_Centroid({target_geom}) AS geom"
                 if target_table == "ways_poly"
-                else f"{target_geom}as geom"
+                else f"{target_geom} as geom"
             )
 
             select_query = f"""WITH 
