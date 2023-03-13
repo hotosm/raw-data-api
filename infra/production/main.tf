@@ -2,6 +2,11 @@ data "tfe_ip_ranges" "addresses" {}
 
 data "azurerm_client_config" "current" {}
 
+data "azuread_group" "admin" {
+  display_name     = "Admin"
+  security_enabled = true
+}
+
 resource "random_string" "raw_data_db_password" {
   length           = 20
   override_special = "*()-_=+[]{}<>"
@@ -61,18 +66,42 @@ resource "azurerm_key_vault" "raw-data" {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = data.azurerm_client_config.current.object_id
 
+    secret_permissions = [
+      "Set",
+      "Get",
+      "List",
+      "Delete",
+      "Purge"
+    ]
+
+  }
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = data.azuread_group.admin.object_id
+
     key_permissions = [
       "List",
       "Get",
+      "Delete",
+      "Purge",
+      "Rotate"
     ]
 
     secret_permissions = [
       "Set",
       "Get",
       "List",
+      "Delete",
+      "Purge"
     ]
 
     storage_permissions = [
+      "Get",
+      "Set",
+      "List",
+      "Purge",
+      "Update"
     ]
   }
 
