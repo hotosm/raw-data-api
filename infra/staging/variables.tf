@@ -31,7 +31,7 @@ variable "arm_location" {
 
 variable "deployment_environment" {
   type    = string
-  default = "production"
+  default = "staging"
 }
 
 variable "admin_usernames" {
