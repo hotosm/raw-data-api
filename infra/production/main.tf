@@ -259,7 +259,7 @@ resource "azurerm_virtual_machine_extension" "newrelic-infra-agent" {
   virtual_machine_id         = azurerm_linux_virtual_machine.raw-data-backend.id
   publisher                  = "NewRelic.Infrastructure.Extensions"
   type                       = "newrelic-infra"
-  type_handler_version       = "1.2.9"
+  type_handler_version       = "1.2.8"
   auto_upgrade_minor_version = true
   automatic_upgrade_enabled  = true
   settings = jsonencode(
@@ -346,6 +346,8 @@ resource "azurerm_redis_cache" "raw-data-queue" {
 
   minimum_tls_version = "1.2"
   redis_version       = 6
+
+  public_network_access_enabled = false
 
   tags = local.required_tags
 }
