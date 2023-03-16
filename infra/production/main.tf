@@ -36,6 +36,27 @@ resource "azurerm_subnet" "raw-data" {
   service_endpoints = ["Microsoft.KeyVault"]
 }
 
+resource "azurerm_subnet" "raw-data-db" {
+  name                 = join("-", [var.project_name, "database", var.deployment_environment])
+  resource_group_name  = azurerm_resource_group.raw-data.name
+  virtual_network_name = azurerm_virtual_network.raw-data.name
+  address_prefixes     = [cidrsubnet(azurerm_virtual_network.raw-data.address_space[0], 8, 1)]
+
+  delegation {
+    name = "postgres"
+
+    service_delegation {
+      name = "Microsoft.DBforPostgreSQL/flexibleServers"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action"
+      ]
+    }
+  }
+
+  service_endpoints = ["Microsoft.KeyVault"]
+}
+
+
 /** Key Vault stores database password
  ** Key Vault name has a length constraint 8-24 chars
  **/
@@ -199,15 +220,31 @@ resource "azurerm_linux_virtual_machine" "raw-data-backend" {
   }
 }
 
+resource "azurerm_private_dns_zone" "raw-data-db" {
+  name = join("", [
+    var.project_name,
+    random_string.raw_data.id,
+    ".postgres.database.azure.com"
+    ]
+  )
+  resource_group_name = azurerm_resource_group.raw-data.name
+
+tags = {
+} 
+}
+
 resource "azurerm_postgresql_flexible_server" "raw-data" {
   name = join("-", [
     var.project_name,
     var.deployment_environment,
     random_string.raw_data.id
-  ])
+    ]
+  )
   resource_group_name = azurerm_resource_group.raw-data.name
   location            = azurerm_resource_group.raw-data.location
   sku_name            = lookup(var.server_skus, "database")
+  delegated_subnet_id = azurerm_subnet.raw-data-db.id
+  private_dns_zone_id = azurerm_private_dns_zone.raw-data-db.id
 
   administrator_login    = lookup(var.admin_usernames, "database")
   administrator_password = azurerm_key_vault_secret.raw-data-db.value
@@ -236,6 +273,11 @@ resource "azurerm_postgresql_flexible_server_configuration" "raw-data-postgis" {
   name      = "azure.extensions"
   server_id = azurerm_postgresql_flexible_server.raw-data.id
   value     = "BTREE_GIST,INTARRAY,POSTGIS"
+}
+
+resource "azurerm_postgresql_flexible_server_database" "default-db" {
+  name      = "osm_raw_data"
+  server_id = azurerm_postgresql_flexible_server.raw-data.id
 }
 
 resource "azurerm_redis_cache" "raw-data-queue" {
