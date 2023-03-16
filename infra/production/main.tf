@@ -69,7 +69,10 @@ resource "azurerm_subnet" "raw-data-db" {
     }
   }
 
-  service_endpoints = ["Microsoft.KeyVault"]
+  service_endpoints = [
+    "Microsoft.KeyVault",
+    "Microsoft.Storage"
+  ]
 }
 
 
