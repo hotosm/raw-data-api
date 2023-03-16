@@ -66,3 +66,8 @@ variable "azuread_admin_group_object_id" {
   type    = string
   default = ""
 }
+
+variable "newrelic_license_key" {
+  type    = string
+  default = ""
+}

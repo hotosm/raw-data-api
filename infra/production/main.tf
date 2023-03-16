@@ -254,6 +254,21 @@ resource "azurerm_virtual_machine_data_disk_attachment" "backend-volume" {
   caching            = "None"
 }
 
+resource "azurerm_virtual_machine_extension" "newrelic-infra-agent" {
+  name                       = "hostname"
+  virtual_machine_id         = azurerm_linux_virtual_machine.raw-data-backend.id
+  publisher                  = "NewRelic.Infrastructure.Extensions"
+  type                       = "newrelic-infra"
+  type_handler_version       = "1.2.9"
+  auto_upgrade_minor_version = true
+  automatic_upgrade_enabled  = true
+  settings = jsonencode(
+    {
+      "NR_LICENSE_KEY" = var.newrelic_license_key
+    }
+  )
+}
+
 resource "azurerm_private_dns_zone" "raw-data-db" {
   name = join("", [
     var.project_name,
