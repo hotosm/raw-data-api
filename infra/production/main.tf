@@ -229,11 +229,26 @@ resource "azurerm_private_dns_zone" "raw-data-db" {
   )
   resource_group_name = azurerm_resource_group.raw-data.name
 
-tags = {
-} 
+  tags = {
+  }
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns-link" {
+  name                = "priv-dns-vnet-link"
+  resource_group_name = azurerm_resource_group.raw-data.name
+
+  private_dns_zone_name = azurerm_private_dns_zone.raw-data-db.name
+  virtual_network_id    = azurerm_virtual_network.raw-data.name
+
+  tags = {
+  }
 }
 
 resource "azurerm_postgresql_flexible_server" "raw-data" {
+  depends_on = [
+    azurerm_private_dns_zone_virtual_network_link.dns-link
+  ]
+
   name = join("-", [
     var.project_name,
     var.deployment_environment,
