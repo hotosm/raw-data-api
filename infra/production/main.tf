@@ -2,6 +2,22 @@ data "tfe_ip_ranges" "addresses" {}
 
 data "azurerm_client_config" "current" {}
 
+locals {
+  required_tags = {
+    deployment_environment    = var.deployment_environment
+    infrastructure_management = "terraform"
+    project                   = var.project_name
+  }
+
+  conditional_tags = {
+    _monitor_cloudwatch     = "Yes"
+    _monitor_newrelic_infra = "Yes"
+    _monitor_apm            = "No"
+    _monitor_sentry         = "No"
+    _patch_management       = "No"
+  }
+}
+
 resource "random_string" "raw_data_db_password" {
   length           = 20
   override_special = "*()-_=+[]{}<>"
@@ -23,8 +39,8 @@ resource "azurerm_virtual_network" "raw-data" {
   resource_group_name = azurerm_resource_group.raw-data.name
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.raw-data.location
-  tags = {
-  }
+
+  tags = local.required_tags
 }
 
 resource "azurerm_subnet" "raw-data" {
@@ -124,9 +140,7 @@ resource "azurerm_key_vault" "raw-data" {
   purge_protection_enabled   = false
   soft_delete_retention_days = 7
 
-  tags = {
-  }
-
+  tags = local.required_tags
 }
 
 resource "azurerm_key_vault_secret" "raw-data-db" {
@@ -137,6 +151,8 @@ resource "azurerm_key_vault_secret" "raw-data-db" {
   ])
   value        = random_string.raw_data_db_password.result
   key_vault_id = azurerm_key_vault.raw-data.id
+
+  tags = local.required_tags
 }
 
 resource "azurerm_public_ip" "raw-data-backend" {
@@ -148,6 +164,8 @@ resource "azurerm_public_ip" "raw-data-backend" {
   resource_group_name = azurerm_resource_group.raw-data.name
   location            = azurerm_resource_group.raw-data.location
   allocation_method   = "Static" // or "Dynamic"
+
+  tags = local.required_tags
 }
 
 resource "azurerm_network_interface" "raw-data-backend" {
@@ -207,17 +225,7 @@ resource "azurerm_linux_virtual_machine" "raw-data-backend" {
     username   = lookup(var.admin_usernames, "backend")
   }
 
-  tags = {
-    deployment_environment    = var.deployment_environment
-    infrastructure_management = "terraform"
-    role                      = "backend"
-    project                   = var.project_name
-    _monitor_cloudwatch       = "Yes"
-    _monitor_newrelic_infra   = "Yes"
-    _monitor_apm              = "No"
-    _monitor_sentry           = "No"
-    _patch_management         = "No"
-  }
+  tags = merge(local.required_tags, local.conditional_tags)
 }
 
 resource "azurerm_private_dns_zone" "raw-data-db" {
@@ -229,8 +237,7 @@ resource "azurerm_private_dns_zone" "raw-data-db" {
   )
   resource_group_name = azurerm_resource_group.raw-data.name
 
-  tags = {
-  }
+  tags = local.required_tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "dns-link" {
@@ -240,8 +247,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns-link" {
   private_dns_zone_name = azurerm_private_dns_zone.raw-data-db.name
   virtual_network_id    = azurerm_virtual_network.raw-data.id
 
-  tags = {
-  }
+  tags = local.required_tags
 }
 
 resource "azurerm_postgresql_flexible_server" "raw-data" {
@@ -268,17 +274,7 @@ resource "azurerm_postgresql_flexible_server" "raw-data" {
   geo_redundant_backup_enabled = false
   storage_mb                   = 2097152
 
-  tags = {
-    deployment_environment    = var.deployment_environment
-    infrastructure_management = "terraform"
-    role                      = "database"
-    project                   = var.project_name
-    _monitor_cloudwatch       = "Yes"
-    _monitor_newrelic_infra   = "Yes"
-    _monitor_apm              = "No"
-    _monitor_sentry           = "No"
-    _patch_management         = "No"
-  }
+  tags = merge(local.required_tags, local.conditional_tags)
 
   version = 14
   zone    = "1"
@@ -309,4 +305,6 @@ resource "azurerm_redis_cache" "raw-data-queue" {
 
   minimum_tls_version = "1.2"
   redis_version       = 6
+
+  tags = local.required_tags
 }
