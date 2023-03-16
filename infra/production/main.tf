@@ -185,6 +185,22 @@ resource "azurerm_network_interface" "raw-data-backend" {
   }
 }
 
+resource "azurerm_managed_disk" "backend-data-volume" {
+  name = join("-", [
+    var.project_name,
+    var.deployment_environment,
+    "data-volume"
+    ]
+  )
+  location             = azurerm_resource_group.raw-data.location
+  resource_group_name  = azurerm_resource_group.raw-data.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "2500"
+
+  tags = merge(local.required_tags, local.conditional_tags)
+}
+
 resource "azurerm_linux_virtual_machine" "raw-data-backend" {
   admin_username        = lookup(var.admin_usernames, "backend")
   location              = var.arm_location
@@ -229,6 +245,13 @@ resource "azurerm_linux_virtual_machine" "raw-data-backend" {
   }
 
   tags = merge(local.required_tags, local.conditional_tags)
+}
+
+resource "azurerm_virtual_machine_data_disk_attachment" "backend-volume" {
+  virtual_machine_id = azurerm_linux_virtual_machine.raw-data-backend.id
+  managed_disk_id    = azurerm_managed_disk.backend-data-volume.id
+  lun                = "10"
+  caching            = "None"
 }
 
 resource "azurerm_private_dns_zone" "raw-data-db" {
