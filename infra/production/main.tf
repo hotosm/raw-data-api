@@ -30,6 +30,7 @@ resource "random_string" "raw_data" {
 }
 
 resource "azurerm_resource_group" "raw-data" {
+  #ts:skip=accurics.azure.NS.272 [TODO] Explore what resource lock is and if it's appropriate here
   name     = join("-", [var.project_name, random_string.raw_data.id])
   location = var.arm_location
 }
@@ -44,6 +45,7 @@ resource "azurerm_virtual_network" "raw-data" {
 }
 
 resource "azurerm_subnet" "raw-data" {
+  #ts:skip=accurics.azure.NS.161 [TODO] Give the VNet subnet a network security group
   name                 = join("-", [var.project_name, var.deployment_environment])
   resource_group_name  = azurerm_resource_group.raw-data.name
   virtual_network_name = azurerm_virtual_network.raw-data.name
@@ -53,6 +55,7 @@ resource "azurerm_subnet" "raw-data" {
 }
 
 resource "azurerm_subnet" "raw-data-db" {
+  #ts:skip=accurics.azure.NS.161 [TODO] Give the VNet subnet a network security group
   name                 = join("-", [var.project_name, "database", var.deployment_environment])
   resource_group_name  = azurerm_resource_group.raw-data.name
   virtual_network_name = azurerm_virtual_network.raw-data.name
@@ -75,11 +78,14 @@ resource "azurerm_subnet" "raw-data-db" {
   ]
 }
 
-
 /** Key Vault stores database password
  ** Key Vault name has a length constraint 8-24 chars
  **/
 resource "azurerm_key_vault" "raw-data" {
+  #checkov:skip=CKV_AZURE_109:[BACKLOG] Add firewall rules
+  #checkov:skip=CKV_AZURE_110:[BACKLOG] Purge protection not enabled while developing
+  #checkov:skip=CKV_AZURE_42:[BACKLOG] Key Vault is not set to be recoverable while developing
+  #ts:skip=accurics.azure.EKM.20 [TODO] How much does enabling logging cost?
   name = join("-", [
     var.project_name,
     var.deployment_environment,
@@ -147,6 +153,8 @@ resource "azurerm_key_vault" "raw-data" {
 }
 
 resource "azurerm_key_vault_secret" "raw-data-db" {
+  #checkov:skip=CKV_AZURE_114:[TODO] Content_type to be set later to "text/plain"
+  #checkov:skip=CKV_AZURE_41:[BACKLOG] Expiration date for secrets can't be set until there's a policy for rotation
   name = join("-", [
     var.project_name,
     "database",
@@ -186,6 +194,7 @@ resource "azurerm_network_interface" "raw-data-backend" {
 }
 
 resource "azurerm_managed_disk" "backend-data-volume" {
+  #checkov:skip=CKV_AZURE_93:[WONT DO] Disk encryption unnecessary and benefits negligible
   name = join("-", [
     var.project_name,
     var.deployment_environment,
@@ -202,6 +211,8 @@ resource "azurerm_managed_disk" "backend-data-volume" {
 }
 
 resource "azurerm_linux_virtual_machine" "raw-data-backend" {
+  #checkov:skip=CKV_AZURE_179:[TODO] Install VM Agent
+  #checkov:skip=CKV_AZURE_50:[BACKLOG] Are VM extensions a security vulnerability. TBD weigh risks against convenience
   admin_username        = lookup(var.admin_usernames, "backend")
   location              = var.arm_location
   name                  = join("-", [var.project_name, "backend", var.deployment_environment])
@@ -291,6 +302,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns-link" {
 }
 
 resource "azurerm_postgresql_flexible_server" "raw-data" {
+  #checkov:skip=CKV_AZURE_136:[WONT DO] Geo-redundant backups are expensive
   depends_on = [
     azurerm_private_dns_zone_virtual_network_link.dns-link
   ]
@@ -332,6 +344,7 @@ resource "azurerm_postgresql_flexible_server_database" "default-db" {
 }
 
 resource "azurerm_redis_cache" "raw-data-queue" {
+  #checkov:skip=CKV_AZURE_89:[TODO] Disable public network access for Redis Cache
   name = join("-", [
     var.project_name,
     var.deployment_environment,
