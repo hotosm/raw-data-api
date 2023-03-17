@@ -211,14 +211,15 @@ resource "azurerm_managed_disk" "backend-data-volume" {
 }
 
 resource "azurerm_linux_virtual_machine" "raw-data-backend" {
-  #checkov:skip=CKV_AZURE_179:[TODO] Install VM Agent
-  #checkov:skip=CKV_AZURE_50:[BACKLOG] Are VM extensions a security vulnerability. TBD weigh risks against convenience
+  #checkov:skip=CKV_AZURE_179:[TODO] VM Agent installed by default.
   admin_username        = lookup(var.admin_usernames, "backend")
   location              = var.arm_location
   name                  = join("-", [var.project_name, "backend", var.deployment_environment])
   network_interface_ids = [azurerm_network_interface.raw-data-backend.id]
   resource_group_name   = azurerm_resource_group.raw-data.name
   size                  = lookup(var.server_skus, "backend")
+
+  allow_extension_operations = false
 
   custom_data = base64encode(
     file(
@@ -263,20 +264,6 @@ resource "azurerm_virtual_machine_data_disk_attachment" "backend-volume" {
   managed_disk_id    = azurerm_managed_disk.backend-data-volume.id
   lun                = "10"
   caching            = "None"
-}
-
-resource "azurerm_virtual_machine_extension" "newrelic-infra-agent" {
-  name                       = "hostname"
-  virtual_machine_id         = azurerm_linux_virtual_machine.raw-data-backend.id
-  publisher                  = "NewRelic.Infrastructure.Extensions"
-  type                       = "newrelic-infra"
-  type_handler_version       = "1.2"
-  auto_upgrade_minor_version = true
-  settings = jsonencode(
-    {
-      "NR_LICENSE_KEY" = var.newrelic_license_key
-    }
-  )
 }
 
 resource "azurerm_private_dns_zone" "raw-data-db" {
