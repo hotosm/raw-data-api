@@ -158,7 +158,6 @@ resource "azurerm_key_vault" "raw-data" {
 }
 
 resource "azurerm_key_vault_secret" "raw-data-db" {
-  #checkov:skip=CKV_AZURE_114:[TODO] Content_type to be set later to "text/plain"
   #checkov:skip=CKV_AZURE_41:[BACKLOG] Expiration date for secrets can't be set until there's a policy for rotation
   name = join("-", [
     var.project_name,
@@ -166,6 +165,8 @@ resource "azurerm_key_vault_secret" "raw-data-db" {
     var.deployment_environment
   ])
   value        = random_string.raw_data_db_password.result
+  content_type = "text/plain"
+
   key_vault_id = azurerm_key_vault.raw-data.id
 
   tags = local.required_tags
