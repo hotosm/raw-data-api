@@ -78,13 +78,12 @@ resource "azurerm_subnet" "raw-data-db" {
   ]
 }
 
-/** Key Vault stores database password
- ** Key Vault name has a length constraint 8-24 chars
- **/
 resource "azurerm_key_vault" "raw-data" {
   #checkov:skip=CKV_AZURE_110:[BACKLOG] Purge protection not enabled while developing
   #checkov:skip=CKV_AZURE_42:[BACKLOG] Key Vault is not set to be recoverable while developing
   #ts:skip=accurics.azure.EKM.20 [TODO] How much does enabling logging cost?
+
+  // [WARNING] Name has a length constraint: 8-24 characters
   name = join("-", [
     var.project_name,
     var.deployment_environment,
@@ -95,8 +94,6 @@ resource "azurerm_key_vault" "raw-data" {
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
-  public_network_access_enabled = false
-
   network_acls {
     bypass         = "AzureServices"
     default_action = "Deny"
@@ -106,6 +103,10 @@ resource "azurerm_key_vault" "raw-data" {
       azurerm_subnet.raw-data-db.id
     ]
   }
+
+  // [WARNING] Setting this to false will make Terraform unable to access Key Vault
+  //       ... because it would cut off **ALL** public access
+  public_network_access_enabled = true
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
