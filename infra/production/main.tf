@@ -261,7 +261,6 @@ resource "azurerm_virtual_machine_extension" "newrelic-infra-agent" {
   type                       = "newrelic-infra"
   type_handler_version       = "1.2"
   auto_upgrade_minor_version = true
-  automatic_upgrade_enabled  = true
   settings = jsonencode(
     {
       "NR_LICENSE_KEY" = var.newrelic_license_key
