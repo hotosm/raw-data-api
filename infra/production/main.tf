@@ -359,7 +359,7 @@ resource "azurerm_redis_cache" "raw-data-queue" {
   minimum_tls_version = "1.2"
   redis_version       = 6
 
-  public_network_access_enabled = false
+  // public_network_access_enabled = false
 
   tags = local.required_tags
 }
