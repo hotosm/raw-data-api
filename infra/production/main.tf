@@ -82,7 +82,6 @@ resource "azurerm_subnet" "raw-data-db" {
  ** Key Vault name has a length constraint 8-24 chars
  **/
 resource "azurerm_key_vault" "raw-data" {
-  #checkov:skip=CKV_AZURE_109:[BACKLOG] Add firewall rules
   #checkov:skip=CKV_AZURE_110:[BACKLOG] Purge protection not enabled while developing
   #checkov:skip=CKV_AZURE_42:[BACKLOG] Key Vault is not set to be recoverable while developing
   #ts:skip=accurics.azure.EKM.20 [TODO] How much does enabling logging cost?
@@ -96,11 +95,16 @@ resource "azurerm_key_vault" "raw-data" {
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
+  public_network_access_enabled = false
+
   network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Allow" // Todo: Deny
-    ip_rules                   = data.tfe_ip_ranges.addresses.api
-    virtual_network_subnet_ids = [azurerm_subnet.raw-data.id]
+    bypass         = "AzureServices"
+    default_action = "Deny"
+    ip_rules       = data.tfe_ip_ranges.addresses.api
+    virtual_network_subnet_ids = [
+      azurerm_subnet.raw-data.id,
+      azurerm_subnet.raw-data-db.id
+    ]
   }
 
   access_policy {
@@ -146,6 +150,7 @@ resource "azurerm_key_vault" "raw-data" {
     ]
   }
 
+  // [ACHTUNG | DANGER] DO NOT ENABLE PURGE PROTECTION!!
   purge_protection_enabled   = false
   soft_delete_retention_days = 7
 
