@@ -82,7 +82,6 @@ resource "azurerm_subnet" "raw-data-db" {
  ** Key Vault name has a length constraint 8-24 chars
  **/
 resource "azurerm_key_vault" "raw-data" {
-  #checkov:skip=CKV_AZURE_109:[BACKLOG] Add firewall rules
   #checkov:skip=CKV_AZURE_110:[BACKLOG] Purge protection not enabled while developing
   #checkov:skip=CKV_AZURE_42:[BACKLOG] Key Vault is not set to be recoverable while developing
   #ts:skip=accurics.azure.EKM.20 [TODO] How much does enabling logging cost?
@@ -96,11 +95,16 @@ resource "azurerm_key_vault" "raw-data" {
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
+  public_network_access_enabled = false
+
   network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Allow" // Todo: Deny
-    ip_rules                   = data.tfe_ip_ranges.addresses.api
-    virtual_network_subnet_ids = [azurerm_subnet.raw-data.id]
+    bypass         = "AzureServices"
+    default_action = "Deny"
+    ip_rules       = data.tfe_ip_ranges.addresses.api
+    virtual_network_subnet_ids = [
+      azurerm_subnet.raw-data.id,
+      azurerm_subnet.raw-data-db.id
+    ]
   }
 
   access_policy {
@@ -146,6 +150,7 @@ resource "azurerm_key_vault" "raw-data" {
     ]
   }
 
+  // [ACHTUNG | DANGER] DO NOT ENABLE PURGE PROTECTION!!
   purge_protection_enabled   = false
   soft_delete_retention_days = 7
 
@@ -153,7 +158,6 @@ resource "azurerm_key_vault" "raw-data" {
 }
 
 resource "azurerm_key_vault_secret" "raw-data-db" {
-  #checkov:skip=CKV_AZURE_114:[TODO] Content_type to be set later to "text/plain"
   #checkov:skip=CKV_AZURE_41:[BACKLOG] Expiration date for secrets can't be set until there's a policy for rotation
   name = join("-", [
     var.project_name,
@@ -161,6 +165,8 @@ resource "azurerm_key_vault_secret" "raw-data-db" {
     var.deployment_environment
   ])
   value        = random_string.raw_data_db_password.result
+  content_type = "text/plain"
+
   key_vault_id = azurerm_key_vault.raw-data.id
 
   tags = local.required_tags
@@ -211,14 +217,15 @@ resource "azurerm_managed_disk" "backend-data-volume" {
 }
 
 resource "azurerm_linux_virtual_machine" "raw-data-backend" {
-  #checkov:skip=CKV_AZURE_179:[TODO] Install VM Agent
-  #checkov:skip=CKV_AZURE_50:[BACKLOG] Are VM extensions a security vulnerability. TBD weigh risks against convenience
+  #checkov:skip=CKV_AZURE_179:[TODO] VM Agent installed by default.
   admin_username        = lookup(var.admin_usernames, "backend")
   location              = var.arm_location
   name                  = join("-", [var.project_name, "backend", var.deployment_environment])
   network_interface_ids = [azurerm_network_interface.raw-data-backend.id]
   resource_group_name   = azurerm_resource_group.raw-data.name
   size                  = lookup(var.server_skus, "backend")
+
+  allow_extension_operations = false
 
   custom_data = base64encode(
     file(
@@ -263,20 +270,6 @@ resource "azurerm_virtual_machine_data_disk_attachment" "backend-volume" {
   managed_disk_id    = azurerm_managed_disk.backend-data-volume.id
   lun                = "10"
   caching            = "None"
-}
-
-resource "azurerm_virtual_machine_extension" "newrelic-infra-agent" {
-  name                       = "hostname"
-  virtual_machine_id         = azurerm_linux_virtual_machine.raw-data-backend.id
-  publisher                  = "NewRelic.Infrastructure.Extensions"
-  type                       = "newrelic-infra"
-  type_handler_version       = "1.2"
-  auto_upgrade_minor_version = true
-  settings = jsonencode(
-    {
-      "NR_LICENSE_KEY" = var.newrelic_license_key
-    }
-  )
 }
 
 resource "azurerm_private_dns_zone" "raw-data-db" {
