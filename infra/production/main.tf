@@ -106,7 +106,7 @@ resource "azurerm_key_vault" "raw-data" {
 
   network_acls {
     bypass         = "AzureServices"
-    default_action = "Deny"
+    default_action = "Allow" // "Deny" will cut-off Terraform workers IP
     ip_rules       = data.tfe_ip_ranges.addresses.api
     virtual_network_subnet_ids = [
       azurerm_subnet.raw-data.id,
