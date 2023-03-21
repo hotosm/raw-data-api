@@ -527,7 +527,7 @@ def update_country(conn, timestamp, table_name, c_id=None):
                 from
                     countries_geofabrik b
                 where
-                    ST_Intersects( w.geom ,
+                    ST_Intersects( ST_Centroid(w.geom) ,
                     b.geometry)
                     ))
             where "timestamp" >= '{timestamp}'"""
