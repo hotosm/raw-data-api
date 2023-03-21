@@ -36,7 +36,7 @@ resource "azurerm_resource_group" "raw-data" {
 }
 
 resource "azurerm_storage_account" "raw-data" {
-  name                     = "rawdata"
+  name                     = "hotosmrawdata"
   resource_group_name      = azurerm_resource_group.raw-data.name
   location                 = azurerm_resource_group.raw-data.location
   account_tier             = "Standard"
