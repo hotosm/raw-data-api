@@ -1,0 +1,67 @@
+---
+- name: Setup Instance Packages
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade apt packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+        dpkg_options: 'force-confold,force-confdef'
+
+    - name: Install generic packages
+      ansible.builtin.apt:
+        pkg:
+          - python-is-python3
+          - python3-virtualenv
+          - redis-tools
+          - certbot
+          - wget
+          - curl
+          - git
+          - podman
+          - buildah
+        state: latest
+
+    - name: Install app-specific packages
+      ansible.builtin.apt:
+        pkg:
+          - libpq-dev
+          - osm2pgsql
+          - osmium-tool
+          - gdal-bin
+          - python3-gdal
+        state: present
+
+    - name: Install caddy
+      ansible.builtin.apt:
+        deb: https://github.com/caddyserver/caddy/releases/download/v2.6.4/caddy_2.6.4_linux_amd64.deb
+
+    - name: Mark project directory safe in git
+      ansible.builtin.command: git config --global --add safe.directory /opt/raw-data-api
+
+    - name: Clone the raw-data-api repo
+      ansible.builtin.git:
+        repo: https://github.com/hotosm/raw-data-api.git
+        dest: /opt/raw-data-api
+
+    - name: Set directory ownership and permissions
+      ansible.builtin.file:
+        owner: hotsysadmin
+        path: /opt/raw-data-api
+        recurse: true
+        group: hotsysadmin
+        mode: u+rw,g-wx,o-rwx
+
+    - name: Upgrade Pip and setup Virtualenv
+      ansible.builtin.pip:
+        requirements: /opt/raw-data-api/requirements.txt
+        virtualenv: /opt/raw-data-api/.virtualenv
+        virtualenv_site_packages: yes
+
+...
