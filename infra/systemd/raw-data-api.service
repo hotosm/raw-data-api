@@ -1,0 +1,36 @@
+[Unit]
+Description=Raw Data API Service
+Documentation=https://github.com/hotosm/raw-data-api/blob/develop/README.md
+After=network.target syslog.target
+AssertFileNotEmpty=/opt/raw-data-api/API/sensitive.env
+
+[Service]
+Type=simple
+User=hotsysadmin
+WorkingDirectory=/opt/raw-data-api
+ExecStart=/opt/raw-data-api/API/venv/bin/uvicorn API.main:app --reload 
+EnvironmentFile=/opt/raw-data-api/API/sensitive.env
+ReadWritePaths=/opt/raw-data-api/API
+;
+; SECURITY OPTIONS
+LockPersonality=true
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=noaccess
+ProtectSystem=strict
+RemoveIPC=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
+
