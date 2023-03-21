@@ -1,0 +1,13 @@
+[prod]
+prod.raw-data.example.net
+
+[stage]
+staging.raw-data.example.net
+
+[raw-data:children]
+prod
+stage
+
+[raw-data:vars]
+ansible_ssh_user=unixadmin
+become=yes
