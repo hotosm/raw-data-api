@@ -35,6 +35,16 @@ resource "azurerm_resource_group" "raw-data" {
   location = var.arm_location
 }
 
+resource "azurerm_storage_account" "raw-data" {
+  name                     = "rawdata"
+  resource_group_name      = azurerm_resource_group.raw-data.name
+  location                 = azurerm_resource_group.raw-data.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = local.required_tags
+}
+
 resource "azurerm_virtual_network" "raw-data" {
   name                = join("-", [var.project_name, var.deployment_environment])
   resource_group_name = azurerm_resource_group.raw-data.name
