@@ -37,9 +37,9 @@ def get_grid_id_query(geometry_dump):
 
 def get_country_id_query(geom_dump):
     base_query = f"""select
-                        b.ogc_fid::int as fid
+                        b.id::int as fid
                     from
-                        countries_geofabrik b
+                        countries b
                     where
                         ST_Intersects(ST_GEOMFROMGEOJSON('{geom_dump}') ,
                         b.geometry)
@@ -432,7 +432,7 @@ def generate_where_clause_indexes_case(
 
 
 def get_country_geojson(c_id):
-    query = f"SELECT ST_AsGeoJSON(geometry) as geom from countries_geofabrik where ogc_fid={c_id}"
+    query = f"SELECT ST_AsGeoJSON(geometry) as geom from countries where id={c_id}"
     return query
 
 
@@ -701,7 +701,7 @@ def raw_extract_plain_geojson(params, inspect_only=False):
 
 
 def get_countries_query(q):
-    query = "Select ST_AsGeoJSON(cf.*) FROM countries_geofabrik cf"
+    query = "Select ST_AsGeoJSON(cf.*) FROM countries cf"
     if q:
         query += f" WHERE name ILIKE '%{q}%'"
     return query

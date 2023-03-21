@@ -84,7 +84,7 @@ port=
 - **Create Country Table** :
 
   ```
-  psql -h localhost -U admin -d postgres -a -f sql/countries_geofabrik.sql
+  psql -h localhost -U admin -d postgres -a -f sql/countries.sql
   ```
 
 - **Apply Grid Update Script** :
@@ -107,7 +107,7 @@ port=
   For Example to update nodes table ( nodes and ways_poly are of type int and rest of them are of type array)
 
   ```
-  python field_update -target_table nodes --target_column country --target_geom geom --source_table countries_geofabrik --source_column ogc_fid --source_geom geometry --type int
+  python field_update -target_table nodes --target_column country --target_geom geom --source_table countries --source_column id --source_geom geometry --type int
   ```
 
 - **Create Geo Indexes & Cluster** :
