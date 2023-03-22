@@ -523,9 +523,9 @@ def update_country(conn, timestamp, table_name, c_id=None):
             set
                 country = array((
                 select
-                    b.ogc_fid
+                    b.id
                 from
-                    countries_geofabrik b
+                    countries b
                 where
                     ST_Intersects( ST_Centroid(w.geom) ,
                     b.geometry)
@@ -701,7 +701,7 @@ def get_parser():
         "--country",
         nargs="+",
         type=int,
-        help="Country ogc_fid to filter on replication",
+        help="Country id to filter on replication",
     )
     # Arguments for status
     cmd = subs.add_parser(

@@ -78,7 +78,7 @@ def parse_arguments():
         "--country",
         nargs="+",
         type=int,
-        help="ogc_fid of the country , if you are loading country , it will filter replication data",
+        help="id of the country , if you are loading country , it will filter replication data",
     )
     parser.add_argument(
         "--insert",
@@ -217,12 +217,16 @@ if __name__ == "__main__":
             "psql",
             "-a",
             "-f",
-            os.path.join(working_dir, "sql/countries_geofabrik.sql"),
+            os.path.join(working_dir, "sql/countries.sql"),
         ]
         run_subprocess_cmd(country_table)
 
-        if args.replication: # initialize replication 
-            replication_init = ["python", os.path.join(working_dir, "replication"), "init"]
+        if args.replication:  # initialize replication
+            replication_init = [
+                "python",
+                os.path.join(working_dir, "replication"),
+                "init",
+            ]
             run_subprocess_cmd(replication_init)
 
     update_cmd_list = []
@@ -238,9 +242,9 @@ if __name__ == "__main__":
             "--target_geom",
             "geom",
             "--source_table",
-            "countries_geofabrik",
+            "countries",
             "--source_column",
-            "ogc_fid",
+            "id",
             "--source_geom",
             "geometry",
             "--type",
@@ -261,9 +265,9 @@ if __name__ == "__main__":
             "--target_geom",
             "geom",
             "--source_table",
-            "countries_geofabrik",
+            "countries",
             "--source_column",
-            "ogc_fid",
+            "id",
             "--source_geom",
             "geometry",
             "--type",
@@ -283,9 +287,9 @@ if __name__ == "__main__":
             "--target_geom",
             "geom",
             "--source_table",
-            "countries_geofabrik",
+            "countries",
             "--source_column",
-            "ogc_fid",
+            "id",
             "--source_geom",
             "geometry",
             "--type",
@@ -305,9 +309,9 @@ if __name__ == "__main__":
             "--target_geom",
             "geom",
             "--source_table",
-            "countries_geofabrik",
+            "countries",
             "--source_column",
-            "ogc_fid",
+            "id",
             "--source_geom",
             "geometry",
             "--type",

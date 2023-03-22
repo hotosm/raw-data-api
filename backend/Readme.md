@@ -1,30 +1,32 @@
 ## Getting Started
 
 - Install [osm2pgsql > v1.6.0](https://osm2pgsql.org/doc/install.html)
+
   ```
   sudo apt-get install osm2pgsql
   ```
 
 - Install other system dependencies that are necessary to build the system
 
-   ```
-   sudo apt -y install python-is-python3 # for sanity
-   sudo apt -y install python3-virtualenv
-   sudo apt -y install libpq-dev # for building psycopg2
-   ```
+  ```
+  sudo apt -y install python-is-python3 # for sanity
+  sudo apt -y install python3-virtualenv
+  sudo apt -y install libpq-dev # for building psycopg2
+  ```
 
 - Clone rawdata and navigate to backend dir
-    ```
-    git clone https://github.com/hotosm/raw-data-api.git && cd backend
-    ```
+
+  ```
+  git clone https://github.com/hotosm/raw-data-api.git && cd backend
+  ```
 
 - Install Requirements
 
-    Install [psycopg2](https://pypi.org/project/psycopg2/), [osmium](https://pypi.org/project/osmium/) and [dateutil](https://pypi.org/project/python-dateutil/) , wget in your python env . You can install using `requirements.txt` too
+  Install [psycopg2](https://pypi.org/project/psycopg2/), [osmium](https://pypi.org/project/osmium/) and [dateutil](https://pypi.org/project/python-dateutil/) , wget in your python env . You can install using `requirements.txt` too
 
-    ```
-    pip install -r requirements.txt
-    ```
+  ```
+  pip install -r requirements.txt
+  ```
 
   - Start the Process
 
@@ -72,7 +74,7 @@
   python raw_backend --replication --run_minutely
   ```
 
-    > This is another option to run the script and keep database up to date by running it minutely you can directly tell the script you want to run the app minutely. By this app will sleep for 60 sec before making another request and it will run forever until it is killed . You can simply enable this in your system
+  > This is another option to run the script and keep database up to date by running it minutely you can directly tell the script you want to run the app minutely. By this app will sleep for 60 sec before making another request and it will run forever until it is killed . You can simply enable this in your system
 
   Options to Run the Script :
 
@@ -87,7 +89,7 @@
   --include_ref         Include ref in output tables
   --replication         Prepare tables for replication and Runs Replication
   --run_minutely        Runs replication every minute
-  --country COUNTRY     ogc_fid of the country , if you are loading country , it will filter replication data
+  --country COUNTRY     id of the country , if you are loading country , it will filter replication data
   --insert              Run osm2pgsql to insert data , Initial Creation Step
   --update              Run Update on table fields for country info
   --download_dir DOWNLOAD_DIR
@@ -95,7 +97,7 @@
   --post_index          Run Post index only on table
   ```
 
-   If you are interested on Manual setup find Guide [here](./Manual.md)
+  If you are interested on Manual setup find Guide [here](./Manual.md)
 
 ## Running the backend service via Systemd
 
@@ -149,4 +151,3 @@ Feb 13 14:30:10 raw-data-backend-production python[50704]: 2023-02-13 14:30:10  
 Feb 13 14:30:10 raw-data-backend-production python[50704]: 2023-02-13 14:30:10  PostGIS version: 3.2
 
 ```
-
