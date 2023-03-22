@@ -2,7 +2,7 @@
 Description=Raw Data Backend Service
 Documentation=https://github.com/hotosm/raw-data-api/blob/develop/backend/Readme.md
 After=network.target syslog.target
-AssertFileNotEmpty=/opt/raw-data-api/backend/PGCRED.env
+AssertFileNotEmpty=/opt/raw-data-api/backend/database.env
 
 [Service]
 Type=simple
@@ -10,7 +10,7 @@ User=hotsysadmin
 WorkingDirectory=/opt/raw-data-api/backend
 ExecStart=/opt/raw-data-api/backend/venv/bin/python raw_backend --replication --run_minutely
 Restart=on-failure
-EnvironmentFile=/opt/raw-data-api/backend/PGCRED.env
+EnvironmentFile=/opt/raw-data-api/backend/database.env
 ReadWritePaths=/opt/raw-data-api/backend
 ;
 ; SECURITY OPTIONS
