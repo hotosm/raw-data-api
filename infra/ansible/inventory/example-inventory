@@ -11,3 +11,12 @@ stage
 [raw-data:vars]
 ansible_ssh_user=unixadmin
 become=yes
+PGHOST="example.postgres.database.azure.com"
+PGPORT="5432"
+PGPASSWORD="myGreatSecret123"
+PGDATABASE="mydb"
+PGUSER="orgdbadmin"
+REDIS_HOST="example.redis.cache.windows.net"
+REDIS_PORT="6380"
+LINUX_PROCESS_USER="rawdata"
+LINUX_PROCESS_GROUP="rawdata"
