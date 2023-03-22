@@ -49,6 +49,18 @@ def get_country_id_query(geom_dump):
     return base_query
 
 
+def check_exisiting_country(geom):
+    query = f"""select
+                        b.id::int as fid
+                    from
+                        countries b
+                    where
+                        ST_Equals(ST_GEOMFROMGEOJSON('{geom}') ,
+                        b.geometry)
+                    """
+    return query
+
+
 def get_query_as_geojson(query_list, ogr_export=None):
     table_base_query = []
     if ogr_export:

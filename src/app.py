@@ -41,6 +41,7 @@ from src.config import USE_CONNECTION_POOLING as use_connection_pooling
 from src.config import get_db_connection_params, level
 from src.config import logger as logging
 from src.query_builder.builder import (
+    check_exisiting_country,
     check_last_updated_rawdata,
     extract_geometry_type_query,
     get_countries_query,
@@ -444,6 +445,7 @@ class RawData:
         countries = []
 
         # country = None
+        cur.execute(check_exisiting_country(geometry_dump))
 
         if int(geom_area) > grid_index_threshold or country_export:
             # this will be applied only when polygon gets bigger we will be slicing index size to search
@@ -471,7 +473,7 @@ class RawData:
             geom_area,
             countries
             if len(countries) > 0 and len(countries) <= 3
-            else None,  # don't go thorugh countires if they are more than 3
+            else None,  # don't go through countires if they are more than 3
         )
 
     @staticmethod
@@ -493,7 +495,7 @@ class RawData:
         """
         # first check either geometry needs grid or not for querying
         grid_id, geometry_dump, geom_area, country = RawData.get_grid_id(
-            self.params.geometry, self.cur, self.params.country_export
+            self.params.geometry, self.cur
         )
         output_type = self.params.output_type
         # Check whether the export path exists or not
