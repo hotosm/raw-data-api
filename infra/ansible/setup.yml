@@ -48,17 +48,9 @@
       ansible.builtin.apt:
         deb: https://github.com/caddyserver/caddy/releases/download/v2.6.4/caddy_2.6.4_linux_amd64.deb
 
-    - name: Create caddy config directory
-      ansible.builtin.file:
-        path: /etc/caddy
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
-
     - name: Generate caddy forwarding proxy configuration
       ansible.builtin.template:
-        src: /opt/raw-data-api/Caddyfile.j2
+        src: "{{ playbook_dir }}/templates/Caddyfile.j2"
         dest: /etc/caddy/Caddyfile
         owner: root
         group: root
@@ -90,8 +82,8 @@
 
     - name: Generate env file containing PostgreSQL credentials
       ansible.builtin.template:
-        src: /opt/raw-data-api/infra/ansible/template/database.env.j2
-        dest: /opt/raw-data-api/API/PGCRED.env
+        src: "{{ playbook_dir }}/templates/database.env.j2"
+        dest: /opt/raw-data-api/API/database.env
         owner: "{{ LINUX_PROCESS_USER }}"
         group: "{{ LINUX_PROCESS_GROUP }}"
         mode: '0444'
@@ -105,6 +97,7 @@
     - name: Copy raw-data service files
       ansible.builtin.copy:
         src: "/opt/raw-data-api/infra/systemd/{{ item }}"
+        remote_src: yes
         dest: "/etc/systemd/system/{{ item }}"
         owner: root
         group: root
