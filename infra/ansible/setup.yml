@@ -83,7 +83,7 @@
     - name: Generate env file containing PostgreSQL credentials
       ansible.builtin.template:
         src: "{{ playbook_dir }}/templates/database.env.j2"
-        dest: /opt/raw-data-api/API/database.env
+        dest: /opt/raw-data-api/backend/database.env
         owner: "{{ LINUX_PROCESS_USER }}"
         group: "{{ LINUX_PROCESS_GROUP }}"
         mode: '0444'
@@ -127,6 +127,10 @@
         login_password: "{{ PGPASSWORD }}"
         ssl_mode: require
       register: pgping_result
+
+    - name: Force systemd to reread configs just-in-case
+      ansible.builtin.systemd:
+        daemon_reload: true
 
     - name: Enable raw-data backend service and ensure it is running
       ansible.builtin.systemd:
