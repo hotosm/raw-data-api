@@ -2,14 +2,12 @@
 Description=Raw Data Celery Workers
 Documentation=https://github.com/hotosm/raw-data-api/blob/develop/README.md
 After=network.target syslog.target
-AssertFileNotEmpty=/opt/raw-data-api/API/sensitive.env
 
 [Service]
 Type=simple
 User=hotsysadmin
 WorkingDirectory=/opt/raw-data-api
 ExecStart=/opt/raw-data-api/API/venv/bin/celery --app API.api_worker worker --loglevel=INFO
-EnvironmentFile=/opt/raw-data/api/API/sensitive.env
 Restart=on-failure
 ReadWritePaths=/opt/raw-data-api/API
 ;
