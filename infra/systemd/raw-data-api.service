@@ -7,7 +7,7 @@ After=network.target syslog.target
 Type=simple
 User=hotsysadmin
 WorkingDirectory=/opt/raw-data-api
-ExecStart=/opt/raw-data-api/API/venv/bin/uvicorn API.main:app --reload 
+ExecStart=/opt/raw-data-api/.virtualenv/bin/uvicorn API.main:app --reload 
 ReadWritePaths=/opt/raw-data-api/API
 ;
 ; SECURITY OPTIONS

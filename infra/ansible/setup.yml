@@ -88,9 +88,15 @@
         group: "{{ LINUX_PROCESS_GROUP }}"
         mode: '0444'
 
-    - name: Upgrade Pip and setup Virtualenv
+    - name: Setup Virtualenv and install API requirements.txt
       ansible.builtin.pip:
         requirements: /opt/raw-data-api/requirements.txt
+        virtualenv: /opt/raw-data-api/.virtualenv
+        virtualenv_site_packages: yes
+
+    - name: Install backend requirements.txt into the same Virtualenv
+      ansible.builtin.pip:
+        requirements: /opt/raw-data-api/backend/requirements.txt
         virtualenv: /opt/raw-data-api/.virtualenv
         virtualenv_site_packages: yes
 

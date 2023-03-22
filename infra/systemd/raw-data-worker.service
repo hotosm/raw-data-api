@@ -7,7 +7,7 @@ After=network.target syslog.target
 Type=simple
 User=hotsysadmin
 WorkingDirectory=/opt/raw-data-api
-ExecStart=/opt/raw-data-api/API/venv/bin/celery --app API.api_worker worker --loglevel=INFO
+ExecStart=/opt/raw-data-api/.virtualenv/bin/celery --app API.api_worker worker --loglevel=INFO
 Restart=on-failure
 ReadWritePaths=/opt/raw-data-api/API
 ;
