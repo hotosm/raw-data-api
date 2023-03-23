@@ -36,7 +36,7 @@ from psycopg2.extras import DictCursor
 
 from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
 from src.config import EXPORT_PATH as export_path
-from src.config import GRID_INDEX_THRESHOLD as grid_index_threshold
+from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
 from src.config import get_db_connection_params, level
 from src.config import logger as logging
@@ -450,7 +450,7 @@ class RawData:
             country_export = True
             logging.debug(f"Using Country Export Mode with id : {countries[0]}")
         else:
-            if int(geom_area) > int(grid_index_threshold):
+            if int(geom_area) > int(index_threshold):
                 # this will be applied only when polygon gets bigger we will be slicing index size to search
                 country_query = get_country_id_query(geometry_dump)
                 cur.execute(country_query)

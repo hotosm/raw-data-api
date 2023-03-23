@@ -59,8 +59,8 @@ EXPORT_MAX_AREA_SQKM = os.environ.get("EXPORT_MAX_AREA_SQKM") or int(
 )
 
 
-GRID_INDEX_THRESHOLD = os.environ.get("GRID_INDEX_THRESHOLD") or int(
-    config.get("API_CONFIG", "GRID_INDEX_THRESHOLD", fallback=5000)
+INDEX_THRESHOLD = os.environ.get("INDEX_THRESHOLD") or int(
+    config.get("API_CONFIG", "INDEX_THRESHOLD", fallback=5000)
 )
 
 # get log level from config

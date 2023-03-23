@@ -433,7 +433,7 @@ def generate_where_clause_indexes_case(
         # if table_name == "ways_poly" or table_name == "nodes":
         #     where_clause += f" and (country IN ({c_id}))"
         # else:
-        where_clause += f"and (country @> ARRAY[{c_id}])"
+        where_clause += f" and (country @> ARRAY[{c_id}])"
     if (
         country_export
     ):  # ignore the geometry take geom from the db itself by using precalculated field
