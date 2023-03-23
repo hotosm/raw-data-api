@@ -96,7 +96,9 @@ def remove_spaces(input_str):
     return input_str
 
 
-def create_column_filter(columns, create_schema=False, output_type="geojson"):
+def create_column_filter(
+    columns, create_schema=False, output_type="geojson", use_centroid=False
+):
     """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
 
     if len(columns) > 0:
@@ -122,13 +124,13 @@ def create_column_filter(columns, create_schema=False, output_type="geojson"):
             filter_col.append("GeometryType(geom) as geom_type")
 
         else:
-            filter_col.append("geom")
+            filter_col.append("ST_Centroid(geom) as geom" if use_centroid else "geom")
         select_condition = " , ".join(filter_col)
         if create_schema:
             return select_condition, schema
         return select_condition
     else:
-        return """osm_id ,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        return f"osm_id ,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if use_centroid else 'geom'}"  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
 def create_tag_sql_logic(key, value, filter_list):
@@ -200,7 +202,7 @@ def extract_geometry_type_query(
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
 
     geom_filter = create_geom_filter(params.geometry)
-    select_condition = """osm_id ,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    select_condition = f"""osm_id ,tags,changeset,timestamp{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     schema = {
         "osm_id": "int64",
         "tags": "str",
@@ -249,6 +251,7 @@ def extract_geometry_type_query(
         master_attribute_filter
     ):  # if no specific point , line or poly filter is not passed master columns filter will be used , if master columns is also empty then above default select statement will be used
         select_condition, schema = create_column_filter(
+            use_centroid=params.centroid,
             output_type=params.output_type,
             columns=master_attribute_filter,
             create_schema=True,
@@ -262,6 +265,7 @@ def extract_geometry_type_query(
         if type == SupportedGeometryFilters.POINT.value:
             if point_attribute_filter:
                 select_condition, schema = create_column_filter(
+                    use_centroid=params.centroid,
                     output_type=params.output_type,
                     columns=point_attribute_filter,
                     create_schema=True,
@@ -288,6 +292,7 @@ def extract_geometry_type_query(
             query_line_list = []
             if line_attribute_filter:
                 select_condition, schema = create_column_filter(
+                    use_centroid=params.centroid,
                     output_type=params.output_type,
                     columns=line_attribute_filter,
                     create_schema=True,
@@ -327,6 +332,7 @@ def extract_geometry_type_query(
             query_poly_list = []
             if poly_attribute_filter:
                 select_condition, schema = create_column_filter(
+                    use_centroid=params.centroid,
                     output_type=params.output_type,
                     columns=poly_attribute_filter,
                     create_schema=True,
@@ -489,9 +495,9 @@ def raw_currentdata_extraction_query(
 
     # query_table = []
     if select_all:
-        select_condition = """osm_id,version,tags,changeset,timestamp,geom"""  # FIXme have condition for displaying userinfo after user authentication
+        select_condition = f"""osm_id,version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # FIXme have condition for displaying userinfo after user authentication
     else:
-        select_condition = """osm_id ,version,tags,changeset,timestamp,geom"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        select_condition = f"""osm_id ,version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
     point_select_condition = select_condition  # initializing default
     line_select_condition = select_condition
@@ -540,7 +546,9 @@ def raw_currentdata_extraction_query(
         if master_attribute_filter:
             if len(master_attribute_filter) > 0:
                 select_condition = create_column_filter(
-                    output_type=params.output_type, columns=master_attribute_filter
+                    use_centroid=params.centroid,
+                    output_type=params.output_type,
+                    columns=master_attribute_filter,
                 )
                 # if master attribute is supplied it will be applied to other geom type as well even though value is supplied they will be ignored
                 point_select_condition = select_condition
@@ -550,17 +558,23 @@ def raw_currentdata_extraction_query(
             if point_attribute_filter:
                 if len(point_attribute_filter) > 0:
                     point_select_condition = create_column_filter(
-                        output_type=params.output_type, columns=point_attribute_filter
+                        use_centroid=params.centroid,
+                        output_type=params.output_type,
+                        columns=point_attribute_filter,
                     )
             if line_attribute_filter:
                 if len(line_attribute_filter) > 0:
                     line_select_condition = create_column_filter(
-                        output_type=params.output_type, columns=line_attribute_filter
+                        use_centroid=params.centroid,
+                        output_type=params.output_type,
+                        columns=line_attribute_filter,
                     )
             if poly_attribute_filter:
                 if len(poly_attribute_filter) > 0:
                     poly_select_condition = create_column_filter(
-                        output_type=params.output_type, columns=poly_attribute_filter
+                        use_centroid=params.centroid,
+                        output_type=params.output_type,
+                        columns=poly_attribute_filter,
                     )
 
     if tags:
@@ -687,7 +701,7 @@ def raw_extract_plain_geojson(params, inspect_only=False):
     geom_filter_cond = None
     if params.geometry_type == "polygon":
         geom_filter_cond = """ and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
-    select_condition = create_column_filter(params.select)
+    select_condition = create_column_filter(columns=params.select)
     where_condition = generate_tag_filter_query(
         params.where, params.join_by, user_for_geojson=True
     )
