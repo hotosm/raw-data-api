@@ -427,7 +427,7 @@ class RawData:
         logging.debug("Server side Query Result  Post Processing Done")
 
     @staticmethod
-    def get_grid_id(geom, cur, country_export=False):
+    def get_grid_id(geom, cur):
         """Gets the intersecting related grid id for the geometry that is passed
 
         Args:
@@ -440,40 +440,32 @@ class RawData:
         geometry_dump = dumps(dict(geom))
         # generating geometry area in sqkm
         geom_area = area(json_loads(geom.json())) * 1e-6
-        # only apply grid in the logic if it exceeds the 5000 Sqkm
-        grid_id = None
+        country_export = False
+        g_id = None
         countries = []
-
-        # country = None
         cur.execute(check_exisiting_country(geometry_dump))
-
-        if int(geom_area) > grid_index_threshold or country_export:
-            # this will be applied only when polygon gets bigger we will be slicing index size to search
-            country_query = get_country_id_query(geometry_dump)
-            # check if polygon intersects two countries
-            cur.execute(country_query)
-            # count = 0
-            result_country = cur.fetchall()
-            logging.debug(result_country)
-
-            countries = [int(f[0]) for f in result_country]
-
-            if country_export:  # if it is country export it needs to be only one geom
-                if len(countries) > 0:
-                    for row in result_country:
-                        countries = [row[0]]  # get which has higher % intersection
-                        break
-                    cur.execute(get_country_geojson(countries[0]))
-                    geometry_dump = cur.fetchone()[0]
-                    # print(geometry_dump)
-            cur.close()
+        backend_match = cur.fetchall()
+        if backend_match:
+            countries = backend_match[0]
+            country_export = True
+            logging.debug(f"Using Country Export Mode with id : {countries[0]}")
+        else:
+            if int(geom_area) > int(grid_index_threshold):
+                # this will be applied only when polygon gets bigger we will be slicing index size to search
+                country_query = get_country_id_query(geometry_dump)
+                cur.execute(country_query)
+                result_country = cur.fetchall()
+                countries = [int(f[0]) for f in result_country]
+                logging.debug(f"Intersected Countries : {countries}")
+                cur.close()
         return (
-            grid_id,
+            g_id,
             geometry_dump,
             geom_area,
             countries
             if len(countries) > 0 and len(countries) <= 3
             else None,  # don't go through countires if they are more than 3
+            country_export,
         )
 
     @staticmethod
@@ -494,9 +486,13 @@ class RawData:
             working_dir: dir where results are saved
         """
         # first check either geometry needs grid or not for querying
-        grid_id, geometry_dump, geom_area, country = RawData.get_grid_id(
-            self.params.geometry, self.cur
-        )
+        (
+            grid_id,
+            geometry_dump,
+            geom_area,
+            country,
+            country_export,
+        ) = RawData.get_grid_id(self.params.geometry, self.cur)
         output_type = self.params.output_type
         # Check whether the export path exists or not
         working_dir = os.path.join(export_path, exportname)
@@ -518,6 +514,7 @@ class RawData:
                         g_id=grid_id,
                         c_id=country,
                         geometry_dump=geometry_dump,
+                        country_export=country_export,
                     ),
                     dump_temp_file_path,
                 )  # uses own conversion class
@@ -530,7 +527,11 @@ class RawData:
                     line_schema,
                     poly_schema,
                 ) = extract_geometry_type_query(
-                    self.params, ogr_export=True, g_id=grid_id, c_id=country
+                    self.params,
+                    ogr_export=True,
+                    g_id=grid_id,
+                    c_id=country,
+                    country_export=country_export,
                 )
                 RawData.ogr_export_shp(
                     point_query=point_query,
@@ -544,7 +545,12 @@ class RawData:
             else:
                 RawData.ogr_export(
                     query=raw_currentdata_extraction_query(
-                        self.params, grid_id, country, geometry_dump, ogr_export=True
+                        self.params,
+                        grid_id,
+                        country,
+                        geometry_dump,
+                        ogr_export=True,
+                        country_export=country_export,
                     ),
                     outputtype=output_type,
                     dump_temp_path=dump_temp_file_path,
