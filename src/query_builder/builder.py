@@ -49,6 +49,18 @@ def get_country_id_query(geom_dump):
     return base_query
 
 
+def check_exisiting_country(geom):
+    query = f"""select
+                        b.id::int as fid
+                    from
+                        countries b
+                    where
+                        ST_Equals(ST_GEOMFROMGEOJSON('{geom}') ,
+                        b.geometry)
+                    """
+    return query
+
+
 def get_query_as_geojson(query_list, ogr_export=None):
     table_base_query = []
     if ogr_export:
@@ -182,7 +194,9 @@ def generate_tag_filter_query(filter, join_by=" OR ", plain_query_filter=False):
         return tag_filter
 
 
-def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
+def extract_geometry_type_query(
+    params, ogr_export=False, g_id=None, c_id=None, country_export=False
+):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
 
     geom_filter = create_geom_filter(params.geometry)
@@ -253,7 +267,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
                     create_schema=True,
                 )
             where_clause_for_nodes = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, params.country_export, "nodes"
+                geom_filter, g_id, c_id, country_export, "nodes"
             )
 
             query_point = f"""select
@@ -279,7 +293,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
                     create_schema=True,
                 )
             where_clause_for_line = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, params.country_export, "ways_line"
+                geom_filter, g_id, c_id, country_export, "ways_line"
             )
 
             query_ways_line = f"""select
@@ -289,7 +303,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
                 where
                     {where_clause_for_line}"""
             where_clause_for_rel = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, params.country_export, "relations"
+                geom_filter, g_id, c_id, country_export, "relations"
             )
 
             query_relations_line = f"""select
@@ -319,7 +333,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
                 )
 
             where_clause_for_poly = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, params.country_export, "ways_poly"
+                geom_filter, g_id, c_id, country_export, "ways_poly"
             )
 
             query_ways_poly = f"""select
@@ -329,7 +343,7 @@ def extract_geometry_type_query(params, ogr_export=False, g_id=None, c_id=None):
                 where
                     {where_clause_for_poly}"""
             where_clause_for_relations = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, params.country_export, "relations"
+                geom_filter, g_id, c_id, country_export, "relations"
             )
 
             query_relations_poly = f"""select
@@ -419,7 +433,7 @@ def generate_where_clause_indexes_case(
         # if table_name == "ways_poly" or table_name == "nodes":
         #     where_clause += f" and (country IN ({c_id}))"
         # else:
-        where_clause += f"and (country @> ARRAY[{c_id}])"
+        where_clause += f" and (country @> ARRAY[{c_id}])"
     if (
         country_export
     ):  # ignore the geometry take geom from the db itself by using precalculated field
@@ -437,7 +451,13 @@ def get_country_geojson(c_id):
 
 
 def raw_currentdata_extraction_query(
-    params, g_id, c_id, geometry_dump, ogr_export=False, select_all=False
+    params,
+    g_id,
+    c_id,
+    geometry_dump,
+    ogr_export=False,
+    select_all=False,
+    country_export=False,
 ):
     """Default function to support current snapshot extraction with all of the feature that export_tool_api has"""
     geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
@@ -566,7 +586,7 @@ def raw_currentdata_extraction_query(
         params.geometry_type = ["point", "line", "polygon"]
     if SupportedGeometryFilters.POINT.value in params.geometry_type:
         where_clause_for_nodes = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, params.country_export, "nodes"
+            geom_filter, g_id, c_id, country_export, "nodes"
         )
 
         query_point = f"""select
@@ -581,7 +601,7 @@ def raw_currentdata_extraction_query(
 
     if SupportedGeometryFilters.LINE.value in params.geometry_type:
         where_clause_for_line = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, params.country_export, "ways_line"
+            geom_filter, g_id, c_id, country_export, "ways_line"
         )
 
         query_ways_line = f"""select
@@ -600,7 +620,7 @@ def raw_currentdata_extraction_query(
 
         if use_geomtype_in_relation:
             where_clause_for_rel = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, params.country_export, "relations"
+                geom_filter, g_id, c_id, country_export, "relations"
             )
 
             query_relations_line = f"""select
@@ -616,7 +636,7 @@ def raw_currentdata_extraction_query(
 
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
         where_clause_for_poly = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, params.country_export, "ways_poly"
+            geom_filter, g_id, c_id, country_export, "ways_poly"
         )
 
         query_ways_poly = f"""select
@@ -629,7 +649,7 @@ def raw_currentdata_extraction_query(
             query_ways_poly += f""" and ({poly_tag})"""
         base_query.append(query_ways_poly)
         where_clause_for_relations = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, params.country_export, "relations"
+            geom_filter, g_id, c_id, country_export, "relations"
         )
         query_relations_poly = f"""select
             {poly_select_condition}

@@ -121,7 +121,7 @@ USE_CONNECTION_POOLING=True # default it will not use connection pooling but you
 LOG_LEVEL=info #options are info,debug,warning,error
 ALLOW_BIND_ZIP_FILTER=true # option to configure export output zipped/unzipped Default all output will be zipped
 RATE_LIMITER_STORAGE_URI=redis://localhost:6379 # API uses redis as backend for rate limiting
-GRID_INDEX_THRESHOLD=5000 # value in sqkm to apply grid index filter
+INDEX_THRESHOLD=5000 # value in sqkm to apply grid/country index filter
 RATE_LIMIT_PER_MIN=5 # no of requests per minute - default is 5 requests per minute
 ```
 

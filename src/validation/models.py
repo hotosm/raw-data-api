@@ -137,12 +137,6 @@ class RawDataCurrentParams(BaseModel):
     geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
         default=None, example=["point", "polygon"]
     )
-
-    country_export: Optional[bool] = Field(
-        default=False,
-        example="false",
-        description="Intersects the passed geom to country boundary if set to true and exports whole country : Use with Caution , May take hours",
-    )
     filters: Optional[Filters] = Field(
         default=None,
         example={
