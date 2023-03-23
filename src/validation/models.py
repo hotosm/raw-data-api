@@ -137,6 +137,9 @@ class RawDataCurrentParams(BaseModel):
     geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
         default=None, example=["point", "polygon"]
     )
+    centroid: Optional[bool] = Field(
+        default=False, description="Exports centroid of features as geom"
+    )
     filters: Optional[Filters] = Field(
         default=None,
         example={
