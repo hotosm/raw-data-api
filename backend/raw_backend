@@ -27,7 +27,9 @@ from multiprocessing import Pool
 from os.path import exists
 from urllib.parse import urlparse
 
+import requests
 import wget
+from login import verify_me_osm
 
 
 def parse_arguments():
@@ -136,7 +138,28 @@ def download_file(download_dir, source_path):
     target_path = os.path.join(download_dir, filename)
     if not os.path.exists(target_path):
         print(f"\nStarting download for: {target_path}")
-        response = wget.download(source_path, target_path)
+        if os.environ["OSM_USERNAME"] and os.environ["OSM_PASSWORD"]:
+            cookies = verify_me_osm(
+                os.environ["OSM_USERNAME"], os.environ["OSM_PASSWORD"]
+            )
+            if cookies:
+                print("Authenticated")
+            cookies_fmt = {}
+            test = cookies.split("=")
+            cookies_fmt[test[0]] = f'{test[1]}=="'
+            session = requests.Session()
+
+            # Set the cookies
+            session.cookies.update(cookies_fmt)
+            response = session.get(source_path, stream=True)
+
+            if response.status_code == 200:
+                with open(target_path, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+
+        else:
+            response = wget.download(source_path, target_path)
     return target_path
 
 
