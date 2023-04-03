@@ -71,6 +71,21 @@ def parse_arguments():
         help="Prepare tables for replication and Runs Replication",
     )
     parser.add_argument(
+        "--flat_nodes",
+        default=False,
+        type="str",
+        action="store_true",
+        help="flat-nodes option of osm2pgsql for import , Takes Filename eg : data/nodes.bin",
+    )
+    parser.add_argument(
+        "--cache",
+        default=False,
+        type="int",
+        action="store_true",
+        help="cache option of osm2pgsql for import takes cache size",
+    )
+
+    parser.add_argument(
         "--run_minutely",
         default=False,
         action="store_true",
@@ -224,6 +239,14 @@ if __name__ == "__main__":
             lua_path,
             source_path,
         ]
+        if args.flat_nodes:
+            osm2pgsql.append("--flat-nodes")
+            osm2pgsql.append(args.flat_nodes)
+
+        if args.cache:
+            osm2pgsql.append("--cache")
+            osm2pgsql.append(args.flat_nodes)
+
         if not args.replication:
             osm2pgsql.append("--drop")
         run_subprocess_cmd(osm2pgsql)
