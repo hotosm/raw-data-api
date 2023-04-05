@@ -72,16 +72,12 @@ def parse_arguments():
     )
     parser.add_argument(
         "--flat_nodes",
-        default=False,
-        type="str",
-        action="store_true",
+        type=str,
         help="flat-nodes option of osm2pgsql for import , Takes Filename eg : data/nodes.bin",
     )
     parser.add_argument(
         "--cache",
-        default=False,
-        type="int",
-        action="store_true",
+        type=int,
         help="cache option of osm2pgsql for import takes cache size",
     )
 
