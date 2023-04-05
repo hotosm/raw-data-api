@@ -280,7 +280,7 @@ if __name__ == "__main__":
         for table in tables:
             print(table)
             update_cmd_list = []
-            for year in range(current_year, 2007, -1):
+            for year in range(current_year, 2005, -1):
                 # Calculate the start and end dates for this year
                 start_date = datetime.datetime(year, 1, 1).strftime("%Y-%m-%d")
                 end_date = datetime.datetime.now().strftime("%Y-%m-%d")
