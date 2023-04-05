@@ -277,95 +277,46 @@ if __name__ == "__main__":
 
     update_cmd_list = []
     if args.update or args.insert:
-        ## initiate country update for nodes
-        field_update_cmd = [
-            "python",
-            os.path.join(working_dir, "field_update"),
-            "-target_table",
-            "nodes",
-            "--target_column",
-            "country",
-            "--target_geom",
-            "geom",
-            "--source_table",
-            "countries",
-            "--source_column",
-            "id",
-            "--source_geom",
-            "geometry",
-            "--type",
-            "array",
-            "--f",
-            args.fq,
-        ]
-        update_cmd_list.append(field_update_cmd)
 
-        ## initiate country update for ways_poly
-        field_update_cmd = [
-            "python",
-            os.path.join(working_dir, "field_update"),
-            "--target_table",
-            "ways_poly",
-            "--target_column",
-            "country",
-            "--target_geom",
-            "geom",
-            "--source_table",
-            "countries",
-            "--source_column",
-            "id",
-            "--source_geom",
-            "geometry",
-            "--type",
-            "array",
-            "--f",
-            args.fq,
-        ]
-        update_cmd_list.append(field_update_cmd)
+        tables = ["nodes", "ways_poly", "ways_line", "relations"]
 
-        field_update_cmd = [
-            "python",
-            os.path.join(working_dir, "field_update"),
-            "--target_table",
-            "ways_line",
-            "--target_column",
-            "country",
-            "--target_geom",
-            "geom",
-            "--source_table",
-            "countries",
-            "--source_column",
-            "id",
-            "--source_geom",
-            "geometry",
-            "--type",
-            "array",
-            "--f",
-            args.fq,
-        ]
-        update_cmd_list.append(field_update_cmd)
+        current_year = datetime.datetime.now().year
+        for table in tables:
+            for year in range(current_year, 2005, -1):
+                # Calculate the start and end dates for this year
+                start_date = datetime.datetime(year, 1, 1).strftime("%Y-%m-%d")
+                end_date = datetime.datetime.now().strftime("%Y-%m-%d")
+                if year != current_year:
+                    end_date = datetime.datetime(year + 1, 1, 1).strftime("%Y-%m-%d")
 
-        field_update_cmd = [
-            "python",
-            os.path.join(working_dir, "field_update"),
-            "--target_table",
-            "relations",
-            "--target_column",
-            "country",
-            "--target_geom",
-            "geom",
-            "--source_table",
-            "countries",
-            "--source_column",
-            "id",
-            "--source_geom",
-            "geometry",
-            "--type",
-            "array",
-            "--f",
-            args.fq,
-        ]
-        update_cmd_list.append(field_update_cmd)
+                # Create the command for this year
+                cmd = [
+                    "python",
+                    os.path.join(working_dir, "field_update"),
+                    "--target_table",
+                    table,
+                    "--target_column",
+                    "country",
+                    "--target_geom",
+                    "geom",
+                    "--source_table",
+                    "countries",
+                    "--source_column",
+                    "id",
+                    "--source_geom",
+                    "geometry",
+                    "--type",
+                    "array",
+                    "--f",
+                    args.fq,
+                    "--start",
+                    start_date,
+                ]
+
+                if year != current_year:
+                    cmd.extend(["--end", end_date])
+
+                update_cmd_list.append(cmd)
 
     if len(update_cmd_list) > 1:
         run_subprocess_cmd_parallel(update_cmd_list)
