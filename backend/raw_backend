@@ -126,6 +126,7 @@ def is_local(url):
 def run_subprocess_cmd(cmd):
     try:
         subprocess.check_output(cmd, env=os.environ)
+
     except subprocess.CalledProcessError as ex:
         print(ex.output)
         raise ex
@@ -271,14 +272,15 @@ if __name__ == "__main__":
             ]
             run_subprocess_cmd(replication_init)
 
-    update_cmd_list = []
     if args.update or args.insert:
 
         tables = ["nodes", "ways_poly", "ways_line", "relations"]
 
         current_year = datetime.datetime.now().year
         for table in tables:
-            for year in range(current_year, 2005, -1):
+            print(table)
+            update_cmd_list = []
+            for year in range(current_year, 2007, -1):
                 # Calculate the start and end dates for this year
                 start_date = datetime.datetime(year, 1, 1).strftime("%Y-%m-%d")
                 end_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -305,17 +307,15 @@ if __name__ == "__main__":
                     "array",
                     "--f",
                     args.fq,
-                    "--start",
+                    "--end",
                     start_date,
                 ]
 
                 if year != current_year:
-                    cmd.extend(["--end", end_date])
-
+                    cmd.extend(["--start", end_date])
                 update_cmd_list.append(cmd)
-
-    if len(update_cmd_list) > 1:
-        run_subprocess_cmd_parallel(update_cmd_list)
+            if len(update_cmd_list) > 0:
+                run_subprocess_cmd_parallel(update_cmd_list)
 
     if args.insert or args.post_index:
         ## build post indexes
