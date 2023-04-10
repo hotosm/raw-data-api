@@ -80,7 +80,6 @@ def parse_arguments():
         type=int,
         help="cache option of osm2pgsql for import takes cache size",
     )
-
     parser.add_argument(
         "--run_minutely",
         default=False,
@@ -140,7 +139,6 @@ def run_replication_cmd(cmd):
 
 
 def run_subprocess_cmd_parallel(cmds):
-
     with Pool(processes=len(cmds)) as pool:
         pool.map(run_subprocess_cmd, cmds)
 
@@ -176,7 +174,6 @@ def download_file(download_dir, source_path):
 
 
 if __name__ == "__main__":
-
     args = parse_arguments()
 
     os.environ["PGHOST"] = args.host
@@ -236,14 +233,6 @@ if __name__ == "__main__":
             lua_path,
             source_path,
         ]
-        if args.flat_nodes:
-            osm2pgsql.append("--flat-nodes")
-            osm2pgsql.append(args.flat_nodes)
-
-        if args.cache:
-            osm2pgsql.append("--cache")
-            osm2pgsql.append(args.flat_nodes)
-
         if not args.replication:
             osm2pgsql.append("--drop")
         run_subprocess_cmd(osm2pgsql)
@@ -273,7 +262,6 @@ if __name__ == "__main__":
             run_subprocess_cmd(replication_init)
 
     if args.update or args.insert:
-
         tables = ["nodes", "ways_poly", "ways_line", "relations"]
 
         current_year = datetime.datetime.now().year
