@@ -355,7 +355,7 @@ resource "azurerm_postgresql_flexible_server_configuration" "raw-data-password-e
 
 resource "azurerm_postgresql_flexible_server_configuration" "raw-data-azure-password-encryption" {
   server_id = azurerm_postgresql_flexible_server.raw-data.id
-  name      = " azure.accepted_password_auth_method"
+  name      = "azure.accepted_password_auth_method"
   value     = "md5,scram-sha-256"
 }
 
