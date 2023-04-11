@@ -52,7 +52,7 @@ variable "server_skus" {
   type = map(any)
   default = {
     database = "GP_Standard_D2ds_v4"
-    backend  = "Standard_F2"
+    backend  = "Standard_D2ls_v5"
   }
 }
 
