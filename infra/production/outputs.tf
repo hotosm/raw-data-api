@@ -21,6 +21,21 @@ output "default_backend_ssh_string" {
   )
 }
 
+output "redis-connection-string-default" {
+  description = "Default secure connection string for Redis"
+  value = join("",
+    [
+      "rediss://:",
+      azurerm_redis_cache.raw-data-queue.primary_access_key,
+      "@",
+      azurerm_redis_cache.raw-data-queue.hostname,
+      ":",
+      azurerm_redis_cache.raw-data-queue.ssl_port,
+      "/0?ssl_cert_reqs=required"
+    ]
+  )
+}
+
 output "raw-data-redis-endpoint" {
   description = "Redis cache service endpoint"
   value = join(
