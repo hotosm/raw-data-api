@@ -22,6 +22,8 @@ output "default_backend_ssh_string" {
 }
 
 output "redis-connection-string-default" {
+  sensitive = true
+
   description = "Default secure connection string for Redis"
   value = join("",
     [
