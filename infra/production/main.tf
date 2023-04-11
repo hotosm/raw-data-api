@@ -223,7 +223,7 @@ resource "azurerm_managed_disk" "backend-data-volume" {
   resource_group_name  = azurerm_resource_group.raw-data.name
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
-  disk_size_gb         = "2500"
+  disk_size_gb         = "1000"
 
   tags = merge(local.required_tags, local.conditional_tags)
 }
