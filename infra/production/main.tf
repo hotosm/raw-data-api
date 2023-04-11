@@ -197,9 +197,10 @@ resource "azurerm_public_ip" "raw-data-backend" {
 }
 
 resource "azurerm_network_interface" "raw-data-backend" {
-  name                = join("-", [var.project_name, var.deployment_environment])
-  location            = azurerm_resource_group.raw-data.location
-  resource_group_name = azurerm_resource_group.raw-data.name
+  name                          = join("-", [var.project_name, var.deployment_environment])
+  location                      = azurerm_resource_group.raw-data.location
+  resource_group_name           = azurerm_resource_group.raw-data.name
+  enable_accelerated_networking = true
 
   ip_configuration {
     name                          = "internal"
@@ -239,15 +240,18 @@ resource "azurerm_linux_virtual_machine" "raw-data-backend" {
   allow_extension_operations = false
 
   custom_data = base64encode(
-    file(
-      "bootstrap_backend.sh"
+    templatefile(
+      "${path.module}/bootstrap_backend.sh.tftpl",
+      {
+        APP_ADMIN_USER = lookup(var.admin_usernames, "backend")
+      }
     )
   )
 
   source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
+    sku       = "22_04-lts-gen2"
     version   = "latest"
   }
 
@@ -340,6 +344,19 @@ resource "azurerm_postgresql_flexible_server_configuration" "raw-data-postgis" {
   name      = "azure.extensions"
   server_id = azurerm_postgresql_flexible_server.raw-data.id
   value     = "BTREE_GIST,INTARRAY,POSTGIS"
+}
+
+// Improve password hashing security for PostgreSQL users
+resource "azurerm_postgresql_flexible_server_configuration" "raw-data-password-encryption" {
+  server_id = azurerm_postgresql_flexible_server.raw-data.id
+  name      = "password_encryption"
+  value     = "scram-sha-256"
+}
+
+resource "azurerm_postgresql_flexible_server_configuration" "raw-data-azure-password-encryption" {
+  server_id = azurerm_postgresql_flexible_server.raw-data.id
+  name      = " azure.accepted_password_auth_method"
+  value     = "md5,scram-sha-256"
 }
 
 resource "azurerm_postgresql_flexible_server_database" "default-db" {
