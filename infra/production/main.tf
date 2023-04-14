@@ -221,7 +221,7 @@ resource "azurerm_managed_disk" "backend-data-volume" {
   )
   location             = azurerm_resource_group.raw-data.location
   resource_group_name  = azurerm_resource_group.raw-data.name
-  storage_account_type = "Standard_LRS"
+  storage_account_type = "StandardSSD_LRS"
   create_option        = "Empty"
   disk_size_gb         = "1000"
 
