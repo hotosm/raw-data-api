@@ -2,7 +2,7 @@ name: Check Build
 on:
   push:
     paths-ignore:
-      - 'infra/**'
+      - "infra/**"
     branches:
       - master
       - develop
@@ -46,7 +46,7 @@ jobs:
         run: pip install -r backend/requirements.txt
 
       - name: Start Loading
-        run: python backend/raw_backend --insert --fq m
+        run: python backend/raw --insert --fq m
 
       - name: Install gdal
         run: |
