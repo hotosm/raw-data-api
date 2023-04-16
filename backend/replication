@@ -220,7 +220,6 @@ def status(conn, args):
                     "error"
                 ] = "Updates not set up correctly. Run 'osm2pgsql-updates init' first."
             else:
-
                 base_url, db_seq, db_ts = cur.fetchone()
                 db_ts = db_ts.astimezone(dt.timezone.utc)
                 results["server"] = {}
@@ -429,6 +428,9 @@ def update(conn, args):
         "--style",
         args.style,
     ]
+    if args.flat_nodes:
+        osm2pgsql.append("--flat-nodes")
+        osm2pgsql.append(args.flat_nodes)
 
     osm2pgsql.extend(args.extra_params)
 
@@ -702,6 +704,11 @@ def get_parser():
         nargs="+",
         type=int,
         help="Country id to filter on replication",
+    )
+    cmd.add_argument(
+        "--flat_nodes",
+        type=str,
+        help="flat-nodes option of osm2pgsql for apply in replication , Takes Filename eg : data/nodes.bin",
     )
     # Arguments for status
     cmd = subs.add_parser(

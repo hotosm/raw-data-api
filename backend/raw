@@ -29,6 +29,7 @@ from urllib.parse import urlparse
 
 import requests
 import wget
+
 from login import verify_me_osm
 
 
@@ -77,8 +78,14 @@ def parse_arguments():
     )
     parser.add_argument(
         "--cache",
-        type=int,
+        type=str,
         help="cache option of osm2pgsql for import takes cache size",
+    )
+    parser.add_argument(
+        "extra_params",
+        nargs="*",
+        metavar="param",
+        help="Extra params to pass in to osm2pgsql.",
     )
     parser.add_argument(
         "--run_minutely",
@@ -233,8 +240,18 @@ if __name__ == "__main__":
             lua_path,
             source_path,
         ]
+        osm2pgsql.extend(args.extra_params)
+        if args.flat_nodes:
+            osm2pgsql.append("--flat-nodes")
+            osm2pgsql.append(args.flat_nodes)
+
+        if args.cache:
+            osm2pgsql.append("--cache")
+            osm2pgsql.append(str(args.cache))
+
         if not args.replication:
             osm2pgsql.append("--drop")
+        print(osm2pgsql)
         run_subprocess_cmd(osm2pgsql)
 
         basic_index_cmd = [
@@ -329,6 +346,9 @@ if __name__ == "__main__":
             "--max-diff-size",
             "10",
         ]
+        if args.flat_nodes:
+            pass
+
         if args.country:
             replication_cmd.extend(["--country"])
             replication_cmd.extend([str(x) for x in args.country])
