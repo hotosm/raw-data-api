@@ -46,3 +46,16 @@ CLUSTER nodes USING nodes_geom_idx;
 CLUSTER ways_line USING ways_line_geom_idx;
 -- clustering ways_poly
 CLUSTER ways_poly USING ways_poly_geom_idx;
+
+
+-- VACUUM the table to reclaim disk space
+VACUUM nodes;
+VACUUM ways_line;
+VACUUM ways_poly;
+VACUUM relations;
+
+-- ANALYZE the table to update table statistics
+ANALYZE nodes;
+ANALYZE ways_line;
+ANALYZE ways_poly;
+ANALYZE relations;
