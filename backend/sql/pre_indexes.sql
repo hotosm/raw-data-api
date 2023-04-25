@@ -34,6 +34,19 @@
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+ALTER TABLE nodes
+ADD CONSTRAINT nodes_pk PRIMARY KEY IF NOT EXISTS (osm_id);
+
+ALTER TABLE ways_line
+ADD CONSTRAINT ways_line_pk PRIMARY KEY IF NOT EXISTS (osm_id);
+
+ALTER TABLE ways_poly
+ADD CONSTRAINT ways_poly_pk PRIMARY KEY IF NOT EXISTS (osm_id);
+
+ALTER TABLE relations
+ADD CONSTRAINT relations_pk PRIMARY KEY IF NOT EXISTS (osm_id);
+
+
 CREATE INDEX CONCURRENTLY IF NOT EXISTS nodes_timestamp_idx ON public.nodes USING btree ("timestamp");
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ways_line_timestamp_idx ON public.ways_line USING btree ("timestamp");
@@ -44,17 +57,5 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS relations_tags_idx ON public.relations U
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS relations_timestamp_idx ON public.relations USING btree ("timestamp");
 
-ALTER TABLE nodes ADD PRIMARY KEY (osm_id);
 
-ALTER TABLE ways_line ADD PRIMARY KEY (osm_id);
-
-ALTER TABLE ways_poly ADD PRIMARY KEY (osm_id);
-
-ALTER TABLE relations ADD PRIMARY KEY (osm_id);
-
-ALTER TABLE planet_osm_ways ADD PRIMARY KEY (id);
-
-ALTER TABLE planet_osm_nodes ADD PRIMARY KEY (id);
-
-ALTER TABLE planet_osm_rels ADD PRIMARY KEY (id);
 
