@@ -29,7 +29,6 @@ from urllib.parse import urlparse
 
 import requests
 import wget
-
 from login import verify_me_osm
 
 
@@ -347,7 +346,8 @@ if __name__ == "__main__":
             "10",
         ]
         if args.flat_nodes:
-            pass
+            replication_cmd.append("--flat_nodes")
+            replication_cmd.append(args.flat_nodes)
 
         if args.country:
             replication_cmd.extend(["--country"])
