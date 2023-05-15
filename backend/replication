@@ -483,6 +483,8 @@ def update(conn, args):
                 nextstate.timestamp,
                 dt.datetime.now(dt.timezone.utc) - nextstate.timestamp,
             )
+            if outfile.exists():
+                outfile.unlink()
             start_time = time.time()
             LOG.debug("Starting Country update")
             update_country(
