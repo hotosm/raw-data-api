@@ -486,32 +486,32 @@ def update(conn, args):
             if outfile.exists():
                 outfile.unlink()
             start_time = time.time()
-            LOG.debug("Starting Country update")
-            update_country(
-                conn,
-                grid_timestamp,
-                "nodes",
-                args.country if args.country else None,
-            )
-            update_country(
-                conn,
-                grid_timestamp,
-                "ways_poly",
-                args.country if args.country else None,
-            )
-            update_country(
-                conn,
-                grid_timestamp,
-                "ways_line",
-                args.country if args.country else None,
-            )
-            update_country(
-                conn,
-                grid_timestamp,
-                "relations",
-                args.country if args.country else None,
-            )
-            LOG.info(f"Updating field  took {round(time.time()-start_time)}s overall.")
+            # LOG.debug("Starting Country update")
+            # update_country(
+            #     conn,
+            #     grid_timestamp,
+            #     "nodes",
+            #     args.country if args.country else None,
+            # )
+            # update_country(
+            #     conn,
+            #     grid_timestamp,
+            #     "ways_poly",
+            #     args.country if args.country else None,
+            # )
+            # update_country(
+            #     conn,
+            #     grid_timestamp,
+            #     "ways_line",
+            #     args.country if args.country else None,
+            # )
+            # update_country(
+            #     conn,
+            #     grid_timestamp,
+            #     "relations",
+            #     args.country if args.country else None,
+            # )
+            # LOG.info(f"Updating field  took {round(time.time()-start_time)}s overall.")
             grid_timestamp = nextstate.timestamp
         if args.once:
             break
