@@ -483,9 +483,7 @@ def update(conn, args):
                 nextstate.timestamp,
                 dt.datetime.now(dt.timezone.utc) - nextstate.timestamp,
             )
-            if outfile.exists():
-                outfile.unlink()
-            start_time = time.time()
+            # start_time = time.time()
             # LOG.debug("Starting Country update")
             # update_country(
             #     conn,
@@ -512,7 +510,7 @@ def update(conn, args):
             #     args.country if args.country else None,
             # )
             # LOG.info(f"Updating field  took {round(time.time()-start_time)}s overall.")
-            grid_timestamp = nextstate.timestamp
+            # grid_timestamp = nextstate.timestamp
         if args.once:
             break
 
