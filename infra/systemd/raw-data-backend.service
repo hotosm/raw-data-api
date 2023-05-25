@@ -3,12 +3,13 @@ Description=Raw Data Backend Service
 Documentation=https://github.com/hotosm/raw-data-api/blob/develop/backend/Readme.md
 After=network.target syslog.target
 AssertFileNotEmpty=/opt/raw-data-api/backend/database.env
+Wants=rawdata-backend.timer
 
 [Service]
 Type=simple
 User=hotsysadmin
 WorkingDirectory=/opt/raw-data-api/backend
-ExecStart=/opt/raw-data-api/.virtualenv/bin/python raw_backend --replication --run_minutely
+ExecStart=/opt/raw-data-api/.virtualenv/bin/python raw_backend --replication --flat_nodes /var/opt/nodes-bin/nodes.bin 
 Restart=on-failure
 EnvironmentFile=/opt/raw-data-api/backend/database.env
 ReadWritePaths=/opt/raw-data-api/backend

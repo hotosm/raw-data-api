@@ -87,12 +87,6 @@ def parse_arguments():
         help="Extra params to pass in to osm2pgsql.",
     )
     parser.add_argument(
-        "--run_minutely",
-        default=False,
-        action="store_true",
-        help="Runs replication every minute",
-    )
-    parser.add_argument(
         "--country",
         nargs="+",
         type=int,
@@ -330,6 +324,7 @@ if __name__ == "__main__":
             "raw.lua",
             "--max-diff-size",
             "10",
+            "--once",
         ]
         if args.flat_nodes:
             replication_cmd.append("--flat_nodes")
@@ -339,10 +334,3 @@ if __name__ == "__main__":
             replication_cmd.extend(["--country"])
             replication_cmd.extend([str(x) for x in args.country])
         run_subprocess_cmd(replication_cmd)
-        if args.run_minutely:
-            while True:  # run replication forever
-                # --max-diff-size 10 mb as default
-                start = time.time()
-                run_replication_cmd(replication_cmd)
-                if (time.time() - start) < 60:
-                    time.sleep(60)
