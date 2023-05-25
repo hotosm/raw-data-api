@@ -66,7 +66,6 @@ def verify_me_osm(
     consumer_url="https://osm-internal.download.geofabrik.de/get_cookie",
     format="http",
 ):
-
     username = user
     if username is None:
         report_error("The username must not be empty.")
