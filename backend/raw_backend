@@ -27,7 +27,9 @@ from multiprocessing import Pool
 from os.path import exists
 from urllib.parse import urlparse
 
+import requests
 import wget
+from login import verify_me_osm
 
 
 def parse_arguments():
@@ -67,6 +69,22 @@ def parse_arguments():
         default=False,
         action="store_true",
         help="Prepare tables for replication and Runs Replication",
+    )
+    parser.add_argument(
+        "--flat_nodes",
+        type=str,
+        help="flat-nodes option of osm2pgsql for import , Takes Filename eg : data/nodes.bin",
+    )
+    parser.add_argument(
+        "--cache",
+        type=str,
+        help="cache option of osm2pgsql for import takes cache size",
+    )
+    parser.add_argument(
+        "extra_params",
+        nargs="*",
+        metavar="param",
+        help="Extra params to pass in to osm2pgsql.",
     )
     parser.add_argument(
         "--run_minutely",
@@ -113,6 +131,7 @@ def is_local(url):
 def run_subprocess_cmd(cmd):
     try:
         subprocess.check_output(cmd, env=os.environ)
+
     except subprocess.CalledProcessError as ex:
         print(ex.output)
         raise ex
@@ -126,7 +145,6 @@ def run_replication_cmd(cmd):
 
 
 def run_subprocess_cmd_parallel(cmds):
-
     with Pool(processes=len(cmds)) as pool:
         pool.map(run_subprocess_cmd, cmds)
 
@@ -136,12 +154,32 @@ def download_file(download_dir, source_path):
     target_path = os.path.join(download_dir, filename)
     if not os.path.exists(target_path):
         print(f"\nStarting download for: {target_path}")
-        response = wget.download(source_path, target_path)
+        if os.environ["OSM_USERNAME"] and os.environ["OSM_PASSWORD"]:
+            cookies = verify_me_osm(
+                os.environ["OSM_USERNAME"], os.environ["OSM_PASSWORD"]
+            )
+            if cookies:
+                print("Authenticated")
+            cookies_fmt = {}
+            test = cookies.split("=")
+            cookies_fmt[test[0]] = f'{test[1]}=="'
+            session = requests.Session()
+
+            # Set the cookies
+            session.cookies.update(cookies_fmt)
+            response = session.get(source_path, stream=True)
+
+            if response.status_code == 200:
+                with open(target_path, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+
+        else:
+            response = wget.download(source_path, target_path)
     return target_path
 
 
 if __name__ == "__main__":
-
     args = parse_arguments()
 
     os.environ["PGHOST"] = args.host
@@ -177,7 +215,7 @@ if __name__ == "__main__":
     if len(target_paths) > 1:
         merg_file_path = os.path.join(download_dir, "merged_data.pbf")
         if not os.path.exists(merg_file_path):
-            print("\nMerging OSM files")
+            print(f"\nMerging OSM files : {target_paths}")
             cmd = [
                 "osmium",
                 "merge",
@@ -201,8 +239,18 @@ if __name__ == "__main__":
             lua_path,
             source_path,
         ]
+        osm2pgsql.extend(args.extra_params)
+        if args.flat_nodes:
+            osm2pgsql.append("--flat-nodes")
+            osm2pgsql.append(args.flat_nodes)
+
+        if args.cache:
+            osm2pgsql.append("--cache")
+            osm2pgsql.append(str(args.cache))
+
         if not args.replication:
             osm2pgsql.append("--drop")
+        print(osm2pgsql)
         run_subprocess_cmd(osm2pgsql)
 
         basic_index_cmd = [
@@ -232,94 +280,29 @@ if __name__ == "__main__":
     update_cmd_list = []
     if args.update or args.insert:
         ## initiate country update for nodes
-        field_update_cmd = [
-            "python",
-            os.path.join(working_dir, "field_update"),
-            "-target_table",
-            "nodes",
-            "--target_column",
-            "country",
-            "--target_geom",
-            "geom",
-            "--source_table",
-            "countries",
-            "--source_column",
-            "id",
-            "--source_geom",
-            "geometry",
-            "--type",
-            "array",
-            "--f",
-            args.fq,
-        ]
-        update_cmd_list.append(field_update_cmd)
-
-        ## initiate country update for ways_poly
-        field_update_cmd = [
-            "python",
-            os.path.join(working_dir, "field_update"),
-            "--target_table",
-            "ways_poly",
-            "--target_column",
-            "country",
-            "--target_geom",
-            "geom",
-            "--source_table",
-            "countries",
-            "--source_column",
-            "id",
-            "--source_geom",
-            "geometry",
-            "--type",
-            "array",
-            "--f",
-            args.fq,
-        ]
-        update_cmd_list.append(field_update_cmd)
-
-        field_update_cmd = [
-            "python",
-            os.path.join(working_dir, "field_update"),
-            "--target_table",
-            "ways_line",
-            "--target_column",
-            "country",
-            "--target_geom",
-            "geom",
-            "--source_table",
-            "countries",
-            "--source_column",
-            "id",
-            "--source_geom",
-            "geometry",
-            "--type",
-            "array",
-            "--f",
-            args.fq,
-        ]
-        update_cmd_list.append(field_update_cmd)
-
-        field_update_cmd = [
-            "python",
-            os.path.join(working_dir, "field_update"),
-            "--target_table",
-            "relations",
-            "--target_column",
-            "country",
-            "--target_geom",
-            "geom",
-            "--source_table",
-            "countries",
-            "--source_column",
-            "id",
-            "--source_geom",
-            "geometry",
-            "--type",
-            "array",
-            "--f",
-            args.fq,
-        ]
-        update_cmd_list.append(field_update_cmd)
+        tables = ["nodes", "ways_poly", "ways_line", "relations"]
+        for table in tables:
+            field_update_cmd = [
+                "python",
+                os.path.join(working_dir, "field_update"),
+                "-target_table",
+                table,
+                "--target_column",
+                "country",
+                "--target_geom",
+                "geom",
+                "--source_table",
+                "countries",
+                "--source_column",
+                "id",
+                "--source_geom",
+                "geometry",
+                "--type",
+                "array",
+                "--f",
+                args.fq,
+            ]
+            update_cmd_list.append(field_update_cmd)
 
     if len(update_cmd_list) > 1:
         run_subprocess_cmd_parallel(update_cmd_list)
@@ -348,6 +331,10 @@ if __name__ == "__main__":
             "--max-diff-size",
             "10",
         ]
+        if args.flat_nodes:
+            replication_cmd.append("--flat_nodes")
+            replication_cmd.append(args.flat_nodes)
+
         if args.country:
             replication_cmd.extend(["--country"])
             replication_cmd.extend([str(x) for x in args.country])

@@ -18,35 +18,44 @@
 -- # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 -- # <info@hotosm.org>
 
-create extension if not exists btree_gist;
-create extension if not exists postgis;
+-- CREATE INDEX IF NOT EXISTS   nodes_uid_idx ON public.nodes USING btree (uid);
+-- CREATE INDEX IF NOT EXISTS   nodes_changeset_idx ON public.nodes USING btree (changeset);
+
+-- CREATE INDEX IF NOT EXISTS  ways_line_uid_idx ON public.ways_line USING btree (uid);
+-- CREATE INDEX IF NOT EXISTS  ways_line_changeset_idx ON public.ways_line USING btree (changeset);
+
+-- CREATE INDEX IF NOT EXISTS  ways_poly_uid_idx ON public.ways_poly USING btree (uid);
+-- CREATE INDEX IF NOT EXISTS  ways_poly_changeset_idx ON public.ways_poly USING btree (changeset);
+
+-- CREATE INDEX IF NOT EXISTS  relations_uid_idx ON public.relations USING btree (uid);
+-- CREATE INDEX IF NOT EXISTS  relations_changeset_idx ON public.relations USING btree (changeset);
 
 
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS   nodes_osm_id_idx ON public.nodes USING btree (osm_id);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS   nodes_timestamp_idx ON public.nodes USING btree ("timestamp");
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS   nodes_uid_idx ON public.nodes USING btree (uid);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS   nodes_changeset_idx ON public.nodes USING btree (changeset);
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+ALTER TABLE nodes
+ADD CONSTRAINT nodes_pk PRIMARY KEY  (osm_id);
+
+ALTER TABLE ways_line
+ADD CONSTRAINT ways_line_pk PRIMARY KEY  (osm_id);
+
+ALTER TABLE ways_poly
+ADD CONSTRAINT ways_poly_pk PRIMARY KEY  (osm_id);
+
+ALTER TABLE relations
+ADD CONSTRAINT relations_pk PRIMARY KEY (osm_id);
 
 
+CREATE INDEXIF NOT EXISTS nodes_timestamp_idx ON public.nodes USING btree ("timestamp");
 
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_osm_id_idx ON public.ways_line USING btree (osm_id);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_timestamp_idx ON public.ways_line USING btree ("timestamp");
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_uid_idx ON public.ways_line USING btree (uid);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_line_changeset_idx ON public.ways_line USING btree (changeset);
+CREATE INDEXIF NOT EXISTS ways_line_timestamp_idx ON public.ways_line USING btree ("timestamp");
 
+CREATE INDEXIF NOT EXISTS ways_poly_timestamp_idx ON public.ways_poly USING btree ("timestamp");
 
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_osm_id_idx ON public.ways_poly USING btree (osm_id);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_timestamp_idx ON public.ways_poly USING btree ("timestamp");
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_uid_idx ON public.ways_poly USING btree (uid);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  ways_poly_changeset_idx ON public.ways_poly USING btree (changeset);
+CREATE INDEXIF NOT EXISTS relations_tags_idx ON public.relations USING gin (tags);
 
-
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_osm_id_idx ON public.relations USING btree (osm_id);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_tags_idx ON public.relations USING gin (tags);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_timestamp_idx ON public.relations USING btree ("timestamp");
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_uid_idx ON public.relations USING btree (uid);
-CREATE INDEX CONCURRENTLY  IF NOT EXISTS  relations_changeset_idx ON public.relations USING btree (changeset);
-
+CREATE INDEXIF NOT EXISTS relations_timestamp_idx ON public.relations USING btree ("timestamp");
 
 
 
