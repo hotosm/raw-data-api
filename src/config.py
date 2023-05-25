@@ -47,7 +47,7 @@ CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or config.get(
 ### API CONFIG BLOCK #######################
 
 RATE_LIMIT_PER_MIN = os.environ.get("RATE_LIMIT_PER_MIN") or int(
-    config.get("API_CONFIG", "RATE_LIMIT_PER_MIN", fallback=5)
+    config.get("API_CONFIG", "RATE_LIMIT_PER_MIN", fallback=20)
 )
 
 RATE_LIMITER_STORAGE_URI = os.environ.get("RATE_LIMITER_STORAGE_URI") or config.get(

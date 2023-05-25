@@ -4,13 +4,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="export-tool-api",
+    name="raw-data-api",
     version="1.0.16",
     description="The Raw Data API  module makes it simple for you to get osm data stats provided by api in your own project",
-    packages=["src"],
-    package_dir={"export_tool_api": "src"},
+    packages=setuptools.find_packages(),
     install_requires=[
-        "pytest == 3.7",
+        "pytest == 7.3.1",
         "psycopg2",
         "boto3==1.24.38",
         "fastapi==0.65.2",
