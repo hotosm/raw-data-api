@@ -483,34 +483,37 @@ def update(conn, args):
                 nextstate.timestamp,
                 dt.datetime.now(dt.timezone.utc) - nextstate.timestamp,
             )
-            # start_time = time.time()
-            # LOG.debug("Starting Country update")
-            # update_country(
-            #     conn,
-            #     grid_timestamp,
-            #     "nodes",
-            #     args.country if args.country else None,
-            # )
-            # update_country(
-            #     conn,
-            #     grid_timestamp,
-            #     "ways_poly",
-            #     args.country if args.country else None,
-            # )
-            # update_country(
-            #     conn,
-            #     grid_timestamp,
-            #     "ways_line",
-            #     args.country if args.country else None,
-            # )
-            # update_country(
-            #     conn,
-            #     grid_timestamp,
-            #     "relations",
-            #     args.country if args.country else None,
-            # )
-            # LOG.info(f"Updating field  took {round(time.time()-start_time)}s overall.")
-            # grid_timestamp = nextstate.timestamp
+            if not args.skip_cupdate:
+                start_time = time.time()
+                LOG.debug("Starting Country update")
+                update_country(
+                    conn,
+                    grid_timestamp,
+                    "nodes",
+                    args.country if args.country else None,
+                )
+                update_country(
+                    conn,
+                    grid_timestamp,
+                    "ways_poly",
+                    args.country if args.country else None,
+                )
+                update_country(
+                    conn,
+                    grid_timestamp,
+                    "ways_line",
+                    args.country if args.country else None,
+                )
+                update_country(
+                    conn,
+                    grid_timestamp,
+                    "relations",
+                    args.country if args.country else None,
+                )
+                LOG.info(
+                    f"Updating field  took {round(time.time()-start_time)}s overall."
+                )
+                grid_timestamp = nextstate.timestamp
         if args.once:
             break
 
@@ -693,6 +696,11 @@ def get_parser():
         "--once",
         action="store_true",
         help="Run updates only once, even when more data is available.",
+    )
+    cmd.add_argument(
+        "--skip_cupdate",
+        action="store_true",
+        help="Skips country update during replication",
     )
     cmd.add_argument(
         "--post-processing",
