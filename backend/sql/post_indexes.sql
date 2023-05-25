@@ -38,7 +38,6 @@ CREATE INDEX IF NOT EXISTS  ways_poly_geom_idx ON public.ways_poly USING gist (g
 CREATE INDEX IF NOT EXISTS  relations_geom_idx ON public.relations USING gist (geom);
 CREATE INDEX IF NOT EXISTS  relations_country_idx ON public.relations USING gin (country gin__int_ops);
 
--- Clustering command , it is recommended for larger datasets , It will be easy for indexes to find right files faster , will also reduce coutry geom index size since all related rows will be clustered as block 
 
 -- clustering nodes
 CLUSTER nodes USING nodes_geom_idx;
