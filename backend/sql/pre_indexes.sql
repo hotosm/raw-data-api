@@ -47,15 +47,15 @@ ALTER TABLE relations
 ADD CONSTRAINT relations_pk PRIMARY KEY (osm_id);
 
 
-CREATE INDEXIF NOT EXISTS nodes_timestamp_idx ON public.nodes USING btree ("timestamp");
+CREATE INDEX IF NOT EXISTS nodes_timestamp_idx ON public.nodes USING btree ("timestamp");
 
-CREATE INDEXIF NOT EXISTS ways_line_timestamp_idx ON public.ways_line USING btree ("timestamp");
+CREATE INDEX IF NOT EXISTS ways_line_timestamp_idx ON public.ways_line USING btree ("timestamp");
 
-CREATE INDEXIF NOT EXISTS ways_poly_timestamp_idx ON public.ways_poly USING btree ("timestamp");
+CREATE INDEX IF NOT EXISTS ways_poly_timestamp_idx ON public.ways_poly USING btree ("timestamp");
 
-CREATE INDEXIF NOT EXISTS relations_tags_idx ON public.relations USING gin (tags);
+CREATE INDEX IF NOT EXISTS relations_tags_idx ON public.relations USING gin (tags);
 
-CREATE INDEXIF NOT EXISTS relations_timestamp_idx ON public.relations USING btree ("timestamp");
+CREATE INDEX IF NOT EXISTS relations_timestamp_idx ON public.relations USING btree ("timestamp");
 
 
 
