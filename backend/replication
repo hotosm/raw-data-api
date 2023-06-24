@@ -650,35 +650,38 @@ def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
 
 
 def process_boundary(input_data):
-    if isinstance(input_data, str):
-        try:
-            geojson_data = json.loads(input_data)
-        except json.JSONDecodeError:
-            # If it's not a valid JSON string, treat it as a file path
-            if not os.path.isfile(input_data):
-                raise ValueError("Invalid file path provided.")
+    if len(input_data.strip()) > 0:
+        if isinstance(input_data, str):
+            try:
+                geojson_data = json.loads(input_data)
+            except json.JSONDecodeError:
+                # If it's not a valid JSON string, treat it as a file path
+                if not os.path.isfile(input_data):
+                    raise ValueError("Invalid file path provided.")
 
-            with open(input_data) as file:
-                geojson_data = json.load(file)
-    else:
-        raise ValueError(
-            "Invalid input type. Expected an integer or a JSON string/file path."
-        )
+                with open(input_data) as file:
+                    geojson_data = json.load(file)
+        else:
+            raise ValueError(
+                "Invalid input type. Expected an integer or a JSON string/file path."
+            )
 
-    features = geojson_data["features"]
+        features = geojson_data["features"]
 
-    if len(features) != 1:
-        raise ValueError("Invalid GeoJSON. Expected a single feature.")
+        if len(features) != 1:
+            raise ValueError("Invalid GeoJSON. Expected a single feature.")
 
-    feature = features[0]
-    geometry = feature.get("geometry")
+        feature = features[0]
+        geometry = feature.get("geometry")
 
-    if not geometry or geometry.get("type") not in ("Polygon", "MultiPolygon"):
-        raise ValueError("Invalid GeoJSON. Expected Polygon or MultiPolygon geometry.")
+        if not geometry or geometry.get("type") not in ("Polygon", "MultiPolygon"):
+            raise ValueError(
+                "Invalid GeoJSON. Expected Polygon or MultiPolygon geometry."
+            )
 
-    query_strings = f"ST_GeomFromGeoJSON('{json.dumps(input_data)}')"
+        query_strings = f"ST_GeomFromGeoJSON('{json.dumps(input_data)}')"
 
-    return query_strings
+        return query_strings
 
 
 def get_parser():
