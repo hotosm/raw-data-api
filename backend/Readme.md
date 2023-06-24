@@ -60,6 +60,48 @@
 
     > Here Insert option will do the import after downloading osm.pbf file from source , You can supply filepath of already downloaded file to --source as well . Replication will enable and Prepare the tables for replication and start the replication right away until data becomes now , Country parameter is read from fid of /backend/countries which will make sure to only maintains the replication data for that country
 
+  
+  - Import your osm file and run replication for only your custom geojson 
+
+    ```
+      python raw_backend --replication --boundary pokhara.geojson
+    ```
+    Example of geojson : 
+      ```
+          {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  83.90895770965955,
+                  28.279633888511327
+                ],
+                [
+                  83.90895770965955,
+                  28.131383546395526
+                ],
+                [
+                  84.10168708213502,
+                  28.131383546395526
+                ],
+                [
+                  84.10168708213502,
+                  28.279633888511327
+                ],
+                [
+                  83.90895770965955,
+                  28.279633888511327
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          }
+        }
+      ```
+
+
   To Run Replication only
 
   ```
@@ -68,13 +110,7 @@
 
   > By default this command will run replciation until data becomes up to date and exit ! You can run this script on your custom frequency by specifying your cron / prefeered way to wake the script do the job and sleep
 
-  Run Replication minutely
 
-  ```
-  python raw_backend --replication --run_minutely
-  ```
-
-  > This is another option to run the script and keep database up to date by running it minutely you can directly tell the script you want to run the app minutely. By this app will sleep for 60 sec before making another request and it will run forever until it is killed . You can simply enable this in your system
 
   Options to Run the Script :
 
@@ -88,8 +124,8 @@
   --database DATABASE   DB name
   --include_ref         Include ref in output tables
   --replication         Prepare tables for replication and Runs Replication
-  --run_minutely        Runs replication every minute
   --country COUNTRY     id of the country , if you are loading country , it will filter replication data
+  --boundary            Takes geojson file path or geojson string itself to keep replication within the region
   --insert              Run osm2pgsql to insert data , Initial Creation Step
   --update              Run Update on table fields for country info
   --download_dir DOWNLOAD_DIR
