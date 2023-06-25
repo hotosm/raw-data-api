@@ -285,30 +285,31 @@ if __name__ == "__main__":
 
     update_cmd_list = []
     if args.update or args.insert:
-        ## initiate country update for nodes
-        tables = ["nodes", "ways_poly", "ways_line", "relations"]
-        for table in tables:
-            field_update_cmd = [
-                "python",
-                os.path.join(working_dir, "field_update"),
-                "-target_table",
-                table,
-                "--target_column",
-                "country",
-                "--target_geom",
-                "geom",
-                "--source_table",
-                "countries",
-                "--source_column",
-                "id",
-                "--source_geom",
-                "geometry",
-                "--type",
-                "array",
-                "--f",
-                args.fq,
-            ]
-            update_cmd_list.append(field_update_cmd)
+        if not args.skip_cupdate:
+            ## initiate country update
+            tables = ["nodes", "ways_poly", "ways_line", "relations"]
+            for table in tables:
+                field_update_cmd = [
+                    "python",
+                    os.path.join(working_dir, "field_update"),
+                    "-target_table",
+                    table,
+                    "--target_column",
+                    "country",
+                    "--target_geom",
+                    "geom",
+                    "--source_table",
+                    "countries",
+                    "--source_column",
+                    "id",
+                    "--source_geom",
+                    "geometry",
+                    "--type",
+                    "array",
+                    "--f",
+                    args.fq,
+                ]
+                update_cmd_list.append(field_update_cmd)
 
     if len(update_cmd_list) > 1:
         run_subprocess_cmd_parallel(update_cmd_list)

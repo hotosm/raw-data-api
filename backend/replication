@@ -411,7 +411,8 @@ def update(conn, args):
         return 0
 
     if args.boundary:
-        args.boundary = process_boundary(args.boundary)
+        boundary_return = process_boundary(args.boundary)
+        args.boundary = boundary_return
 
     if args.diff_file is not None:
         outfile = Path(args.diff_file)
@@ -640,7 +641,6 @@ def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
                 )
                 DELETE FROM planet_osm_rels
                 WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
-
             cur.execute(delete_query)
             LOG.info(
                 f"""Cleanup {table_name} Complete >= {timestamp} : {cur.statusmessage} """
@@ -650,38 +650,26 @@ def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
 
 
 def process_boundary(input_data):
-    if len(input_data.strip()) > 0:
-        if isinstance(input_data, str):
-            try:
-                geojson_data = json.loads(input_data)
-            except json.JSONDecodeError:
-                # If it's not a valid JSON string, treat it as a file path
-                if not os.path.isfile(input_data):
-                    raise ValueError("Invalid file path provided.")
+    if isinstance(input_data, str):
+        try:
+            geojson_data = json.loads(input_data)
+        except json.JSONDecodeError:
+            # If it's not a valid JSON string, treat it as a file path
+            if not os.path.isfile(input_data):
+                raise ValueError("Invalid file path provided.")
 
-                with open(input_data) as file:
-                    geojson_data = json.load(file)
-        else:
-            raise ValueError(
-                "Invalid input type. Expected an integer or a JSON string/file path."
-            )
+            with open(input_data) as file:
+                geojson_data = json.load(file)
+    else:
+        raise ValueError("Invalid input type. JSON string/file path.")
+    geometry = geojson_data.get("geometry")
 
-        features = geojson_data["features"]
+    if not geometry or geometry.get("type") not in ("Polygon", "MultiPolygon"):
+        raise ValueError("Invalid GeoJSON. Expected Polygon or MultiPolygon geometry.")
 
-        if len(features) != 1:
-            raise ValueError("Invalid GeoJSON. Expected a single feature.")
+    query_strings = f"ST_GeomFromGeoJSON('{json.dumps(geometry)}')"
 
-        feature = features[0]
-        geometry = feature.get("geometry")
-
-        if not geometry or geometry.get("type") not in ("Polygon", "MultiPolygon"):
-            raise ValueError(
-                "Invalid GeoJSON. Expected Polygon or MultiPolygon geometry."
-            )
-
-        query_strings = f"ST_GeomFromGeoJSON('{json.dumps(input_data)}')"
-
-        return query_strings
+    return query_strings
 
 
 def get_parser():
@@ -801,7 +789,6 @@ def get_parser():
     )
     cmd.add_argument(
         "--boundary",
-        nargs="+",
         type=str,
         help="Boundary geojson to filter on replication",
     )
