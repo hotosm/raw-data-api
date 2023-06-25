@@ -29,6 +29,7 @@ from urllib.parse import urlparse
 
 import requests
 import wget
+
 from login import verify_me_osm
 
 
@@ -91,6 +92,17 @@ def parse_arguments():
         nargs="+",
         type=int,
         help="id of the country , if you are loading country , it will filter replication data",
+    )
+    parser.add_argument(
+        "--boundary",
+        nargs="+",
+        type=str,
+        help="Boundary geojson to filter on replication",
+    )
+    parser.add_argument(
+        "--skip_cupdate",
+        action="store_true",
+        help="Skips country update during replication",
     )
     parser.add_argument(
         "--insert",
@@ -273,30 +285,31 @@ if __name__ == "__main__":
 
     update_cmd_list = []
     if args.update or args.insert:
-        ## initiate country update for nodes
-        tables = ["nodes", "ways_poly", "ways_line", "relations"]
-        for table in tables:
-            field_update_cmd = [
-                "python",
-                os.path.join(working_dir, "field_update"),
-                "-target_table",
-                table,
-                "--target_column",
-                "country",
-                "--target_geom",
-                "geom",
-                "--source_table",
-                "countries",
-                "--source_column",
-                "id",
-                "--source_geom",
-                "geometry",
-                "--type",
-                "array",
-                "--f",
-                args.fq,
-            ]
-            update_cmd_list.append(field_update_cmd)
+        if not args.skip_cupdate:
+            ## initiate country update
+            tables = ["nodes", "ways_poly", "ways_line", "relations"]
+            for table in tables:
+                field_update_cmd = [
+                    "python",
+                    os.path.join(working_dir, "field_update"),
+                    "-target_table",
+                    table,
+                    "--target_column",
+                    "country",
+                    "--target_geom",
+                    "geom",
+                    "--source_table",
+                    "countries",
+                    "--source_column",
+                    "id",
+                    "--source_geom",
+                    "geometry",
+                    "--type",
+                    "array",
+                    "--f",
+                    args.fq,
+                ]
+                update_cmd_list.append(field_update_cmd)
 
     if len(update_cmd_list) > 1:
         run_subprocess_cmd_parallel(update_cmd_list)
@@ -333,4 +346,10 @@ if __name__ == "__main__":
         if args.country:
             replication_cmd.extend(["--country"])
             replication_cmd.extend([str(x) for x in args.country])
+        if args.boundary:
+            replication_cmd.extend(["--boundary"])
+            replication_cmd.extend(args.boundary)
+        if args.skip_cupdate:
+            replication_cmd.extend(["--skip_cupdate"])
+
         run_subprocess_cmd(replication_cmd)

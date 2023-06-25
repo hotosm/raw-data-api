@@ -410,6 +410,10 @@ def update(conn, args):
         LOG.info("Database already up-to-date.")
         return 0
 
+    if args.boundary:
+        boundary_return = process_boundary(args.boundary)
+        args.boundary = boundary_return
+
     if args.diff_file is not None:
         outfile = Path(args.diff_file)
     else:
@@ -491,24 +495,28 @@ def update(conn, args):
                     grid_timestamp,
                     "nodes",
                     args.country if args.country else None,
+                    args.boundary if args.boundary else None,
                 )
                 update_country(
                     conn,
                     grid_timestamp,
                     "ways_poly",
                     args.country if args.country else None,
+                    args.boundary if args.boundary else None,
                 )
                 update_country(
                     conn,
                     grid_timestamp,
                     "ways_line",
                     args.country if args.country else None,
+                    args.boundary if args.boundary else None,
                 )
                 update_country(
                     conn,
                     grid_timestamp,
                     "relations",
                     args.country if args.country else None,
+                    args.boundary if args.boundary else None,
                 )
                 LOG.info(
                     f"Updating field  took {round(time.time()-start_time)}s overall."
@@ -520,7 +528,7 @@ def update(conn, args):
     return 0
 
 
-def update_country(conn, timestamp, table_name, c_id=None):
+def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
     """Updates country column in table , It intersects it's newly inserted data's geometry to the boundaries loaded to underpass and populates info , in order to use multicolumn indexes with geometry"""
     with conn.cursor() as cur:
         update_query = f"""update
@@ -590,6 +598,78 @@ def update_country(conn, timestamp, table_name, c_id=None):
             )
 
         conn.commit()
+
+    if boundary:
+        # delete data outside boundary
+        with conn.cursor() as cur:
+            delete_query = f"""DELETE FROM 
+                {table_name} 
+                WHERE
+                    "timestamp" >= '{timestamp}'
+                    AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))"""
+
+            if table_name == "ways_line" or table_name == "ways_poly":
+                delete_query = f"""WITH deleted_table_entries AS (
+                    DELETE FROM {table_name}
+                    WHERE "timestamp" >= '{timestamp}'
+                    AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
+                    RETURNING osm_id
+                ), deleted_node_entries AS (
+                    DELETE FROM planet_osm_ways
+                    WHERE id IN (SELECT osm_id FROM deleted_table_entries)
+                    RETURNING nodes
+                )
+                DELETE FROM planet_osm_nodes
+                WHERE id IN (SELECT unnest(nodes) FROM deleted_node_entries);"""
+
+            if table_name == "nodes":
+                delete_query = f"""WITH deleted_table_entries AS (
+                    DELETE FROM {table_name}
+                    WHERE "timestamp" >= '{timestamp}'
+                    AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
+                    RETURNING osm_id
+                )
+                DELETE FROM planet_osm_nodes
+                WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
+
+            if table_name == "relations":
+                delete_query = f"""WITH deleted_table_entries AS (
+                    DELETE FROM {table_name}
+                    WHERE "timestamp" >= '{timestamp}'
+                    AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
+                    RETURNING osm_id
+                )
+                DELETE FROM planet_osm_rels
+                WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
+            cur.execute(delete_query)
+            LOG.info(
+                f"""Cleanup {table_name} Complete >= {timestamp} : {cur.statusmessage} """
+            )
+
+        conn.commit()
+
+
+def process_boundary(input_data):
+    if isinstance(input_data, str):
+        try:
+            geojson_data = json.loads(input_data)
+        except json.JSONDecodeError:
+            # If it's not a valid JSON string, treat it as a file path
+            if not os.path.isfile(input_data):
+                raise ValueError("Invalid file path provided.")
+
+            with open(input_data) as file:
+                geojson_data = json.load(file)
+    else:
+        raise ValueError("Invalid input type. JSON string/file path.")
+    geometry = geojson_data.get("geometry")
+
+    if not geometry or geometry.get("type") not in ("Polygon", "MultiPolygon"):
+        raise ValueError("Invalid GeoJSON. Expected Polygon or MultiPolygon geometry.")
+
+    query_strings = f"ST_GeomFromGeoJSON('{json.dumps(geometry)}')"
+
+    return query_strings
 
 
 def get_parser():
@@ -708,6 +788,11 @@ def get_parser():
         help="Post-processing script to run after each execution of osm2pgsql.",
     )
     cmd.add_argument(
+        "--boundary",
+        type=str,
+        help="Boundary geojson to filter on replication",
+    )
+    cmd.add_argument(
         "--country",
         nargs="+",
         type=int,
@@ -738,8 +823,6 @@ def get_parser():
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    # print(args)
-
     if missing_modules:
         LOG.fatal(
             "Missing required Python libraries %(mods)s.\n\n"
