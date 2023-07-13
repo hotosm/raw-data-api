@@ -1,6 +1,6 @@
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 
-FROM docker.io/python:${PYTHON_VERSION}-slim-bullseye as base
+FROM docker.io/python:${PYTHON_VERSION}-slim-bookworm as base
 
 ARG MAINTAINER=sysadmin@hotosm.org
 ENV DEBIAN_FRONTEND=noninteractive
@@ -14,12 +14,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get -y upgrade \
-    && apt-get --no-install-recommends -y install build-essential libpq-dev gdal-bin python3-gdal
-
+    && apt-get --no-install-recommends -y install \
+       build-essential libpq-dev libgdal-dev libboost-numpy-dev
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN gdal-config --version | awk -F'[.]' '{print $1"."$2}'
 COPY setup.py .
 COPY requirements.txt .
 COPY README.md .
 RUN pip install --user --no-cache-dir --upgrade pip \
+    && pip install --user --no-cache-dir GDAL=="$(gdal-config --version)" \
     && pip install --user --no-cache-dir -r requirements.txt \
     && pip install --user --no-cache-dir -e .
 
@@ -33,7 +36,7 @@ ENV PYTHON_LIB="/home/appuser/.local/lib/python$PYTHON_VERSION/site-packages"
 
 RUN apt-get update \
     && apt-get -y upgrade \
-    && apt-get --no-install-recommends -y install libpq5 gdal-bin python3-gdal \
+    && apt-get --no-install-recommends -y install libpq5 gdal-bin \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
