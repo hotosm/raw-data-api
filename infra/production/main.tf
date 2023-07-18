@@ -71,7 +71,21 @@ resource "azurerm_subnet" "raw-data-containers" {
   virtual_network_name = azurerm_virtual_network.raw-data.name
   address_prefixes     = [cidrsubnet(azurerm_virtual_network.raw-data.address_space[0], 5, 1)]
 
-  service_endpoints = ["Microsoft.KeyVault"]
+  delegation {
+    name = "containers"
+
+    service_delegation {
+      name = "Microsoft.ContainerInstance/containerGroups"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action"
+      ]
+    }
+  }
+
+  service_endpoints = [
+    "Microsoft.ContainerRegistry",
+    "Microsoft.KeyVault"
+  ]
 }
 
 resource "azurerm_subnet" "raw-data-db" {
