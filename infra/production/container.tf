@@ -27,6 +27,8 @@ resource "azurerm_container_group" "app" {
     cpu    = "0.5"
     memory = "1.5"
 
+    commands = ["celery --app API.api_worker worker --loglevel=INFO"]
+
     ports {
       port     = 8080
       protocol = "TCP"
