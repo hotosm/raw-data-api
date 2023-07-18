@@ -72,3 +72,18 @@ variable "newrelic_license_key" {
   type    = string
   default = ""
 }
+
+variable "container_images" {
+  description = "Remote container image URI to pull from"
+  type        = map(string)
+
+  default = {
+    api    = "quay.io/hotosm/raw-data-api:latest"
+    worker = "quay.io/hotosm/raw-data-api:latest"
+  }
+}
+
+variable "container_envvar" {
+  description = "Environment Variables to pass to the container"
+  type        = map(string)
+}
