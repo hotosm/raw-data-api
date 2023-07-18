@@ -49,3 +49,7 @@ output "raw-data-redis-endpoint" {
   )
 }
 
+output "container-subnet-id" {
+  description = "Subnet ID for the container subnet"
+  value       = azurerm_subnet.raw-data-containers.id
+}
