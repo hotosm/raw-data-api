@@ -64,6 +64,16 @@ resource "azurerm_subnet" "raw-data" {
   service_endpoints = ["Microsoft.KeyVault"]
 }
 
+resource "azurerm_subnet" "raw-data-containers" {
+  #ts:skip=accurics.azure.NS.161 [TODO] Give the VNet subnet a network security group
+  name                 = join("-", [var.project_name, "containers", var.deployment_environment])
+  resource_group_name  = azurerm_resource_group.raw-data.name
+  virtual_network_name = azurerm_virtual_network.raw-data.name
+  address_prefixes     = [cidrsubnet(azurerm_virtual_network.raw-data.address_space[0], 5, 1)]
+
+  service_endpoints = ["Microsoft.KeyVault"]
+}
+
 resource "azurerm_subnet" "raw-data-db" {
   #ts:skip=accurics.azure.NS.161 [TODO] Give the VNet subnet a network security group
   name                 = join("-", [var.project_name, "database", var.deployment_environment])
@@ -338,6 +348,12 @@ resource "azurerm_postgresql_flexible_server" "raw-data" {
 
   version = 14
   zone    = "1"
+
+  lifecycle {
+    ignore_changes = [
+      storage_mb,
+    ]
+  }
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "raw-data-postgis" {
