@@ -21,6 +21,20 @@ resource "azurerm_container_group" "app" {
     environment_variables = var.container_envvar
   }
 
+  container {
+    name   = "worker"
+    image  = lookup(var.container_images, "worker")
+    cpu    = "0.5"
+    memory = "1.5"
+
+    ports {
+      port     = 8000
+      protocol = "TCP"
+    }
+
+    environment_variables = var.container_envvar
+  }
+
   tags = {
   }
 }
