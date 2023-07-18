@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.4.0"
+  required_version = ">= 1.5.0"
 
   backend "remote" {
     organization = "hotosm"
@@ -12,17 +12,17 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=3.46.0"
+      version = "=3.65.0"
     }
 
     random = {
       source  = "hashicorp/random"
-      version = "=3.4.3"
+      version = "=3.5.1"
     }
 
     tfe = {
       source  = "hashicorp/tfe"
-      version = "~> 0.42.0"
+      version = "~> 0.46.0"
     }
 
   }
