@@ -87,3 +87,9 @@ variable "container_envvar" {
   description = "Environment Variables to pass to the container"
   type        = map(string)
 }
+
+variable "container_sensitive_envvar" {
+  description = "Environment Variables to pass to the container"
+  type        = map(string)
+}
+

@@ -1,3 +1,17 @@
+locals {
+  redis_connection_endpoint = join("", [
+    "rediss://",
+    ":",
+    azurerm_redis_cache.raw-data-queue.primary_access_key,
+    "@",
+    azurerm_redis_cache.raw-data-queue.hostname,
+    ":",
+    azurerm_redis_cache.raw-data-queue.ssl_port,
+    "/0?ssl_cert_reqs=required"
+    ]
+  )
+}
+
 resource "azurerm_container_group" "app" {
   name                = join("-", [var.project_name, var.deployment_environment])
   resource_group_name = azurerm_resource_group.raw-data.name
@@ -18,7 +32,24 @@ resource "azurerm_container_group" "app" {
       protocol = "TCP"
     }
 
-    environment_variables = var.container_envvar
+    environment_variables = merge(
+      var.container_envvar,
+      {
+        PGHOST     = azurerm_postgresql_flexible_server.raw-data.fqdn
+        PGPORT     = "5432"
+        PGUSER     = lookup(var.admin_usernames, "database")
+        PGDATABASE = azurerm_postgresql_flexible_server_database.default-db.name
+      }
+    )
+
+    secure_environment_variables = merge(
+      var.container_sensitive_envvar,
+      {
+        PGPASSWORD            = azurerm_key_vault_secret.raw-data-db.value
+        CELERY_BROKER_URL     = local.redis_connection_endpoint
+        CELERY_RESULT_BACKEND = local.redis_connection_endpoint
+      }
+    )
   }
 
   container {
@@ -34,7 +65,8 @@ resource "azurerm_container_group" "app" {
       protocol = "TCP"
     }
 
-    environment_variables = var.container_envvar
+    environment_variables        = var.container_envvar
+    secure_environment_variables = var.container_sensitive_envvar
   }
 
   tags = {
