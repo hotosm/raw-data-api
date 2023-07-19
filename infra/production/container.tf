@@ -65,8 +65,24 @@ resource "azurerm_container_group" "app" {
       protocol = "TCP"
     }
 
-    environment_variables        = var.container_envvar
-    secure_environment_variables = var.container_sensitive_envvar
+    environment_variables = merge(
+      var.container_envvar,
+      {
+        PGHOST     = azurerm_postgresql_flexible_server.raw-data.fqdn
+        PGPORT     = "5432"
+        PGUSER     = lookup(var.admin_usernames, "database")
+        PGDATABASE = azurerm_postgresql_flexible_server_database.default-db.name
+      }
+    )
+
+    secure_environment_variables = merge(
+      var.container_sensitive_envvar,
+      {
+        PGPASSWORD            = azurerm_key_vault_secret.raw-data-db.value
+        CELERY_BROKER_URL     = local.redis_connection_endpoint
+        CELERY_RESULT_BACKEND = local.redis_connection_endpoint
+      }
+    )
   }
 
   tags = {
