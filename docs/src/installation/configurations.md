@@ -101,9 +101,9 @@ APP_SECRET_KEY=jnfdsjkfndsjkfnsdkjfnskfn
 LOG_LEVEL=debug
 RATE_LIMITER_STORAGE_URI=redis://redis:6379
 
-[API_CONFIG]
-LOG_LEVEL=debug
-RATE_LIMITER_STORAGE_URI=redis://redis:6379
+[CELERY]
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 ```
 
