@@ -39,9 +39,8 @@ def process_raw_data(self, params):
         params.file_name = (
             format_file_name_str(params.file_name) if params.file_name else "Export"
         )
-        exportname = (
-            f"{params.file_name}_{params.output_type}_uid_{str(self.request.id)}"
-        )
+        logging.info(params.uuid)
+        exportname = f"{params.file_name}_{params.output_type}{f'_uid_{str(self.request.id)}' if params.uuid else ''}"
 
         logging.info("Request %s received", exportname)
 
@@ -74,7 +73,7 @@ def process_raw_data(self, params):
             file_transfer_obj = S3FileTransfer()
             download_url = file_transfer_obj.upload(
                 upload_file_path,
-                exportname,
+                exportname if params.uuid else f"Recurring/{exportname}",
                 file_suffix="zip" if bind_zip else params.output_type.lower(),
             )
         else:

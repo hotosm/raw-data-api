@@ -146,7 +146,7 @@ class RawDataCurrentParams(BaseModel):
             "tags": {"all_geometry": {"join_or": {"building": []}}},
             "attributes": {"all_geometry": ["name"]},
         },
-        description="Filter for point,line,polygon/ all geometry for both select and where clause",
+        description="Filter for point,line,polygon/ all geometry for both select and where clause, All geometry filter means : It will apply the same filter to all the geometry type",
     )
     geometry: Union[Polygon, MultiPolygon] = Field(
         default=None,
@@ -162,6 +162,10 @@ class RawDataCurrentParams(BaseModel):
                 ]
             ],
         },
+    )
+    uuid: Optional[bool] = Field(
+        default=True,
+        description="Attaches uid to exports by default , Only disable this if it is recurring export",
     )
     if ALLOW_BIND_ZIP_FILTER:
         bind_zip: Optional[bool] = True
