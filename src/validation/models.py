@@ -140,6 +140,10 @@ class RawDataCurrentParams(BaseModel):
     centroid: Optional[bool] = Field(
         default=False, description="Exports centroid of features as geom"
     )
+    use_st_within: Optional[bool] = Field(
+        default=False,
+        description="Exports features which are exactly inside the passed polygons (ST_WITHIN) By default features which are intersected with passed polygon is exported",
+    )
     filters: Optional[Filters] = Field(
         default=None,
         example={
