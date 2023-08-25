@@ -74,10 +74,10 @@ def get_query_as_geojson(query_list, ogr_export=None):
     return final_query
 
 
-def create_geom_filter(geom):
+def create_geom_filter(geom, geom_lookup_by="ST_intersects"):
     """generates geometry intersection filter - Rawdata extraction"""
     geometry_dump = dumps(dict(geom))
-    return f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
+    return f"""{geom_lookup_by}(geom,ST_GEOMFROMGEOJSON('{geometry_dump}'))"""
 
 
 def format_file_name_str(input_str):
@@ -201,7 +201,10 @@ def extract_geometry_type_query(
 ):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
 
-    geom_filter = create_geom_filter(params.geometry)
+    geom_filter = create_geom_filter(
+        params.geometry,
+        "ST_within" if params.use_st_within is True else "ST_intersects",
+    )
     select_condition = f"""osm_id ,tags,changeset,timestamp , {'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     schema = {
         "osm_id": "int64",
@@ -466,7 +469,9 @@ def raw_currentdata_extraction_query(
     country_export=False,
 ):
     """Default function to support current snapshot extraction with all of the feature that export_tool_api has"""
-    geom_filter = f"""ST_intersects(ST_GEOMFROMGEOJSON('{geometry_dump}'), geom)"""
+
+    geom_lookup_by = "ST_within" if params.use_st_within is True else "ST_intersects"
+    geom_filter = create_geom_filter(params.geometry, geom_lookup_by)
 
     base_query = []
 
