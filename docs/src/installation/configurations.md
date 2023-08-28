@@ -49,7 +49,7 @@ The following are the different configuration options that are accepted.
 | `AWS_ACCESS_KEY_ID` | `AWS_ACCESS_KEY_ID` | `[EXPORT_UPLOAD]` | _none_ | AWS Access Key ID for S3 access | CONDITIONAL |
 | `AWS_SECRET_ACCESS_KEY` | `AWS_SECRET_ACCESS_KEY` | `[EXPORT_UPLOAD]` | _none_ | AWS Secret Access Key for S3 access | CONDITIONAL |
 | `SENTRY_DSN` | `SENTRY_DSN` | `[SENTRY]` | _none_ | Sentry Data Source Name | OPTIONAL |
-| `SENTRY_RATE` | `SENTRY_RATE` | `[SENTRY]` | _none_ | ?? | OPTIONAL |
+| `SENTRY_RATE` | `SENTRY_RATE` | `[SENTRY]` | `1.0` | Sample rate percentage for shipping errors to sentry; Allowed values between 0 (0%) to 1 (100%)| OPTIONAL |
 
 ## Compulsory Configuration
 
