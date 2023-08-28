@@ -1,4 +1,49 @@
-Before getting started on config Make sure you have [Postgres](https://www.postgresql.org/) and [Postgis](https://postgis.net/) setup in your machine.
+
+# Configuring the API service
+
+## What you need to start?
+
+- A working [Postgres](https://www.postgresql.org/) instance with [Postgis](https://postgis.net/) module enabled.
+- A working [Redis](https://redis.io/) instance.
+
+The default configuration file is an ini-style text file named `config.txt` in the project root.
+
+## Sections
+
+The following sections are recognised.
+
+- `[DB]` - For database connection information. Required.
+- `[OAUTH]` - For connecting to OpenStreetMap using an OAuth2 app. Required.
+- `[CELERY]` - For task queues on Redis. Required.
+- `[API_CONFIG]` - API service related configuration. Required.
+- `[EXPORT_UPLOAD]` - For external file hosts like S3. Optional.
+- `[SENTRY]` - Sentry monitoring configuration. Optional.
+
+The following are the different configuration options that are accepted.
+
+| Config option | ENVVAR | Section | Defaults | Description | Required? |
+|---------------|---------|----------|--------|-------------|-----------|
+| `PGHOST` | `PGHOST` | `[DB]` | `localhost`  | PostgreSQL hostname or IP | OPTIONAL |
+| `PGPORT` | `PGPORT` | `[DB]` | `5432` | PostgreSQL connection port | OPTIONAL |
+| `PGUSER` | `PGUSER` | `[DB]` | `postgres` | PostgreSQL user/role | OPTIONAL |
+| `PGPASSWORD` | `PGPASSWORD` | `[DB]` | _none_ | PostgreSQL user/role password | OPTIONAL |
+| `PGDATABASE` | `PGDATABASE` | `[DB]` | `postgres` | PostgreSQL database name | OPTIONAL |
+| `OSM_CLIENT_ID` | `OSM_CLIENT_ID` | `[OAUTH]` | _none_ | Client ID of OSM OAuth2 application | REQIRED |
+| `OSM_CLIENT_SECRET` | `OSM_CLIENT_SECRET` | `[OAUTH]` | _none_ | Client Secret of OSM OAuth2 application | REQIRED |
+| `OSM_PERMISSION_SCOPE` | `OSM_PERMISSION_SCOPE` | `[OAUTH]` | `read_prefs` | OSM access permission for OAuth2 application | OPTIONAL |
+| `LOGIN_REDIRECT_URI` | `LOGIN_REDIRECT_URI` | `[OAUTH]` | _none_ | Redirect URL set in the OAuth2 application | REQUIRED |
+| `APP_SECRET_KEY` | `APP_SECRET_KEY` | `[OAUTH]` | _none_ | High-entropy string generated for the application | REQUIRED |
+| `OSM_URL` | `OSM_URL` | `[OAUTH]` | `https://www.openstreetmap.org` | OSM URL | OPTIONAL |
+| `LOG_LEVEL` | `LOG_LEVEL` | `[API_CONFIG]` | `debug` | Application log level; info,debug,warning,error | OPTIONAL |
+| `RATE_LIMITER_STORAGE_URI` | `RATE_LIMITER_STORAGE_URI` | `[API_CONFIG]` | `redis://redis:6379` | Redis connection string for rate-limiter data | OPTIONAL |
+| `EXPORT_PATH` | `EXPORT_PATH` | `[API_CONFIG]` | `exports`? |  Local path to store exports | OPTIONAL |
+| `EXPORT_MAX_AREA_SQKM` | `EXPORT_MAX_AREA_SQKM` | `[API_CONFIG]` | `100000`? | max area in sq. km. to support for rawdata input | OPTIONAL |
+| `USE_CONNECTION_POOLING` | `USE_CONNECTION_POOLING` | `[API_CONFIG]` | `false` | Enable psycopg2 connection pooling | OPTIONAL |
+| `ALLOW_BIND_ZIP_FILTER` | `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | `true` | Enable zip compression for exports | OPTIONAL |
+| `INDEX_THRESHOLD` | `INDEX_THRESHOLD` | `[API_CONFIG]` | `5000`? | value in sqkm to apply grid/country index filter | OPTIONAL |
+| `RATE_LIMIT_PER_MIN` | `RATE_LIMIT_PER_MIN` | `[API_CONFIG]` | `5` | Number of requests per minute before being rate limited | OPTIONAL |
+| `CELERY_BROKER_URL` | `CELERY_BROKER_URL` | `[CELERY]` | `redis://localhost:6379/0` | Redis connection string for the broker | OPTIONAL |
+| `CELERY_RESULT_BACKEND` | `CELERY_RESULT_BACKEND` | `[CELERY]` | `redis://localhost:6379/0` | Redis connection string for the the result backend | OPTIONAL |
 
 ## Compulsory Configuration
 
