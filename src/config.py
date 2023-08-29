@@ -167,7 +167,7 @@ def get_db_connection_params() -> dict:
     try:
         connection_params = {
             "host": os.environ.get("PGHOST") or config.get("DB", "PGHOST"),
-            "port": os.environ.get("PGPORT") or config.get("DB", "PGPORT"),
+            "port": os.environ.get("PGPORT") or config.get("DB", "PGPORT", fallback="5432"),
             "dbname": os.environ.get("PGDATABASE") or config.get("DB", "PGDATABASE"),
             "user": os.environ.get("PGUSER") or config.get("DB", "PGUSER"),
             "password": os.environ.get("PGPASSWORD") or config.get("DB", "PGPASSWORD"),
@@ -186,7 +186,7 @@ def get_db_connection_params() -> dict:
 
 def get_oauth_credentials() -> tuple:
     """Gets oauth credentials from the env file and returns a config dict"""
-    osm_url = os.environ.get("OSM_URL") or config.get("OAUTH", "OSM_URL")
+    osm_url = os.environ.get("OSM_URL") or config.get("OAUTH", "OSM_URL", fallback="https://www.openstreetmap.org")
     client_id = os.environ.get("OSM_CLIENT_ID") or config.get("OAUTH", "OSM_CLIENT_ID")
     client_secret = os.environ.get("OSM_CLIENT_SECRET") or config.get(
         "OAUTH", "OSM_CLIENT_SECRET"
@@ -198,7 +198,7 @@ def get_oauth_credentials() -> tuple:
         "OAUTH", "LOGIN_REDIRECT_URI"
     )
     scope = os.environ.get("OSM_PERMISSION_SCOPE") or config.get(
-        "OAUTH", "OSM_PERMISSION_SCOPE"
+        "OAUTH", "OSM_PERMISSION_SCOPE", fallback="read_prefs"
     )
     oauth_cred = (
         osm_url,

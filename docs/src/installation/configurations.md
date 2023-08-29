@@ -23,11 +23,11 @@ The following are the different configuration options that are accepted.
 
 | Config option | ENVVAR | Section | Defaults | Description | Required? |
 |---------------|---------|----------|--------|-------------|-----------|
-| `PGHOST` | `PGHOST` | `[DB]` | `localhost`  | PostgreSQL hostname or IP | OPTIONAL |
+| `PGHOST` | `PGHOST` | `[DB]` | _none_  | PostgreSQL hostname or IP | REQUIRED |
 | `PGPORT` | `PGPORT` | `[DB]` | `5432` | PostgreSQL connection port | OPTIONAL |
-| `PGUSER` | `PGUSER` | `[DB]` | `postgres` | PostgreSQL user/role | OPTIONAL |
-| `PGPASSWORD` | `PGPASSWORD` | `[DB]` | _none_ | PostgreSQL user/role password | OPTIONAL |
-| `PGDATABASE` | `PGDATABASE` | `[DB]` | `postgres` | PostgreSQL database name | OPTIONAL |
+| `PGUSER` | `PGUSER` | `[DB]` | _none_ | PostgreSQL user/role | REQUIRED |
+| `PGPASSWORD` | `PGPASSWORD` | `[DB]` | _none_ | PostgreSQL user/role password | REQUIRED |
+| `PGDATABASE` | `PGDATABASE` | `[DB]` | _none_ | PostgreSQL database name | REQUIRED |
 | `OSM_CLIENT_ID` | `OSM_CLIENT_ID` | `[OAUTH]` | _none_ | Client ID of OSM OAuth2 application | REQIRED |
 | `OSM_CLIENT_SECRET` | `OSM_CLIENT_SECRET` | `[OAUTH]` | _none_ | Client Secret of OSM OAuth2 application | REQIRED |
 | `OSM_PERMISSION_SCOPE` | `OSM_PERMISSION_SCOPE` | `[OAUTH]` | `read_prefs` | OSM access permission for OAuth2 application | OPTIONAL |

@@ -1,22 +1,68 @@
+# Database connection configuration section
+# Use this section to specify connection configuration for PostgreSQL
+# database. The values in this section can also be supplied by
+# environment variables with keys matching those in the block below.
 [DB]
-PGHOST=localhost
-PGUSER=postgres
-PGPASSWORD=admin
-PGDATABASE=raw
-PGPORT=5432
+PGHOST=postgresql.example.net
+PGUSER=rawdatadba
+PGPASSWORD=_superSecureS3cretString!_
+PGDATABASE=rawdata
+;PGPORT=5432
 
+# OAuth2 app client configuration section
+# When you create an OAuth2 application on OpenStreetMap portal, place
+# the returned values here. Currently raw-data API only uses read_prefs
+# for scope. Callback / Redirect URI should be set when the OAuth2 app
+# is created on OSM portal. App secret key is a high-entropy string. 
 [OAUTH]
-OSM_CLIENT_ID= your client id
-OSM_CLIENT_SECRET= your client secret
-OSM_URL=https://www.openstreetmap.org
-OSM_PERMISSION_SCOPE=read_prefs
-LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
-APP_SECRET_KEY=
+OSM_CLIENT_ID=0yhbzr7-e0F-DGgyxXOyq2Y4d_sYLflMzVvLIfRtxHg
+OSM_CLIENT_SECRET= KI59u4PLCQFAd8Vo2oewaHNmlf2EfTcfGgwWd2VCtk8 
+;OSM_URL=https://www.openstreetmap.org
+;OSM_PERMISSION_SCOPE=read_prefs
+LOGIN_REDIRECT_URI=http://raw-data-test.example.net:8000/v1/auth/callback/
+APP_SECRET_KEY=Nnhn4_DO0FJhKLxXkSMfk0iJRpFO4JRxlt07z7Vgp5E
 
+# API configuration section 
+# Rate-limiter storage URI takes a valid redis connection string as
+# input; follows the rediss IANA scheme: (link below)
+# https://www.iana.org/assignments/uri-schemes/prov/rediss
+#
+# Defaults are commented out. Refer to documentation for more
+# information on these settings.
 [API_CONFIG]
 LOG_LEVEL=debug
 RATE_LIMITER_STORAGE_URI=redis://redis:6379
+;RATE_LIMIT_PER_MIN=20
+;EXPORT_MAX_AREA_SQKM=100000
+;INDEX_THRESHOLD=5000
+ALLOW_BIND_ZIP_FILTER=true
+;USE_CONNECTION_POOLING=false
+;EXPORT_PATH=exports
 
+# Celery / broker configuration section
+# This section takes valid redis connection strings as input.
+# The connection strings in the rediss IANA scheme: (link below)
+# https://www.iana.org/assignments/uri-schemes/prov/rediss
+#
+# The examples below show one connection string without a username and
+# one with.
 [CELERY]
-CELERY_BROKER_URL=redis://localhost:6379/0
-CELERY_RESULT_BACKEND=redis://localhost:6379/0
+CELERY_BROKER_URL=rediss://:j9zsYAYA6bUs3FoQcXJqWzae@redis.example.net:6380/0?ssl_cert_reqs=required
+CELERY_RESULT_BACKEND=rediss://someuser:j9zsYAYA6bUs3FoQcXJqWzae@redis.example.net:6380/0?ssl_cert_reqs=required
+
+# Upload configuration
+# The only supported methods for upload are s3 and disk. If the chosen
+# method is S3, then bucket name and AWS credentials must be supplied.
+[EXPORT_UPLOAD]
+FILE_UPLOAD_METHOD=disk
+;BUCKET_NAME=
+;AWS_ACCESS_KEY_ID=
+;AWS_SECRET_ACCESS_KEY=
+
+# Sentry configuration
+# Sentry Data Source Name can be obtained from project settings
+# The error sample rate is a number between 0 and 1 representing a
+# percentage. 0.25 is 25% and 0.66 is 66%. 1 is 100%
+[SENTRY]
+SENTRY_DSN=https://763960aef8313b9df05e58432e37110d@o12345.ingest.sentry.io/0987654
+SENTRY_RATE=0.25
