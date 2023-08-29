@@ -51,6 +51,38 @@ The following are the different configuration options that are accepted.
 | `SENTRY_DSN` | `SENTRY_DSN` | `[SENTRY]` | _none_ | Sentry Data Source Name | OPTIONAL |
 | `SENTRY_RATE` | `SENTRY_RATE` | `[SENTRY]` | `1.0` | Sample rate percentage for shipping errors to sentry; Allowed values between 0 (0%) to 1 (100%)| OPTIONAL |
 
+## Which Service uses which settings?
+
+| Parameter | API | Worker |
+|-----------|-----|--------|
+| `PGHOST` | Yes | Yes |
+| `PGPORT` | Yes | Yes |
+| `PGUSER` | Yes | Yes |
+| `PGPASSWORD` | Yes | Yes |
+| `PGDATABASE` | Yes | Yes |
+| `OSM_CLIENT_ID` | Yes | No |
+| `OSM_CLIENT_SECRET` | Yes | No |
+| `OSM_PERMISSION_SCOPE` | Yes | No |
+| `LOGIN_REDIRECT_URI` | Yes | No |
+| `APP_SECRET_KEY` | Yes | No |
+| `OSM_URL` | Yes | No |
+| `LOG_LEVEL` | Yes | Yes |
+| `RATE_LIMITER_STORAGE_URI` | Yes | No |
+| `RATE_LIMIT_PER_MIN` | Yes | No |
+| `EXPORT_PATH` | Yes | Yes |
+| `EXPORT_MAX_AREA_SQKM` | No | Yes |
+| `USE_CONNECTION_POOLING` | Yes | No |
+| `ALLOW_BIND_ZIP_FILTER` | No | Yes |
+| `INDEX_THRESHOLD` | No | Yes |
+| `CELERY_BROKER_URL` | Yes | Yes |
+| `CELERY_RESULT_BACKEND` | Yes | Yes |
+| `FILE_UPLOAD_METHOD` | No | Yes |
+| `BUCKET_NAME` | No | Yes |
+| `AWS_ACCESS_KEY_ID` | No | Yes |
+| `AWS_SECRET_ACCESS_KEY` | No | Yes |
+| `SENTRY_DSN` | Yes | No |
+| `SENTRY_RATE` | Yes | No |
+
 ## Compulsory Configuration
 
 ### Create `config.txt` inside root directory.

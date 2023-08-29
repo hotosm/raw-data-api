@@ -1,3 +1,7 @@
+# This is a sample configuration file for raw-data API service with
+# currently supported parameters. The file is a Windows INI style text
+# file. Lines starting with either `#` or `;` are comments.
+
 # Database connection configuration section
 # Use this section to specify connection configuration for PostgreSQL
 # database. The values in this section can also be supplied by
