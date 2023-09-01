@@ -39,6 +39,20 @@ CREATE INDEX IF NOT EXISTS  relations_geom_idx ON public.relations USING gist (g
 CREATE INDEX IF NOT EXISTS  relations_country_idx ON public.relations USING gin (country gin__int_ops);
 CREATE INDEX IF NOT EXISTS relations_tags_idx ON public.relations USING gin (tags);
 
+-- External Indexes 
+
+-- CREATE INDEX IF NOT EXISTS   nodes_uid_idx ON public.nodes USING btree (uid);
+-- CREATE INDEX IF NOT EXISTS   nodes_changeset_idx ON public.nodes USING btree (changeset);
+
+-- CREATE INDEX IF NOT EXISTS  ways_line_uid_idx ON public.ways_line USING btree (uid);
+-- CREATE INDEX IF NOT EXISTS  ways_line_changeset_idx ON public.ways_line USING btree (changeset);
+
+-- CREATE INDEX IF NOT EXISTS  ways_poly_uid_idx ON public.ways_poly USING btree (uid);
+-- CREATE INDEX IF NOT EXISTS  ways_poly_changeset_idx ON public.ways_poly USING btree (changeset);
+
+-- CREATE INDEX IF NOT EXISTS  relations_uid_idx ON public.relations USING btree (uid);
+-- CREATE INDEX IF NOT EXISTS  relations_changeset_idx ON public.relations USING btree (changeset);
+
 -- clustering nodes
 CLUSTER nodes USING nodes_geom_idx;
 -- clustering ways_line
@@ -61,3 +75,5 @@ ANALYZE nodes;
 ANALYZE ways_line;
 ANALYZE ways_poly;
 ANALYZE relations;
+
+
