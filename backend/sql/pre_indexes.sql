@@ -53,8 +53,6 @@ CREATE INDEX IF NOT EXISTS ways_line_timestamp_idx ON public.ways_line USING btr
 
 CREATE INDEX IF NOT EXISTS ways_poly_timestamp_idx ON public.ways_poly USING btree ("timestamp");
 
-CREATE INDEX IF NOT EXISTS relations_tags_idx ON public.relations USING gin (tags);
-
 CREATE INDEX IF NOT EXISTS relations_timestamp_idx ON public.relations USING btree ("timestamp");
 
 

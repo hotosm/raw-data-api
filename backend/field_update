@@ -112,7 +112,6 @@ class Database:
                     # catch exception for invalid SQL statement
 
                     try:
-
                         self.cursor.execute(query)
                         self.conn.commit()
                         # print(query)
@@ -180,7 +179,6 @@ class Raw:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-
             select_query = f"""WITH 
             t1 AS (
                 SELECT 
@@ -205,7 +203,7 @@ class Raw:
             UPDATE 
                 {target_table} uw
             SET 
-                {target_column} = t2.aa_fids
+                {target_column} = COALESCE(t2.aa_fids, ARRAY[0]::integer[])
             FROM 
                 t2
             WHERE 
@@ -223,13 +221,13 @@ class Raw:
             update
                 {target_table} as wp
                 SET
-                {target_column} = (
+                {target_column} = COALESCE((
                 select
                     cu.{source_column}
                 from {source_table} cu 
                 where ST_Intersects(tf.{target_geom},cu.{source_geom})
                 LIMIT 1
-                        )::int
+                        )::int,0::int)
                 from table_filtered tf
             where
                 wp.osm_id = tf.osm_id"""

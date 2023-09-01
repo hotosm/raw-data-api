@@ -37,7 +37,7 @@ CREATE INDEX IF NOT EXISTS  ways_poly_geom_idx ON public.ways_poly USING gist (g
 
 CREATE INDEX IF NOT EXISTS  relations_geom_idx ON public.relations USING gist (geom);
 CREATE INDEX IF NOT EXISTS  relations_country_idx ON public.relations USING gin (country gin__int_ops);
-
+CREATE INDEX IF NOT EXISTS relations_tags_idx ON public.relations USING gin (tags);
 
 -- clustering nodes
 CLUSTER nodes USING nodes_geom_idx;
@@ -45,6 +45,9 @@ CLUSTER nodes USING nodes_geom_idx;
 CLUSTER ways_line USING ways_line_geom_idx;
 -- clustering ways_poly
 CLUSTER ways_poly USING ways_poly_geom_idx;
+-- clustering relations
+CLUSTER relations USING relations_geom_idx;
+
 
 
 -- VACUUM the table to reclaim disk space
