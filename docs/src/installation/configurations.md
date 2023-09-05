@@ -53,35 +53,35 @@ The following are the different configuration options that are accepted.
 
 ## Which Service uses which settings?
 
-| Parameter | API | Worker |
-|-----------|-----|--------|
-| `PGHOST` | Yes | Yes |
-| `PGPORT` | Yes | Yes |
-| `PGUSER` | Yes | Yes |
-| `PGPASSWORD` | Yes | Yes |
-| `PGDATABASE` | Yes | Yes |
-| `OSM_CLIENT_ID` | Yes | No |
-| `OSM_CLIENT_SECRET` | Yes | No |
-| `OSM_PERMISSION_SCOPE` | Yes | No |
-| `LOGIN_REDIRECT_URI` | Yes | No |
-| `APP_SECRET_KEY` | Yes | No |
-| `OSM_URL` | Yes | No |
-| `LOG_LEVEL` | Yes | Yes |
-| `RATE_LIMITER_STORAGE_URI` | Yes | No |
-| `RATE_LIMIT_PER_MIN` | Yes | No |
-| `EXPORT_PATH` | Yes | Yes |
-| `EXPORT_MAX_AREA_SQKM` | No | Yes |
-| `USE_CONNECTION_POOLING` | Yes | No |
-| `ALLOW_BIND_ZIP_FILTER` | No | Yes |
-| `INDEX_THRESHOLD` | No | Yes |
-| `CELERY_BROKER_URL` | Yes | Yes |
-| `CELERY_RESULT_BACKEND` | Yes | Yes |
-| `FILE_UPLOAD_METHOD` | No | Yes |
-| `BUCKET_NAME` | No | Yes |
-| `AWS_ACCESS_KEY_ID` | No | Yes |
-| `AWS_SECRET_ACCESS_KEY` | No | Yes |
-| `SENTRY_DSN` | Yes | No |
-| `SENTRY_RATE` | Yes | No |
+| Parameter | Config Section | API | Worker |
+|-----------|----------------|-----|--------|
+| `PGHOST` | TBD | Yes | Yes |
+| `PGPORT` | TBD | Yes | Yes |
+| `PGUSER` | TBD | Yes | Yes |
+| `PGPASSWORD` | TBD | Yes | Yes |
+| `PGDATABASE` | TBD | Yes | Yes |
+| `OSM_CLIENT_ID` | TBD | Yes | No |
+| `OSM_CLIENT_SECRET` | TBD | Yes | No |
+| `OSM_PERMISSION_SCOPE` | TBD | Yes | No |
+| `LOGIN_REDIRECT_URI` | TBD | Yes | No |
+| `APP_SECRET_KEY` | TBD | Yes | No |
+| `OSM_URL` | TBD | Yes | No |
+| `LOG_LEVEL` | `[API_CONFIG]` | Yes | Yes |
+| `RATE_LIMITER_STORAGE_URI` | `[API_CONFIG]` | Yes | No |
+| `RATE_LIMIT_PER_MIN` | `[API_CONFIG]` | Yes | No |
+| `EXPORT_PATH` | `[API_CONFIG]` | Yes | Yes |
+| `EXPORT_MAX_AREA_SQKM` | `[API_CONFIG]` | Yes | No |
+| `USE_CONNECTION_POOLING` | `[API_CONFIG]` | Yes | No |
+| `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | No | Yes |
+| `INDEX_THRESHOLD` | `[API_CONFIG]` | No | Yes |
+| `CELERY_BROKER_URL` | TBD | Yes | Yes |
+| `CELERY_RESULT_BACKEND` | TBD | Yes | Yes |
+| `FILE_UPLOAD_METHOD` | TBD | No | Yes |
+| `BUCKET_NAME` | TBD | No | Yes |
+| `AWS_ACCESS_KEY_ID` | TBD | No | Yes |
+| `AWS_SECRET_ACCESS_KEY` | TBD | No | Yes |
+| `SENTRY_DSN` | TBD | Yes | No |
+| `SENTRY_RATE` | TBD | Yes | No |
 
 ## Compulsory Configuration
 
