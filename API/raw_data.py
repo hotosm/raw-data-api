@@ -429,7 +429,8 @@ def get_osm_current_snapshot_as_file(
     2. Now navigate to /tasks/ with your task id to track progress and result
 
     """
-    task = process_raw_data.delay(params)
+    queue_name = "recurring_queue" if not params.uuid else "raw_default"
+    task = process_raw_data.apply_async(args=(params,), queue=queue_name)
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
