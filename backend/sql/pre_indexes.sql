@@ -18,18 +18,6 @@
 -- # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 -- # <info@hotosm.org>
 
--- CREATE INDEX IF NOT EXISTS   nodes_uid_idx ON public.nodes USING btree (uid);
--- CREATE INDEX IF NOT EXISTS   nodes_changeset_idx ON public.nodes USING btree (changeset);
-
--- CREATE INDEX IF NOT EXISTS  ways_line_uid_idx ON public.ways_line USING btree (uid);
--- CREATE INDEX IF NOT EXISTS  ways_line_changeset_idx ON public.ways_line USING btree (changeset);
-
--- CREATE INDEX IF NOT EXISTS  ways_poly_uid_idx ON public.ways_poly USING btree (uid);
--- CREATE INDEX IF NOT EXISTS  ways_poly_changeset_idx ON public.ways_poly USING btree (changeset);
-
--- CREATE INDEX IF NOT EXISTS  relations_uid_idx ON public.relations USING btree (uid);
--- CREATE INDEX IF NOT EXISTS  relations_changeset_idx ON public.relations USING btree (changeset);
-
 
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 CREATE EXTENSION IF NOT EXISTS postgis;
@@ -52,8 +40,6 @@ CREATE INDEX IF NOT EXISTS nodes_timestamp_idx ON public.nodes USING btree ("tim
 CREATE INDEX IF NOT EXISTS ways_line_timestamp_idx ON public.ways_line USING btree ("timestamp");
 
 CREATE INDEX IF NOT EXISTS ways_poly_timestamp_idx ON public.ways_poly USING btree ("timestamp");
-
-CREATE INDEX IF NOT EXISTS relations_tags_idx ON public.relations USING gin (tags);
 
 CREATE INDEX IF NOT EXISTS relations_timestamp_idx ON public.relations USING btree ("timestamp");
 

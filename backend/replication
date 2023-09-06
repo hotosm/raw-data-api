@@ -534,7 +534,7 @@ def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
         update_query = f"""update
             {table_name} as w
             set
-                country = array((
+                country = COALESCE(array((
                 select
                     b.id
                 from
@@ -542,7 +542,7 @@ def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
                 where
                     ST_Intersects( ST_Centroid(w.geom) ,
                     b.geometry)
-                    ))
+                    )),ARRAY[0]::integer[])
             where "timestamp" >= '{timestamp}'"""
         cur.execute(update_query)
         LOG.info(

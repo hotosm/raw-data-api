@@ -112,7 +112,6 @@ class Database:
                     # catch exception for invalid SQL statement
 
                     try:
-
                         self.cursor.execute(query)
                         self.conn.commit()
                         # print(query)
@@ -180,7 +179,6 @@ class Raw:
     ):
         """Function that updates column of table"""
         if insert_type.lower() == "array":
-
             select_query = f"""WITH 
             t1 AS (
                 SELECT 
@@ -194,10 +192,10 @@ class Raw:
             t2 AS (
                 SELECT 
                     t1.osm_id,
-                    array_agg(cg.{source_column}) AS aa_fids
+                    COALESCE(array_agg(cg.{source_column}),ARRAY[0]::integer[]) AS aa_fids
                 FROM 
                     t1
-                INNER JOIN 
+                LEFT JOIN 
                     {source_table} cg ON ST_Intersects(t1.geom, cg.{source_geom})
                 GROUP BY 
                     t1.osm_id
@@ -223,13 +221,13 @@ class Raw:
             update
                 {target_table} as wp
                 SET
-                {target_column} = (
+                {target_column} = COALESCE((
                 select
                     cu.{source_column}
                 from {source_table} cu 
                 where ST_Intersects(tf.{target_geom},cu.{source_geom})
                 LIMIT 1
-                        )::int
+                        )::int,0::int)
                 from table_filtered tf
             where
                 wp.osm_id = tf.osm_id"""
