@@ -96,13 +96,26 @@ Setup config.txt in project root.
 uvicorn API.main:app --reload
 ```
 
+### Queues 
+
+Currently there are two type of queue implemented : 
+- "recurring_queue" : Queue for recurring exports which will replace the previous exports if present on the system , can be enabled through uuid:false API Param 
+- "raw_default" : Queue for default exports which will create each unique id for exports 
+
 ### Start Celery Worker
 
 You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html#running-the-celery-worker-server) worker by running following command on different shell
 
-```
-celery --app API.api_worker worker --loglevel=INFO
-```
+- Start for default queue 
+  ```
+  celery --app API.api_worker worker --loglevel=INFO --queue="raw_default"
+  ```
+- Start for recurring queue 
+  ```
+  celery --app API.api_worker worker --loglevel=INFO --queue="recurring_queue"
+  ```
+
+Set no of request that a worker can take at a time by using --concurrency 
 
 ### Start flower for monitoring queue [OPTIONAL]
 
