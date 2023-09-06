@@ -2,7 +2,7 @@ name: Unit Test
 on:
   push:
     paths-ignore:
-      - 'infra/**'
+      - "infra/**"
     branches:
       - master
       - develop
@@ -61,7 +61,7 @@ jobs:
 
       - name: Launch Worker
         run: |
-          celery --app API.api_worker worker --loglevel=INFO &
+          celery --app API.api_worker worker --loglevel=INFO --queues='raw_default' &
 
       - name: Run Tests
         run: |
