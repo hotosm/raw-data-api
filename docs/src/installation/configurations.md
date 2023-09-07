@@ -71,12 +71,12 @@ The following are the different configuration options that are accepted.
 | `RATE_LIMIT_PER_MIN` | `[API_CONFIG]` | Yes | No |
 | `EXPORT_PATH` | `[API_CONFIG]` | Yes | Yes |
 | `EXPORT_MAX_AREA_SQKM` | `[API_CONFIG]` | Yes | No |
-| `USE_CONNECTION_POOLING` | `[API_CONFIG]` | Yes | No |
-| `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | No | Yes |
+| `USE_CONNECTION_POOLING` | `[API_CONFIG]` | Yes | Yes |
+| `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | Yes | Yes |
 | `INDEX_THRESHOLD` | `[API_CONFIG]` | No | Yes |
 | `CELERY_BROKER_URL` | TBD | Yes | Yes |
 | `CELERY_RESULT_BACKEND` | TBD | Yes | Yes |
-| `FILE_UPLOAD_METHOD` | TBD | No | Yes |
+| `FILE_UPLOAD_METHOD` | TBD | Yes | Yes |
 | `BUCKET_NAME` | TBD | No | Yes |
 | `AWS_ACCESS_KEY_ID` | TBD | No | Yes |
 | `AWS_SECRET_ACCESS_KEY` | TBD | No | Yes |
