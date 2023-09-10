@@ -1,6 +1,8 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 
-CREATE TABLE IF NOT EXISTS public.countries (
+DROP TABLE IF EXISTS countries;
+
+CREATE TABLE public.countries (
 	geometry public.geometry(multipolygon, 4326) NULL,
 	description varchar NULL,
 	dataset_name varchar NULL,
