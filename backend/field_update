@@ -192,10 +192,10 @@ class Raw:
             t2 AS (
                 SELECT 
                     t1.osm_id,
-                    COALESCE(array_agg(cg.{source_column}),ARRAY[0]::integer[]) AS aa_fids
+                    array_agg(cg.{source_column}) AS aa_fids
                 FROM 
                     t1
-                LEFT JOIN 
+                INNER JOIN 
                     {source_table} cg ON ST_Intersects(t1.geom, cg.{source_geom})
                 GROUP BY 
                     t1.osm_id
@@ -221,13 +221,13 @@ class Raw:
             update
                 {target_table} as wp
                 SET
-                {target_column} = COALESCE((
+                {target_column} = (
                 select
                     cu.{source_column}
                 from {source_table} cu 
                 where ST_Intersects(tf.{target_geom},cu.{source_geom})
                 LIMIT 1
-                        )::int,0::int)
+                        )::int
                 from table_filtered tf
             where
                 wp.osm_id = tf.osm_id"""

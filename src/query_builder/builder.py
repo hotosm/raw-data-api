@@ -37,7 +37,7 @@ def get_grid_id_query(geometry_dump):
 
 def get_country_id_query(geom_dump):
     base_query = f"""select
-                        COALESCE(b.id::int, 0) as fid
+                        b.id::int as fid
                     from
                         countries b
                     where
@@ -130,7 +130,7 @@ def create_column_filter(
             return select_condition, schema
         return select_condition
     else:
-        return f"osm_id ,tags,COALESCE(changeset,0),timestamp,{'ST_Centroid(geom) as geom' if use_centroid else 'geom'}"  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        return f"osm_id ,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if use_centroid else 'geom'}"  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
 def create_tag_sql_logic(key, value, filter_list):
@@ -205,7 +205,7 @@ def extract_geometry_type_query(
         params.geometry,
         "ST_within" if params.use_st_within is True else "ST_intersects",
     )
-    select_condition = f"""osm_id ,tags,COALESCE(changeset,0),timestamp , {'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    select_condition = f"""osm_id ,tags,changeset,timestamp , {'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     schema = {
         "osm_id": "int64",
         "tags": "str",
@@ -442,7 +442,7 @@ def generate_where_clause_indexes_case(
         # if table_name == "ways_poly" or table_name == "nodes":
         #     where_clause += f" and (country IN ({c_id}))"
         # else:
-        where_clause += f" and (country @> ARRAY[{c_id}])"
+        where_clause += f" and (country @> ARRAY[{c_id},0])"
     if (
         country_export
     ):  # ignore the geometry take geom from the db itself by using precalculated field
@@ -450,7 +450,7 @@ def generate_where_clause_indexes_case(
             # if table_name == "ways_poly" or table_name == "nodes":
             #     where_clause = f"country IN ({c_id})"
             # else:
-            where_clause = f"country @> ARRAY[{c_id}]"
+            where_clause = f"country @> ARRAY[{c_id},0]"
     return where_clause
 
 
@@ -500,9 +500,9 @@ def raw_currentdata_extraction_query(
 
     # query_table = []
     if select_all:
-        select_condition = f"""osm_id,version,tags,COALESCE(changeset,0),timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # FIXme have condition for displaying userinfo after user authentication
+        select_condition = f"""osm_id,version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # FIXme have condition for displaying userinfo after user authentication
     else:
-        select_condition = f"""osm_id ,version,tags,COALESCE(changeset,0),timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        select_condition = f"""osm_id ,version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
     point_select_condition = select_condition  # initializing default
     line_select_condition = select_condition
@@ -747,7 +747,7 @@ def get_countries_query(q):
 
 
 def get_osm_feature_query(osm_id):
-    select_condition = "osm_id ,tags,COALESCE(changeset,0),timestamp,geom"
+    select_condition = "osm_id ,tags,changeset,timestamp,geom"
     query = f"""SELECT ST_AsGeoJSON(n.*)
         FROM (select {select_condition} from nodes) n 
         WHERE osm_id = {osm_id}
