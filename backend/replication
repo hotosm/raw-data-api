@@ -532,7 +532,7 @@ def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
     """Updates country column in table , It intersects it's newly inserted data's geometry to the boundaries loaded to underpass and populates info , in order to use multicolumn indexes with geometry"""
     # array value 1000 means rest of the world
     with conn.cursor() as cur:
-        update_query = f"""WITH t1 AS (SELECT osm_id, ST_Centroid(geom) AS geom FROM {table_name} WHERE country = '{{}}'), t2 AS (SELECT t1.osm_id, COALESCE(array_agg(cg.id),ARRAY[0]::integer[]) AS aa_fids FROM t1 LEFT JOIN countries cg ON ST_Intersects(t1.geom, cg.geometry) GROUP BY t1.osm_id) UPDATE {table_name} uw SET country = t2.aa_fids FROM t2 WHERE t2.osm_id = uw.osm_id;"""
+        update_query = f"""WITH t1 AS (SELECT osm_id, ST_Centroid(geom) AS geom FROM {table_name} WHERE "timestamp" >= '{timestamp}'), t2 AS (SELECT t1.osm_id, COALESCE(array_agg(cg.id),ARRAY[0]::integer[]) AS aa_fids FROM t1 LEFT JOIN countries cg ON ST_Intersects(t1.geom, cg.geometry) GROUP BY t1.osm_id) UPDATE {table_name} uw SET country = t2.aa_fids FROM t2 WHERE t2.osm_id = uw.osm_id;"""
 
         cur.execute(update_query)
     conn.commit()
