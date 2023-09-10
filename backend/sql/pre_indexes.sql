@@ -26,22 +26,22 @@ ALTER TABLE nodes
 ADD CONSTRAINT nodes_pk PRIMARY KEY  (osm_id);
 
 ALTER TABLE nodes
-ALTER COLUMN country SET DEFAULT '{}';
+ALTER COLUMN country SET DEFAULT '{0}';
 
 ALTER TABLE ways_line
 ADD CONSTRAINT ways_line_pk PRIMARY KEY  (osm_id);
 
 ALTER TABLE ways_line
-ALTER COLUMN country SET DEFAULT '{}';
+ALTER COLUMN country SET DEFAULT '{0}';
 
 ALTER TABLE ways_poly
 ADD CONSTRAINT ways_poly_pk PRIMARY KEY  (osm_id);
 
 ALTER TABLE ways_poly
-ALTER COLUMN country SET DEFAULT '{}';
+ALTER COLUMN country SET DEFAULT '{0}';
 
 ALTER TABLE relations
-ALTER COLUMN country SET DEFAULT '{}';
+ALTER COLUMN country SET DEFAULT '{0}';
 
 ALTER TABLE relations
 ADD CONSTRAINT relations_pk PRIMARY KEY (osm_id);
