@@ -54,6 +54,7 @@ class RawDataOutputType(Enum):
     GEOPACKAGE = "gpkg"
     PGDUMP = "sql"
     CSV = "csv"
+    PMTILES = "pmtiles"  ## EXPERIMENTAL
 
 
 class SupportedFilters(Enum):

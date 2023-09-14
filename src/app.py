@@ -469,12 +469,14 @@ class RawData:
         )
 
     @staticmethod
-    def to_geojson_raw(results):
-        """Responsible for geojson writing"""
-        features = [orjson.loads(row[0]) for row in results]
-        feature_collection = FeatureCollection(features=features)
-
-        return feature_collection
+    def geojson2tiles(geojson_path, tile_path, tile_layer_name):
+        """Responsible for geojson to tiles"""
+        cmd = """tippecanoe -zg --projection=EPSG:4326 -o {tile_output_path} -l {tile_layer_name} {geojson_input_path} --force""".format(
+            tile_output_path=tile_path,
+            tile_layer_name=tile_layer_name,
+            geojson_input_path=geojson_path,
+        )
+        run_ogr2ogr_cmd(cmd)
 
     def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
@@ -500,6 +502,7 @@ class RawData:
             # Create a exports directory because it does not exist
             os.makedirs(working_dir)
         # create file path with respect to of output type
+
         dump_temp_file_path = os.path.join(
             working_dir,
             f"{self.params.file_name if self.params.file_name else 'Export'}.{output_type.lower()}",
@@ -518,6 +521,25 @@ class RawData:
                     ),
                     dump_temp_file_path,
                 )  # uses own conversion class
+            elif output_type == RawDataOutputType.PMTILES.value:
+                geojson_path = os.path.join(
+                    working_dir,
+                    f"{self.params.file_name if self.params.file_name else 'Export'}.geojson",
+                )
+                RawData.query2geojson(
+                    self.con,
+                    raw_currentdata_extraction_query(
+                        self.params,
+                        g_id=grid_id,
+                        c_id=country,
+                        geometry_dump=geometry_dump,
+                        country_export=country_export,
+                    ),
+                    geojson_path,
+                )
+                RawData.geojson2tiles(
+                    geojson_path, dump_temp_file_path, self.params.file_name
+                )
             elif output_type == RawDataOutputType.SHAPEFILE.value:
                 (
                     point_query,
@@ -686,11 +708,12 @@ class S3FileTransfer:
         sample function call :
             S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test")"""
         file_name = f"{file_name}.{file_suffix}"
+        logging.debug("Started Uploading %s from %s", file_name, file_path)
         # instantiate upload
         start_time = time.time()
 
         try:
-            self.s_3.upload_file(file_path, BUCKET_NAME, file_name)
+            self.s_3.upload_file(str(file_path), BUCKET_NAME, str(file_name))
         except Exception as ex:
             logging.error(ex)
             raise ex

@@ -36,6 +36,9 @@ def process_raw_data(self, params):
             if params.output_type
             else RawDataOutputType.GEOJSON.value
         )
+        if params.output_type == RawDataOutputType.PMTILES.value:
+            logging.debug("Using STwithin Logic")
+            params.use_st_within = True
         params.file_name = (
             format_file_name_str(params.file_name) if params.file_name else "Export"
         )
@@ -65,9 +68,12 @@ def process_raw_data(self, params):
             logging.debug("Zip Binding Done !")
         else:
             for file_path in pathlib.Path(working_dir).iterdir():
-                upload_file_path = file_path
-                inside_file_size += os.path.getsize(file_path)
-                break  # only take one file inside dir , if contains many it should be inside zip
+                if file_path.is_file() and file_path.name.endswith(
+                    params.output_type.lower()
+                ):
+                    upload_file_path = file_path
+                    inside_file_size += os.path.getsize(file_path)
+                    break  # only take one file inside dir , if contains many it should be inside zip
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
