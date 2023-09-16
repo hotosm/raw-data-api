@@ -122,7 +122,7 @@ Set no of request that a worker can take at a time by using --concurrency
 Raw Data API uses flower for monitoring the Celery distributed queue. Run this command on a different shell , if you are running redis on same machine your broker could be `redis://localhost:6379//`.
 
 ```
-celery --broker=redis://redis:6379// --app API.api_worker flower --port=5000 --queues=recurring_queue,raw_default
+celery --broker=redis://redis:6379// --app API.api_worker flower --port=5000 --queues="recurring_queue,raw_default"
 ```
 
 ### Navigate to the docs to view Raw Data API endpoints
