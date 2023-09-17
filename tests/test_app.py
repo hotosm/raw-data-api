@@ -69,7 +69,6 @@ def test_rawdata_current_snapshot_geometry_query():
         validated_params,
         g_id=None,
         c_id=None,
-        geometry_dump=dumps(dict(validated_params.geometry)),
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
 
@@ -116,7 +115,6 @@ def test_rawdata_current_snapshot_normal_query():
         validated_params,
         g_id=None,
         c_id=None,
-        geometry_dump=dumps(dict(validated_params.geometry)),
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
 
@@ -168,7 +166,6 @@ def test_attribute_filter_rawdata():
         validated_params,
         g_id=[[1187], [1188]],
         c_id=None,
-        geometry_dump=dumps(dict(validated_params.geometry)),
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
 
@@ -231,6 +228,5 @@ def test_and_filters():
         validated_params,
         g_id=None,
         c_id=None,
-        geometry_dump=dumps(dict(validated_params.geometry)),
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
