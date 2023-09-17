@@ -36,7 +36,10 @@ def process_raw_data(self, params):
             if params.output_type
             else RawDataOutputType.GEOJSON.value
         )
-        if params.output_type == RawDataOutputType.PMTILES.value:
+        if (
+            params.output_type == RawDataOutputType.PMTILES.value
+            or params.output_type == RawDataOutputType.MBTILES.value
+        ):
             logging.debug("Using STwithin Logic")
             params.use_st_within = True
         params.file_name = (

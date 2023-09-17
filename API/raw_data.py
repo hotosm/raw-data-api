@@ -33,7 +33,12 @@ from src.app import RawData
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN as export_rate_limit
 from src.config import logger as logging
-from src.validation.models import RawDataCurrentParams, SnapshotResponse, StatusResponse
+from src.validation.models import (
+    RawDataCurrentParams,
+    RawDataCurrentParamsBase,
+    SnapshotResponse,
+    StatusResponse,
+)
 
 from .api_worker import process_raw_data
 
@@ -432,6 +437,24 @@ def get_osm_current_snapshot_as_file(
     queue_name = "recurring_queue" if not params.uuid else "raw_default"
     task = process_raw_data.apply_async(args=(params,), queue=queue_name)
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
+
+
+@router.get("/snapshot/plain/", response_model=FeatureCollection)
+@version(1)
+def get_osm_current_snapshot_as_plain_geojson(
+    request: Request, params: RawDataCurrentParamsBase
+):
+    """Generates the Plain geojson for the polygon within 100 Sqkm and returns the result right away
+
+    Args:
+        request (Request): _description_
+        params (RawDataCurrentParamsBase): Same as /snapshot excpet multiple output format options and configurations
+
+    Returns:
+        Featurecollection: Geojson
+    """
+    result = RawData(params).extract_plain_geojson()
+    return result
 
 
 @router.get("/countries/", response_model=FeatureCollection)

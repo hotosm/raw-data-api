@@ -526,7 +526,6 @@ class RawData:
                         self.params,
                         g_id=grid_id,
                         c_id=country,
-                        geometry_dump=geometry_dump,
                         country_export=country_export,
                     ),
                     dump_temp_file_path,
@@ -542,7 +541,6 @@ class RawData:
                         self.params,
                         g_id=grid_id,
                         c_id=country,
-                        geometry_dump=geometry_dump,
                         country_export=country_export,
                     ),
                     geojson_path,
@@ -580,7 +578,6 @@ class RawData:
                         self.params,
                         grid_id,
                         country,
-                        geometry_dump,
                         ogr_export=True,
                         country_export=country_export,
                     ),
@@ -645,24 +642,7 @@ class RawData:
 
     def extract_plain_geojson(self):
         """Gets geojson for small area : Performs direct query with/without geometry"""
-        query = raw_extract_plain_geojson(self.params, inspect_only=True)
-        self.cur.execute(query)
-        analyze_fetched = self.cur.fetchall()
-        rows = list(
-            filter(lambda x: x.startswith("rows"), analyze_fetched[0][0].split())
-        )
-        approx_returned_rows = rows[0].split("=")[1]
-        logging.debug("Approximated query output : %s", approx_returned_rows)
-
-        if int(approx_returned_rows) > 500:
-            self.cur.close()
-            RawData.close_con(self.con)
-            raise HTTPException(
-                status_code=500,
-                detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction",
-            )
-
-        extraction_query = raw_extract_plain_geojson(self.params)
+        extraction_query = raw_currentdata_extraction_query(self.params)
         features = []
 
         with self.con.cursor(

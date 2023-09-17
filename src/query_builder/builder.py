@@ -461,9 +461,8 @@ def get_country_geojson(c_id):
 
 def raw_currentdata_extraction_query(
     params,
-    g_id,
-    c_id,
-    geometry_dump,
+    g_id=None,
+    c_id=None,
     ogr_export=False,
     select_all=False,
     country_export=False,

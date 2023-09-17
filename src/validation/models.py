@@ -124,17 +124,7 @@ class Filters(BaseModel):
     attributes: Optional[AttributeFilter]
 
 
-class RawDataCurrentParams(BaseModel):
-    output_type: Optional[RawDataOutputType] = Field(
-        default=RawDataOutputType.GEOJSON.value, example="geojson"
-    )
-    min_zoom: Optional[int] = Field(
-        default=None, description="Only for mbtiles"
-    )  # only for if mbtiles is output
-    max_zoom: Optional[int] = Field(
-        default=None, description="Only for mbtiles"
-    )  # only for if mbtiles is output
-    file_name: Optional[str] = Field(default=None, example="My test export")
+class RawDataCurrentParamsBase(BaseModel):
     geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
         default=None, example=["point", "polygon"]
     )
@@ -142,7 +132,7 @@ class RawDataCurrentParams(BaseModel):
         default=False, description="Exports centroid of features as geom"
     )
     use_st_within: Optional[bool] = Field(
-        default=False,
+        default=True,
         description="Exports features which are exactly inside the passed polygons (ST_WITHIN) By default features which are intersected with passed polygon is exported",
     )
     filters: Optional[Filters] = Field(
@@ -168,6 +158,36 @@ class RawDataCurrentParams(BaseModel):
             ],
         },
     )
+
+    @validator("geometry", always=True)
+    def check_geometry_area(cls, value, values):
+        """Validates geom area_m2"""
+        area_m2 = area(json.loads(value.json()))
+        area_km2 = area_m2 * 1e-6
+        RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
+        if area_km2 > 100:  # 100 square km
+            raise ValueError(
+                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
+            )
+        return value
+
+    @validator("geometry_type", allow_reuse=True)
+    def return_unique_value(cls, value):
+        """return unique list"""
+        return list(set(value))
+
+
+class RawDataCurrentParams(RawDataCurrentParamsBase):
+    output_type: Optional[RawDataOutputType] = Field(
+        default=RawDataOutputType.GEOJSON.value, example="geojson"
+    )
+    min_zoom: Optional[int] = Field(
+        default=None, description="Only for mbtiles"
+    )  # only for if mbtiles is output
+    max_zoom: Optional[int] = Field(
+        default=None, description="Only for mbtiles"
+    )  # only for if mbtiles is output
+    file_name: Optional[str] = Field(default=None, example="My test export")
     uuid: Optional[bool] = Field(
         default=True,
         description="Attaches uid to exports by default , Only disable this if it is recurring export",
@@ -189,24 +209,12 @@ class RawDataCurrentParams(BaseModel):
         """Validates geom area_m2"""
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1e-6
-
         RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
-
-        output_type = values.get("output_type")
-        # if output_type:
-        #     # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
-        #     if output_type == RawDataOutputType.MBTILES.value:
-        #         RAWDATA_CURRENT_POLYGON_AREA = 2  # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
             raise ValueError(
                 f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
             )
         return value
-
-    @validator("geometry_type", allow_reuse=True)
-    def return_unique_value(cls, value):
-        """return unique list"""
-        return list(set(value))
 
 
 class WhereCondition(TypedDict):
