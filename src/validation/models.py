@@ -184,20 +184,6 @@ class RawDataCurrentParams(BaseModel):
                 )
             return value
 
-    @validator("output_type", allow_reuse=True)
-    def check_output_type(cls, value, values):
-        """Checks mbtiles required field"""
-        if value == RawDataOutputType.MBTILES.value:
-            if values.get("min_zoom") and values.get("max_zoom"):
-                if values.get("min_zoom") < 0 or values.get("max_zoom") > 22:
-                    raise ValueError("Zoom range should range from 0-22")
-                return value
-            else:
-                raise ValueError(
-                    "Field min_zoom and max_zoom must be supplied for mbtiles output type"
-                )
-        return value
-
     @validator("geometry", always=True)
     def check_geometry_area(cls, value, values):
         """Validates geom area_m2"""
@@ -207,10 +193,10 @@ class RawDataCurrentParams(BaseModel):
         RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
 
         output_type = values.get("output_type")
-        if output_type:
-            # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
-            if output_type == RawDataOutputType.MBTILES.value:
-                RAWDATA_CURRENT_POLYGON_AREA = 2  # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it
+        # if output_type:
+        #     # for mbtiles ogr2ogr does very worst job when area gets bigger we should write owr own or find better approach for larger area
+        #     if output_type == RawDataOutputType.MBTILES.value:
+        #         RAWDATA_CURRENT_POLYGON_AREA = 2  # we need to figure out how much tile we are generating before passing request on the basis of bounding box we can restrict user , right now relation contains whole country for now restricted to this area but can not query relation will take ages because that will intersect with country boundary : need to clip it
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
             raise ValueError(
                 f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""

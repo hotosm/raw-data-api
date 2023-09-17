@@ -322,16 +322,26 @@ class RawData:
             file.write(query)
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype == RawDataOutputType.MBTILES.value:
-            cmd = """ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                min_zoom=params.min_zoom,
-                max_zoom=params.max_zoom,
-                export_path=dump_temp_path,
-                host=db_items.get("host"),
-                username=db_items.get("user"),
-                db=db_items.get("dbname"),
-                password=db_items.get("password"),
-                pg_sql_select=query_path,
-            )
+            if params.min_zooom and params.max_zoom:
+                cmd = """ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
+                    min_zoom=params.min_zoom,
+                    max_zoom=params.max_zoom,
+                    export_path=dump_temp_path,
+                    host=db_items.get("host"),
+                    username=db_items.get("user"),
+                    db=db_items.get("dbname"),
+                    password=db_items.get("password"),
+                    pg_sql_select=query_path,
+                )
+            else:
+                cmd = """ogr2ogr -overwrite -f MBTILES  -dsco ZOOM_LEVEL_AUTO=YES {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
+                    export_path=dump_temp_path,
+                    host=db_items.get("host"),
+                    username=db_items.get("user"),
+                    db=db_items.get("dbname"),
+                    password=db_items.get("password"),
+                    pg_sql_select=query_path,
+                )
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.FLATGEOBUF.value:
