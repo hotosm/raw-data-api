@@ -67,8 +67,6 @@ def test_rawdata_current_snapshot_geometry_query():
                 ST_intersects(geom,ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'))) t3"""
     query_result = raw_currentdata_extraction_query(
         validated_params,
-        g_id=None,
-        c_id=None,
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
 
@@ -113,8 +111,6 @@ def test_rawdata_current_snapshot_normal_query():
                 ST_intersects(geom,ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'))) t3"""
     query_result = raw_currentdata_extraction_query(
         validated_params,
-        g_id=None,
-        c_id=None,
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
 
@@ -165,7 +161,6 @@ def test_attribute_filter_rawdata():
     query_result = raw_currentdata_extraction_query(
         validated_params,
         g_id=[[1187], [1188]],
-        c_id=None,
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
 
@@ -226,7 +221,5 @@ def test_and_filters():
                 ST_intersects(geom,ST_GEOMFROMGEOJSON('{"coordinates": [[[36.70588085657477, 37.1979648807274], [36.70588085657477, 37.1651408422983], [36.759267544807194, 37.1651408422983], [36.759267544807194, 37.1979648807274], [36.70588085657477, 37.1979648807274]]], "type": "Polygon"}')) and (tags ->> 'destroyed:building' = 'yes' AND tags ->> 'damage:date' = '2023-02-06') and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')) t1"""
     query_result = raw_currentdata_extraction_query(
         validated_params,
-        g_id=None,
-        c_id=None,
     )
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
