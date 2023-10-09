@@ -322,7 +322,7 @@ class RawData:
             file.write(query)
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
         if outputtype == RawDataOutputType.MBTILES.value:
-            if params.min_zooom and params.max_zoom:
+            if params.min_zoom and params.max_zoom:
                 cmd = """ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
                     min_zoom=params.min_zoom,
                     max_zoom=params.max_zoom,
