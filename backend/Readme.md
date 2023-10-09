@@ -141,30 +141,39 @@
 
 ```
 $ sudo systemctl edit --full --force raw-data-backend.service
+```
+
+```
 [Unit]
 Description=Raw Data Backend Service
 Documentation=https://github.com/hotosm/raw-data-api/blob/develop/backend/Readme.md
 After=network.target syslog.target
-# Requires=
-# Wants=
-# Conflicts=
+Wants=network-online.target systemd-networkd-wait-online.service
+StartLimitIntervalSec=500
+StartLimitBurst=5
 
 [Service]
 Type=simple
-User=sysadm
+User=hotsysadmin
 WorkingDirectory=/opt/raw-data-api/backend
-ExecStart=/opt/raw-data-api/backend/venv/bin/python app --replication --run_minutely
-# ExecStop=
-# ExecReload=
+ExecStart=/opt/raw-data-api/backend/venv/bin/python raw_backend --replication
 Restart=on-failure
-# RemainAfterExit
-EnvironmentFile=/opt/raw-data-api/backend/sensitive.env
+EnvironmentFile=/opt/raw-data-api/backend/PGCRED.env
+Type=simple
+Restart=on-failure
+RestartSec=5s
+WatchdogSec=43200
 
 [Install]
 WantedBy=multi-user.target
-
+```
+- Start Your service and look at the status
+```
 $ sudo systemctl start raw-data-backend.service
 $ sudo systemctl status raw-data-backend.service
+```
+
+```
 ● raw-data-backend.service - Raw Data Backend Service
      Loaded: loaded (/etc/systemd/system/raw-data-backend.service; disabled; vendor preset: enabled)
      Active: active (running) since Mon 2023-02-13 14:30:03 UTC; 4min 25s ago
@@ -186,4 +195,28 @@ Feb 13 14:30:10 raw-data-backend-production python[50704]: 2023-02-13 14:30:10  
 Feb 13 14:30:10 raw-data-backend-production python[50704]: 2023-02-13 14:30:10  Database version: 14.6
 Feb 13 14:30:10 raw-data-backend-production python[50704]: 2023-02-13 14:30:10  PostGIS version: 3.2
 
+```
+
+- Setup your every minute update timer 
+```
+$ sudo systemctl edit --full --force raw-data-backend.timer
+```
+
+```
+[Unit]
+Description=Trigger a rawdata database update
+
+[Timer]
+OnBootSec=10
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
+```
+
+- Enable timer and reload your systemctl
+
+```
+$ sudo systemctl enable raw-data-backend.timer
+$ sudo systemctl daemon-reload
 ```
