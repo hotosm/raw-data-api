@@ -38,6 +38,7 @@ def test_rawdata_current_snapshot_geometry_query():
             ],
         },
         "outputType": "geojson",
+        "useStWithin": False,
         "filters": {
             "tags": {"point": {"join_or": {"amenity": ["shop", "toilet"]}}},
             "attributes": {"point": ["name"]},
@@ -85,6 +86,7 @@ def test_rawdata_current_snapshot_normal_query():
                 ]
             ],
         },
+        "useStWithin": False,
         "outputType": "geojson",
     }
     validated_params = RawDataCurrentParams(**test_param)
@@ -130,6 +132,7 @@ def test_attribute_filter_rawdata():
             ],
         },
         "outputType": "geojson",
+        "useStWithin": False,
         "geometryType": ["polygon", "line"],
         "filters": {
             "attributes": {"line": ["name"]},
@@ -181,6 +184,7 @@ def test_and_filters():
             ],
         },
         "outputType": "geojson",
+        "useStWithin": False,
         "geometryType": ["polygon"],
         "filters": {
             "tags": {
