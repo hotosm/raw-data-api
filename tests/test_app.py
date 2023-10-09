@@ -117,6 +117,50 @@ def test_rawdata_current_snapshot_normal_query():
     assert query_result.encode("utf-8") == expected_query.encode("utf-8")
 
 
+def test_rawdata_current_snapshot_normal_query_ST_within():
+    test_param = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [84.92431640625, 27.766190642387496],
+                    [85.31982421875, 27.766190642387496],
+                    [85.31982421875, 28.02592458049937],
+                    [84.92431640625, 28.02592458049937],
+                    [84.92431640625, 27.766190642387496],
+                ]
+            ],
+        },
+        "outputType": "geojson",
+    }
+    validated_params = RawDataCurrentParams(**test_param)
+    expected_query = """select ST_AsGeoJSON(t0.*) from (select
+                    osm_id ,version,tags,changeset,timestamp,geom
+                    from
+                        nodes
+                    where
+                        ST_within(geom,ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
+            osm_id ,version,tags,changeset,timestamp,geom
+            from
+                ways_line
+            where
+                ST_within(geom,ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'))) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
+            osm_id ,version,tags,changeset,timestamp,geom
+            from
+                ways_poly
+            where
+                ST_within(geom,ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'))) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
+            osm_id ,version,tags,changeset,timestamp,geom
+            from
+                relations
+            where
+                ST_within(geom,ST_GEOMFROMGEOJSON('{"coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]], "type": "Polygon"}'))) t3"""
+    query_result = raw_currentdata_extraction_query(
+        validated_params,
+    )
+    assert query_result.encode("utf-8") == expected_query.encode("utf-8")
+
+
 def test_attribute_filter_rawdata():
     test_param = {
         "geometry": {
