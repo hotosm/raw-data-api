@@ -34,7 +34,12 @@ from geojson import FeatureCollection
 from psycopg2 import OperationalError, connect
 from psycopg2.extras import DictCursor
 
-from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
+from src.config import (
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY,
+    BUCKET_NAME,
+    ENABLE_TILES,
+)
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
@@ -321,28 +326,29 @@ class RawData:
         with open(query_path, "w", encoding="UTF-8") as file:
             file.write(query)
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
-        if outputtype == RawDataOutputType.MBTILES.value:
-            if params.min_zoom and params.max_zoom:
-                cmd = """ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                    min_zoom=params.min_zoom,
-                    max_zoom=params.max_zoom,
-                    export_path=dump_temp_path,
-                    host=db_items.get("host"),
-                    username=db_items.get("user"),
-                    db=db_items.get("dbname"),
-                    password=db_items.get("password"),
-                    pg_sql_select=query_path,
-                )
-            else:
-                cmd = """ogr2ogr -overwrite -f MBTILES  -dsco ZOOM_LEVEL_AUTO=YES {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                    export_path=dump_temp_path,
-                    host=db_items.get("host"),
-                    username=db_items.get("user"),
-                    db=db_items.get("dbname"),
-                    password=db_items.get("password"),
-                    pg_sql_select=query_path,
-                )
-            run_ogr2ogr_cmd(cmd)
+        if ENABLE_TILES:
+            if outputtype == RawDataOutputType.MBTILES.value:
+                if params.min_zoom and params.max_zoom:
+                    cmd = """ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
+                        min_zoom=params.min_zoom,
+                        max_zoom=params.max_zoom,
+                        export_path=dump_temp_path,
+                        host=db_items.get("host"),
+                        username=db_items.get("user"),
+                        db=db_items.get("dbname"),
+                        password=db_items.get("password"),
+                        pg_sql_select=query_path,
+                    )
+                else:
+                    cmd = """ogr2ogr -overwrite -f MBTILES  -dsco ZOOM_LEVEL_AUTO=YES {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
+                        export_path=dump_temp_path,
+                        host=db_items.get("host"),
+                        username=db_items.get("user"),
+                        db=db_items.get("dbname"),
+                        password=db_items.get("password"),
+                        pg_sql_select=query_path,
+                    )
+                run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.FLATGEOBUF.value:
             cmd = """ogr2ogr -overwrite -f FLATGEOBUF {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress VERIFY_BUFFERS=NO""".format(
@@ -519,6 +525,40 @@ class RawData:
         )
         try:
             # currently we have only geojson binding function written other than that we have depend on ogr
+            if ENABLE_TILES:
+                if output_type == RawDataOutputType.PMTILES.value:
+                    geojson_path = os.path.join(
+                        working_dir,
+                        f"{self.params.file_name if self.params.file_name else 'Export'}.geojson",
+                    )
+                    RawData.query2geojson(
+                        self.con,
+                        raw_currentdata_extraction_query(
+                            self.params,
+                            g_id=grid_id,
+                            c_id=country,
+                            country_export=country_export,
+                        ),
+                        geojson_path,
+                    )
+                    RawData.geojson2tiles(
+                        geojson_path, dump_temp_file_path, self.params.file_name
+                    )
+                if output_type == RawDataOutputType.MBTILES.value:
+                    RawData.ogr_export(
+                        query=raw_currentdata_extraction_query(
+                            self.params,
+                            grid_id,
+                            country,
+                            ogr_export=True,
+                            country_export=country_export,
+                        ),
+                        outputtype=output_type,
+                        dump_temp_path=dump_temp_file_path,
+                        working_dir=working_dir,
+                        params=self.params,
+                    )  # uses ogr export to export
+
             if output_type == RawDataOutputType.GEOJSON.value:
                 RawData.query2geojson(
                     self.con,
@@ -530,25 +570,7 @@ class RawData:
                     ),
                     dump_temp_file_path,
                 )  # uses own conversion class
-            elif output_type == RawDataOutputType.PMTILES.value:
-                geojson_path = os.path.join(
-                    working_dir,
-                    f"{self.params.file_name if self.params.file_name else 'Export'}.geojson",
-                )
-                RawData.query2geojson(
-                    self.con,
-                    raw_currentdata_extraction_query(
-                        self.params,
-                        g_id=grid_id,
-                        c_id=country,
-                        country_export=country_export,
-                    ),
-                    geojson_path,
-                )
-                RawData.geojson2tiles(
-                    geojson_path, dump_temp_file_path, self.params.file_name
-                )
-            elif output_type == RawDataOutputType.SHAPEFILE.value:
+            if output_type == RawDataOutputType.SHAPEFILE.value:
                 (
                     point_query,
                     line_query,
@@ -572,7 +594,7 @@ class RawData:
                     if self.params.file_name
                     else "Export",
                 )  # using ogr2ogr
-            else:
+            if output_type in ["fgb", "gpkg", "sql", "csv"]:
                 RawData.ogr_export(
                     query=raw_currentdata_extraction_query(
                         self.params,

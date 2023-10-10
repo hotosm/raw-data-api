@@ -73,7 +73,7 @@ The following are the different configuration options that are accepted.
 | `EXPORT_PATH` | `[API_CONFIG]` | Yes | Yes |
 | `EXPORT_MAX_AREA_SQKM` | `[API_CONFIG]` | Yes | No |
 | `USE_CONNECTION_POOLING` | `[API_CONFIG]` | Yes | Yes |
-| `ENABLE_TILES` | `[API_CONFIG]` | Yes | No |
+| `ENABLE_TILES` | `[API_CONFIG]` | Yes | Yes |
 | `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | Yes | Yes |
 | `INDEX_THRESHOLD` | `[API_CONFIG]` | No | Yes |
 | `CELERY_BROKER_URL` | TBD | Yes | Yes |

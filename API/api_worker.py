@@ -12,6 +12,7 @@ from src.app import RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
+from src.config import ENABLE_TILES
 from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
 from src.config import logger as logging
 from src.query_builder.builder import format_file_name_str
@@ -36,12 +37,13 @@ def process_raw_data(self, params):
             if params.output_type
             else RawDataOutputType.GEOJSON.value
         )
-        if (
-            params.output_type == RawDataOutputType.PMTILES.value
-            or params.output_type == RawDataOutputType.MBTILES.value
-        ):
-            logging.debug("Using STwithin Logic")
-            params.use_st_within = True
+        if ENABLE_TILES:
+            if (
+                params.output_type == RawDataOutputType.PMTILES.value
+                or params.output_type == RawDataOutputType.MBTILES.value
+            ):
+                logging.debug("Using STwithin Logic")
+                params.use_st_within = True
         params.file_name = (
             format_file_name_str(params.file_name) if params.file_name else "Export"
         )
