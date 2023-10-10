@@ -28,7 +28,7 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
 from typing_extensions import TypedDict
 
-from src.config import ALLOW_BIND_ZIP_FILTER, EXPORT_MAX_AREA_SQKM
+from src.config import ALLOW_BIND_ZIP_FILTER, ENABLE_TILES, EXPORT_MAX_AREA_SQKM
 
 
 def to_camel(string: str) -> str:
@@ -50,11 +50,12 @@ class RawDataOutputType(Enum):
     KML = "kml"
     SHAPEFILE = "shp"
     FLATGEOBUF = "fgb"
-    MBTILES = "mbtiles"  # fully experimental for now
     GEOPACKAGE = "gpkg"
     PGDUMP = "sql"
     CSV = "csv"
-    PMTILES = "pmtiles"  ## EXPERIMENTAL
+    if ENABLE_TILES:
+        MBTILES = "mbtiles"
+        PMTILES = "pmtiles"  ## EXPERIMENTAL
 
 
 class SupportedFilters(Enum):
@@ -181,12 +182,13 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
     output_type: Optional[RawDataOutputType] = Field(
         default=RawDataOutputType.GEOJSON.value, example="geojson"
     )
-    min_zoom: Optional[int] = Field(
-        default=None, description="Only for mbtiles"
-    )  # only for if mbtiles is output
-    max_zoom: Optional[int] = Field(
-        default=None, description="Only for mbtiles"
-    )  # only for if mbtiles is output
+    if ENABLE_TILES:
+        min_zoom: Optional[int] = Field(
+            default=None, description="Only for mbtiles"
+        )  # only for if mbtiles is output
+        max_zoom: Optional[int] = Field(
+            default=None, description="Only for mbtiles"
+        )  # only for if mbtiles is output
     file_name: Optional[str] = Field(default=None, example="My test export")
     uuid: Optional[bool] = Field(
         default=True,
