@@ -1,5 +1,6 @@
 import os
 import pathlib
+import re
 import shutil
 import time
 import zipfile
@@ -82,9 +83,19 @@ def process_raw_data(self, params):
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
+            upload_name = exportname if params.uuid else f"Recurring/{exportname}"
+            if exportname.startswith("hotosm_project"):
+                if not params.uuid:
+                    pattern = r"(hotosm_project_)(\d+)"
+                    match = re.match(pattern, exportname)
+                    if match:
+                        prefix = match.group(1)
+                        project_number = match.group(2)
+                        if project_number:
+                            upload_name = f"TM/{project_number}/{exportname}"
             download_url = file_transfer_obj.upload(
                 upload_file_path,
-                exportname if params.uuid else f"Recurring/{exportname}",
+                upload_name,
                 file_suffix="zip" if bind_zip else params.output_type.lower(),
             )
         else:
