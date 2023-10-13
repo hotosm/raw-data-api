@@ -24,7 +24,7 @@ create extension if not exists intarray;
 -- Only apply after grid update is done 
 -- Multi column index is used for the larger datasets which will have large gist index size (such as loading asia, america) to reduce amount of the index to look for spatial query , db with smaller datasets such as only with few grid level data it makes no sense , by default with lua script it will create gist index ordered with geohash method 
 
-CREATE INDEX IF NOT EXISTS   nodes_country_idx ON public.nodes USING btree (country);
+CREATE INDEX IF NOT EXISTS   nodes_country_idx ON public.nodes USING gin (country gin__int_ops);
 CREATE INDEX IF NOT EXISTS  nodes_geom_idx ON public.nodes USING gist (geom);
 
 
@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS  ways_line_country_idx ON public.ways_line USING gin 
 CREATE INDEX IF NOT EXISTS  ways_line_geom_idx ON public.ways_line USING gist (geom);
 
 
-CREATE INDEX IF NOT EXISTS  ways_poly_country_idx ON public.ways_poly USING btree (country);
+CREATE INDEX IF NOT EXISTS  ways_poly_country_idx ON public.ways_poly USING gin (country gin__int_ops);
 CREATE INDEX IF NOT EXISTS  ways_poly_geom_idx ON public.ways_poly USING gist (geom);
 
 CREATE INDEX IF NOT EXISTS  relations_geom_idx ON public.relations USING gist (geom);
