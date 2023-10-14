@@ -84,7 +84,7 @@ def process_raw_data(self, params):
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
             upload_name = exportname if params.uuid else f"Recurring/{exportname}"
-            if exportname.startswith("hotosm_project"):
+            if exportname.startswith("hotosm_project"):  # TM
                 if not params.uuid:
                     pattern = r"(hotosm_project_)(\d+)"
                     match = re.match(pattern, exportname)
@@ -93,7 +93,7 @@ def process_raw_data(self, params):
                         project_number = match.group(2)
                         if project_number:
                             upload_name = f"TM/{project_number}/{exportname}"
-            elif exportname.startswith("hotosm_"):
+            elif exportname.startswith("hotosm_"):  # HDX
                 if not params.uuid:
                     pattern = r"hotosm_([A-Z]{3})_(\w+)"
                     match = re.match(pattern, exportname)
