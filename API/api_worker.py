@@ -93,6 +93,15 @@ def process_raw_data(self, params):
                         project_number = match.group(2)
                         if project_number:
                             upload_name = f"TM/{project_number}/{exportname}"
+            elif exportname.startswith("hotosm_"):
+                if not params.uuid:
+                    pattern = r"hotosm_([A-Z]{3})_(\w+)"
+                    match = re.match(pattern, exportname)
+                    if match:
+                        iso3countrycode = match.group(1)
+                        if iso3countrycode:
+                            upload_name = f"HDX/{iso3countrycode}/{exportname}"
+
             download_url = file_transfer_obj.upload(
                 upload_file_path,
                 upload_name,
