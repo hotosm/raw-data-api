@@ -742,7 +742,7 @@ def raw_extract_plain_geojson(params, inspect_only=False):
 def get_countries_query(q):
     query = "Select ST_AsGeoJSON(cf.*) FROM countries cf"
     if q:
-        query += f" WHERE name ILIKE '%{q}%'"
+        query += f" WHERE description ILIKE '%{q}%'"
     return query
 
 
