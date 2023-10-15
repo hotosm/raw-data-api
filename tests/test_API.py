@@ -33,7 +33,7 @@ def test_snapshot():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    time.sleep(6)  # wait for worker to complete task
+    time.sleep(15)  # wait for worker to complete task
     response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
@@ -63,7 +63,7 @@ def test_snapshot_centroid():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    time.sleep(6)  # wait for worker to complete task
+    time.sleep(15)  # wait for worker to complete task
     response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
@@ -294,7 +294,7 @@ def test_snapshot_filters():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    time.sleep(6)  # wait for worker to complete task
+    time.sleep(15)  # wait for worker to complete task
     response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
@@ -350,7 +350,7 @@ def test_snapshot_and_filter():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    time.sleep(6)  # wait for worker to complete task
+    time.sleep(15)  # wait for worker to complete task
     response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
