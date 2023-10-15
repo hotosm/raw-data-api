@@ -29,7 +29,6 @@ from urllib.parse import urlparse
 
 import requests
 import wget
-
 from login import verify_me_osm
 
 
@@ -301,7 +300,7 @@ if __name__ == "__main__":
                     "--source_table",
                     "countries",
                     "--source_column",
-                    "id",
+                    "cid",
                     "--source_geom",
                     "geometry",
                     "--type",
