@@ -194,7 +194,7 @@ class Raw:
                     t1.osm_id,
                     CASE 
                         WHEN COUNT(cg.{source_column}) = 0 THEN ARRAY[0]::integer[]
-                        ELSE array_agg(COALESCE(cg.id, 0))
+                        ELSE array_agg(COALESCE(cg.{source_column}, 0))
                     END AS aa_fids
                 FROM 
                     t1

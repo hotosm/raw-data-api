@@ -51,7 +51,7 @@ def get_country_id_query(geom_dump):
 
 def check_exisiting_country(geom):
     query = f"""select
-                        b.id::int as fid
+                        b.cid::int as fid
                     from
                         countries b
                     where
