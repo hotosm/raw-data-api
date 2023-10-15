@@ -1,240 +1,240 @@
-description,dataset_name,locations,id,name
-HOTOSM Georgia,hotosm_geo,"[ ""geo"" ]","18",Georgia
-HOTOSM Bahrain,hotosm_bhr,"[ ""bhr"" ]","19",Bahrain
-HOTOSM Bolivia,hotosm_bol,"[ ""bol"" ]","25",Bolivia
-HOTOSM Bahamas,hotosm_bhs,"[ ""bhs"" ]","21",Bahamas
-HOTOSM Spain,hotosm_esp,"[ ""esp"" ]","38",Spain
-HOTOSM Reunion,hotosm_reu,"[ ""reu"" ]","39",Reunion
-HOTOSM India,hotosm_ind,"[ ""ind"" ]","45",India
-HOTOSM Palau,hotosm_plw,"[ ""plw"" ]","63",Palau
-HOTOSM Nyiragongo volcanic eruption,hotosm_volcano_nyiragongo,"[ ""cod"" ]","74",Nyiragongo volcanic eruption
-HOTOSM French Polynesia,hotosm_pyf,"[ ""pyf"" ]","75",French Polynesia
-HOTOSM Kyrgyzstan,hotosm_kgz,"[ ""kgz"" ]","83",Kyrgyzstan
-HOTOSM Trinidad and Tobago,hotosm_tto,"[ ""tto"" ]","87",Trinidad and Tobago
-HOTOSM Samoa,hotosm_wsm,"[ ""wsm"" ]","90",Samoa
-HOTOSM Hungary,hotosm_hun,"[ ""hun"" ]","100",Hungary
-HOTOSM Mongolia,hotosm_mng,"[ ""mng"" ]","67",Mongolia
-HOTOSM Denmark,hotosm_dnk,"[ ""dnk"" ]","68",Denmark
-HOTOSM Niue,hotosm_niu,"[ ""niu"" ]","69",Niue
-HOTOSM Saint Martin and Sint Maarten,hotosm_maf_sxm,"[ ""maf"", ""sxm"" ]","70",Saint Martin and Sint Maarten
-HOTOSM Saint Vincent And The Grenadines,hotosm_vct,"[ ""vct"" ]","71",Saint Vincent And The Grenadines
-HOTOSM Thailand,hotosm_tha,"[ ""tha"" ]","125",Thailand
-HOTOSM Switzerland,hotosm_che,"[ ""che"" ]","128",Switzerland
-HOTOSM Japan,hotosm_jpn,"[ ""jpn"" ]","131",Japan
-HOTOSM Maldives,hotosm_mdv,"[ ""mdv"" ]","134",Maldives
-HOTOSM Tonga,hotosm_ton,"[ ""ton"" ]","145",Tonga
-HOTOSM Vanuatu,hotosm_vut,"[ ""vut"" ]","146",Vanuatu
-HOTOSM Jamaica,hotosm_jam,"[ ""jam"" ]","148",Jamaica
-HOTOSM Cabo Verde,hotosm_cpv,"[ ""cpv"" ]","217",Cabo Verde
-HOTOSM Comoros,hotosm_com,"[ ""com"" ]","218",Comoros
-HOTOSM Bermuda,hotosm_bmu,"[ ""bmu"" ]","219",Bermuda
-HOTOSM British Indian Ocean Territory,hotosm_iot,"[ ""iot"" ]","220",British Indian Ocean Territory
-HOTOSM Mayotte,hotosm_myt,"[ ""myt"" ]","169",Mayotte
-HOTOSM Nauru,hotosm_nru,"[ ""nru"" ]","191",Nauru
-HOTOSM Dominica,hotosm_dma,"[ ""dma"" ]","194",Dominica
-HOTOSM Cayman Islands,hotosm_cym,"[ ""cym"" ]","201",Cayman Islands
-HOTOSM Tokelau,hotosm_tkl,"[ ""tkl"" ]","207",Tokelau
-HOTOSM Taiwan,hotosm_twn,"[ ""twn"" ]","225",Taiwan
-HOTOSM Anguilla,hotosm_aia,"[ ""aia"" ]","8",Anguilla
-HOTOSM Bouvet Island,hotosm_bvt,"[ ""bvt"" ]","16",Bouvet Island
-HOTOSM Guinea,hotosm_gin,"[ ""gin"" ]","30",Guinea
-HOTOSM Ghana,hotosm_gha,"[ ""gha"" ]","31",Ghana
-HOTOSM Iceland,hotosm_isl,"[ ""isl"" ]","237",Iceland
-HOTOSM British Virgin Islands,hotosm_vgb,"[ ""vgb"" ]","17",British Virgin Islands
-HOTOSM Belize,hotosm_blz,"[ ""blz"" ]","24",Belize
-HOTOSM Curaçao,hotosm_cuw,"[ ""cuw"" ]","26",Curaçao
-HOTOSM Greenland,hotosm_grl,"[ ""grl"" ]","32",Greenland
-HOTOSM Kiribati,hotosm_kir,"[ ""kir"" ]","27",Kiribati
-HOTOSM Micronesia,hotosm_fsm,"[ ""fsm"" ]","28",Micronesia
-HOTOSM Djibouti,hotosm_dji,"[ ""dji"" ]","29",Djibouti
-HOTOSM Martinique,hotosm_mtq,"[ ""mtq"" ]","50",Martinique
-HOTOSM Germany,hotosm_deu,"[ ""deu"" ]","51",Germany
-HOTOSM Sao Tome And Principe,hotosm_stp,"[ ""stp"" ]","33",Sao Tome And Principe
-"HOTOSM Saint Helena, Ascension and Tristan da Cunha",hotosm_shn,"[ ""shn"" ]","34","Saint Helena, Ascension and Tristan da Cunha"
-HOTOSM Chad,hotosm_chad,"[ ""tcd"" ]","35",Chad
-HOTOSM Bangladesh,hotosm_bgd,"[ ""bgd"" ]","1",Bangladesh
-HOTOSM Holy See (Vatican City State),hotosm_vat,"[ ""vat"" ]","2",Holy See (Vatican City State)
-HOTOSM Australia,hotosm_aus,"[ ""aus"" ]","3",Australia
-HOTOSM Antigua and Barbuda,hotosm_atg,"[ ""atg"" ]","4",Antigua and Barbuda
-"HOTOSM Bonaire, Sint Eustatius and Saba",hotosm_bes,"[ ""bes"" ]","15","Bonaire, Sint Eustatius and Saba"
-HOTOSM Canada,hotosm_can,"[ ""can"" ]","5",Canada
-HOTOSM Marshall Islands,hotosm_mhl,"[ ""mhl"" ]","6",Marshall Islands
-"HOTOSM China, Macao Special Administrative Region",hotosm_mac,"[ ""mac"" ]","7","China, Macao Special Administrative Region"
-HOTOSM Guadeloupe,hotosm_glp,"[ ""glp"" ]","60",Guadeloupe
-HOTOSM China,hotosm_chn,"[ ""chn"" ]","9",China
-HOTOSM Mauritius,hotosm_mus,"[ ""mus"" ]","10",Mauritius
-HOTOSM French Guiana,hotosm_guf,"[ ""guf"" ]","11",French Guiana
-HOTOSM Antarctica,hotosm_ata,"[ ""ata"" ]","12",Antarctica
-HOTOSM Croatia,hotosm_hrv,"[ ""hrv"" ]","13",Croatia
-HOTOSM Aruba,hotosm_abw,"[ ""abw"" ]","14",Aruba
-HOTOSM Barbados,hotosm_brb,"[ ""brb"" ]","20",Barbados
-HOTOSM Faroe Islands,hotosm_fro,"[ ""fro"" ]","22",Faroe Islands
-HOTOSM Malta,hotosm_mlt,"[ ""mlt"" ]","23",Malta
-HOTOSM Madagascar,hotosm_mdg,"[ ""mdg"" ]","61",Madagascar
-HOTOSM Nepal,hotosm_nep,"[ ""npl"" ]","48",Nepal
-HOTOSM El Salvador,hotosm_slv,"[ ""slv"" ]","62",El Salvador
-HOTOSM Ethiopia,hotosm_eth,"[ ""eth"" ]","66",Ethiopia
-"HOTOSM China, Hong Kong Special Administrative Region",hotosm_hkg,"[ ""hkg"" ]","36","China, Hong Kong Special Administrative Region"
-HOTOSM Brazil,hotosm_bra,"[ ""bra"" ]","37",Brazil
-HOTOSM Laos,hotosm_lao,"[ ""lao"" ]","40",Laos
-HOTOSM Egypt,hotosm_egy,"[ ""egy"" ]","41",Egypt
-HOTOSM United Kingdom,hotosm_gbr,"[ ""gbr"" ]","42",United Kingdom
-HOTOSM Luxembourg,hotosm_lux,"[ ""lux"" ]","43",Luxembourg
-HOTOSM Gabon,hotosm_gab,"[ ""gab"" ]","44",Gabon
-HOTOSM Guernsey,hotosm_ggy,"[ ""ggy"" ]","46",Guernsey
-HOTOSM Jersey,hotosm_jey,"[ ""jey"" ]","47",Jersey
-HOTOSM Turks and Caicos Islands,hotosm_tca,"[ ""tca"" ]","49",Turks and Caicos Islands
-HOTOSM Myanmar,hotosm_mmr,"[ ""mmr"" ]","52",Myanmar
-HOTOSM Benin,hotosm_ben,"[ ""ben"" ]","53",Benin
-HOTOSM Suriname,hotosm_sur,"[ ""sur"" ]","54",Suriname
-HOTOSM Democratic Republic of the Congo,hotosm_cod,"[ ""cod"" ]","55",Democratic Republic of the Congo
-HOTOSM Niger,hotosm_niger,"[ ""ner"" ]","56",Niger
-HOTOSM Cameroon,hotosm_cmr,"[ ""cmr"" ]","57",Cameroon
-HOTOSM Netherlands,hotosm_nld,"[ ""nld"" ]","58",Netherlands
-HOTOSM Grenada,hotosm_grd,"[ ""grd"" ]","59",Grenada
-HOTOSM Guyana,hotosm_guy,"[ ""guy"" ]","64",Guyana
-HOTOSM Saint Lucia,hotosm_lca,"[ ""lca"" ]","65",Saint Lucia
-HOTOSM Timor-Leste,hotosm_tls,"[ ""tls"" ]","72",Timor-Leste
-HOTOSM Montserrat,hotosm_msr,"[ ""msr"" ]","73",Montserrat
-HOTOSM Ireland And Northern Ireland,hotosm_irl,"[ ""irl"" ]","76",Ireland And Northern Ireland
-HOTOSM Saint Kitts and Nevis,hotosm_kna,"[ ""kna"" ]","82",Saint Kitts and Nevis
-HOTOSM Algeria,hotosm_dza,"[ ""dza"" ]","77",Algeria
-HOTOSM Oman,hotosm_omn,"[ ""omn"" ]","78",Oman
-HOTOSM Tunisia,hotosm_tun,"[ ""tun"" ]","79",Tunisia
-HOTOSM Puerto Rico,hotosm_pri,"[ ""pri"" ]","80",Puerto Rico
-HOTOSM Saint Barthélemy,hotosm_blm,"[ ""blm"" ]","81",Saint Barthélemy
-HOTOSM San Marino,hotosm_smr,"[ ""smr"" ]","84",San Marino
-HOTOSM Central African Republic,hotosm_caf,"[ ""caf"" ]","85",Central African Republic
-HOTOSM State of Palestine,hotosm_pse,"[ ""pse"" ]","86",State of Palestine
-HOTOSM Andorra,hotosm_and,"[ ""and"" ]","88",Andorra
-HOTOSM Cook Islands,hotosm_cok,"[ ""cok"" ]","89",Cook Islands
-HOTOSM South Georgia and the South Sandwich Islands,hotosm_sgs,"[ ""sgs"" ]","91",South Georgia and the South Sandwich Islands
-HOTOSM Svalbard and Jan Mayen Islands,hotosm_sjm,"[ ""sjm"" ]","92",Svalbard and Jan Mayen Islands
-HOTOSM Somalia,hotosm_som,"[ ""som"" ]","93",Somalia
-HOTOSM United States Virgin Islands,hotosm_vir,"[ ""vir"" ]","94",United States Virgin Islands
-HOTOSM Pakistan,hotosm_pak,"[ ""pak"" ]","95",Pakistan
-HOTOSM Namibia,hotosm_nam,"[ ""nam"" ]","96",Namibia
-HOTOSM Nicaragua,hotosm_nic,"[ ""nic"" ]","97",Nicaragua
-HOTOSM Eritrea,hotosm_eri,"[ ""eri"" ]","98",Eritrea
-HOTOSM Indonesia,hotosm_idn,"[ ""idn"" ]","99",Indonesia
-HOTOSM Finland,hotosm_fin,"[ ""fin"" ]","101",Finland
-HOTOSM New Caledonia,hotosm_ncl,"[ ""ncl"" ]","102",New Caledonia
-HOTOSM Pitcairn Islands,hotosm_pcn,"[ ""pcn"" ]","103",Pitcairn Islands
-HOTOSM South Sudan,hotosm_ssd,"[ ""ssd"" ]","104",South Sudan
-HOTOSM Italy,hotosm_ita,"[ ""ita"" ]","105",Italy
-HOTOSM Sweden,hotosm_swe,"[ ""swe"" ]","106",Sweden
-HOTOSM Isle Of Man,hotosm_imn,"[ ""imn"" ]","107",Isle Of Man
-HOTOSM Russia,hotosm_rus,"[ ""rus"" ]","108",Russia
-HOTOSM Paraguay,hotosm_pry,"[ ""pry"" ]","109",Paraguay
-HOTOSM Cyprus,hotosm_cyp,"[ ""cyp"" ]","110",Cyprus
-HOTOSM New Zealand,hotosm_nzl,"[ ""nzl"" ]","111",New Zealand
-HOTOSM Sri Lanka,hotosm_lka,"[ ""lka"" ]","112",Sri Lanka
-HOTOSM Congo,hotosm_cog,"[ ""cog"" ]","113",Congo
-HOTOSM Ukraine,hotosm_ukr,"[ ""ukr"" ]","114",Ukraine
-HOTOSM Papua New Guinea,hotosm_png,"[ ""png"" ]","115",Papua New Guinea
-HOTOSM Sierra Leone,hotosm_sle,"[ ""sle"" ]","116",Sierra Leone
-HOTOSM Yemen,hotosm_yem,"[ ""yem"" ]","117",Yemen
-HOTOSM South Korea,hotosm_kor,"[ ""kor"" ]","121",South Korea
-HOTOSM Slovenia,hotosm_svn,"[ ""svn"" ]","118",Slovenia
-HOTOSM Equatorial Guinea,hotosm_gnq,"[ ""gnq"" ]","119",Equatorial Guinea
-HOTOSM Solomon Islands,hotosm_slb,"[ ""slb"" ]","120",Solomon Islands
-HOTOSM Sudan,hotosm_sdn,"[ ""sdn"" ]","122",Sudan
-HOTOSM Kenya,hotosm_ken,"[ ""ken"" ]","123",Kenya
-HOTOSM American Oceania,,"[ """" ]","124",American Oceania
-HOTOSM Wallis and Futuna Islands,hotosm_wlf,"[ ""wlf"" ]","126",Wallis and Futuna Islands
-HOTOSM Eswatini,hotosm_swz,"[ ""swz"" ]","127",Eswatini
-HOTOSM Tanzania,hotosm_tza,"[ ""tza"" ]","129",Tanzania
-HOTOSM Togo,hotosm_tgo,"[ ""tgo"" ]","130",Togo
-HOTOSM Turkmenistan,hotosm_tkm,"[ ""tjk"" ]","132",Turkmenistan
-HOTOSM Liberia,hotosm_lbr,"[ ""lbr"" ]","133",Liberia
-HOTOSM Cuba,hotosm_cub,"[ ""cub"" ]","135",Cuba
-HOTOSM Fiji,hotosm_fji,"[ ""fji"" ]","136",Fiji
-HOTOSM Nigeria,hotosm_nga,"[ ""nga"" ]","137",Nigeria
-HOTOSM Mauritania,hotosm_mrt,"[ ""mrt"" ]","138",Mauritania
-HOTOSM Libya,hotosm_lby,"[ ""lby"" ]","139",Libya
-HOTOSM Norway,hotosm_nor,"[ ""nor"" ]","140",Norway
-HOTOSM Panama,hotosm_pan,"[ ""pan"" ]","141",Panama
-HOTOSM Peru,hotosm_per,"[ ""per"" ]","142",Peru
-HOTOSM Poland,hotosm_pol,"[ ""pol"" ]","143",Poland
-HOTOSM Mali,hotosm_mali,"[ ""mli"" ]","144",Mali
-HOTOSM Kosovo,,,"147",Kosovo
-HOTOSM Uruguay,hotosm_ury,"[ ""ury"" ]","149",Uruguay
-HOTOSM Portugal,hotosm_prt,"[ ""prt"" ]","150",Portugal
-HOTOSM Uganda,hotosm_uga,"[ ""uga"" ]","151",Uganda
-HOTOSM Turkey,hotosm_tur,"[ ""tur"" ]","152",Turkey
-HOTOSM Dominican Republic,hotosm_dom,"[ ""dom"" ]","215",Dominican Republic
-HOTOSM Falkland Islands ( Malvinas),hotosm_flk,"[ ""flk"" ]","216",Falkland Islands ( Malvinas)
-HOTOSM Azerbaijan,hotosm_aze,"[ ""aze"" ]","153",Azerbaijan
-HOTOSM Bhutan,hotosm_btn,"[ ""btn"" ]","154",Bhutan
-HOTOSM Afghanistan,hotosm_afg,"[ ""afg"" ]","155",Afghanistan
-HOTOSM Honduras,hotosm_hnd,"[ ""hnd"" ]","156",Honduras
-HOTOSM Albania,hotosm_alb,"[ ""alb"" ]","157",Albania
-HOTOSM Angola,hotosm_ago,"[ ""ago"" ]","158",Angola
-HOTOSM Argentina,hotosm_arg,"[ ""arg"" ]","159",Argentina
-HOTOSM Liechtenstein,hotosm_lie,"[ ""lie"" ]","160",Liechtenstein
-HOTOSM Armenia,hotosm_arm,"[ ""arm"" ]","161",Armenia
-HOTOSM Latvia,hotosm_lva,"[ ""lva"" ]","162",Latvia
-HOTOSM Austria,hotosm_aut,"[ ""aut"" ]","163",Austria
-HOTOSM Romania,hotosm_rou,"[ ""rou"" ]","164",Romania
-HOTOSM Morocco,hotosm_mar,"[ ""mar"" ]","165",Morocco
-HOTOSM French Southern and Antarctic Territories,hotosm_atf,"[ ""atf"" ]","166",French Southern and Antarctic Territories
-HOTOSM Belarus,hotosm_blr,"[ ""blr"" ]","167",Belarus
-HOTOSM Rwanda,hotosm_rwa,"[ ""rwa"" ]","168",Rwanda
-HOTOSM Belgium,hotosm_bel,"[ ""bel"" ]","170",Belgium
-HOTOSM Philippines,hotosm_phl,"[ ""phl"" ]","171",Philippines
-HOTOSM Zambia,hotosm_zmb,"[ ""zmb"" ]","172",Zambia
-HOTOSM Israel,hotosm_isr,"[ ""isr"" ]","173",Israel
-HOTOSM Moldova,hotosm_mda,"[ ""mda"" ]","174",Moldova
-HOTOSM Bosnia and Herzegovina,hotosm_bih,"[ ""bih"" ]","175",Bosnia and Herzegovina
-HOTOSM Guinea Bissau,hotosm_gnb,"[ ""gnb"" ]","176",Guinea Bissau
-HOTOSM Botswana,hotosm_bwa,"[ ""bwa"" ]","177",Botswana
-HOTOSM Zimbabwe,hotosm_zwe,"[ ""zwe"" ]","178",Zimbabwe
-HOTOSM Bulgaria,hotosm_bgr,"[ ""bgr"" ]","179",Bulgaria
-HOTOSM Lesotho,hotosm_lso,"[ ""lso"" ]","180",Lesotho
-HOTOSM Venezuela,hotosm_ven,"[ ""ven"" ]","181",Venezuela
-HOTOSM Colombia,hotosm_col,"[ ""col"" ]","182",Colombia
-HOTOSM Burkina Faso,hotosm_bfa,"[ ""bfa"" ]","183",Burkina Faso
-HOTOSM Costa Rica,hotosm_cri,"[ ""cri"" ]","184",Costa Rica
-HOTOSM Burundi,hotosm_bdi,"[ ""bdi"" ]","185",Burundi
-HOTOSM Cambodia,hotosm_khm,"[ ""khm"" ]","186",Cambodia
-HOTOSM Czech Republic,hotosm_cze,"[ ""cze"" ]","187",Czech Republic
-HOTOSM Ecuador,hotosm_ecu,"[ ""ecu"" ]","188",Ecuador
-HOTOSM Estonia,hotosm_est,"[ ""est"" ]","189",Estonia
-HOTOSM Greece,hotosm_grc,"[ ""grc"" ]","190",Greece
-HOTOSM Guatemala,hotosm_gtm,"[ ""gtm"" ]","192",Guatemala
-HOTOSM Iran,hotosm_irn,"[ ""irn"" ]","193",Iran
-HOTOSM Viet Nam,hotosm_vnm,"[ ""vnm"" ]","195",Viet Nam
-HOTOSM North Macedonia,hotosm_mkd,"[ ""mkd"" ]","196",North Macedonia
-HOTOSM Gambia,hotosm_gmb,"[ ""gmb"" ]","197",Gambia
-HOTOSM Lebanon,hotosm_lbn,"[ ""lbn"" ]","198",Lebanon
-HOTOSM Lithuania,hotosm_ltu,"[ ""ltu"" ]","199",Lithuania
-HOTOSM Haiti,hotosm_hti,"[ ""hti"" ]","200",Haiti
-HOTOSM Malawi,hotosm_mwi,"[ ""mwi"" ]","202",Malawi
-HOTOSM Mexico,hotosm_mex,"[ ""mex"" ]","203",Mexico
-HOTOSM Monaco,hotosm_mco,"[ ""mco"" ]","204",Monaco
-HOTOSM Montenegro,hotosm_mne,"[ ""mne"" ]","205",Montenegro
-HOTOSM Mozambique,hotosm_moz,"[ ""moz"" ]","206",Mozambique
-HOTOSM Tuvalu,hotosm_tuv,"[ ""tuv"" ]","208",Tuvalu
-HOTOSM Chile,hotosm_chl,"[ ""chl"" ]","209",Chile
-HOTOSM Serbia,hotosm_srb,"[ ""srb"" ]","210",Serbia
-HOTOSM Seychelles,hotosm_syc,"[ ""syc"" ]","211",Seychelles
-HOTOSM Slovakia,hotosm_svk,"[ ""svk"" ]","212",Slovakia
-HOTOSM Côte d'Ivoire,hotosm_civ,"[ ""civ"" ]","213",Côte d'Ivoire
-HOTOSM Singaore,hotosm_sgp,"[ ""sgp"" ]","214",Singaore
-HOTOSM South Africa,hotosm_zaf,"[ ""zaf"" ]","221",South Africa
-HOTOSM United Arab Emirates,hotosm_are,"[ ""are"" ]","222",United Arab Emirates
-HOTOSM Kuwait,hotosm_kwt,"[ ""kwt"" ]","226",Kuwait
-HOTOSM France,hotosm_fra,"[ ""fra"" ]","223",France
-HOTOSM Brunei Darussalam,hotosm_brn,"[ ""brn"" ]","224",Brunei Darussalam
-HOTOSM Qatar,hotosm_qat,"[ ""qat"" ]","227",Qatar
-HOTOSM North Korea,hotosm_prk,"[ ""prk"" ]","228",North Korea
-HOTOSM Malaysia,hotosm_mys,"[ ""mys"" ]","229",Malaysia
-HOTOSM Tajikistan,hotosm_tjk,"[ ""tjk"" ]","230",Tajikistan
-HOTOSM Uzbekistan,hotosm_uzb,"[ ""uzb"" ]","231",Uzbekistan
-HOTOSM Kazakhstan,hotosm_kaz,"[ ""kaz"" ]","232",Kazakhstan
-HOTOSM Senegal,hotosm_sen,"[ ""sen"" ]","233",Senegal
-HOTOSM United States,hotosm_usa,"[ ""usa"" ]","234",United States
-HOTOSM Saudi Arabia,hotosm_sau,"[ ""sau"" ]","235",Saudi Arabia
-HOTOSM Syria,hotosm_syr,"[ ""syr"" ]","236",Syria
-HOTOSM Iraq,hotosm_irq,"[ ""irq"" ]","238",Iraq
-HOTOSM Jordan,hotosm_jor,"[ ""jor"" ]","239",Jordan
+cid,description,iso_3,dataset_name,locations
+168,Afghanistan,AFG,hotosm_afg,{afg}
+170,Albania,ALB,hotosm_alb,{alb}
+100,Algeria,DZA,hotosm_dza,{dza}
+142,American Oceania,,,"{""""}"
+108,Andorra,AND,hotosm_and,{and}
+171,Angola,AGO,hotosm_ago,{ago}
+37,Anguilla,AIA,hotosm_aia,{aia}
+66,Antarctica,ATA,hotosm_ata,{ata}
+57,Antigua and Barbuda,ATG,hotosm_atg,{atg}
+172,Argentina,ARG,hotosm_arg,{arg}
+174,Armenia,ARM,hotosm_arm,{arm}
+68,Aruba,ABW,hotosm_abw,{abw}
+56,Australia,AUS,hotosm_aus,{aus}
+176,Austria,AUT,hotosm_aut,{aut}
+166,Azerbaijan,AZE,hotosm_aze,{aze}
+4,Bahamas,BHS,hotosm_bhs,{bhs}
+2,Bahrain,BHR,hotosm_bhr,{bhr}
+54,Bangladesh,BGD,hotosm_bgd,{bgd}
+69,Barbados,BRB,hotosm_brb,{brb}
+180,Belarus,BLR,hotosm_blr,{blr}
+182,Belgium,BEL,hotosm_bel,{bel}
+43,Belize,BLZ,hotosm_blz,{blz}
+87,Benin,BEN,hotosm_ben,{ben}
+29,Bermuda,BMU,hotosm_bmu,{bmu}
+167,Bhutan,BTN,hotosm_btn,{btn}
+3,Bolivia,BOL,hotosm_bol,{bol}
+58,"Bonaire, Sint Eustatius and Saba",BES,hotosm_bes,{bes}
+187,Bosnia and Herzegovina,BIH,hotosm_bih,{bih}
+189,Botswana,BWA,hotosm_bwa,{bwa}
+38,Bouvet Island,BVT,hotosm_bvt,{bvt}
+77,Brazil,BRA,hotosm_bra,{bra}
+30,British Indian Ocean Territory,IOT,hotosm_iot,{iot}
+42,British Virgin Islands,VGB,hotosm_vgb,{vgb}
+227,Brunei Darussalam,BRN,hotosm_brn,{brn}
+191,Bulgaria,BGR,hotosm_bgr,{bgr}
+195,Burkina Faso,BFA,hotosm_bfa,{bfa}
+197,Burundi,BDI,hotosm_bdi,{bdi}
+27,Cabo Verde,CPV,hotosm_cpv,{cpv}
+198,Cambodia,KHM,hotosm_khm,{khm}
+91,Cameroon,CMR,hotosm_cmr,{cmr}
+59,Canada,CAN,hotosm_can,{can}
+34,Cayman Islands,CYM,hotosm_cym,{cym}
+106,Central African Republic,CAF,hotosm_caf,{caf}
+53,Chad,TCD,hotosm_tcd,{tcd}
+217,Chile,CHL,hotosm_chl,{chl}
+63,China,CHN,hotosm_chn,{chn}
+76,"China, Hong Kong Special Administrative Region",HKG,hotosm_hkg,{hkg}
+61,"China, Macao Special Administrative Region",MAC,hotosm_mac,{mac}
+194,Colombia,COL,hotosm_col,{col}
+28,Comoros,COM,hotosm_com,{com}
+131,Congo,COG,hotosm_cog,{cog}
+109,Cook Islands,COK,hotosm_cok,{cok}
+196,Costa Rica,CRI,hotosm_cri,{cri}
+221,Côte d'Ivoire,CIV,hotosm_civ,{civ}
+67,Croatia,HRV,hotosm_hrv,{hrv}
+149,Cuba,CUB,hotosm_cub,{cub}
+44,Curaçao,CUW,hotosm_cuw,{cuw}
+128,Cyprus,CYP,hotosm_cyp,{cyp}
+199,Czech Republic,CZE,hotosm_cze,{cze}
+89,Democratic Republic of the Congo,COD,hotosm_cod,{cod}
+16,Denmark,DNK,hotosm_dnk,{dnk}
+48,Djibouti,DJI,hotosm_dji,{dji}
+33,Dominica,DMA,hotosm_dma,{dma}
+164,Dominican Republic,DOM,hotosm_dom,{dom}
+200,Ecuador,ECU,hotosm_ecu,{ecu}
+79,Egypt,EGY,hotosm_egy,{egy}
+74,El Salvador,SLV,hotosm_slv,{slv}
+138,Equatorial Guinea,GNQ,hotosm_gnq,{gnq}
+117,Eritrea,ERI,hotosm_eri,{eri}
+201,Estonia,EST,hotosm_est,{est}
+144,Eswatini,SWZ,hotosm_swz,{swz}
+75,Ethiopia,ETH,hotosm_eth,{eth}
+165,Falkland Islands ( Malvinas),FLK,hotosm_flk,{flk}
+70,Faroe Islands,FRO,hotosm_fro,{fro}
+150,Fiji,FJI,hotosm_fji,{fji}
+119,Finland,FIN,hotosm_fin,{fin}
+226,France,FRA,hotosm_fra,{fra}
+65,French Guiana,GUF,hotosm_guf,{guf}
+10,French Polynesia,PYF,hotosm_pyf,{pyf}
+179,French Southern and Antarctic Territories,ATF,hotosm_atf,{atf}
+82,Gabon,GAB,hotosm_gab,{gab}
+207,Gambia,GMB,hotosm_gmb,{gmb}
+1,Georgia,GEO,hotosm_geo,{geo}
+50,Germany,DEU,hotosm_deu,{deu}
+40,Ghana,GHA,hotosm_gha,{gha}
+202,Greece,GRC,hotosm_grc,{grc}
+45,Greenland,GRL,hotosm_grl,{grl}
+93,Grenada,GRD,hotosm_grd,{grd}
+62,Guadeloupe,GLP,hotosm_glp,{glp}
+203,Guatemala,GTM,hotosm_gtm,{gtm}
+83,Guernsey,GGY,hotosm_ggy,{ggy}
+39,Guinea,GIN,hotosm_gin,{gin}
+188,Guinea Bissau,GNB,hotosm_gnb,{gnb}
+94,Guyana,GUY,hotosm_guy,{guy}
+210,Haiti,HTI,hotosm_hti,{hti}
+55,Holy See (Vatican City State),VAT,hotosm_vat,{vat}
+169,Honduras,HND,hotosm_hnd,{hnd}
+14,Hungary,HUN,hotosm_hun,{hun}
+41,Iceland,ISL,hotosm_isl,{isl}
+7,India,IND,hotosm_ind,{ind}
+118,Indonesia,IDN,hotosm_idn,{idn}
+204,Iran,IRN,hotosm_irn,{irn}
+238,Iraq,IRQ,hotosm_irq,{irq}
+98,Ireland And Northern Ireland,IRL,hotosm_irl,{irl}
+125,Isle Of Man,IMN,hotosm_imn,{imn}
+185,Israel,ISR,hotosm_isr,{isr}
+123,Italy,ITA,hotosm_ita,{ita}
+26,Jamaica,JAM,hotosm_jam,{jam}
+22,Japan,JPN,hotosm_jpn,{jpn}
+84,Jersey,JEY,hotosm_jey,{jey}
+239,Jordan,JOR,hotosm_jor,{jor}
+233,Kazakhstan,KAZ,hotosm_kaz,{kaz}
+141,Kenya,KEN,hotosm_ken,{ken}
+46,Kiribati,KIR,hotosm_kir,{kir}
+159,Kosovo,,,
+225,Kuwait,KWT,hotosm_kwt,{kwt}
+11,Kyrgyzstan,KGZ,hotosm_kgz,{kgz}
+78,Laos,LAO,hotosm_lao,{lao}
+175,Latvia,LVA,hotosm_lva,{lva}
+208,Lebanon,LBN,hotosm_lbn,{lbn}
+192,Lesotho,LSO,hotosm_lso,{lso}
+148,Liberia,LBR,hotosm_lbr,{lbr}
+153,Libya,LBY,hotosm_lby,{lby}
+173,Liechtenstein,LIE,hotosm_lie,{lie}
+209,Lithuania,LTU,hotosm_ltu,{ltu}
+81,Luxembourg,LUX,hotosm_lux,{lux}
+72,Madagascar,MDG,hotosm_mdg,{mdg}
+211,Malawi,MWI,hotosm_mwi,{mwi}
+230,Malaysia,MYS,hotosm_mys,{mys}
+23,Maldives,MDV,hotosm_mdv,{mdv}
+158,Mali,MLI,hotosm_mli,{mli}
+71,Malta,MLT,hotosm_mlt,{mlt}
+60,Marshall Islands,MHL,hotosm_mhl,{mhl}
+49,Martinique,MTQ,hotosm_mtq,{mtq}
+152,Mauritania,MRT,hotosm_mrt,{mrt}
+64,Mauritius,MUS,hotosm_mus,{mus}
+31,Mayotte,MYT,hotosm_myt,{myt}
+212,Mexico,MEX,hotosm_mex,{mex}
+47,Micronesia,FSM,hotosm_fsm,{fsm}
+186,Moldova,MDA,hotosm_mda,{mda}
+213,Monaco,MCO,hotosm_mco,{mco}
+15,Mongolia,MNG,hotosm_mng,{mng}
+214,Montenegro,MNE,hotosm_mne,{mne}
+97,Montserrat,MSR,hotosm_msr,{msr}
+178,Morocco,MAR,hotosm_mar,{mar}
+215,Mozambique,MOZ,hotosm_moz,{moz}
+86,Myanmar,MMR,hotosm_mmr,{mmr}
+115,Namibia,NAM,hotosm_nam,{nam}
+32,Nauru,NRU,hotosm_nru,{nru}
+73,Nepal,NPL,hotosm_npl,{npl}
+92,Netherlands,NLD,hotosm_nld,{nld}
+120,New Caledonia,NCL,hotosm_ncl,{ncl}
+129,New Zealand,NZL,hotosm_nzl,{nzl}
+116,Nicaragua,NIC,hotosm_nic,{nic}
+90,Niger,NER,hotosm_ner,{ner}
+151,Nigeria,NGA,hotosm_nga,{nga}
+17,Niue,NIU,hotosm_niu,{niu}
+229,North Korea,PRK,hotosm_prk,{prk}
+206,North Macedonia,MKD,hotosm_mkd,{mkd}
+154,Norway,NOR,hotosm_nor,{nor}
+9,Nyiragongo volcanic eruption,,hotosm_volcano_nyiragongo,{cod}
+101,Oman,OMN,hotosm_omn,{omn}
+114,Pakistan,PAK,hotosm_pak,{pak}
+8,Palau,PLW,hotosm_plw,{plw}
+155,Panama,PAN,hotosm_pan,{pan}
+133,Papua New Guinea,PNG,hotosm_png,{png}
+127,Paraguay,PRY,hotosm_pry,{pry}
+156,Peru,PER,hotosm_per,{per}
+183,Philippines,PHL,hotosm_phl,{phl}
+121,Pitcairn Islands,PCN,hotosm_pcn,{pcn}
+157,Poland,POL,hotosm_pol,{pol}
+161,Portugal,PRT,hotosm_prt,{prt}
+103,Puerto Rico,PRI,hotosm_pri,{pri}
+228,Qatar,QAT,hotosm_qat,{qat}
+6,Reunion,REU,hotosm_reu,{reu}
+177,Romania,ROU,hotosm_rou,{rou}
+126,Russia,RUS,hotosm_rus,{rus}
+181,Rwanda,RWA,hotosm_rwa,{rwa}
+104,Saint Barthélemy,BLM,hotosm_blm,{blm}
+52,"Saint Helena, Ascension and Tristan da Cunha",SHN,hotosm_shn,{shn}
+99,Saint Kitts and Nevis,KNA,hotosm_kna,{kna}
+95,Saint Lucia,LCA,hotosm_lca,{lca}
+18,Saint Martin and Sint Maarten,,hotosm_maf_sxm,"{maf,sxm}"
+19,Saint Vincent And The Grenadines,VCT,hotosm_vct,{vct}
+13,Samoa,WSM,hotosm_wsm,{wsm}
+105,San Marino,SMR,hotosm_smr,{smr}
+51,Sao Tome And Principe,STP,hotosm_stp,{stp}
+236,Saudi Arabia,SAU,hotosm_sau,{sau}
+234,Senegal,SEN,hotosm_sen,{sen}
+218,Serbia,SRB,hotosm_srb,{srb}
+219,Seychelles,SYC,hotosm_syc,{syc}
+134,Sierra Leone,SLE,hotosm_sle,{sle}
+222,Singaore,SGP,hotosm_sgp,{sgp}
+220,Slovakia,SVK,hotosm_svk,{svk}
+137,Slovenia,SVN,hotosm_svn,{svn}
+139,Solomon Islands,SLB,hotosm_slb,{slb}
+112,Somalia,SOM,hotosm_som,{som}
+223,South Africa,ZAF,hotosm_zaf,{zaf}
+110,South Georgia and the South Sandwich Islands,SGS,hotosm_sgs,{sgs}
+136,South Korea,KOR,hotosm_kor,{kor}
+122,South Sudan,SSD,hotosm_ssd,{ssd}
+5,Spain,ESP,hotosm_esp,{esp}
+130,Sri Lanka,LKA,hotosm_lka,{lka}
+107,State of Palestine,PSE,hotosm_pse,{pse}
+140,Sudan,SDN,hotosm_sdn,{sdn}
+88,Suriname,SUR,hotosm_sur,{sur}
+111,Svalbard and Jan Mayen Islands,SJM,hotosm_sjm,{sjm}
+124,Sweden,SWE,hotosm_swe,{swe}
+21,Switzerland,CHE,hotosm_che,{che}
+237,Syria,SYR,hotosm_syr,{syr}
+36,Taiwan,TWN,hotosm_twn,{twn}
+231,Tajikistan,TJK,hotosm_tjk,{tjk}
+145,Tanzania,TZA,hotosm_tza,{tza}
+20,Thailand,THA,hotosm_tha,{tha}
+96,Timor-Leste,TLS,hotosm_tls,{tls}
+146,Togo,TGO,hotosm_tgo,{tgo}
+35,Tokelau,TKL,hotosm_tkl,{tkl}
+24,Tonga,TON,hotosm_ton,{ton}
+12,Trinidad and Tobago,TTO,hotosm_tto,{tto}
+102,Tunisia,TUN,hotosm_tun,{tun}
+163,Turkey,TUR,hotosm_tur,{tur}
+147,Turkmenistan,TKM,hotosm_tkm,{tjk}
+85,Turks and Caicos Islands,TCA,hotosm_tca,{tca}
+216,Tuvalu,TUV,hotosm_tuv,{tuv}
+162,Uganda,UGA,hotosm_uga,{uga}
+132,Ukraine,UKR,hotosm_ukr,{ukr}
+224,United Arab Emirates,ARE,hotosm_are,{are}
+80,United Kingdom,GBR,hotosm_gbr,{gbr}
+235,United States,USA,hotosm_usa,{usa}
+113,United States Virgin Islands,VIR,hotosm_vir,{vir}
+160,Uruguay,URY,hotosm_ury,{ury}
+232,Uzbekistan,UZB,hotosm_uzb,{uzb}
+25,Vanuatu,VUT,hotosm_vut,{vut}
+193,Venezuela,VEN,hotosm_ven,{ven}
+205,Viet Nam,VNM,hotosm_vnm,{vnm}
+143,Wallis and Futuna Islands,WLF,hotosm_wlf,{wlf}
+135,Yemen,YEM,hotosm_yem,{yem}
+184,Zambia,ZMB,hotosm_zmb,{zmb}
+190,Zimbabwe,ZWE,hotosm_zwe,{zwe}
