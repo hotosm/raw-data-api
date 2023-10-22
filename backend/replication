@@ -107,7 +107,7 @@ def compute_database_date(conn, prefix):
 
     LOG.debug("Using way id %d for timestamp lookup", osmid)
     # Get the way from the API to find the timestamp when it was created.
-    url = "https://www.openstreetmap.org/api/0.6/way/{}/1".format(osmid)
+    url = "https://api.openstreetmap.org/api/0.6/way/{}/1".format(osmid)
     headers = {"User-Agent": "osm2pgsql-update", "Accept": "application/json"}
     with urlrequest.urlopen(urlrequest.Request(url, headers=headers)) as response:
         data = json.loads(response.read().decode("utf-8"))
