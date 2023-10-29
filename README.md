@@ -179,7 +179,10 @@ py.test -k test function name
 
 ## Contribution & Development
 
-see [CONTRIBUTING](./docs/src/contributing.md)
+Learn about current priorities and work going through Roadmap  & see here  [CONTRIBUTING](./docs/src/contributing.md)
+
+## Roadmap
+  https://github.com/orgs/hotosm/projects/29 
 
 ## License
 
@@ -188,3 +191,5 @@ see [LICENSE](https://github.com/hotosm/raw-data-api/blob/develop/LICENSE)
 ## Authors
 
 Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/raw-data-api/graphs/contributors)
+
+
