@@ -72,6 +72,10 @@ ALLOW_BIND_ZIP_FILTER = os.environ.get("ALLOW_BIND_ZIP_FILTER") or config.get(
     "API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=None
 )
 
+ENABLE_TILES = os.environ.get("ENABLE_TILES") or config.get(
+    "API_CONFIG", "ENABLE_TILES", fallback=None
+)
+
 ####################
 
 ### EXPORT_UPLOAD CONFIG BLOCK

@@ -34,7 +34,12 @@ from geojson import FeatureCollection
 from psycopg2 import OperationalError, connect
 from psycopg2.extras import DictCursor
 
-from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
+from src.config import (
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY,
+    BUCKET_NAME,
+    ENABLE_TILES,
+)
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
@@ -321,18 +326,29 @@ class RawData:
         with open(query_path, "w", encoding="UTF-8") as file:
             file.write(query)
         # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
-        if outputtype == RawDataOutputType.MBTILES.value:
-            cmd = """ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                min_zoom=params.min_zoom,
-                max_zoom=params.max_zoom,
-                export_path=dump_temp_path,
-                host=db_items.get("host"),
-                username=db_items.get("user"),
-                db=db_items.get("dbname"),
-                password=db_items.get("password"),
-                pg_sql_select=query_path,
-            )
-            run_ogr2ogr_cmd(cmd)
+        if ENABLE_TILES:
+            if outputtype == RawDataOutputType.MBTILES.value:
+                if params.min_zoom and params.max_zoom:
+                    cmd = """ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
+                        min_zoom=params.min_zoom,
+                        max_zoom=params.max_zoom,
+                        export_path=dump_temp_path,
+                        host=db_items.get("host"),
+                        username=db_items.get("user"),
+                        db=db_items.get("dbname"),
+                        password=db_items.get("password"),
+                        pg_sql_select=query_path,
+                    )
+                else:
+                    cmd = """ogr2ogr -overwrite -f MBTILES  -dsco ZOOM_LEVEL_AUTO=YES {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
+                        export_path=dump_temp_path,
+                        host=db_items.get("host"),
+                        username=db_items.get("user"),
+                        db=db_items.get("dbname"),
+                        password=db_items.get("password"),
+                        pg_sql_select=query_path,
+                    )
+                run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.FLATGEOBUF.value:
             cmd = """ogr2ogr -overwrite -f FLATGEOBUF {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress VERIFY_BUFFERS=NO""".format(
@@ -469,12 +485,14 @@ class RawData:
         )
 
     @staticmethod
-    def to_geojson_raw(results):
-        """Responsible for geojson writing"""
-        features = [orjson.loads(row[0]) for row in results]
-        feature_collection = FeatureCollection(features=features)
-
-        return feature_collection
+    def geojson2tiles(geojson_path, tile_path, tile_layer_name):
+        """Responsible for geojson to tiles"""
+        cmd = """tippecanoe -zg --projection=EPSG:4326 -o {tile_output_path} -l {tile_layer_name} {geojson_input_path} --force""".format(
+            tile_output_path=tile_path,
+            tile_layer_name=tile_layer_name,
+            geojson_input_path=geojson_path,
+        )
+        run_ogr2ogr_cmd(cmd)
 
     def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
@@ -500,12 +518,47 @@ class RawData:
             # Create a exports directory because it does not exist
             os.makedirs(working_dir)
         # create file path with respect to of output type
+
         dump_temp_file_path = os.path.join(
             working_dir,
             f"{self.params.file_name if self.params.file_name else 'Export'}.{output_type.lower()}",
         )
         try:
             # currently we have only geojson binding function written other than that we have depend on ogr
+            if ENABLE_TILES:
+                if output_type == RawDataOutputType.PMTILES.value:
+                    geojson_path = os.path.join(
+                        working_dir,
+                        f"{self.params.file_name if self.params.file_name else 'Export'}.geojson",
+                    )
+                    RawData.query2geojson(
+                        self.con,
+                        raw_currentdata_extraction_query(
+                            self.params,
+                            g_id=grid_id,
+                            c_id=country,
+                            country_export=country_export,
+                        ),
+                        geojson_path,
+                    )
+                    RawData.geojson2tiles(
+                        geojson_path, dump_temp_file_path, self.params.file_name
+                    )
+                if output_type == RawDataOutputType.MBTILES.value:
+                    RawData.ogr_export(
+                        query=raw_currentdata_extraction_query(
+                            self.params,
+                            grid_id,
+                            country,
+                            ogr_export=True,
+                            country_export=country_export,
+                        ),
+                        outputtype=output_type,
+                        dump_temp_path=dump_temp_file_path,
+                        working_dir=working_dir,
+                        params=self.params,
+                    )  # uses ogr export to export
+
             if output_type == RawDataOutputType.GEOJSON.value:
                 RawData.query2geojson(
                     self.con,
@@ -513,12 +566,11 @@ class RawData:
                         self.params,
                         g_id=grid_id,
                         c_id=country,
-                        geometry_dump=geometry_dump,
                         country_export=country_export,
                     ),
                     dump_temp_file_path,
                 )  # uses own conversion class
-            elif output_type == RawDataOutputType.SHAPEFILE.value:
+            if output_type == RawDataOutputType.SHAPEFILE.value:
                 (
                     point_query,
                     line_query,
@@ -542,13 +594,12 @@ class RawData:
                     if self.params.file_name
                     else "Export",
                 )  # using ogr2ogr
-            else:
+            if output_type in ["fgb", "gpkg", "sql", "csv"]:
                 RawData.ogr_export(
                     query=raw_currentdata_extraction_query(
                         self.params,
                         grid_id,
                         country,
-                        geometry_dump,
                         ogr_export=True,
                         country_export=country_export,
                     ),
@@ -613,24 +664,7 @@ class RawData:
 
     def extract_plain_geojson(self):
         """Gets geojson for small area : Performs direct query with/without geometry"""
-        query = raw_extract_plain_geojson(self.params, inspect_only=True)
-        self.cur.execute(query)
-        analyze_fetched = self.cur.fetchall()
-        rows = list(
-            filter(lambda x: x.startswith("rows"), analyze_fetched[0][0].split())
-        )
-        approx_returned_rows = rows[0].split("=")[1]
-        logging.debug("Approximated query output : %s", approx_returned_rows)
-
-        if int(approx_returned_rows) > 500:
-            self.cur.close()
-            RawData.close_con(self.con)
-            raise HTTPException(
-                status_code=500,
-                detail=f"Query returned {approx_returned_rows} rows (This endpoint supports upto 1000) , Use /current-snapshot/ for larger extraction",
-            )
-
-        extraction_query = raw_extract_plain_geojson(self.params)
+        extraction_query = raw_currentdata_extraction_query(self.params)
         features = []
 
         with self.con.cursor(
@@ -686,11 +720,12 @@ class S3FileTransfer:
         sample function call :
             S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test")"""
         file_name = f"{file_name}.{file_suffix}"
+        logging.debug("Started Uploading %s from %s", file_name, file_path)
         # instantiate upload
         start_time = time.time()
 
         try:
-            self.s_3.upload_file(file_path, BUCKET_NAME, file_name)
+            self.s_3.upload_file(str(file_path), BUCKET_NAME, str(file_name))
         except Exception as ex:
             logging.error(ex)
             raise ex

@@ -1,5 +1,6 @@
 import os
 import pathlib
+import re
 import shutil
 import time
 import zipfile
@@ -12,6 +13,7 @@ from src.app import RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
+from src.config import ENABLE_TILES
 from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
 from src.config import logger as logging
 from src.query_builder.builder import format_file_name_str
@@ -36,6 +38,13 @@ def process_raw_data(self, params):
             if params.output_type
             else RawDataOutputType.GEOJSON.value
         )
+        if ENABLE_TILES:
+            if (
+                params.output_type == RawDataOutputType.PMTILES.value
+                or params.output_type == RawDataOutputType.MBTILES.value
+            ):
+                logging.debug("Using STwithin Logic")
+                params.use_st_within = True
         params.file_name = (
             format_file_name_str(params.file_name) if params.file_name else "Export"
         )
@@ -65,15 +74,37 @@ def process_raw_data(self, params):
             logging.debug("Zip Binding Done !")
         else:
             for file_path in pathlib.Path(working_dir).iterdir():
-                upload_file_path = file_path
-                inside_file_size += os.path.getsize(file_path)
-                break  # only take one file inside dir , if contains many it should be inside zip
+                if file_path.is_file() and file_path.name.endswith(
+                    params.output_type.lower()
+                ):
+                    upload_file_path = file_path
+                    inside_file_size += os.path.getsize(file_path)
+                    break  # only take one file inside dir , if contains many it should be inside zip
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
+            upload_name = exportname if params.uuid else f"Recurring/{exportname}"
+            if exportname.startswith("hotosm_project"):  # TM
+                if not params.uuid:
+                    pattern = r"(hotosm_project_)(\d+)"
+                    match = re.match(pattern, exportname)
+                    if match:
+                        prefix = match.group(1)
+                        project_number = match.group(2)
+                        if project_number:
+                            upload_name = f"TM/{project_number}/{exportname}"
+            elif exportname.startswith("hotosm_"):  # HDX
+                if not params.uuid:
+                    pattern = r"hotosm_([A-Z]{3})_(\w+)"
+                    match = re.match(pattern, exportname)
+                    if match:
+                        iso3countrycode = match.group(1)
+                        if iso3countrycode:
+                            upload_name = f"HDX/{iso3countrycode}/{exportname}"
+
             download_url = file_transfer_obj.upload(
                 upload_file_path,
-                exportname if params.uuid else f"Recurring/{exportname}",
+                upload_name,
                 file_suffix="zip" if bind_zip else params.output_type.lower(),
             )
         else:

@@ -25,6 +25,8 @@
   | GeoPackage     | :heavy_check_mark: |
   | PGDUMP         | :heavy_check_mark: |
   | GeoJSON        | :heavy_check_mark: |
+  | Pmtiles        | :heavy_check_mark: |
+  | Mbtiles        | :heavy_check_mark: |
 
 ## Installation
 
@@ -89,6 +91,9 @@ pip install -r requirements.txt
 Setup the necessary configurations for Raw Data API from [configurations](./docs/src/installation/configurations.md).
 
 Setup config.txt in project root.
+
+## Optional : For Tiles Output
+If you opt for tiles output and have ```ENABLE_TILES : True``` in env variable . Make sure you install [Tippecanoe] (https://github.com/mapbox/tippecanoe)
 
 ### Start the Server
 
