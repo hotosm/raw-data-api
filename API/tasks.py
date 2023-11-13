@@ -1,4 +1,5 @@
 from celery.result import AsyncResult
+from celery.task.control import revoke
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
@@ -35,3 +36,11 @@ def get_task_status(task_id):
         "result": task_result.result if task_result.status == "SUCCESS" else None,
     }
     return JSONResponse(result)
+
+
+@router.get("revoke/{task_id}/")
+@version(1)
+def revoke_task(task_id):
+    revoked_task = revoke(task_id, terminate=True)
+    print(revoked_task)
+    return JSONResponse({"id": task_id, "status": revoked_task})
