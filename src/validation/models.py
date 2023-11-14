@@ -218,39 +218,6 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
         return value
 
 
-class WhereCondition(TypedDict):
-    key: str
-    value: List[str]
-
-
-class OsmFeatureType(Enum):
-    NODES = "nodes"
-    WAYS_LINE = "ways_line"
-    WAYS_POLY = "ways_poly"
-    RELATIONS = "relations"
-
-
-class SnapshotParamsPlain(BaseModel):
-    bbox: Optional[
-        BBox
-    ] = None  # xmin: NumType, ymin: NumType, xmax: NumType, ymax: NumType , srid:4326
-    select: Optional[List[str]] = ["*"]
-    where: List[WhereCondition] = [{"key": "building", "value": ["*"]}]
-    join_by: Optional[JoinFilterType] = JoinFilterType.OR.value
-    look_in: Optional[List[OsmFeatureType]] = ["nodes", "ways_poly"]
-    geometry_type: SupportedGeometryFilters = None
-
-    @validator("select", always=True)
-    def validate_select_statement(cls, value, values):
-        """Validates geom area_m2"""
-        for v in value:
-            if v != "*" and len(v) < 2:
-                raise ValueError(
-                    "length of select attribute must be greater than 2 letters"
-                )
-        return value
-
-
 class SnapshotResponse(BaseModel):
     task_id: str
     track_link: str
