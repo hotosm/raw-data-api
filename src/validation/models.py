@@ -21,7 +21,6 @@ import json
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
-from area import area
 from geojson_pydantic import MultiPolygon, Polygon
 from geojson_pydantic.types import BBox
 from pydantic import BaseModel as PydanticModel
@@ -83,22 +82,6 @@ class SupportedGeometryFilters(Enum):
 class JoinFilterType(Enum):
     OR = "OR"
     AND = "AND"
-
-
-#
-#     "tags": { # no of rows returned
-#       "point" : {"amenity":["shop"]},
-#       "line" : {},
-#       "polygon" : {"key":["value"]},
-#       "all_geometry" : {"building":['yes']}
-#       },
-#     "attributes": { # no of columns / name
-#       "point": [], column
-#       "line" : [],
-#       "polygon" : [],
-#       "all_geometry" : [],
-#       }
-#      }
 
 
 class SQLFilter(BaseModel):
@@ -163,17 +146,6 @@ class RawDataCurrentParamsBase(BaseModel):
         },
     )
 
-    @validator("geometry", always=True)
-    def check_geometry_area(cls, value, values):
-        """Validates geom area_m2"""
-        area_m2 = area(json.loads(value.json()))
-        area_km2 = area_m2 * 1e-6
-        if area_km2 > 30:  # 30 square km
-            raise ValueError(
-                f"""Polygon Area {int(area_km2)} Sq.KM is higher than 30 sqkm , Consider using /snapshot/ for larger area"""
-            )
-        return value
-
     @validator("geometry_type", allow_reuse=True)
     def return_unique_value(cls, value):
         """return unique list"""
@@ -204,18 +176,6 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
                     "Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True"
                 )
             return value
-
-    @validator("geometry", always=True)
-    def check_geometry_area(cls, value, values):
-        """Validates geom area_m2"""
-        area_m2 = area(json.loads(value.json()))
-        area_km2 = area_m2 * 1e-6
-        RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
-        if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
-            raise ValueError(
-                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM"""
-            )
-        return value
 
 
 class SnapshotResponse(BaseModel):

@@ -1,11 +1,12 @@
 from celery.result import AsyncResult
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
 from src.validation.models import SnapshotTaskResponse
 
 from .api_worker import celery
+from .auth import AuthUser, admin_required, login_required
 
 router = APIRouter(prefix="/tasks")
 
@@ -39,7 +40,7 @@ def get_task_status(task_id):
 
 @router.get("/revoke/{task_id}/")
 @version(1)
-def revoke_task(task_id):
+def revoke_task(task_id, user: AuthUser = Depends(login_required)):
     """Revokes task , Terminates if it is executing
 
     Args:
@@ -80,7 +81,7 @@ def ping_workers():
 
 @router.get("/purge/")
 @version(1)
-def discard_all_waiting_tasks():
+def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
     Discards all waiting tasks from the queue
     Returns : Number of tasks discarded
