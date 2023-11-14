@@ -465,15 +465,15 @@ class RawData:
             countries = backend_match[0]
             country_export = True
             logging.debug(f"Using Country Export Mode with id : {countries[0]}")
-        else:
-            if int(geom_area) > int(index_threshold):
-                # this will be applied only when polygon gets bigger we will be slicing index size to search
-                country_query = get_country_id_query(geometry_dump)
-                cur.execute(country_query)
-                result_country = cur.fetchall()
-                countries = [int(f[0]) for f in result_country]
-                logging.debug(f"Intersected Countries : {countries}")
-                cur.close()
+        # else:
+        #     if int(geom_area) > int(index_threshold):
+        #         # this will be applied only when polygon gets bigger we will be slicing index size to search
+        #         country_query = get_country_id_query(geometry_dump)
+        #         cur.execute(country_query)
+        #         result_country = cur.fetchall()
+        #         countries = [int(f[0]) for f in result_country]
+        #         logging.debug(f"Intersected Countries : {countries}")
+        #         cur.close()
         return (
             g_id,
             geometry_dump,

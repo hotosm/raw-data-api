@@ -213,7 +213,7 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
         RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
             raise ValueError(
-                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
+                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM"""
             )
         return value
 
