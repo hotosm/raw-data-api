@@ -444,7 +444,7 @@ def get_osm_current_snapshot_as_file(
 def get_osm_current_snapshot_as_plain_geojson(
     request: Request, params: RawDataCurrentParamsBase
 ):
-    """Generates the Plain geojson for the polygon within 50 Sqkm and returns the result right away
+    """Generates the Plain geojson for the polygon within 30 Sqkm and returns the result right away
 
     Args:
         request (Request): _description_

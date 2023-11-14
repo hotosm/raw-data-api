@@ -168,10 +168,9 @@ class RawDataCurrentParamsBase(BaseModel):
         """Validates geom area_m2"""
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1e-6
-        RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
-        if area_km2 > 50:  # 50 square km
+        if area_km2 > 30:  # 30 square km
             raise ValueError(
-                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
+                f"""Polygon Area {int(area_km2)} Sq.KM is higher than 30 sqkm , Consider using /snapshot/ for larger area"""
             )
         return value
 
