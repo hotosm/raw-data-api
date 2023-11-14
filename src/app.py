@@ -663,7 +663,7 @@ class RawData:
         return FeatureCollection(features=features)
 
     def extract_plain_geojson(self):
-        """Gets geojson for small area : Performs direct query with/without geometry"""
+        """Gets geojson for small area Returns plain geojson without binding"""
         extraction_query = raw_currentdata_extraction_query(self.params)
         features = []
 

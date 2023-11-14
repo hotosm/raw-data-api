@@ -126,6 +126,9 @@ class Filters(BaseModel):
 
 
 class RawDataCurrentParamsBase(BaseModel):
+    output_type: Optional[RawDataOutputType] = Field(
+        default=RawDataOutputType.GEOJSON.value, example="geojson"
+    )
     geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
         default=None, example=["point", "polygon"]
     )
@@ -166,7 +169,7 @@ class RawDataCurrentParamsBase(BaseModel):
         area_m2 = area(json.loads(value.json()))
         area_km2 = area_m2 * 1e-6
         RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
-        if area_km2 > 100:  # 100 square km
+        if area_km2 > 50:  # 50 square km
             raise ValueError(
                 f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
             )
@@ -179,9 +182,6 @@ class RawDataCurrentParamsBase(BaseModel):
 
 
 class RawDataCurrentParams(RawDataCurrentParamsBase):
-    output_type: Optional[RawDataOutputType] = Field(
-        default=RawDataOutputType.GEOJSON.value, example="geojson"
-    )
     if ENABLE_TILES:
         min_zoom: Optional[int] = Field(
             default=None, description="Only for mbtiles"

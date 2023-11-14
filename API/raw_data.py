@@ -439,12 +439,12 @@ def get_osm_current_snapshot_as_file(
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
-@router.get("/snapshot/plain/", response_model=FeatureCollection)
+@router.post("/snapshot/plain/", response_model=FeatureCollection)
 @version(1)
 def get_osm_current_snapshot_as_plain_geojson(
     request: Request, params: RawDataCurrentParamsBase
 ):
-    """Generates the Plain geojson for the polygon within 100 Sqkm and returns the result right away
+    """Generates the Plain geojson for the polygon within 50 Sqkm and returns the result right away
 
     Args:
         request (Request): _description_
@@ -453,6 +453,7 @@ def get_osm_current_snapshot_as_plain_geojson(
     Returns:
         Featurecollection: Geojson
     """
+    params.output_type = "geojson"  # always geojson
     result = RawData(params).extract_plain_geojson()
     return result
 
