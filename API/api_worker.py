@@ -19,7 +19,7 @@ from src.config import logger as logging
 from src.query_builder.builder import format_file_name_str
 from src.validation.models import RawDataOutputType
 
-celery = Celery(__name__)
+celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
 celery.conf.result_backend = celery_backend
 celery.conf.task_serializer = "pickle"

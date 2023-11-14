@@ -38,6 +38,7 @@ from src.config import (
 from src.config import logger as logging
 from src.db_session import database_instance
 
+# from .auth import router as auth_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
 

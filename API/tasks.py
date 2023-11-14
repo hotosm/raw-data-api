@@ -1,5 +1,4 @@
 from celery.result import AsyncResult
-from celery.task.control import revoke
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
@@ -38,9 +37,53 @@ def get_task_status(task_id):
     return JSONResponse(result)
 
 
-@router.get("revoke/{task_id}/")
+@router.get("/revoke/{task_id}/")
 @version(1)
 def revoke_task(task_id):
-    revoked_task = revoke(task_id, terminate=True)
-    print(revoked_task)
+    """Revokes task , Terminates if it is executing
+
+    Args:
+        task_id (_type_): task id of raw data task
+
+    Returns:
+        status: status of revoked task
+    """
+    revoked_task = celery.control.revoke(task_id=task_id, terminate=True)
     return JSONResponse({"id": task_id, "status": revoked_task})
+
+
+@router.get("/inspect/")
+@version(1)
+def inspect_workers():
+    """Inspects tasks assigned to workers
+
+    Returns:
+        scheduled: All scheduled tasks to be picked up by workers
+        active: Current Active tasks ongoing on workers
+    """
+    inspected = celery.control.inspect()
+    return JSONResponse(
+        {"scheduled": str(inspected.scheduled()), "active": str(inspected.active())}
+    )
+
+
+@router.get("/ping/")
+@version(1)
+def ping_workers():
+    """Pings available workers
+
+    Returns: {worker_name : return_result}
+    """
+    inspected_ping = celery.control.inspect().ping()
+    return JSONResponse(inspected_ping)
+
+
+@router.get("/purge/")
+@version(1)
+def discard_all_waiting_tasks():
+    """
+    Discards all waiting tasks from the queue
+    Returns : Number of tasks discarded
+    """
+    purged = celery.control.purge()
+    return JSONResponse({"tasks_discarded": purged})
