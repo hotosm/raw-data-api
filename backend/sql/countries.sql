@@ -7,6 +7,7 @@ CREATE TABLE public.countries (
 	description varchar NULL,
 	iso_3 varchar(3) NULL,
 	dataset_name varchar NULL,
+	locations _varchar NULL,
 	geometry public.geometry(multipolygon, 4326) NULL,
 	CONSTRAINT countries_pk PRIMARY KEY (cid)
 );
