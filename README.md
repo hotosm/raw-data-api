@@ -113,11 +113,11 @@ You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-
 
 - Start for default queue 
   ```
-  celery --app API.api_worker worker --loglevel=INFO --queues="raw_default"
+  celery --app API.api_worker worker --loglevel=INFO --queues="raw_default" -n 'default_worker'
   ```
 - Start for recurring queue 
   ```
-  celery --app API.api_worker worker --loglevel=INFO --queues="recurring_queue"
+  celery --app API.api_worker worker --loglevel=INFO --queues="recurring_queue" -n 'recurring_worker'
   ```
 
 Set no of request that a worker can take at a time by using --concurrency 

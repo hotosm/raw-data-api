@@ -19,17 +19,20 @@
 
 """[Router Responsible for Raw data API ]
 """
+import json
 import os
 import shutil
 import time
 
 import requests
-from fastapi import APIRouter, Body, Request
+from area import area
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 from geojson import FeatureCollection
 
 from src.app import RawData
+from src.config import ALLOW_BIND_ZIP_FILTER, EXPORT_MAX_AREA_SQKM
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN as export_rate_limit
 from src.config import logger as logging
@@ -41,6 +44,7 @@ from src.validation.models import (
 )
 
 from .api_worker import process_raw_data
+from .auth import AuthUser, UserRole, get_optional_user
 
 router = APIRouter(prefix="")
 
@@ -421,6 +425,7 @@ def get_osm_current_snapshot_as_file(
             },
         },
     ),
+    user: AuthUser = Depends(get_optional_user),
 ):
     """Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features.
 
@@ -434,17 +439,45 @@ def get_osm_current_snapshot_as_file(
     2. Now navigate to /tasks/ with your task id to track progress and result
 
     """
+
+    if not (user.role == UserRole.STAFF or user.role == UserRole.ADMIN):
+        area_m2 = area(json.loads(params.geometry.json()))
+        area_km2 = area_m2 * 1e-6
+        RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
+        if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
+            raise HTTPException(
+                status_code=400,
+                detail=[
+                    {
+                        "msg": f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM"""
+                    }
+                ],
+            )
+        if not params.uuid:
+            raise HTTPException(
+                status_code=403,
+                detail=[{"msg": "Insufficient Permission for uuid = False"}],
+            )
+        if ALLOW_BIND_ZIP_FILTER:
+            if not params.bind_zip:
+                raise HTTPException(
+                    status_code=403,
+                    detail=[{"msg": "Insufficient Permission for bind_zip"}],
+                )
+
     queue_name = "recurring_queue" if not params.uuid else "raw_default"
     task = process_raw_data.apply_async(args=(params,), queue=queue_name)
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
-@router.get("/snapshot/plain/", response_model=FeatureCollection)
+@router.post("/snapshot/plain/", response_model=FeatureCollection)
 @version(1)
 def get_osm_current_snapshot_as_plain_geojson(
-    request: Request, params: RawDataCurrentParamsBase
+    request: Request,
+    params: RawDataCurrentParamsBase,
+    user: AuthUser = Depends(get_optional_user),
 ):
-    """Generates the Plain geojson for the polygon within 100 Sqkm and returns the result right away
+    """Generates the Plain geojson for the polygon within 30 Sqkm and returns the result right away
 
     Args:
         request (Request): _description_
@@ -453,6 +486,19 @@ def get_osm_current_snapshot_as_plain_geojson(
     Returns:
         Featurecollection: Geojson
     """
+    if not (user.role == UserRole.STAFF or user.role == UserRole.ADMIN):
+        area_m2 = area(json.loads(params.geometry.json()))
+        area_km2 = area_m2 * 1e-6
+        if area_km2 > 30:
+            raise HTTPException(
+                status_code=400,
+                detail=[
+                    {
+                        "msg": f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : 30 Sq.KM"""
+                    }
+                ],
+            )
+    params.output_type = "geojson"  # always geojson
     result = RawData(params).extract_plain_geojson()
     return result
 

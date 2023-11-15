@@ -39,6 +39,7 @@ from src.config import (
     AWS_SECRET_ACCESS_KEY,
     BUCKET_NAME,
     ENABLE_TILES,
+    EXPORT_MAX_AREA_SQKM,
 )
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
@@ -465,15 +466,21 @@ class RawData:
             countries = backend_match[0]
             country_export = True
             logging.debug(f"Using Country Export Mode with id : {countries[0]}")
-        else:
-            if int(geom_area) > int(index_threshold):
-                # this will be applied only when polygon gets bigger we will be slicing index size to search
-                country_query = get_country_id_query(geometry_dump)
-                cur.execute(country_query)
-                result_country = cur.fetchall()
-                countries = [int(f[0]) for f in result_country]
-                logging.debug(f"Intersected Countries : {countries}")
-                cur.close()
+        else : 
+            if int(geom_area) > int(EXPORT_MAX_AREA_SQKM):
+                raise ValueError(
+                    f"""Polygon Area {int(geom_area)} Sq.KM is higher than Threshold : {EXPORT_MAX_AREA_SQKM} Sq.KM"""
+                )
+
+        # else:
+        #     if int(geom_area) > int(index_threshold):
+        #         # this will be applied only when polygon gets bigger we will be slicing index size to search
+        #         country_query = get_country_id_query(geometry_dump)
+        #         cur.execute(country_query)
+        #         result_country = cur.fetchall()
+        #         countries = [int(f[0]) for f in result_country]
+        #         logging.debug(f"Intersected Countries : {countries}")
+        #         cur.close()
         return (
             g_id,
             geometry_dump,
@@ -663,7 +670,7 @@ class RawData:
         return FeatureCollection(features=features)
 
     def extract_plain_geojson(self):
-        """Gets geojson for small area : Performs direct query with/without geometry"""
+        """Gets geojson for small area Returns plain geojson without binding"""
         extraction_query = raw_currentdata_extraction_query(self.params)
         features = []
 

@@ -21,7 +21,6 @@ import json
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
-from area import area
 from geojson_pydantic import MultiPolygon, Polygon
 from geojson_pydantic.types import BBox
 from pydantic import BaseModel as PydanticModel
@@ -85,22 +84,6 @@ class JoinFilterType(Enum):
     AND = "AND"
 
 
-#
-#     "tags": { # no of rows returned
-#       "point" : {"amenity":["shop"]},
-#       "line" : {},
-#       "polygon" : {"key":["value"]},
-#       "all_geometry" : {"building":['yes']}
-#       },
-#     "attributes": { # no of columns / name
-#       "point": [], column
-#       "line" : [],
-#       "polygon" : [],
-#       "all_geometry" : [],
-#       }
-#      }
-
-
 class SQLFilter(BaseModel):
     join_or: Optional[Dict[str, List[str]]]
     join_and: Optional[Dict[str, List[str]]]
@@ -126,6 +109,9 @@ class Filters(BaseModel):
 
 
 class RawDataCurrentParamsBase(BaseModel):
+    output_type: Optional[RawDataOutputType] = Field(
+        default=RawDataOutputType.GEOJSON.value, example="geojson"
+    )
     geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
         default=None, example=["point", "polygon"]
     )
@@ -160,18 +146,6 @@ class RawDataCurrentParamsBase(BaseModel):
         },
     )
 
-    @validator("geometry", always=True)
-    def check_geometry_area(cls, value, values):
-        """Validates geom area_m2"""
-        area_m2 = area(json.loads(value.json()))
-        area_km2 = area_m2 * 1e-6
-        RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
-        if area_km2 > 100:  # 100 square km
-            raise ValueError(
-                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
-            )
-        return value
-
     @validator("geometry_type", allow_reuse=True)
     def return_unique_value(cls, value):
         """return unique list"""
@@ -179,9 +153,6 @@ class RawDataCurrentParamsBase(BaseModel):
 
 
 class RawDataCurrentParams(RawDataCurrentParamsBase):
-    output_type: Optional[RawDataOutputType] = Field(
-        default=RawDataOutputType.GEOJSON.value, example="geojson"
-    )
     if ENABLE_TILES:
         min_zoom: Optional[int] = Field(
             default=None, description="Only for mbtiles"
@@ -205,51 +176,6 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
                     "Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True"
                 )
             return value
-
-    @validator("geometry", always=True)
-    def check_geometry_area(cls, value, values):
-        """Validates geom area_m2"""
-        area_m2 = area(json.loads(value.json()))
-        area_km2 = area_m2 * 1e-6
-        RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
-        if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
-            raise ValueError(
-                f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {RAWDATA_CURRENT_POLYGON_AREA} Sq.KM for {output_type}"""
-            )
-        return value
-
-
-class WhereCondition(TypedDict):
-    key: str
-    value: List[str]
-
-
-class OsmFeatureType(Enum):
-    NODES = "nodes"
-    WAYS_LINE = "ways_line"
-    WAYS_POLY = "ways_poly"
-    RELATIONS = "relations"
-
-
-class SnapshotParamsPlain(BaseModel):
-    bbox: Optional[
-        BBox
-    ] = None  # xmin: NumType, ymin: NumType, xmax: NumType, ymax: NumType , srid:4326
-    select: Optional[List[str]] = ["*"]
-    where: List[WhereCondition] = [{"key": "building", "value": ["*"]}]
-    join_by: Optional[JoinFilterType] = JoinFilterType.OR.value
-    look_in: Optional[List[OsmFeatureType]] = ["nodes", "ways_poly"]
-    geometry_type: SupportedGeometryFilters = None
-
-    @validator("select", always=True)
-    def validate_select_statement(cls, value, values):
-        """Validates geom area_m2"""
-        for v in value:
-            if v != "*" and len(v) < 2:
-                raise ValueError(
-                    "length of select attribute must be greater than 2 letters"
-                )
-        return value
 
 
 class SnapshotResponse(BaseModel):

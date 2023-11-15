@@ -38,6 +38,7 @@ from src.config import (
 from src.config import logger as logging
 from src.db_session import database_instance
 
+from .auth.routers import router as auth_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
 
@@ -58,10 +59,16 @@ if LOG_LEVEL.lower() == "debug":
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 app = FastAPI(title="Raw Data API ")
-# app.include_router(auth_router)
+app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
-
+app.openapi = {
+    "info": {
+        "title": "Raw Data API",
+        "version": "1.0",
+    },
+    "security": [{"OAuth2PasswordBearer": []}],
+}
 
 app = VersionedFastAPI(
     app, enable_latest=False, version_format="{major}", prefix_format="/v{major}"

@@ -2,7 +2,7 @@ import json
 
 from fastapi import APIRouter, Depends, Request
 
-from . import AuthUser, login_required, osm_auth
+from . import AuthUser, admin_required, login_required, osm_auth
 
 router = APIRouter(prefix="/auth")
 
