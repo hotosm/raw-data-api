@@ -466,12 +466,6 @@ class RawData:
             countries = backend_match[0]
             country_export = True
             logging.debug(f"Using Country Export Mode with id : {countries[0]}")
-        else : 
-            if int(geom_area) > int(EXPORT_MAX_AREA_SQKM):
-                raise ValueError(
-                    f"""Polygon Area {int(geom_area)} Sq.KM is higher than Threshold : {EXPORT_MAX_AREA_SQKM} Sq.KM"""
-                )
-
         # else:
         #     if int(geom_area) > int(index_threshold):
         #         # this will be applied only when polygon gets bigger we will be slicing index size to search
