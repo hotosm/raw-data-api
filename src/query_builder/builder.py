@@ -55,8 +55,8 @@ def check_exisiting_country(geom):
                     from
                         countries b
                     where
-                        ST_Equals(ST_GEOMFROMGEOJSON('{geom}') ,
-                        b.geometry)
+                        ST_Equals(ST_SnapToGrid(ST_GEOMFROMGEOJSON('{geom}'),0.00001) ,
+                        ST_SnapToGrid(b.geometry,0.00001))
                     """
     return query
 

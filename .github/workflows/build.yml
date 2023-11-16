@@ -66,13 +66,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
+
       - name: Run uvicorn server
         run: |
+          export OSM_CLIENT_ID=thisisfakeosmcliendid
+          export OSM_CLIENT_SECRET=thisisclientosm
+          export APP_SECRET_KEY=thisissecretkey
           uvicorn API.main:app &> uvicorn.log &
         env:
           PORT: 8000
       - name: Run celery server
         run: |
+          export OSM_CLIENT_ID=thisisfakeosmcliendid
+          export OSM_CLIENT_SECRET=thisisclientosm
+          export APP_SECRET_KEY=thisissecretkey
           celery --app API.api_worker worker --loglevel=DEBUG &> worker.log &
       - name: Run flower dashboard
         run: |

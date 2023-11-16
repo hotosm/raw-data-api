@@ -209,7 +209,7 @@ def get_oauth_credentials() -> tuple:
         "OAUTH", "APP_SECRET_KEY"
     )
     login_redirect_uri = os.environ.get("LOGIN_REDIRECT_URI") or config.get(
-        "OAUTH", "LOGIN_REDIRECT_URI"
+        "OAUTH", "LOGIN_REDIRECT_URI", fallback="http://127.0.0.1:8000/v1/auth/callback"
     )
     scope = os.environ.get("OSM_PERMISSION_SCOPE") or config.get(
         "OAUTH", "OSM_PERMISSION_SCOPE", fallback="read_prefs"
