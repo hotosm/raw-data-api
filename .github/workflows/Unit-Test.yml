@@ -58,15 +58,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
-      - name: Export essential dummy env
+
+      - name: Launch Worker
         run: |
           export OSM_CLIENT_ID=thisisfakeosmcliendid
           export OSM_CLIENT_SECRET=thisisclientosm
           export APP_SECRET_KEY=thisissecretkey
-      - name: Launch Worker
-        run: |
           celery --app API.api_worker worker --loglevel=INFO --queues='raw_default' &
 
       - name: Run Tests
         run: |
+          export OSM_CLIENT_ID=thisisfakeosmcliendid
+          export OSM_CLIENT_SECRET=thisisclientosm
+          export APP_SECRET_KEY=thisissecretkey
           py.test -v -s
