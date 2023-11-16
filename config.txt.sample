@@ -19,8 +19,8 @@ PGDATABASE=rawdata
 # for scope. Callback / Redirect URI should be set when the OAuth2 app
 # is created on OSM portal. App secret key is a high-entropy string. 
 [OAUTH]
-OSM_CLIENT_ID=0yhbzr7-e0F-DGgyxXOyq2Y4d_sYLflMzVvLIfRtxHg
-OSM_CLIENT_SECRET= KI59u4PLCQFAd8Vo2oewaHNmlf2EfTcfGgwWd2VCtk8 
+OSM_CLIENT_ID=0yhbzr7-e0F-DGgyxXOyq2Y4d_sYLfdflMzVvLIfRtxHg
+OSM_CLIENT_SECRET= KI59u4PLCQFAd8Vo2oewaHNmlf2EfTcfGgwWd2VCsdtk8 
 ;OSM_URL=https://www.openstreetmap.org
 ;OSM_PERMISSION_SCOPE=read_prefs
 LOGIN_REDIRECT_URI=http://raw-data-test.example.net:8000/v1/auth/callback/
