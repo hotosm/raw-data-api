@@ -428,7 +428,9 @@ def get_osm_current_snapshot_as_file(
                 )
 
     queue_name = "recurring_queue" if not params.uuid else "raw_default"
-    task = process_raw_data.apply_async(args=(params,), queue=queue_name)
+    task = process_raw_data.apply_async(
+        args=(params,), queue=queue_name, track_started=True
+    )
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
