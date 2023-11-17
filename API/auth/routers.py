@@ -1,10 +1,13 @@
 import json
 
 from fastapi import APIRouter, Depends, Request
+from pydantic import BaseModel
 
-from . import AuthUser, admin_required, login_required, osm_auth
+from src.app import Users
 
-router = APIRouter(prefix="/auth")
+from . import AuthUser, admin_required, login_required, osm_auth, staff_required
+
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.get("/login/")
@@ -49,3 +52,104 @@ def my_data(user_data: AuthUser = Depends(login_required)):
     Returns: user_data
     """
     return user_data
+
+
+class User(BaseModel):
+    osm_id: int
+    role: int
+
+
+auth = Users()
+
+
+# Create user
+@router.post("/users/", response_model=dict)
+async def create_user(params: User, user_data: AuthUser = Depends(admin_required)):
+    """
+    Creates a new user and returns the user's information.
+
+    Args:
+    - params (User): The user data including osm_id and role.
+
+    Returns:
+    - Dict[str, Any]: A dictionary containing the osm_id of the newly created user.
+
+    Raises:
+    - HTTPException: If the user creation fails.
+    """
+    return auth.create_user(params.osm_id, params.role)
+
+
+# Read user by osm_id
+@router.get("/users/{osm_id}", response_model=dict)
+async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
+    """
+    Retrieves user information based on the given osm_id.
+
+    Args:
+    - osm_id (int): The OSM ID of the user to retrieve.
+
+    Returns:
+    - Dict[str, Any]: A dictionary containing user information.
+
+    Raises:
+    - HTTPException: If the user with the given osm_id is not found.
+    """
+    return auth.read_user(osm_id)
+
+
+# Update user by osm_id
+@router.put("/users/{osm_id}", response_model=dict)
+async def update_user(
+    osm_id: int, update_data: User, user_data: AuthUser = Depends(admin_required)
+):
+    """
+    Updates user information based on the given osm_id.
+
+    Args:
+    - osm_id (int): The OSM ID of the user to update.
+    - update_data (User): The data to update for the user.
+
+    Returns:
+    - Dict[str, Any]: A dictionary containing the updated user information.
+
+    Raises:
+    - HTTPException: If the user with the given osm_id is not found.
+    """
+    return auth.update_user(osm_id, update_data)
+
+
+# Delete user by osm_id
+@router.delete("/users/{osm_id}", response_model=dict)
+async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)):
+    """
+    Deletes a user based on the given osm_id.
+
+    Args:
+    - osm_id (int): The OSM ID of the user to delete.
+
+    Returns:
+    - Dict[str, Any]: A dictionary containing the deleted user information.
+
+    Raises:
+    - HTTPException: If the user with the given osm_id is not found.
+    """
+    return auth.delete_user(osm_id)
+
+
+# Get all users
+@router.get("/users/", response_model=list)
+async def read_users(
+    skip: int = 0, limit: int = 10, user_data: AuthUser = Depends(staff_required)
+):
+    """
+    Retrieves a list of users with optional pagination.
+
+    Args:
+    - skip (int): The number of users to skip (for pagination).
+    - limit (int): The maximum number of users to retrieve (for pagination).
+
+    Returns:
+    - List[Dict[str, Any]]: A list of dictionaries containing user information.
+    """
+    return auth.read_users(skip, limit)

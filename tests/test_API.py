@@ -358,18 +358,22 @@ def test_snapshot_and_filter():
     assert check_status == "SUCCESS"
 
 
-# def test_snapshot_plain():
-#     response = client.post(
-#         "/v1/snapshot/plain/",
-#         json={
-#             "select": ["name"],
-#             "where": [
-#                 {"key": "admin_level", "value": ["7"]},
-#                 {"key": "boundary", "value": ["administrative"]},
-#                 {"key": "name", "value": ["Pokhara"]},
-#             ],
-#             "joinBy": "AND",
-#             "lookIn": ["relations"],
-#         },
-#     )
-#     assert response.status_code == 200
+def test_snapshot_plain():
+    response = client.post(
+        "/v1/snapshot/plain/",
+        json={
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            }
+        },
+    )
+    assert response.status_code == 200
