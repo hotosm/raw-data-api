@@ -32,19 +32,25 @@ def get_user_from_db(osm_id: int):
     return user
 
 
-def login_required(access_token: str = Header(...)):
-    user = AuthUser(**osm_auth.deserialize_access_token(access_token))
+def get_osm_auth_user(access_token):
+    try:
+        user = AuthUser(**osm_auth.deserialize_access_token(access_token))
+    except Exception as ex:
+        raise HTTPException(
+            status_code=403, detail=[{"msg": "OSM Authentication failed"}]
+        )
     db_user = get_user_from_db(user.id)
     user.role = db_user["role"]
     return user
 
 
+def login_required(access_token: str = Header(...)):
+    return get_osm_auth_user(access_token)
+
+
 def get_optional_user(access_token: str = Header(default=None)) -> AuthUser:
     if access_token:
-        user = AuthUser(**osm_auth.deserialize_access_token(access_token))
-        db_user = get_user_from_db(user.id)
-        user.role = db_user["role"]
-        return user
+        return get_osm_auth_user(access_token)
     else:
         # If no token provided, return a user with limited options or guest user
         return AuthUser(id=0, username="guest", img_url=None)
@@ -52,7 +58,6 @@ def get_optional_user(access_token: str = Header(default=None)) -> AuthUser:
 
 def admin_required(user: AuthUser = Depends(login_required)):
     db_user = get_user_from_db(user.id)
-    print(db_user)
     if not db_user["role"] is UserRole.ADMIN.value:
         raise HTTPException(status_code=403, detail="User is not an admin")
     return user
