@@ -402,8 +402,7 @@ def get_osm_current_snapshot_as_file(
     2. Now navigate to /tasks/ with your task id to track progress and result
 
     """
-
-    if not (user.role == UserRole.STAFF or user.role == UserRole.ADMIN):
+    if not (user.role is UserRole.STAFF.value or user.role is UserRole.ADMIN.value):
         area_m2 = area(json.loads(params.geometry.json()))
         area_km2 = area_m2 * 1e-6
         RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
