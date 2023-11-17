@@ -3,7 +3,7 @@ import json
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 
-from src.app import Auth
+from src.app import Users
 
 from . import AuthUser, admin_required, login_required, osm_auth, staff_required
 
@@ -59,7 +59,7 @@ class User(BaseModel):
     role: int
 
 
-auth = Auth()
+auth = Users()
 
 
 # Create user

@@ -207,9 +207,9 @@ class Database:
             raise err
 
 
-class Auth:
+class Users:
     """
-    Auth class provides CRUD operations for interacting with the 'users' table in the database.
+    Users class provides CRUD operations for interacting with the 'users' table in the database.
 
     Methods:
     - create_user(osm_id: int, role: int) -> Dict[str, Any]: Inserts a new user into the database.
@@ -219,7 +219,7 @@ class Auth:
     - read_users(skip: int = 0, limit: int = 10) -> List[Dict[str, Any]]: Retrieves a list of users with optional pagination.
 
     Usage:
-    auth = Auth()
+    users = Users()
     """
 
     def __init__(self) -> None:
@@ -248,6 +248,7 @@ class Auth:
         params = (osm_id, role)
         self.cur.execute(self.cur.mogrify(query, params).decode("utf-8"))
         new_osm_id = self.cur.fetchall()[0][0]
+        self.con.commit()
         return {"osm_id": new_osm_id}
 
     def read_user(self, osm_id):
@@ -293,6 +294,7 @@ class Auth:
         params = (update_data.osm_id, update_data.role, osm_id)
         self.cur.execute(self.cur.mogrify(query, params).decode("utf-8"))
         updated_user = self.cur.fetchall()
+        self.con.commit()
         if updated_user:
             return dict(updated_user[0])
         raise HTTPException(status_code=404, detail="User not found")
@@ -314,6 +316,7 @@ class Auth:
         params = (osm_id,)
         self.cur.execute(self.cur.mogrify(query, params).decode("utf-8"))
         deleted_user = self.cur.fetchall()
+        self.con.commit()
         if deleted_user:
             return dict(deleted_user[0])
         raise HTTPException(status_code=404, detail="User not found")
