@@ -312,7 +312,15 @@ if __name__ == "__main__":
 
     if len(update_cmd_list) > 1:
         run_subprocess_cmd_parallel(update_cmd_list)
-
+    if args.insert:
+        users_table = [
+            "psql",
+            "-a",
+            "-f",
+            os.path.join(working_dir, "sql/users.sql"),
+        ]
+        run_subprocess_cmd(users_table)
+        print("Users table created")
     if args.insert or args.post_index:
         ## build post indexes
         basic_index_cmd = [

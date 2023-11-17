@@ -8,6 +8,19 @@
 
 The default configuration file is an ini-style text file named `config.txt` in the project root.
 
+## Users Table
+
+Users table is present on ```backend/sql/users.sql``` Make sure you have it before moving forward
+
+```
+psql -a -f backend/sql/users.sql
+```
+& Add your admin's OSM ID as admin 
+
+```
+INSERT INTO users (osm_id, role) VALUES (1234, 1);
+```
+
 ## Sections
 
 The following sections are recognised.
@@ -34,7 +47,6 @@ The following are the different configuration options that are accepted.
 | `LOGIN_REDIRECT_URI` | `LOGIN_REDIRECT_URI` | `[OAUTH]` | _none_ | Redirect URL set in the OAuth2 application | REQUIRED |
 | `APP_SECRET_KEY` | `APP_SECRET_KEY` | `[OAUTH]` | _none_ | High-entropy string generated for the application | REQUIRED |
 | `OSM_URL` | `OSM_URL` | `[OAUTH]` | `https://www.openstreetmap.org` | OSM instance Base URL | OPTIONAL |
-| `ADMIN_IDS` | `ADMIN_IDS` | `[OAUTH]` | `00000` | List of Admin OSMId separated by , | OPTIONAL |
 | `LOG_LEVEL` | `LOG_LEVEL` | `[API_CONFIG]` | `debug` | Application log level; info,debug,warning,error | OPTIONAL |
 | `RATE_LIMITER_STORAGE_URI` | `RATE_LIMITER_STORAGE_URI` | `[API_CONFIG]` | `redis://redis:6379` | Redis connection string for rate-limiter data | OPTIONAL |
 | `RATE_LIMIT_PER_MIN` | `RATE_LIMIT_PER_MIN` | `[API_CONFIG]` | `5` | Number of requests per minute before being rate limited | OPTIONAL |
@@ -68,7 +80,6 @@ The following are the different configuration options that are accepted.
 | `LOGIN_REDIRECT_URI` | TBD | Yes | No |
 | `APP_SECRET_KEY` | TBD | Yes | No |
 | `OSM_URL` | TBD | Yes | No |
-| `ADMIN_IDS` | TBD | Yes | No |
 | `LOG_LEVEL` | `[API_CONFIG]` | Yes | Yes |
 | `RATE_LIMITER_STORAGE_URI` | `[API_CONFIG]` | Yes | No |
 | `RATE_LIMIT_PER_MIN` | `[API_CONFIG]` | Yes | No |

@@ -76,12 +76,6 @@ ENABLE_TILES = os.environ.get("ENABLE_TILES") or config.get(
     "API_CONFIG", "ENABLE_TILES", fallback=None
 )
 
-######
-
-ADMIN_IDS = os.environ.get("ADMIN_IDS") or config.get(
-    "OAUTH", "ADMIN_IDS", fallback="00000"
-).split(",")
-
 
 ####################
 
