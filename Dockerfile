@@ -5,7 +5,6 @@ FROM docker.io/python:${PYTHON_VERSION}-slim-bookworm as base
 ARG MAINTAINER=sysadmin@hotosm.org
 ENV DEBIAN_FRONTEND=noninteractive
 
-
 FROM base as builder
 
 ENV PIP_NO_CACHE_DIR=1
@@ -25,7 +24,6 @@ RUN pip install --user --no-cache-dir --upgrade pip \
     && pip install --user --no-cache-dir GDAL=="$(gdal-config --version)" \
     && pip install --user --no-cache-dir -r requirements.txt \
     && pip install --user --no-cache-dir -e .
-
 
 FROM base as runner
 WORKDIR /home/appuser
@@ -48,13 +46,19 @@ COPY setup.py .
 COPY API/ ./API/
 COPY src/ ./src/
 
+# Use a separate stage to pull the tippecanoe image
+FROM docker.io/itskshitiz321/tippecanoe as tippecanoe-builder
+
+FROM runner as prod
+USER root
+
+# Copy tippecanoe binaries from the tippecanoe stage
+COPY --from=tippecanoe-builder /usr/local/bin/tippecanoe* /usr/local/bin/
+COPY --from=tippecanoe-builder /usr/local/bin/tile-join /usr/local/bin/
+
 RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appuser \
     && chown -R appuser:appuser /home/appuser
 
-
-FROM runner as prod
 USER appuser
 
 CMD ["uvicorn", "API.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000", "--no-use-colors", "--proxy-headers"]
-
-# HEALTHCHECK --interval=1m --timeout=3s CMD curl -f http://localhost:8000 || exit 1
