@@ -48,7 +48,6 @@ def process_raw_data(self, params):
         params.file_name = (
             format_file_name_str(params.file_name) if params.file_name else "Export"
         )
-        logging.info("Is Default Export ? : %s", params.uuid)
         exportname = f"{params.file_name}_{params.output_type}{f'_uid_{str(self.request.id)}' if params.uuid else ''}"
 
         logging.info("Request %s received", exportname)
