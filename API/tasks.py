@@ -1,3 +1,6 @@
+import re
+from typing import List
+
 from celery.result import AsyncResult
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -63,9 +66,43 @@ def inspect_workers():
         active: Current Active tasks ongoing on workers
     """
     inspected = celery.control.inspect()
-    return JSONResponse(
-        {"scheduled": str(inspected.scheduled()), "active": str(inspected.active())}
-    )
+
+    def extract_file_name(args: str) -> str:
+        """Extract file_name using a pattern match."""
+        match = re.search(r"file_name\s*=\s*['\"]([^'\"]+)['\"]", args)
+        return match.group(1) if match else None
+
+    def filter_task_details(tasks: List[dict]) -> List[dict]:
+        """Filter task details to include only id and file_name."""
+        filtered_tasks = {}
+        if tasks:
+            for worker in tasks:
+                filtered_tasks[worker] = {"total": 0, "detail": []}
+                if tasks[worker]:
+                    # key is worker name here
+                    for value_task in tasks[worker]:
+                        if value_task:
+                            if "id" in value_task:
+                                task_id = value_task.get("id")
+                                args = value_task.get("args")
+                                file_name = extract_file_name(str(args))
+                                if task_id:
+                                    filtered_tasks[worker]["total"] += 1
+                                    filtered_tasks[worker]["detail"].append(
+                                        {"id": task_id, "file_name": file_name}
+                                    )
+        return filtered_tasks
+
+    scheduled_tasks = inspected.scheduled()
+    # print(scheduled_tasks)
+    active_tasks = inspected.active()
+    # print(active_tasks)
+    response_data = {
+        "scheduled": filter_task_details(scheduled_tasks),
+        "active": filter_task_details(active_tasks),
+    }
+
+    return JSONResponse(content=response_data)
 
 
 @router.get("/ping/")
