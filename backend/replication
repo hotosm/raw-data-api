@@ -534,8 +534,8 @@ def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
     with conn.cursor() as cur:
         update_query = f"""WITH t1 AS (SELECT osm_id, ST_Centroid(geom) AS geom FROM {table_name} WHERE "timestamp" >= '{timestamp}'), t2 AS (SELECT t1.osm_id,     
         CASE 
-            WHEN COUNT(cg.cid) = 0 THEN ARRAY[0]::integer[]
-            ELSE array_agg(COALESCE(cg.cid, 0))
+            WHEN COUNT(cg.cid) = 0 THEN ARRAY[1000]::integer[]
+            ELSE array_agg(COALESCE(cg.cid, 1000))
         END AS aa_fids 
         FROM t1 LEFT JOIN countries cg ON ST_Intersects(t1.geom, cg.geometry) GROUP BY t1.osm_id) UPDATE {table_name} uw SET country = t2.aa_fids FROM t2 WHERE t2.osm_id = uw.osm_id;"""
 
