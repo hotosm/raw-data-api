@@ -84,7 +84,6 @@ def process_raw_data(self, params):
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
             upload_name = exportname if params.uuid else f"Recurring/{exportname}"
-            logging.error(exportname)
             if exportname.startswith("hotosm_project"):  # TM
                 if not params.uuid:
                     pattern = r"(hotosm_project_)(\d+)"
