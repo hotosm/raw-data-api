@@ -14,7 +14,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get --no-install-recommends -y install \
-       build-essential libpq-dev libgdal-dev libboost-numpy-dev
+       build-essential libpq-dev libsqlite3-dev libgdal-dev libboost-numpy-dev
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN gdal-config --version | awk -F'[.]' '{print $1"."$2}'
 COPY setup.py .
