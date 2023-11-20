@@ -25,6 +25,7 @@ celery.conf.result_backend = celery_backend
 celery.conf.task_serializer = "pickle"
 celery.conf.result_serializer = "pickle"
 celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
+celery.conf.task_track_started = True
 
 
 @celery.task(bind=True, name="process_raw_data")
@@ -83,6 +84,7 @@ def process_raw_data(self, params):
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
             upload_name = exportname if params.uuid else f"Recurring/{exportname}"
+            logging.error(exportname)
             if exportname.startswith("hotosm_project"):  # TM
                 if not params.uuid:
                     pattern = r"(hotosm_project_)(\d+)"
@@ -94,12 +96,13 @@ def process_raw_data(self, params):
                             upload_name = f"TM/{project_number}/{exportname}"
             elif exportname.startswith("hotosm_"):  # HDX
                 if not params.uuid:
-                    pattern = r"hotosm_([A-Z]{3})_(\w+)"
+                    pattern = r"hotosm_([A-Za-z]{3})_(\w+)"
                     match = re.match(pattern, exportname)
+
                     if match:
                         iso3countrycode = match.group(1)
                         if iso3countrycode:
-                            upload_name = f"HDX/{iso3countrycode}/{exportname}"
+                            upload_name = f"HDX/{iso3countrycode.upper()}/{exportname}"
 
             download_url = file_transfer_obj.upload(
                 upload_file_path,

@@ -50,10 +50,10 @@ def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
         task_id (_type_): task id of raw data task
 
     Returns:
-        status: status of revoked task
+        id: id of revoked task
     """
-    revoked_task = celery.control.revoke(task_id=task_id, terminate=True)
-    return JSONResponse({"id": task_id, "status": revoked_task})
+    celery.control.revoke(task_id=task_id, terminate=True)
+    return JSONResponse({"id": task_id})
 
 
 @router.get("/inspect/")
