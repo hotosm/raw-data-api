@@ -18,7 +18,7 @@ newrelic == 7.2.4.171
 sentry-sdk == 1.5.12
 
 area==1.1.1
-orjson==3.6.7
+orjson==3.9.10
 boto3==1.24.38
 fastapi-versioning==0.10.0
 redis==4.3.4
