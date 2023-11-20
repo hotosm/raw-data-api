@@ -52,6 +52,7 @@ class RawDataOutputType(Enum):
     GEOPACKAGE = "gpkg"
     PGDUMP = "sql"
     CSV = "csv"
+    GEOPARQUET = "parquet"
     if ENABLE_TILES:
         MBTILES = "mbtiles"
         PMTILES = "pmtiles"  ## EXPERIMENTAL
