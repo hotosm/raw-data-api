@@ -47,7 +47,7 @@ COPY API/ ./API/
 COPY src/ ./src/
 
 # Use a separate stage to pull the tippecanoe image
-FROM ghcr.io/kshitijrajsharma/tippecanoe:test- as tippecanoe-builder
+FROM ghcr.io/hotosm/tippecanoe:main as tippecanoe-builder
 
 FROM runner as prod
 USER root
