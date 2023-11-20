@@ -59,7 +59,7 @@ COPY --from=tippecanoe-builder /usr/local/bin/tile-join /usr/local/bin/
 RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appuser \
     && chown -R appuser:appuser /home/appuser
 
-USER appuser
+# USER appuser
 
 #CMD ["/bin/bash"]
 CMD ["uvicorn", "API.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000", "--no-use-colors", "--proxy-headers"]
