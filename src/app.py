@@ -520,7 +520,7 @@ class RawData:
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.CSV.value:
-            cmd = """ogr2ogr -overwrite -f CSV  {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco -progress""".format(
+            cmd = """ogr2ogr -overwrite -f CSV  {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
                 export_path=dump_temp_path,
                 host=db_items.get("host"),
                 port=db_items.get("port"),
@@ -532,7 +532,7 @@ class RawData:
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.GEOPACKAGE.value:
-            cmd = """ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco -progress""".format(
+            cmd = """ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
                 export_path=dump_temp_path,
                 host=db_items.get("host"),
                 port=db_items.get("port"),
