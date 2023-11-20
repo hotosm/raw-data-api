@@ -47,7 +47,7 @@ COPY API/ ./API/
 COPY src/ ./src/
 
 # Use a separate stage to pull the tippecanoe image
-FROM docker.io/itskshitiz321/tippecanoe as tippecanoe-builder
+FROM ghcr.io/hotosm/tippecanoe:main as tippecanoe-builder
 
 FROM runner as prod
 USER root
@@ -61,4 +61,5 @@ RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appus
 
 USER appuser
 
+#CMD ["/bin/bash"]
 CMD ["uvicorn", "API.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000", "--no-use-colors", "--proxy-headers"]
