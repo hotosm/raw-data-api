@@ -15,7 +15,7 @@ setuptools.setup(
         "fastapi==0.65.2",
         "geojson == 2.5.0",
         "area==1.1.1",
-        "orjson==3.6.7",
+        "orjson==3.9.10",
         "slowapi==0.1.6",
     ],
     classifiers=[
