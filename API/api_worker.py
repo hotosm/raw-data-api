@@ -4,7 +4,9 @@ import re
 import shutil
 import time
 import zipfile
+from datetime import datetime
 from datetime import datetime as dt
+from datetime import timezone
 
 import requests
 from celery import Celery
@@ -69,6 +71,15 @@ def process_raw_data(self, params):
 
             # Compressing geojson file
             zf.writestr("clipping_boundary.geojson", geom_dump)
+
+            utc_now = datetime.now(timezone.utc)
+            utc_offset = utc_now.strftime("%z")
+            # Adding metadata readme.txt
+            readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
+            readme_content += "Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n"
+            readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about"
+
+            zf.writestr("Readme.txt", readme_content)
 
             zf.close()
             logging.debug("Zip Binding Done !")
