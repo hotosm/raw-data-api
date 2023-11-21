@@ -45,7 +45,6 @@ COPY config.txt.sample ./config.txt
 COPY setup.py .
 COPY API/ ./API/
 COPY src/ ./src/
-COPY test.geojson ./test.geojson
 # Use a separate stage to pull the tippecanoe image
 FROM ghcr.io/hotosm/tippecanoe:main as tippecanoe-builder
 
