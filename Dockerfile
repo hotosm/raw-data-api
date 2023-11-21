@@ -14,7 +14,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get --no-install-recommends -y install \
-       build-essential libpq-dev libsqlite3-dev libgdal-dev libboost-numpy-dev
+       build-essential libpq-dev libspatialite-dev libgdal-dev libboost-numpy-dev
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN gdal-config --version | awk -F'[.]' '{print $1"."$2}'
 COPY setup.py .
@@ -45,7 +45,7 @@ COPY config.txt.sample ./config.txt
 COPY setup.py .
 COPY API/ ./API/
 COPY src/ ./src/
-
+COPY test.geojson ./test.geojson
 # Use a separate stage to pull the tippecanoe image
 FROM ghcr.io/hotosm/tippecanoe:main as tippecanoe-builder
 
@@ -60,5 +60,5 @@ RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appus
 
 USER appuser
 
-#CMD ["/bin/bash"]
+# CMD ["/bin/bash"]
 CMD ["uvicorn", "API.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000", "--no-use-colors", "--proxy-headers"]
