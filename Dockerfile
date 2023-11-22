@@ -45,6 +45,12 @@ COPY config.txt.sample ./config.txt
 COPY setup.py .
 COPY API/ ./API/
 COPY src/ ./src/
+COPY test.geojson ./test.geojson
+
+# Change ownership to root for relevant directories and files
+USER root
+RUN chown -R root:root /home/appuser
+
 # Use a separate stage to pull the tippecanoe image
 FROM ghcr.io/hotosm/tippecanoe:main as tippecanoe-builder
 
@@ -53,11 +59,6 @@ FROM runner as prod
 # Copy tippecanoe binaries from the tippecanoe stage
 COPY --from=tippecanoe-builder /usr/local/bin/tippecanoe* /usr/local/bin/
 COPY --from=tippecanoe-builder /usr/local/bin/tile-join /usr/local/bin/
-
-RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appuser \
-    && chown -R appuser:appuser /home/appuser
-
-USER appuser
 
 # CMD ["/bin/bash"]
 CMD ["uvicorn", "API.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000", "--no-use-colors", "--proxy-headers"]
