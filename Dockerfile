@@ -45,8 +45,6 @@ COPY config.txt.sample ./config.txt
 COPY setup.py .
 COPY API/ ./API/
 COPY src/ ./src/
-COPY test.geojson ./test.geojson
-
 # Change ownership to root for relevant directories and files
 USER root
 RUN chown -R root:root /home/appuser
