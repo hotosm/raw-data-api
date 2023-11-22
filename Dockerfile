@@ -26,7 +26,7 @@ RUN pip install --user --no-cache-dir --upgrade pip \
     && pip install --user --no-cache-dir -e .
 
 FROM base as runner
-# WORKDIR /home/appuser
+WORKDIR /home/appuser
 ENV PIP_NO_CACHE_DIR=1
 ENV PYTHONUNBUFFERED=1
 # ENV PATH="/home/appuser/.local/bin:$PATH"
