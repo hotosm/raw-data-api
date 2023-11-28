@@ -42,7 +42,7 @@ jobs:
           psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
 
       - name: Install gdal
-        run: sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+        run: sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
 
       - name: Install redis
         run: |
