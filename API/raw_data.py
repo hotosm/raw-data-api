@@ -403,15 +403,16 @@ def get_osm_current_snapshot_as_file(
 
     """
     if not (user.role is UserRole.STAFF.value or user.role is UserRole.ADMIN.value):
-        if "/" in params.file_name:
-            raise HTTPException(
-                status_code=403,
-                detail=[
-                    {
-                        "msg": "Insufficient Permission to use folder structure exports , Remove / from filename or get access"
-                    }
-                ],
-            )
+        if params.file_name:
+            if "/" in params.file_name:
+                raise HTTPException(
+                    status_code=403,
+                    detail=[
+                        {
+                            "msg": "Insufficient Permission to use folder structure exports , Remove / from filename or get access"
+                        }
+                    ],
+                )
         area_m2 = area(json.loads(params.geometry.json()))
         area_km2 = area_m2 * 1e-6
         RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
