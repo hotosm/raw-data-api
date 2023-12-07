@@ -48,21 +48,33 @@ def process_raw_data(self, params):
             ):
                 logging.debug("Using STwithin Logic")
                 params.use_st_within = True
+
         params.file_name = (
             format_file_name_str(params.file_name) if params.file_name else "Export"
         )
-        exportname = f"{params.file_name}_{params.output_type}{f'_uid_{str(self.request.id)}' if params.uuid else ''}"
 
-        logging.info("Request %s received", exportname)
+        exportname = f"{params.file_name}_{params.output_type}{f'_uid_{str(self.request.id)}' if params.uuid else ''}"
+        params.file_name = params.file_name.split("/")[
+            -1
+        ]  # get last item from list and consider it as a file rest is file path on s3
+        exportname_parts = exportname.split("/")
+        file_parts = os.path.join(*exportname_parts)
+        logging.info(
+            "Request %s received with following %s file_path",
+            params.file_name,
+            file_parts,
+        )
 
         geom_area, geom_dump, working_dir = RawData(params).extract_current_data(
-            exportname
+            file_parts
         )
         inside_file_size = 0
         if bind_zip:
             logging.debug("Zip Binding Started !")
             # saving file in temp directory instead of memory so that zipping file will not eat memory
-            upload_file_path = os.path.join(working_dir, os.pardir, f"{exportname}.zip")
+            upload_file_path = os.path.join(
+                working_dir, os.pardir, f"{exportname_parts[-1]}.zip"
+            )
 
             zf = zipfile.ZipFile(upload_file_path, "w", zipfile.ZIP_DEFLATED)
             for file_path in pathlib.Path(working_dir).iterdir():
@@ -94,7 +106,9 @@ def process_raw_data(self, params):
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
-            upload_name = exportname if params.uuid else f"Recurring/{exportname}"
+            upload_name = file_parts if params.uuid else f"Recurring/{file_parts}"
+            logging.info(upload_name)
+
             if exportname.startswith("hotosm_project"):  # TM
                 if not params.uuid:
                     pattern = r"(hotosm_project_)(\d+)"
