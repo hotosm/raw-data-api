@@ -164,7 +164,7 @@ curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194
 
 ## Introduction of sozip
 
-We use [sozip](https://github.com/sozip/sozip-spec) optimization while we zip the files , This won't change anything the existing usecase for .zip . Learn more about it in attached link . You can drag and drop zip generated in new version of QGIS without unzipping
+We use [sozip](https://github.com/sozip/sozip-spec) optimization while we zip the files , This won't change anything the existing usecase for .zip . Learn more about it in attached link 
 
 
 ## Tests
