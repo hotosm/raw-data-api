@@ -32,3 +32,6 @@ mkdocs-material==8.5.11
 mkdocs-jupyter==0.22.0
 neoteroi-mkdocs==0.1.2
 pdocs==1.0.1
+
+##sozipfile
+sozipfile==0.3.2

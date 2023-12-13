@@ -3,12 +3,11 @@ import pathlib
 import re
 import shutil
 import time
-import zipfile
-from datetime import datetime
 from datetime import datetime as dt
 from datetime import timezone
 
 import requests
+import sozipfile.sozipfile as zipfile
 from celery import Celery
 
 from src.app import RawData, S3FileTransfer
@@ -76,7 +75,12 @@ def process_raw_data(self, params):
                 working_dir, os.pardir, f"{exportname_parts[-1]}.zip"
             )
 
-            zf = zipfile.ZipFile(upload_file_path, "w", zipfile.ZIP_DEFLATED)
+            zf = zipfile.ZipFile(
+                upload_file_path,
+                "w",
+                compression=zipfile.ZIP_DEFLATED,
+                chunk_size=zipfile.SOZIP_DEFAULT_CHUNK_SIZE,
+            )
             for file_path in pathlib.Path(working_dir).iterdir():
                 zf.write(file_path, arcname=file_path.name)
                 inside_file_size += os.path.getsize(file_path)
@@ -84,7 +88,7 @@ def process_raw_data(self, params):
             # Compressing geojson file
             zf.writestr("clipping_boundary.geojson", geom_dump)
 
-            utc_now = datetime.now(timezone.utc)
+            utc_now = dt.now(timezone.utc)
             utc_offset = utc_now.strftime("%z")
             # Adding metadata readme.txt
             readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
