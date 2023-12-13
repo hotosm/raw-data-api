@@ -116,6 +116,7 @@ async def update_user(
     Raises:
     - HTTPException: If the user with the given osm_id is not found.
     """
+    auth = Users()
     return auth.update_user(osm_id, update_data)
 
 
