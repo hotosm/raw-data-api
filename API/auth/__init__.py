@@ -24,10 +24,9 @@ class AuthUser(BaseModel):
 
 osm_auth = Auth(*get_oauth_credentials())
 
-auth = Users()
-
 
 def get_user_from_db(osm_id: int):
+    auth = Users()
     user = auth.read_user(osm_id)
     return user
 

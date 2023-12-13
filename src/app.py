@@ -249,6 +249,7 @@ class Users:
         self.cur.execute(self.cur.mogrify(query, params).decode("utf-8"))
         new_osm_id = self.cur.fetchall()[0][0]
         self.con.commit()
+        self.d_b.close_conn()
         return {"osm_id": new_osm_id}
 
     def read_user(self, osm_id):
@@ -269,7 +270,7 @@ class Users:
         params = (osm_id,)
         self.cur.execute(self.cur.mogrify(query, params).decode("utf-8"))
         result = self.cur.fetchall()
-
+        self.d_b.close_conn()
         if result:
             return dict(result[0])
         else:
@@ -295,6 +296,7 @@ class Users:
         self.cur.execute(self.cur.mogrify(query, params).decode("utf-8"))
         updated_user = self.cur.fetchall()
         self.con.commit()
+        self.d_b.close_conn()
         if updated_user:
             return dict(updated_user[0])
         raise HTTPException(status_code=404, detail="User not found")
@@ -317,6 +319,7 @@ class Users:
         self.cur.execute(self.cur.mogrify(query, params).decode("utf-8"))
         deleted_user = self.cur.fetchall()
         self.con.commit()
+        self.d_b.close_conn()
         if deleted_user:
             return dict(deleted_user[0])
         raise HTTPException(status_code=404, detail="User not found")
@@ -336,6 +339,7 @@ class Users:
         params = (skip, limit)
         self.cur.execute(self.cur.mogrify(query, params).decode("utf-8"))
         users_list = self.cur.fetchall()
+        self.d_b.close_conn()
         return [dict(user) for user in users_list]
 
 
