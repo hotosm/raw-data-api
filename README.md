@@ -162,6 +162,11 @@ http://127.0.0.1:5000/
 curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194446860487773],[83.99751663208006,28.194446860487773],   [83.99751663208006,28.214869548073377],[83.96919250488281,28.214869548073377],[83.96919250488281,28.194446860487773]]]}}' -H 'Content-Type: application/json'   http://127.0.0.1:8000/v2/raw-data/current-snapshot/
 ```
 
+## Introduction of sozip
+
+We use [sozip](https://github.com/sozip/sozip-spec) optimization while we zip the files , This won't change anything the existing usecase for .zip . Learn more about it in attached link . You can drag and drop zip generated in new version of QGIS without unzipping
+
+
 ## Tests
 
 - Raw Data API uses pytest for tests, navigate to the root directory and install package in editable mode:
