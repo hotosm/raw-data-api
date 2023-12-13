@@ -164,7 +164,7 @@ curl -d '{"geometry":{"type":"Polygon","coordinates":[[[83.96919250488281,28.194
 
 ## Introduction of sozip
 
-We use [sozip](https://github.com/sozip/sozip-spec) optimization while we zip the files , This won't change anything the existing usecase for .zip . Learn more about it in attached link 
+We use [sozip](https://github.com/sozip/sozip-spec) optimization while we zip the files , SOZip makes it possible to access large compressed files directly from a .zip file without prior decompression. It is not a new file format, but a profile of the existing ZIP format, done in a fully backward compatible way. ZIP readers that are non-SOZip aware can read a SOZip-enabled file normally and ignore the extended features that support efficient seek capability. Learn more about it in attached link 
 
 
 ## Tests
