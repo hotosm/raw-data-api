@@ -59,9 +59,6 @@ class User(BaseModel):
     role: int
 
 
-auth = Users()
-
-
 # Create user
 @router.post("/users/", response_model=dict)
 async def create_user(params: User, user_data: AuthUser = Depends(admin_required)):
@@ -77,6 +74,7 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
     Raises:
     - HTTPException: If the user creation fails.
     """
+    auth = Users()
     return auth.create_user(params.osm_id, params.role)
 
 
@@ -95,6 +93,8 @@ async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
     Raises:
     - HTTPException: If the user with the given osm_id is not found.
     """
+    auth = Users()
+
     return auth.read_user(osm_id)
 
 
@@ -134,6 +134,7 @@ async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)
     Raises:
     - HTTPException: If the user with the given osm_id is not found.
     """
+    auth = Users()
     return auth.delete_user(osm_id)
 
 
@@ -152,4 +153,5 @@ async def read_users(
     Returns:
     - List[Dict[str, Any]]: A list of dictionaries containing user information.
     """
+    auth = Users()
     return auth.read_users(skip, limit)
