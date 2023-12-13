@@ -171,11 +171,21 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
 
         @validator("bind_zip", allow_reuse=True)
         def check_bind_option(cls, value, values):
-            """checks if shp is selected along with bind to zip file"""
-            if value is False and values.get("output_type") == "shp":
-                raise ValueError(
-                    "Can't deliver Shapefile without zip , Remove bind_zip paramet or set it to True"
-                )
+            """Checks if cloud optimized output format or geoJSON is selected along with bind to zip file"""
+            if value is False:
+                if values.get("output_type") not in (
+                    (
+                        [
+                            RawDataOutputType.GEOJSON.value,
+                            RawDataOutputType.FLATGEOBUF.value,
+                            RawDataOutputType.GEOPARQUET.value,
+                        ]
+                        + ([RawDataOutputType.PMTILES.value] if ENABLE_TILES else [])
+                    )
+                ):
+                    raise ValueError(
+                        "Only Cloud Optimized format and GeoJSON is supported for streaming"
+                    )
             return value
 
 
