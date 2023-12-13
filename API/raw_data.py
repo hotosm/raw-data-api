@@ -432,10 +432,16 @@ def get_osm_current_snapshot_as_file(
             )
         if ALLOW_BIND_ZIP_FILTER:
             if not params.bind_zip:
-                raise HTTPException(
-                    status_code=403,
-                    detail=[{"msg": "Insufficient Permission for bind_zip"}],
-                )
+                ACCEPTABLE_STREAMING_AREA_SQKM2 = 200
+                if area_km2 > ACCEPTABLE_STREAMING_AREA_SQKM2:
+                    raise HTTPException(
+                        status_code=406,
+                        detail=[
+                            {
+                                "msg": f"Area {area_km2} km2 is greater than {ACCEPTABLE_STREAMING_AREA_SQKM2} km2 which is supported for streaming in this permission"
+                            }
+                        ],
+                    )
 
     queue_name = "recurring_queue" if not params.uuid else "raw_default"
     task = process_raw_data.apply_async(

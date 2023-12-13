@@ -106,7 +106,9 @@ def process_raw_data(self, params):
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
-            upload_name = file_parts if params.uuid else f"Recurring/{file_parts}"
+            upload_name = (
+                f"default/{file_parts}" if params.uuid else f"recurring/{file_parts}"
+            )
             logging.info(upload_name)
 
             if exportname.startswith("hotosm_project"):  # TM
