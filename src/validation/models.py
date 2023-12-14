@@ -27,7 +27,12 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
 from typing_extensions import TypedDict
 
-from src.config import ALLOW_BIND_ZIP_FILTER, ENABLE_TILES, EXPORT_MAX_AREA_SQKM
+from src.config import (
+    ALLOW_BIND_ZIP_FILTER,
+    ENABLE_POLYGON_STATISTICS_ENDPOINTS,
+    ENABLE_TILES,
+    EXPORT_MAX_AREA_SQKM,
+)
 
 
 def to_camel(string: str) -> str:
@@ -41,7 +46,7 @@ class BaseModel(PydanticModel):
         alias_generator = to_camel
         allow_population_by_field_name = True
         use_enum_values = True
-        extra = "forbid"
+        # extra = "forbid"
 
 
 class RawDataOutputType(Enum):
@@ -123,6 +128,11 @@ class RawDataCurrentParamsBase(BaseModel):
         default=True,
         description="Exports features which are exactly inside the passed polygons (ST_WITHIN) By default features which are intersected with passed polygon is exported",
     )
+    if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
+        include_stats: Optional[bool] = Field(
+            default=False,
+            description="Includes detailed stats about the polygon passed such as buildings count , road count along with summary about data completeness in the area",
+        )
     filters: Optional[Filters] = Field(
         default=None,
         example={
@@ -238,3 +248,30 @@ class StatusResponse(BaseModel):
 
     class Config:
         schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+
+
+class StatsRequestParams(BaseModel):
+    geometry: Union[Polygon, MultiPolygon] = Field(
+        example={
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+    )
+
+    @validator("geometry", allow_reuse=True)
+    def get_value_as_feature(cls, value):
+        """Converts geometry to geojson feature"""
+        feature = {
+            "type": "Feature",
+            "geometry": (value.json()),
+            "properties": {},
+        }
+        return feature

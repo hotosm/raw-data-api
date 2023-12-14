@@ -17,17 +17,19 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains Main core logic of app"""
-
 import os
 import subprocess
 import sys
 import threading
 import time
+from datetime import datetime
 from json import dumps
 from json import loads as json_loads
 
 import boto3
+import humanize
 import orjson
+import requests
 from area import area
 from fastapi import HTTPException
 from geojson import FeatureCollection
@@ -43,6 +45,7 @@ from src.config import (
 )
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
+from src.config import POLYGON_STATISTICS_API_URL
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
 from src.config import get_db_connection_params, level
 from src.config import logger as logging
@@ -50,6 +53,7 @@ from src.query_builder.builder import (
     check_exisiting_country,
     check_last_updated_rawdata,
     extract_geometry_type_query,
+    generate_polygon_stats_graphql_query,
     get_countries_query,
     get_country_geojson,
     get_country_id_query,
@@ -885,3 +889,176 @@ class S3FileTransfer:
             f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
         )
         return object_url
+
+
+class PolygonStats:
+    """Generates stats for polygon"""
+
+    def __init__(self, geojson):
+        """
+        Initialize PolygonStats with the provided GeoJSON.
+
+        Args:
+            geojson (dict): GeoJSON representation of the polygon.
+        """
+        self.API_URL = POLYGON_STATISTICS_API_URL
+        self.INPUT_GEOM = dumps(geojson)
+
+    @staticmethod
+    def get_building_pattern_statement(
+        osm_building_count,
+        ai_building_count,
+        avg_timestamp,
+        osm_building_count_6_months,
+    ):
+        """
+        Translates building stats to a human-readable statement.
+
+        Args:
+            osm_building_count (int): Count of buildings from OpenStreetMap.
+            ai_building_count (int): Count of buildings from AI estimates.
+            avg_timestamp (str): Average timestamp of data.
+            osm_building_count_6_months (int): Count of buildings updated in the last 6 months.
+
+        Returns:
+            str: Human-readable building statement.
+        """
+        building_statement = f"OpenStreetMap contains {humanize.intword(osm_building_count)} buildings in this dataset. Based on AI-mapped estimates, this is approximately {round((osm_building_count/ai_building_count)*100)}% of the total buildings in the region. The average age of data for this region is {avg_timestamp}, and {round((osm_building_count_6_months/ai_building_count)*100)}% buildings were added or updated in the last 6 months."
+        return building_statement
+
+    @staticmethod
+    def get_road_pattern_statement(
+        osm_highway_length,
+        ai_highway_length,
+        avg_timestamp,
+        osm_highway_length_6_months,
+    ):
+        """
+        Translates road stats to a human-readable statement.
+
+        Args:
+            osm_highway_length (float): Length of roads from OpenStreetMap.
+            ai_highway_length (float): Length of roads from AI estimates.
+            avg_timestamp (str): Average timestamp of data.
+            osm_highway_length_6_months (float): Length of roads updated in the last 6 months.
+
+        Returns:
+            str: Human-readable road statement.
+        """
+        road_statement = f"OpenStreetMap contains {humanize.intword(osm_highway_length)} km of roads in this dataset. Based on AI-mapped estimates, this is approximately {round(osm_highway_length/ai_highway_length*100)} % of the total road length in the dataset region. The average age of data for the region is {avg_timestamp}, and {round((osm_highway_length_6_months/osm_highway_length)*100)}% of roads were added or updated in the last 6 months."
+        return road_statement
+
+    def get_osm_analytics_meta_stats(self):
+        """
+        Gets the raw stats translated into a JSON body using the OSM Analytics API.
+
+        Returns:
+            dict: Raw statistics translated into JSON.
+        """
+        try:
+            query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
+            payload = {"query": query}
+            response = requests.post(self.API_URL, json=payload, timeout=20)
+            response.raise_for_status()  # Raise an HTTPError for bad responses
+            return response.json()
+        except Exception as e:
+            print(f"Request failed: {e}")
+            return None
+
+    def get_summary_stats(self):
+        """
+        Generates summary statistics for buildings and roads.
+
+        Returns:
+            dict: Summary statistics including building and road statements.
+        """
+        combined_data = {}
+        analytics_data = self.get_osm_analytics_meta_stats()
+        if (
+            analytics_data is None
+            or "data" not in analytics_data
+            or "polygonStatistic" not in analytics_data["data"]
+            or "analytics" not in analytics_data["data"]["polygonStatistic"]
+            or "functions"
+            not in analytics_data["data"]["polygonStatistic"]["analytics"]
+            or analytics_data["data"]["polygonStatistic"]["analytics"]["functions"]
+            is None
+        ):
+            return None
+        for function in analytics_data["data"]["polygonStatistic"]["analytics"][
+            "functions"
+        ]:
+            function_id = function.get("id")
+            result = function.get("result")
+            combined_data[function_id] = result if result is not None else 0
+        combined_data["osm_buildings_freshness_percentage"] = (
+            100 - combined_data["antiqueOsmBuildingsPercentage"]
+        )
+        combined_data["osm_building_completeness_percentage"] = (
+            100
+            if combined_data["osmBuildingsCount"] == 0
+            and combined_data["aiBuildingsCountEstimation"] == 0
+            else (
+                combined_data["osmBuildingsCount"]
+                / combined_data["aiBuildingsCountEstimation"]
+            )
+            * 100
+        )
+
+        combined_data["osm_roads_freshness_percentage"] = (
+            100 - combined_data["antiqueOsmRoadsPercentage"]
+        )
+
+        combined_data["osm_roads_completeness_percentage"] = (
+            100 - combined_data["osmRoadGapsPercentage"]
+        )
+
+        combined_data["averageEditTime"] = datetime.fromtimestamp(
+            combined_data["averageEditTime"]
+        )
+        combined_data["lastEditTime"] = datetime.fromtimestamp(
+            combined_data["lastEditTime"]
+        )
+
+        building_summary = self.get_building_pattern_statement(
+            combined_data["osmBuildingsCount"],
+            combined_data["aiBuildingsCountEstimation"],
+            combined_data["averageEditTime"],
+            combined_data["building_count_6_months"],
+        )
+
+        road_summary = self.get_road_pattern_statement(
+            combined_data["highway_length"],
+            combined_data["aiRoadCountEstimation"],
+            combined_data["averageEditTime"],
+            combined_data["highway_length_6_months"],
+        )
+
+        return_stats = {
+            "summary": {"building": building_summary, "road": road_summary},
+            "raw": {
+                "population": combined_data["population"],
+                "populatedAreaKm2": combined_data["populatedAreaKm2"],
+                "averageEditTime": combined_data["averageEditTime"].strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
+                "lastEditTime": combined_data["lastEditTime"].strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
+                "osmBuildingsCount": combined_data["osmBuildingsCount"],
+                "osmHighwayLengthKm": combined_data["highway_length"],
+                "osmUsersCount": combined_data["osmUsersCount"],
+                "aiBuildingsCountEstimationKm": combined_data[
+                    "aiBuildingsCountEstimation"
+                ],
+                "aiRoadCountEstimationKm": combined_data["aiRoadCountEstimation"],
+                "buildingCount6Months": combined_data["building_count_6_months"],
+                "highwayLength6Months": combined_data["highway_length_6_months"],
+            },
+            "meta": {
+                "indicators": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md",
+                "metrics": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md",
+            },
+        }
+
+        return return_stats
