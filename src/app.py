@@ -984,6 +984,7 @@ class PolygonStats:
             or analytics_data["data"]["polygonStatistic"]["analytics"]["functions"]
             is None
         ):
+            logging.error(analytics_data)
             return None
         for function in analytics_data["data"]["polygonStatistic"]["analytics"][
             "functions"

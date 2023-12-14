@@ -271,7 +271,7 @@ class StatsRequestParams(BaseModel):
         """Converts geometry to geojson feature"""
         feature = {
             "type": "Feature",
-            "geometry": (value.json()),
+            "geometry": json.loads(value.json()),
             "properties": {},
         }
         return feature

@@ -70,7 +70,7 @@ def process_raw_data(self, params):
         )
         inside_file_size = 0
         polygon_stats = None
-        if "include_stats" in params:
+        if "include_stats" in params.dict():
             if params.include_stats:
                 feature = {
                     "type": "Feature",
