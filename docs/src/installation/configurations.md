@@ -92,8 +92,8 @@ The following are the different configuration options that are accepted.
 | `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | Yes | Yes |
 | `INDEX_THRESHOLD` | `[API_CONFIG]` | No | Yes |
 | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | Yes | No |
-| `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | Yes | No |
-| `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | Yes | No |
+| `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | Yes | Yes |
+| `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | Yes | Yes |
 | `CELERY_BROKER_URL` | TBD | Yes | Yes |
 | `CELERY_RESULT_BACKEND` | TBD | Yes | Yes |
 | `FILE_UPLOAD_METHOD` | TBD | Yes | Yes |
