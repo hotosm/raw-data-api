@@ -70,13 +70,14 @@ def process_raw_data(self, params):
         )
         inside_file_size = 0
         polygon_stats = None
-        if params.include_stats:
-            feature = {
-                "type": "Feature",
-                "geometry": json.loads(params.geometry.json()),
-                "properties": {},
-            }
-            polygon_stats = PolygonStats(feature).get_summary_stats()
+        if "include_stats" in params:
+            if params.include_stats:
+                feature = {
+                    "type": "Feature",
+                    "geometry": json.loads(params.geometry.json()),
+                    "properties": {},
+                }
+                polygon_stats = PolygonStats(feature).get_summary_stats()
         if bind_zip:
             logging.debug("Zip Binding Started !")
             # saving file in temp directory instead of memory so that zipping file will not eat memory
