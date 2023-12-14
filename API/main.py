@@ -27,6 +27,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from src.config import (
+    ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     EXPORT_PATH,
     LIMITER,
     LOG_LEVEL,
@@ -41,6 +42,9 @@ from src.db_session import database_instance
 from .auth.routers import router as auth_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
+
+if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
+    from .stats import router as stats_router
 
 # only use sentry if it is specified in config blocks
 if SENTRY_DSN:
@@ -62,6 +66,9 @@ app = FastAPI(title="Raw Data API ")
 app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
+if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
+    app.include_router(stats_router)
+
 app.openapi = {
     "info": {
         "title": "Raw Data API",

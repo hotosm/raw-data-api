@@ -763,3 +763,46 @@ def get_osm_feature_query(osm_id):
         FROM (select {select_condition} from relations) r 
         WHERE osm_id = {osm_id}"""
     return query
+
+
+def generate_polygon_stats_graphql_query(geojson_feature):
+    """
+    Gernerates the graphql query for the statistics
+    """
+    query = """
+    {
+        polygonStatistic (
+        polygonStatisticRequest: {
+            polygon: %s
+        }
+        )
+        {
+        analytics {
+            functions(args:[
+            {name:"sumX", id:"population", x:"population"},
+            {name:"sumX", id:"populatedAreaKm2", x:"populated_area_km2"},
+            {name:"percentageXWhereNoY", id:"osmBuildingGapsPercentage", x:"populated_area_km2", y:"building_count"},
+            {name:"percentageXWhereNoY", id:"osmRoadGapsPercentage", x:"populated_area_km2", y:"highway_length"},
+            {name:"percentageXWhereNoY", id:"antiqueOsmBuildingsPercentage", x:"populated_area_km2", y:"building_count_6_months"},
+            {name:"percentageXWhereNoY", id:"antiqueOsmRoadsPercentage", x:"populated_area_km2", y:"highway_length_6_months"},
+            {name:"avgX", id:"averageEditTime", x:"avgmax_ts"},
+            {name:"maxX", id:"lastEditTime", x:"avgmax_ts"},
+            {name:"sumX", id:"osmBuildingsCount", x:"building_count"},
+            {name:"sumX", id:"highway_length", x:"highway_length"},
+            {name:"sumX", id:"osmUsersCount", x:"osm_users"},
+            {name:"sumX", id:"building_count_6_months" , x:"building_count_6_months"},
+            {name:"sumX", id:"highway_length_6_months", x:"highway_length_6_months"},
+            {name:"sumX", id:"aiBuildingsCountEstimation", x:"total_building_count"}
+            {name:"sumX", id:"aiRoadCountEstimation", x:"total_road_length"}
+
+            ]) {
+            id,
+            result
+            }
+        }
+        }
+    }
+  """
+    query = query % dumps(geojson_feature)
+
+    return query

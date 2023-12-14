@@ -160,6 +160,22 @@ USE_CONNECTION_POOLING = os.environ.get("USE_CONNECTION_POOLING") or config.getb
 )
 
 
+### Polygon statistics which will deliver the stats of approx buildings/ roads in the area
+
+ENABLE_POLYGON_STATISTICS_ENDPOINTS = os.environ.get(
+    "ENABLE_POLYGON_STATISTICS_ENDPOINTS"
+) or config.getboolean(
+    "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
+)
+POLYGON_STATISTICS_API_URL = os.environ.get("POLYGON_STATISTICS_API_URL") or config.get(
+    "API_CONFIG", "POLYGON_STATISTICS_API_URL", fallback=None
+)
+
+POLYGON_STATISTICS_API_RATE_LIMIT = os.environ.get(
+    "POLYGON_STATISTICS_API_RATE_LIMIT"
+) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_RATE_LIMIT", fallback=5)
+
+
 def get_db_connection_params() -> dict:
     """Return a python dict that can be passed to psycopg2 connections
     to authenticate to Postgres Databases

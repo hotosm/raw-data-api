@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import re
@@ -10,7 +11,7 @@ import requests
 import sozipfile.sozipfile as zipfile
 from celery import Celery
 
-from src.app import RawData, S3FileTransfer
+from src.app import PolygonStats, RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
@@ -68,6 +69,14 @@ def process_raw_data(self, params):
             file_parts
         )
         inside_file_size = 0
+        polygon_stats = None
+        if params.include_stats:
+            feature = {
+                "type": "Feature",
+                "geometry": json.loads(params.geometry.json()),
+                "properties": {},
+            }
+            polygon_stats = PolygonStats(feature).get_summary_stats()
         if bind_zip:
             logging.debug("Zip Binding Started !")
             # saving file in temp directory instead of memory so that zipping file will not eat memory
@@ -93,7 +102,11 @@ def process_raw_data(self, params):
             # Adding metadata readme.txt
             readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
             readme_content += "Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n"
-            readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about"
+            readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about \n"
+            if polygon_stats:
+                readme_content += f'{polygon_stats["summary"]["building"]}\n'
+                readme_content += f'{polygon_stats["summary"]["road"]}\n'
+                readme_content += "Read about what this summary means: indicators: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md,metrics: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md"
 
             zf.writestr("Readme.txt", readme_content)
 
@@ -156,7 +169,7 @@ def process_raw_data(self, params):
         logging.info(
             f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}"
         )
-        return {
+        final_response = {
             "download_url": download_url,
             "file_name": params.file_name,
             "process_time": response_time_str,
@@ -164,6 +177,9 @@ def process_raw_data(self, params):
             "binded_file_size": f"{round(inside_file_size/1000000,2)} MB",
             "zip_file_size_bytes": zip_file_size,
         }
+        if polygon_stats:
+            final_response["stats"] = polygon_stats
+        return final_response
 
     except Exception as ex:
         raise ex
