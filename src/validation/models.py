@@ -44,7 +44,7 @@ def to_camel(string: str) -> str:
 class BaseModel(PydanticModel):
     class Config:
         alias_generator = to_camel
-        allow_population_by_field_name = True
+        populate_by_name = True
         use_enum_values = True
         # extra = "forbid"
 
@@ -204,7 +204,7 @@ class SnapshotResponse(BaseModel):
     track_link: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
                 "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
@@ -227,7 +227,7 @@ class SnapshotTaskResponse(BaseModel):
     result: SnapshotTaskResult
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
                 "status": "SUCCESS",
@@ -247,7 +247,7 @@ class StatusResponse(BaseModel):
     last_updated: str
 
     class Config:
-        schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+        json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
 
 
 class StatsRequestParams(BaseModel):

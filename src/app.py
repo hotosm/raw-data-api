@@ -33,7 +33,6 @@ from json import dumps
 from json import loads as json_loads
 
 import boto3
-import duckdb
 import humanize
 import orjson
 import requests
@@ -43,11 +42,13 @@ from fastapi import HTTPException
 from geojson import FeatureCollection
 from psycopg2 import OperationalError, connect
 from psycopg2.extras import DictCursor
+from slugify import slugify
 
 from src.config import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     BUCKET_NAME,
+    ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ENABLE_TILES,
     EXPORT_MAX_AREA_SQKM,
@@ -83,8 +84,10 @@ else:
     database_instance = None
 import logging as log
 
-# assigning global variable of pooling so that it
-# will be accessible from any function within this script
+if ENABLE_HDX_EXPORTS:
+    import duckdb
+    from hdx.data.dataset import Dataset
+
 global LOCAL_CON_POOL
 
 # getting the pool instance which was fireup when API is started
@@ -658,7 +661,7 @@ class RawData:
     @staticmethod
     def geojson2tiles(geojson_path, tile_path, tile_layer_name):
         """Responsible for geojson to tiles"""
-        cmd = """tippecanoe -zg --projection=EPSG:4326 -o {tile_output_path} -l {tile_layer_name} {geojson_input_path} --force""".format(
+        cmd = """tippecanoe -zg --projection=EPSG:4326 -o {tile_output_path} -l {tile_layer_name} --force {geojson_input_path}""".format(
             tile_output_path=tile_path,
             tile_layer_name=tile_layer_name,
             geojson_input_path=geojson_path,
@@ -1126,15 +1129,6 @@ class DuckDB:
             con.execute(query)
 
 
-class HDXUploader:
-    def __init__(self, dataset_prefix, export_url, category):
-        self.dataset_prefix = dataset_prefix
-        self.export_url = export_url
-        self.category = category
-
-    # def
-
-
 class HDX:
     def __init__(self, ISO3):
         self.iso3 = ISO3.lower()
@@ -1189,21 +1183,24 @@ class HDX:
         else:
             return where_clause
 
-    # def s3url_to_hdx(self , url, category):
-
-    def zip_to_s3(self, zip_path):
-        s3_upload_name = os.path.relpath(zip_path, os.path.join(export_path, self.uuid))
-
-        if not USE_S3_TO_UPLOAD:
-            raise HTTPException(
-                status_code=404, detail="S3 Export service is disabled on server"
+    def zip_to_s3(self, resources):
+        for resource in resources:
+            s3_upload_name = os.path.relpath(
+                resource["zip_path"], os.path.join(export_path, self.uuid)
             )
-        file_transfer_obj = S3FileTransfer()
-        download_url = file_transfer_obj.upload(
-            zip_path,
-            str(s3_upload_name),
-        )
-        return download_url
+
+            if not USE_S3_TO_UPLOAD:
+                raise HTTPException(
+                    status_code=404, detail="S3 Export service is disabled on server"
+                )
+            file_transfer_obj = S3FileTransfer()
+            download_url = file_transfer_obj.upload(
+                resource["zip_path"],
+                str(s3_upload_name),
+            )
+            resource["download_url"] = download_url
+
+        return resources
         # if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
         #     polygon_stats = PolygonStats(iso3=self.iso3).get_summary_stats()
         #     readme_content += f'{polygon_stats["summary"]["building"]}\n'
@@ -1235,6 +1232,7 @@ class HDX:
         file_export_path = os.path.join(
             self.default_export_path, category_name, feature_type
         )
+        resources = []
         for export_format in export_formats:
             export_format_path = os.path.join(file_export_path, export_format.suffix)
             os.makedirs(export_format_path, exist_ok=True)
@@ -1258,7 +1256,14 @@ class HDX:
             self.duck_db_instance.run_query(executable_query.strip(), load_spatial=True)
             zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
             zip_path = self.file_to_zip(export_format_path, zip_file_path)
-            return zip_path
+            resource = {}
+            resource["filename"] = f"{export_filename}.zip"
+            resource["zip_path"] = zip_path
+            resource["format_suffix"] = export_format.suffix
+            resource["format_description"] = export_format.driver_name
+
+            resources.append(resource)
+        return resources
 
     def process_category(self, category):
         category_name, category_data = list(category.items())[0]
@@ -1266,11 +1271,11 @@ class HDX:
             extract_query = extract_features_duckdb(
                 self.iso3, category_data.select, feature_type, category_data.where
             )
-            zip_path = self.query_to_file(
+            resources = self.query_to_file(
                 extract_query, category_name, feature_type, category_data.formats
             )
-            s3_download_url = self.zip_to_s3(zip_path)
-            return s3_download_url
+            uploaded_resources = self.zip_to_s3(resources)
+            return uploaded_resources
 
     def process_hdx_tags(self, params):
         table_type = [
@@ -1295,7 +1300,88 @@ class HDX:
             for future in concurrent.futures.as_completed(futures):
                 category = futures[future]
                 try:
-                    result = future.result()
-                    print(result, category)
+                    uploaded_resources = future.result()
+                    print(uploaded_resources, category)
+                    self.resource_to_hdx(uploaded_resources, category)
+
                 except Exception as e:
-                    logging.error(f"An error occurred for category {category}: {e}")
+                    raise e
+                    # logging.error(f"An error occurred for category {category}: {e}")
+
+    def resource_to_hdx(self, uploaded_resources, category):
+        uploader = HDXUploader(category)
+        uploader.init_dataset(
+            self.dataset_prefix, self.dataset_name, self.dataset_locations
+        )
+        for resource in uploaded_resources:
+            uploader.add_resource(
+                resource["filename"],
+                resource["format_suffix"],
+                resource["format_description"],
+                resource["download_url"],
+            )
+        uploader.upload_dataset()
+
+
+class HDXUploader:
+    def __init__(self, category):
+        self.category_name, self.category_data = list(category.items())[0]
+        self.dataset = None
+
+    def slugify(self, name):
+        return slugify(name).replace("-", "_")
+
+    def add_resource(
+        self, resource_name, resource_format, resource_description, export_url
+    ):
+        if self.dataset:
+            resource = {
+                "name": resource_name,
+                "format": resource_format,
+                "description": resource_description,
+                "url": export_url,
+                "last_modified": datetime.now().isoformat(),
+            }
+            print(resource)
+            self.dataset.add_update_resource(resource)
+
+    def upload_dataset(self):
+        if self.dataset:
+            exists = Dataset.read_from_hdx(self.dataset["name"])
+            if exists:
+                # self.dataset.set_date_of_dataset(datetime.now())
+                self.dataset.update_in_hdx()
+            else:
+                # self.dataset.set_date_of_dataset(datetime.now())
+                self.dataset.create_in_hdx(allow_no_resources=True)
+
+    def init_dataset(
+        self,
+        dataset_prefix,
+        dataset_name,
+        dataset_locations,
+    ):
+        self.dataset = Dataset(
+            {
+                "name": "{0}_{1}".format(
+                    dataset_prefix, self.slugify(self.category_name)
+                ),
+                "title": "{0} {1} (OpenStreetMap Export)".format(
+                    dataset_name, self.category_name
+                ),
+                "owner_org": "225b9f7d-e7cb-4156-96a6-44c9c58d31e3",
+                "maintainer": "6a0688ce-8521-46e2-8edd-8e26c0851ebd",
+                "dataset_source": "OpenStreetMap contributors",
+                "methodology": "Other",
+                "methodology_other": "Volunteered geographic information",
+                "license_id": "hdx-odc-odbl",
+                "updated_by_script": f'Hotosm OSM Exports ({datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}',
+                "data_update_frequency": -2,
+                "caveats": self.category_data.hdx.caveats,
+                ## notes , private and subnational option
+            }
+        )
+        for location in dataset_locations:
+            self.dataset.add_country_location(location)
+        for tag in self.category_data.hdx.tags:
+            self.dataset.add_tag(tag)

@@ -95,7 +95,6 @@ class DynamicCategoriesModel(BaseModel):
         max_length=3,
         example="USA",
     )
-
     categories: List[Dict[str, CategoryModel]] = Field(
         ...,
         description="List of dynamic categories.",
@@ -124,7 +123,7 @@ async def process_data(
     params: DynamicCategoriesModel = Body(
         ...,
         description="Input parameters including ISO3 country code and dynamic categories.",
-        examples={
+        openapi_examples={
             "normal": {
                 "summary": "Example: Road extraction set",
                 "description": "Query to extract road in Nepal",

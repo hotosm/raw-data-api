@@ -64,7 +64,7 @@ def get_osm_current_snapshot_as_file(
     request: Request,
     params: RawDataCurrentParams = Body(
         default={},
-        examples={
+        openapi_examples={
             "normal": {
                 "summary": "Example : Extract Evertyhing in the area",
                 "description": "**Query** to Extract everything in the area , You can pass your geometry only and you will get everything on that area",
@@ -450,7 +450,7 @@ def get_osm_current_snapshot_as_file(
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
-@router.post("/snapshot/plain/", response_model=FeatureCollection)
+@router.post("/snapshot/plain/")
 @version(1)
 def get_osm_current_snapshot_as_plain_geojson(
     request: Request,
@@ -482,14 +482,14 @@ def get_osm_current_snapshot_as_plain_geojson(
     return result
 
 
-@router.get("/countries/", response_model=FeatureCollection)
+@router.get("/countries/")
 @version(1)
 def get_countries(q: str = ""):
     result = RawData().get_countries_list(q)
     return result
 
 
-@router.get("/osm_id/", response_model=FeatureCollection)
+@router.get("/osm_id/")
 @version(1)
 def get_osm_feature(osm_id: int):
     return RawData().get_osm_feature(osm_id)
