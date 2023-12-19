@@ -806,3 +806,71 @@ def generate_polygon_stats_graphql_query(geojson_feature):
     query = query % dumps(geojson_feature)
 
     return query
+
+
+def get_country_from_iso(iso3):
+    query = f"""SELECT
+                    b.cid::int as fid, b.description as name, b.dataset_name as dataset_prefix, b.locations as locations
+                FROM
+                    countries b
+                WHERE
+                    LOWER(iso_3) = '{iso3}'
+                """
+    return query
+
+
+def postgres2duckdb_query(iso3, cid, table, enable_users_detail=False):
+    select_query = (
+        """osm_id, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
+    )
+    create_select_duck_db = """osm_id,version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
+
+    if enable_users_detail:
+        select_query = """osm_id, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
+        create_select_duck_db = """osm_id, uid, user, version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
+
+    duck_db_create = f"""CREATE TABLE {iso3}_{table} AS SELECT {create_select_duck_db} FROM postgres_query("postgres_db", "SELECT {select_query} FROM {table} WHERE country <@ ARRAY [{cid}]") """
+
+    return duck_db_create
+
+
+def extract_features_duckdb(iso3, select, feature_type, where):
+    map_tables = {
+        "points": {"table": ["nodes"], "where": {"nodes": where}},
+        "lines": {
+            "table": ["ways_line", "relations"],
+            "where": {
+                "ways_line": where,
+                "relations": f"{where} and ST_GeometryType(geometry)='MULTILINESTRING'",
+            },
+        },
+        "polygons": {
+            "table": ["ways_poly", "relations"],
+            "where": {
+                "ways_poly": where,
+                "relations": f"{where} and (ST_GeometryType(geometry)='MULTIPOLYGON' or ST_GeometryType(geometry)='POLYGON')",
+            },
+        },
+    }
+
+    select = [f"tags['{item}'][1] as '{item}'" for item in select]
+    select += ["osm_id", "geometry"]
+    select_query = ", ".join(select)
+
+    from_query = map_tables[feature_type]["table"]
+    base_query = []
+    for table in from_query:
+        query = f"""select {select_query} from {f"{iso3}_{table}"} where {map_tables[feature_type]['where'][table]}"""
+        base_query.append(query)
+    return " UNION ALL ".join(base_query)
+
+
+def get_country_geom_from_iso(iso3):
+    query = f"""SELECT
+                    ST_AsGeoJSON(geometry) as geom
+                FROM
+                    countries b
+                WHERE
+                    LOWER(iso_3) = '{iso3}'
+                """
+    return query

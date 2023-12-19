@@ -40,6 +40,7 @@ from src.config import logger as logging
 from src.db_session import database_instance
 
 from .auth.routers import router as auth_router
+from .hdx import router as hdx_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
 
@@ -66,6 +67,7 @@ app = FastAPI(title="Raw Data API ")
 app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
+app.include_router(hdx_router)
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     app.include_router(stats_router)
 

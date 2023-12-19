@@ -17,19 +17,27 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains Main core logic of app"""
+import concurrent.futures
 import os
+import pathlib
+import re
+import shutil
 import subprocess
 import sys
-import threading
 import time
+import uuid
 from datetime import datetime
+from datetime import datetime as dt
+from datetime import timezone
 from json import dumps
 from json import loads as json_loads
 
 import boto3
+import duckdb
 import humanize
 import orjson
 import requests
+import sozipfile.sozipfile as zipfile
 from area import area
 from fastapi import HTTPException
 from geojson import FeatureCollection
@@ -40,6 +48,7 @@ from src.config import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     BUCKET_NAME,
+    ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ENABLE_TILES,
     EXPORT_MAX_AREA_SQKM,
 )
@@ -47,17 +56,21 @@ from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import POLYGON_STATISTICS_API_URL
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
-from src.config import get_db_connection_params, level
+from src.config import USE_S3_TO_UPLOAD, get_db_connection_params, level
 from src.config import logger as logging
 from src.query_builder.builder import (
     check_exisiting_country,
     check_last_updated_rawdata,
+    extract_features_duckdb,
     extract_geometry_type_query,
     generate_polygon_stats_graphql_query,
     get_countries_query,
+    get_country_from_iso,
     get_country_geojson,
+    get_country_geom_from_iso,
     get_country_id_query,
     get_osm_feature_query,
+    postgres2duckdb_query,
     raw_currentdata_extraction_query,
     raw_extract_plain_geojson,
 )
@@ -94,6 +107,11 @@ def print_psycopg2_exception(err):
     print("pgerror:", err.pgerror)
     print("pgcode:", err.pgcode, "\n")
     raise err
+
+
+def convert_dict_to_conn_str(db_dict):
+    conn_str = " ".join([f"{key}={value}" for key, value in db_dict.items()])
+    return conn_str
 
 
 def check_for_json(result_str):
@@ -866,13 +884,14 @@ class S3FileTransfer:
             raise ex
         return bucket_location or "us-east-1"
 
-    def upload(self, file_path, file_name, file_suffix="zip"):
+    def upload(self, file_path, file_name, file_suffix=None):
         """Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
         Parameters :file_path --- your local file path to upload ,
             file_prefix -- prefix for the filename which is stored
         sample function call :
             S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test")"""
-        file_name = f"{file_name}.{file_suffix}"
+        if file_suffix:
+            file_name = f"{file_name}.{file_suffix}"
         logging.debug("Started Uploading %s from %s", file_name, file_path)
         # instantiate upload
         start_time = time.time()
@@ -894,7 +913,7 @@ class S3FileTransfer:
 class PolygonStats:
     """Generates stats for polygon"""
 
-    def __init__(self, geojson):
+    def __init__(self, geojson=None, iso3=None):
         """
         Initialize PolygonStats with the provided GeoJSON.
 
@@ -902,7 +921,22 @@ class PolygonStats:
             geojson (dict): GeoJSON representation of the polygon.
         """
         self.API_URL = POLYGON_STATISTICS_API_URL
-        self.INPUT_GEOM = dumps(geojson)
+        if geojson is None and iso3 is None:
+            raise HTTPException(
+                status_code=404, detail="Either geojson or iso3 should be passed"
+            )
+
+        if iso3:
+            dbdict = get_db_connection_params()
+            d_b = Database(dbdict)
+            con, cur = d_b.connect()
+            cur.execute(get_country_geom_from_iso(iso3))
+            result = cur.fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Invalid iso3 code")
+            self.INPUT_GEOM = result[0]
+        else:
+            self.INPUT_GEOM = dumps(geojson)
 
     @staticmethod
     def get_building_pattern_statement(
@@ -1063,3 +1097,205 @@ class PolygonStats:
         }
 
         return return_stats
+
+
+class DuckDB:
+    def __init__(self, db_path):
+        dbdict = get_db_connection_params()
+        self.db_con_str = convert_dict_to_conn_str(db_dict=dbdict)
+        self.db_path = db_path
+        if os.path.exists(self.db_path):
+            os.remove(self.db_path)
+        con = duckdb.connect(self.db_path)
+        con.sql(f"""ATTACH '{self.db_con_str}' AS postgres_db (TYPE POSTGRES)""")
+        con.install_extension("spatial")
+        con.install_extension("json")
+        con.load_extension("spatial")
+        con.load_extension("json")
+
+    def run_query(self, query, attach_pgsql=False, load_spatial=False):
+        with duckdb.connect(self.db_path) as con:
+            if attach_pgsql:
+                con.execute(
+                    f"""ATTACH '{self.db_con_str}' AS postgres_db (TYPE POSTGRES)"""
+                )
+                load_spatial = True
+            if load_spatial:
+                con.load_extension("spatial")
+            # con.load_extension("json")
+            con.execute(query)
+
+
+class HDXUploader:
+    def __init__(self, dataset_prefix, export_url, category):
+        self.dataset_prefix = dataset_prefix
+        self.export_url = export_url
+        self.category = category
+
+    # def
+
+
+class HDX:
+    def __init__(self, ISO3):
+        self.iso3 = ISO3.lower()
+        dbdict = get_db_connection_params()
+        d_b = Database(dbdict)
+        con, cur = d_b.connect()
+        cur.execute(get_country_from_iso(self.iso3))
+        result = cur.fetchall()[0]
+        if not result:
+            raise HTTPException(status_code=404, detail="Invalid iso3 code")
+
+        (
+            self.cid,
+            self.dataset_name,
+            self.dataset_prefix,
+            self.dataset_locations,
+        ) = result
+
+        self.uuid = str(uuid.uuid4())
+        self.default_export_path = os.path.join(
+            export_path, self.uuid, "HDX", self.iso3.upper()
+        )
+        if os.path.exists(self.default_export_path):
+            shutil.rmtree(self.default_export_path)
+        os.makedirs(self.default_export_path)
+        self.duck_db_instance = DuckDB(
+            os.path.join(self.default_export_path, f"{self.iso3}.db")
+        )
+
+    def types_to_tables(self, type_list: list):
+        mapping = {
+            "points": ["nodes"],
+            "lines": ["ways_line", "relations"],
+            "polygons": ["ways_poly", "relations"],
+        }
+
+        table_set = set()
+
+        for t in type_list:
+            if t in mapping:
+                table_set.update(mapping[t])
+
+        return list(table_set)
+
+    def format_where_clause(self, where_clause):
+        pattern = r"tags\['([^']+)'\]\[1\]"
+        match = re.search(pattern, where_clause)
+
+        if match:
+            key = match.group(1)
+            return where_clause.replace(match.group(0), key)
+        else:
+            return where_clause
+
+    # def s3url_to_hdx(self , url, category):
+
+    def zip_to_s3(self, zip_path):
+        s3_upload_name = os.path.relpath(zip_path, os.path.join(export_path, self.uuid))
+
+        if not USE_S3_TO_UPLOAD:
+            raise HTTPException(
+                status_code=404, detail="S3 Export service is disabled on server"
+            )
+        file_transfer_obj = S3FileTransfer()
+        download_url = file_transfer_obj.upload(
+            zip_path,
+            str(s3_upload_name),
+        )
+        return download_url
+        # if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
+        #     polygon_stats = PolygonStats(iso3=self.iso3).get_summary_stats()
+        #     readme_content += f'{polygon_stats["summary"]["building"]}\n'
+        #     readme_content += f'{polygon_stats["summary"]["road"]}\n'
+        #     readme_content += "Read about what this summary means: indicators: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md,metrics: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md"
+
+    def file_to_zip(self, working_dir, zip_path):
+        zf = zipfile.ZipFile(
+            zip_path,
+            "w",
+            compression=zipfile.ZIP_DEFLATED,
+            chunk_size=zipfile.SOZIP_DEFAULT_CHUNK_SIZE,
+        )
+        for file_path in pathlib.Path(working_dir).iterdir():
+            zf.write(file_path, arcname=file_path.name)
+        utc_now = dt.now(timezone.utc)
+        utc_offset = utc_now.strftime("%z")
+        # Adding metadata readme.txt
+        readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
+        readme_content += "Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n"
+        readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about \n"
+        zf.writestr("Readme.txt", readme_content)
+        zf.close()
+        shutil.rmtree(working_dir)
+        return zip_path
+
+    def query_to_file(self, query, category_name, feature_type, export_formats):
+        category_name = category_name.lower().replace(" ", "_")
+        file_export_path = os.path.join(
+            self.default_export_path, category_name, feature_type
+        )
+        for export_format in export_formats:
+            export_format_path = os.path.join(file_export_path, export_format.suffix)
+            os.makedirs(export_format_path, exist_ok=True)
+
+            export_filename = f"""{self.dataset_prefix}_{category_name}_{feature_type}_{export_format.suffix}"""
+            export_file_path = os.path.join(
+                export_format_path, f"{export_filename}.{export_format.suffix}"
+            )
+
+            if os.path.exists(export_file_path):
+                os.remove(export_file_path)
+
+            layer_creation_options_str = (
+                " ".join(
+                    [f"'{option}'" for option in export_format.layer_creation_options]
+                )
+                if export_format.layer_creation_options
+                else ""
+            )
+            executable_query = f"""COPY ({query.strip()}) TO '{export_file_path}' WITH (FORMAT {export_format.format_option}, DRIVER '{export_format.driver_name}'{f', LAYER_CREATION_OPTIONS {layer_creation_options_str}' if layer_creation_options_str else ''})"""
+            self.duck_db_instance.run_query(executable_query.strip(), load_spatial=True)
+            zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
+            zip_path = self.file_to_zip(export_format_path, zip_file_path)
+            return zip_path
+
+    def process_category(self, category):
+        category_name, category_data = list(category.items())[0]
+        for feature_type in category_data.types:
+            extract_query = extract_features_duckdb(
+                self.iso3, category_data.select, feature_type, category_data.where
+            )
+            zip_path = self.query_to_file(
+                extract_query, category_name, feature_type, category_data.formats
+            )
+            s3_download_url = self.zip_to_s3(zip_path)
+            return s3_download_url
+
+    def process_hdx_tags(self, params):
+        table_type = [
+            cat_type
+            for category in params.categories
+            for cat_type in list(category.values())[0].types
+        ]
+        table_names = self.types_to_tables(list(set(table_type)))
+
+        for table in table_names:
+            create_table = postgres2duckdb_query(self.iso3, self.cid, table)
+            self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
+
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=os.cpu_count() * 2
+        ) as executor:
+            futures = {
+                executor.submit(self.process_category, category): category
+                for category in params.categories
+            }
+
+            for future in concurrent.futures.as_completed(futures):
+                category = futures[future]
+                try:
+                    result = future.result()
+                    print(result, category)
+                except Exception as e:
+                    logging.error(f"An error occurred for category {category}: {e}")

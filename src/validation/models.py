@@ -252,6 +252,7 @@ class StatusResponse(BaseModel):
 
 class StatsRequestParams(BaseModel):
     geometry: Union[Polygon, MultiPolygon] = Field(
+        default=None,
         example={
             "type": "Polygon",
             "coordinates": [
@@ -265,13 +266,30 @@ class StatsRequestParams(BaseModel):
             ],
         },
     )
+    so3: str = Field(
+        default=None,
+        description="ISO3 Country Code.",
+        min_length=3,
+        max_length=3,
+        example="NPL",
+    )
 
-    @validator("geometry", allow_reuse=True)
-    def get_value_as_feature(cls, value):
-        """Converts geometry to geojson feature"""
-        feature = {
-            "type": "Feature",
-            "geometry": json.loads(value.json()),
-            "properties": {},
-        }
-        return feature
+    @validator("geometry", pre=True, always=True)
+    def set_geometry_or_iso3(cls, value, values):
+        """Either geometry or iso3 should be supplied."""
+        if value is not None and values.get("iso3") is not None:
+            raise ValueError("Only one of geometry or iso3 should be supplied.")
+        if value is None and values.get("iso3") is None:
+            raise ValueError("Either geometry or iso3 should be supplied.")
+        return value
+
+    @validator("geometry", pre=True, always=True)
+    def validate_geometry(cls, value):
+        """Converts geometry to geojson feature."""
+        if value is not None:
+            feature = {
+                "type": "Feature",
+                "geometry": json.loads(value.json()),
+                "properties": {},
+            }
+            return feature

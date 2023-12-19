@@ -22,6 +22,6 @@ async def get_polygon_stats(request: Request, params: StatsRequestParams):
     Returns:
         dict: A dictionary containing statistics for the specified polygon.
     """
-    generator = PolygonStats(params.geometry)
+    generator = PolygonStats(params.geometry, params.iso3)
 
     return generator.get_summary_stats()

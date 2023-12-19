@@ -175,6 +175,26 @@ POLYGON_STATISTICS_API_RATE_LIMIT = os.environ.get(
     "POLYGON_STATISTICS_API_RATE_LIMIT"
 ) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_RATE_LIMIT", fallback=5)
 
+ENABLE_HDX_EXPORTS = os.environ.get("ENABLE_HDX_EXPORTS") or config.getboolean(
+    "HDX", "ENABLE_HDX_EXPORTS", fallback=False
+)
+
+HDX_SITE = os.environ.get("HDX_SITE") or config.getboolean(
+    "HDX", "HDX_SITE", fallback="demo"
+)
+HDX_API_KEY = os.environ.get("HDX_API_KEY") or config.getboolean(
+    "HDX", "HDX_API_KEY", fallback=None
+)
+
+if ENABLE_HDX_EXPORTS:
+    from hdx.api.configuration import Configuration
+
+    HDX_URL_PREFIX = Configuration.create(
+        hdx_site=HDX_SITE,
+        hdx_key=HDX_API_KEY,
+        user_agent="HDXPythonLibrary/6.2.0-HOTOSM OSM Exports",
+    )
+
 
 def get_db_connection_params() -> dict:
     """Return a python dict that can be passed to psycopg2 connections
