@@ -1297,10 +1297,8 @@ class HDX:
 
     def resource_to_hdx(self, uploaded_resources, dataset_config, category):
         if any(
-            map(
-                lambda v: v["format_suffix"] in uploaded_resources,
-                self.HDX_SUPPORTED_FORMATS,
-            )
+            item["format_suffix"] in self.HDX_SUPPORTED_FORMATS
+            for item in uploaded_resources
         ):
             uploader = HDXUploader(
                 hdx=dataset_config,
@@ -1356,7 +1354,7 @@ class HDX:
                     )
 
                 except Exception as e:
-                    # raise e
+                    raise e
                     logging.error(f"An error occurred for category {category}: {e}")
 
 
