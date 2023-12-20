@@ -95,7 +95,7 @@ EXPORT_TYPE_MAPPING = {
     "shp": ExportTypeInfo("shp", "ESRI Shapefile", [], "GDAL"),
     "gpkg": ExportTypeInfo("gpkg", "GPKG", [], "GDAL"),
     "sqlite": ExportTypeInfo("sqlite", "SQLite", [], "GDAL"),
-    "geojson": ExportTypeInfo("geojson", "FlatGeobuf", ["VERIFY_BUFFERS=NO"], "GDAL"),
+    "fgb": ExportTypeInfo("fgb", "FlatGeobuf", ["VERIFY_BUFFERS=NO"], "GDAL"),
     "mvt": ExportTypeInfo("mvt", "MVT", [], "GDAL"),
     "kml": ExportTypeInfo("kml", "KML", [], "GDAL"),
     "gpx": ExportTypeInfo("gpx", "GPX", [], "GDAL"),
