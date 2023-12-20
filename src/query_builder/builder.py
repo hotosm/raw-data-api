@@ -18,10 +18,30 @@
 # <info@hotosm.org>
 """Page Contains Query logic required for application"""
 import re
-from json import dumps
+from json import dumps, loads
+
+from geomet import wkt
 
 from src.config import logger as logging
 from src.validation.models import SupportedFilters, SupportedGeometryFilters
+
+HDX_FILTER_CRITERIA = """
+This theme includes all OpenStreetMap features in this area matching:
+
+{criteria}
+"""
+HDX_MARKDOWN = """
+OpenStreetMap exports for use in GIS applications.
+{filter_str}
+Features may have these attributes:
+
+{columns}
+
+This dataset is one of many [OpenStreetMap exports on
+HDX](https://data.humdata.org/organization/hot).
+See the [Humanitarian OpenStreetMap Team](http://hotosm.org/) website for more
+information.
+"""
 
 
 def get_grid_id_query(geometry_dump):
@@ -819,7 +839,9 @@ def get_country_from_iso(iso3):
     return query
 
 
-def postgres2duckdb_query(iso3, cid, table, enable_users_detail=False):
+def postgres2duckdb_query(
+    base_table_name, table, cid=None, geometry=None, enable_users_detail=False
+):
     select_query = (
         """osm_id, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
     )
@@ -829,12 +851,18 @@ def postgres2duckdb_query(iso3, cid, table, enable_users_detail=False):
         select_query = """osm_id, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
         create_select_duck_db = """osm_id, uid, user, version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
 
-    duck_db_create = f"""CREATE TABLE {iso3}_{table} AS SELECT {create_select_duck_db} FROM postgres_query("postgres_db", "SELECT {select_query} FROM {table} WHERE country <@ ARRAY [{cid}]") """
+    row_filter_condition = (
+        f"""country <@ ARRAY [{cid}]"""
+        if cid
+        else f"""ST_within(geom,ST_GeomFromText('{wkt.dumps(loads(geometry.json()))}',4326))"""
+    )
+
+    duck_db_create = f"""CREATE TABLE {base_table_name}_{table} AS SELECT {create_select_duck_db} FROM postgres_query("postgres_db", "SELECT {select_query} FROM {table} WHERE {row_filter_condition}") """
 
     return duck_db_create
 
 
-def extract_features_duckdb(iso3, select, feature_type, where):
+def extract_features_duckdb(base_table_name, select, feature_type, where):
     map_tables = {
         "points": {"table": ["nodes"], "where": {"nodes": where}},
         "lines": {
@@ -860,7 +888,7 @@ def extract_features_duckdb(iso3, select, feature_type, where):
     from_query = map_tables[feature_type]["table"]
     base_query = []
     for table in from_query:
-        query = f"""select {select_query} from {f"{iso3}_{table}"} where {map_tables[feature_type]['where'][table]}"""
+        query = f"""select {select_query} from {f"{base_table_name}_{table}"} where {map_tables[feature_type]['where'][table]}"""
         base_query.append(query)
     return " UNION ALL ".join(base_query)
 

@@ -105,8 +105,8 @@ def process_raw_data(self, params):
             readme_content += "Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n"
             readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about \n"
             if polygon_stats:
-                readme_content += f'{polygon_stats["summary"]["building"]}\n'
-                readme_content += f'{polygon_stats["summary"]["road"]}\n'
+                readme_content += f'{polygon_stats["summary"]["buildings"]}\n'
+                readme_content += f'{polygon_stats["summary"]["roads"]}\n'
                 readme_content += "Read about what this summary means: indicators: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md,metrics: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md"
 
             zf.writestr("Readme.txt", readme_content)

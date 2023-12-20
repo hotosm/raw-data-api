@@ -54,12 +54,15 @@ from src.config import (
     EXPORT_MAX_AREA_SQKM,
 )
 from src.config import EXPORT_PATH as export_path
+from src.config import HDX_MAINTAINER, HDX_OWNER_ORG
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import POLYGON_STATISTICS_API_URL
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
 from src.config import USE_S3_TO_UPLOAD, get_db_connection_params, level
 from src.config import logger as logging
 from src.query_builder.builder import (
+    HDX_FILTER_CRITERIA,
+    HDX_MARKDOWN,
     check_exisiting_country,
     check_last_updated_rawdata,
     extract_features_duckdb,
@@ -67,13 +70,10 @@ from src.query_builder.builder import (
     generate_polygon_stats_graphql_query,
     get_countries_query,
     get_country_from_iso,
-    get_country_geojson,
     get_country_geom_from_iso,
-    get_country_id_query,
     get_osm_feature_query,
     postgres2duckdb_query,
     raw_currentdata_extraction_query,
-    raw_extract_plain_geojson,
 )
 from src.validation.models import RawDataOutputType
 
@@ -939,7 +939,7 @@ class PolygonStats:
                 raise HTTPException(status_code=404, detail="Invalid iso3 code")
             self.INPUT_GEOM = result[0]
         else:
-            self.INPUT_GEOM = dumps(geojson)
+            self.INPUT_GEOM = dumps(json_loads(geojson.json()))
 
     @staticmethod
     def get_building_pattern_statement(
@@ -1073,7 +1073,7 @@ class PolygonStats:
         )
 
         return_stats = {
-            "summary": {"building": building_summary, "road": road_summary},
+            "summary": {"buildings": building_summary, "roads": road_summary},
             "raw": {
                 "population": combined_data["population"],
                 "populatedAreaKm2": combined_data["populatedAreaKm2"],
@@ -1130,32 +1130,50 @@ class DuckDB:
 
 
 class HDX:
-    def __init__(self, ISO3):
-        self.iso3 = ISO3.lower()
-        dbdict = get_db_connection_params()
-        d_b = Database(dbdict)
-        con, cur = d_b.connect()
-        cur.execute(get_country_from_iso(self.iso3))
-        result = cur.fetchall()[0]
-        if not result:
-            raise HTTPException(status_code=404, detail="Invalid iso3 code")
+    def __init__(self, params):
+        self.params = params
+        self.iso3 = self.params.iso3
+        if self.iso3:
+            self.iso3 = self.iso3.lower()
+        self.cid = None
+        if self.iso3:
+            dbdict = get_db_connection_params()
+            d_b = Database(dbdict)
+            con, cur = d_b.connect()
+            cur.execute(get_country_from_iso(self.iso3))
+            result = cur.fetchall()[0]
+            if not result:
+                raise HTTPException(status_code=404, detail="Invalid iso3 code")
 
-        (
-            self.cid,
-            self.dataset_name,
-            self.dataset_prefix,
-            self.dataset_locations,
-        ) = result
+            (
+                self.cid,
+                dataset_title,
+                dataset_prefix,
+                dataset_locations,
+            ) = result
+
+            if not self.params.dataset.dataset_title:
+                self.params.dataset.dataset_title = dataset_title
+            if not self.params.dataset.dataset_prefix:
+                self.params.dataset.dataset_prefix = dataset_prefix
+            if not self.params.dataset.dataset_locations:
+                self.params.dataset.dataset_locations = dataset_locations
 
         self.uuid = str(uuid.uuid4())
         self.default_export_path = os.path.join(
-            export_path, self.uuid, "HDX", self.iso3.upper()
+            export_path,
+            self.uuid,
+            "HDX",
+            self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix,
         )
         if os.path.exists(self.default_export_path):
             shutil.rmtree(self.default_export_path)
         os.makedirs(self.default_export_path)
         self.duck_db_instance = DuckDB(
-            os.path.join(self.default_export_path, f"{self.iso3}.db")
+            os.path.join(
+                self.default_export_path,
+                f"{self.iso3 if self.iso3 else self.params.dataset.dataset_prefix}.db",
+            )
         )
 
     def types_to_tables(self, type_list: list):
@@ -1199,13 +1217,8 @@ class HDX:
                 str(s3_upload_name),
             )
             resource["download_url"] = download_url
-
+            os.remove(resource["zip_path"])
         return resources
-        # if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
-        #     polygon_stats = PolygonStats(iso3=self.iso3).get_summary_stats()
-        #     readme_content += f'{polygon_stats["summary"]["building"]}\n'
-        #     readme_content += f'{polygon_stats["summary"]["road"]}\n'
-        #     readme_content += "Read about what this summary means: indicators: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md,metrics: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md"
 
     def file_to_zip(self, working_dir, zip_path):
         zf = zipfile.ZipFile(
@@ -1237,7 +1250,7 @@ class HDX:
             export_format_path = os.path.join(file_export_path, export_format.suffix)
             os.makedirs(export_format_path, exist_ok=True)
 
-            export_filename = f"""{self.dataset_prefix}_{category_name}_{feature_type}_{export_format.suffix}"""
+            export_filename = f"""{self.params.dataset.dataset_prefix}_{category_name}_{feature_type}_{export_format.suffix}"""
             export_file_path = os.path.join(
                 export_format_path, f"{export_filename}.{export_format.suffix}"
             )
@@ -1269,7 +1282,10 @@ class HDX:
         category_name, category_data = list(category.items())[0]
         for feature_type in category_data.types:
             extract_query = extract_features_duckdb(
-                self.iso3, category_data.select, feature_type, category_data.where
+                self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
+                category_data.select,
+                feature_type,
+                category_data.where,
             )
             resources = self.query_to_file(
                 extract_query, category_name, feature_type, category_data.formats
@@ -1277,16 +1293,21 @@ class HDX:
             uploaded_resources = self.zip_to_s3(resources)
             return uploaded_resources
 
-    def process_hdx_tags(self, params):
+    def process_hdx_tags(self):
         table_type = [
             cat_type
-            for category in params.categories
+            for category in self.params.categories
             for cat_type in list(category.values())[0].types
         ]
         table_names = self.types_to_tables(list(set(table_type)))
 
         for table in table_names:
-            create_table = postgres2duckdb_query(self.iso3, self.cid, table)
+            create_table = postgres2duckdb_query(
+                self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
+                table,
+                self.cid,
+                self.params.geometry,
+            )
             self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
 
         with concurrent.futures.ThreadPoolExecutor(
@@ -1294,25 +1315,31 @@ class HDX:
         ) as executor:
             futures = {
                 executor.submit(self.process_category, category): category
-                for category in params.categories
+                for category in self.params.categories
             }
 
             for future in concurrent.futures.as_completed(futures):
                 category = futures[future]
                 try:
                     uploaded_resources = future.result()
-                    print(uploaded_resources, category)
-                    self.resource_to_hdx(uploaded_resources, category)
+                    self.resource_to_hdx(
+                        uploaded_resources, self.params.dataset, category
+                    )
 
                 except Exception as e:
                     raise e
                     # logging.error(f"An error occurred for category {category}: {e}")
 
-    def resource_to_hdx(self, uploaded_resources, category):
-        uploader = HDXUploader(category)
-        uploader.init_dataset(
-            self.dataset_prefix, self.dataset_name, self.dataset_locations
+    def resource_to_hdx(self, uploaded_resources, dataset_config, category):
+        uploader = HDXUploader(
+            hdx=dataset_config,
+            category=category,
+            completeness_metadata={
+                "iso3": self.iso3,
+                "geometry": self.params.geometry,
+            },
         )
+        uploader.init_dataset()
         for resource in uploaded_resources:
             uploader.add_resource(
                 resource["filename"],
@@ -1324,12 +1351,50 @@ class HDX:
 
 
 class HDXUploader:
-    def __init__(self, category):
+    def __init__(self, category, hdx, completeness_metadata=None):
+        self.hdx = hdx
         self.category_name, self.category_data = list(category.items())[0]
         self.dataset = None
+        self.completeness_metadata = completeness_metadata
+        self.data_completeness_stats = None
 
     def slugify(self, name):
         return slugify(name).replace("-", "_")
+
+    def filter_formatter(self, where_str):
+        pattern = r"tags\['([^']+)'\]\[1\]"
+        match = re.search(pattern, where_str)
+
+        if match:
+            key = match.group(1)
+            return where_str.replace(match.group(0), key)
+        else:
+            return where_str
+
+    def add_notes(self):
+        columns = []
+        for key in self.category_data.select:
+            columns.append(
+                "- [{0}](http://wiki.openstreetmap.org/wiki/Key:{0})".format(key)
+            )
+        columns = "\n".join(columns)
+        filter_str = HDX_FILTER_CRITERIA.format(
+            criteria=self.filter_formatter(self.category_data.where)
+        )
+        if self.category_name.lower() in ["roads", "buildings"]:
+            if self.data_completeness_stats is None:
+                if self.completeness_metadata:
+                    self.data_completeness_stats = PolygonStats(
+                        iso3=self.completeness_metadata["iso3"],
+                        geojson=self.completeness_metadata["geometry"],
+                    ).get_summary_stats()
+            if self.data_completeness_stats:
+                self.category_data.hdx.notes += f'{self.data_completeness_stats["summary"][self.category_name.lower()]}\n'
+                self.category_data.hdx.notes += "Read about what this summary means, [indicators](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md) , [metrics](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md)"
+
+        return self.category_data.hdx.notes + HDX_MARKDOWN.format(
+            columns=columns, filter_str=filter_str
+        )
 
     def add_resource(
         self, resource_name, resource_format, resource_description, export_url
@@ -1347,40 +1412,35 @@ class HDXUploader:
 
     def upload_dataset(self):
         if self.dataset:
-            exists = Dataset.read_from_hdx(self.dataset["name"])
-            if exists:
-                # self.dataset.set_date_of_dataset(datetime.now())
-                self.dataset.update_in_hdx()
-            else:
-                # self.dataset.set_date_of_dataset(datetime.now())
-                self.dataset.create_in_hdx(allow_no_resources=True)
+            self.dataset.set_reference_period(datetime.now())
+            self.dataset.create_in_hdx(allow_no_resources=True)
 
-    def init_dataset(
-        self,
-        dataset_prefix,
-        dataset_name,
-        dataset_locations,
-    ):
+    def init_dataset(self):
+        dataset_prefix = self.hdx.dataset_prefix
+        dataset_title = self.hdx.dataset_title
+        dataset_locations = self.hdx.dataset_locations
         self.dataset = Dataset(
             {
                 "name": "{0}_{1}".format(
                     dataset_prefix, self.slugify(self.category_name)
                 ),
                 "title": "{0} {1} (OpenStreetMap Export)".format(
-                    dataset_name, self.category_name
+                    dataset_title, self.category_name
                 ),
-                "owner_org": "225b9f7d-e7cb-4156-96a6-44c9c58d31e3",
-                "maintainer": "6a0688ce-8521-46e2-8edd-8e26c0851ebd",
+                "owner_org": HDX_OWNER_ORG,
+                "maintainer": HDX_MAINTAINER,
                 "dataset_source": "OpenStreetMap contributors",
                 "methodology": "Other",
                 "methodology_other": "Volunteered geographic information",
                 "license_id": "hdx-odc-odbl",
                 "updated_by_script": f'Hotosm OSM Exports ({datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}',
-                "data_update_frequency": -2,
                 "caveats": self.category_data.hdx.caveats,
-                ## notes , private and subnational option
+                "private": self.hdx.private,
+                "notes": self.add_notes(),
+                "subnational": 1 if self.hdx.subnational else 0,
             }
         )
+        self.dataset.set_expected_update_frequency(self.hdx.update_frequency)
         for location in dataset_locations:
             self.dataset.add_country_location(location)
         for tag in self.category_data.hdx.tags:

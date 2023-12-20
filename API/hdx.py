@@ -1,11 +1,13 @@
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Optional, Union
 
 from fastapi import APIRouter, Body, Query, Request
 from fastapi_versioning import version
+from geojson_pydantic import MultiPolygon, Polygon
 from pydantic import BaseModel, Field, validator
 
 from src.app import HDX
+from src.config import ALLOWED_HDX_TAGS, ALLOWED_HDX_UPDATE_FREQUENCIES
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
 
@@ -19,10 +21,24 @@ class HDXModel(BaseModel):
         example=["roads", "transportation", "geodata"],
     )
     caveats: str = Field(
-        ...,
-        description="Caveats for the HDX model.",
+        default="OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+        description="Caveats/Warning for the Datasets.",
         example="OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
     )
+    notes: str = Field(
+        default="",
+        description="Extra notes to append in notes section of hdx datasets",
+        example="Sample notes to append",
+    )
+
+    @validator("tags")
+    def validate_tags(cls, value):
+        for item in value:
+            if item.strip() not in ALLOWED_HDX_TAGS:
+                raise ValueError(
+                    f"Invalid tag {item.strip()} , Should be within {ALLOWED_HDX_TAGS}"
+                )
+        return value
 
 
 class CategoryModel(BaseModel):
@@ -87,14 +103,59 @@ EXPORT_TYPE_MAPPING = {
 }
 
 
+class DatasetConfig(BaseModel):
+    private: bool = Field(
+        default=False,
+        description="Make dataset private , By default False , Public is recommended",
+        example="False",
+    )
+    subnational: bool = Field(
+        default=False,
+        description="Make it true if dataset doesn't cover nation/country",
+        example="False",
+    )
+    update_frequency: str = Field(
+        default="as needed",
+        description="Update frequncy to be added on uploads",
+        example="daily",
+    )
+    dataset_title: str = Field(
+        default=None,
+        description="Dataset title which appears at top of the page",
+        example="Nepal",
+    )
+    dataset_prefix: str = Field(
+        default=None,
+        description="Dataset prefix to be appended before category name, Will be ignored if iso3 is supplied",
+        example="hotosm_npl",
+    )
+    dataset_locations: List[str] = Field(
+        default=None,
+        description="Valid dataset locations iso3",
+        example="['npl']",
+    )
+
+    @validator("update_frequency")
+    def validate_frequency(cls, value):
+        if value.strip() not in ALLOWED_HDX_UPDATE_FREQUENCIES:
+            raise ValueError(
+                f"Invalid update frequency , Should be within {ALLOWED_HDX_UPDATE_FREQUENCIES}"
+            )
+        return value.strip()
+
+
 class DynamicCategoriesModel(BaseModel):
-    iso3: str = Field(
-        ...,
-        description="ISO3 Country Code.",
+    iso3: Optional[str] = Field(
+        default=None,
+        description="ISO3 Country Code",
         min_length=3,
         max_length=3,
         example="USA",
     )
+    dataset: Optional[DatasetConfig] = Field(
+        description="Dataset Configurations for HDX Upload"
+    )
+
     categories: List[Dict[str, CategoryModel]] = Field(
         ...,
         description="List of dynamic categories.",
@@ -113,6 +174,38 @@ class DynamicCategoriesModel(BaseModel):
             }
         ],
     )
+    geometry: Optional[Union[Polygon, MultiPolygon]] = Field(
+        default=None,
+        example={
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+    )
+
+    @validator("geometry", pre=True, always=True)
+    def set_geometry_or_iso3(cls, value, values):
+        """Either geometry or iso3 should be supplied."""
+        if value is not None and values.get("iso3") is not None:
+            raise ValueError("Only one of geometry or iso3 should be supplied.")
+        if value is None and values.get("iso3") is None:
+            raise ValueError("Either geometry or iso3 should be supplied.")
+        if value is not None:
+            dataset = values.get("dataset").dict()
+            if dataset is None:
+                raise ValueError("Dataset config should be supplied for custom polygon")
+
+            for item in dataset.keys():
+                if dataset.get(item) is None:
+                    raise ValueError(f"Missing, Dataset config : {item}")
+        return value
 
 
 @router.post("/submit/")
@@ -124,8 +217,8 @@ async def process_data(
         ...,
         description="Input parameters including ISO3 country code and dynamic categories.",
         openapi_examples={
-            "normal": {
-                "summary": "Example: Road extraction set",
+            "normal_iso": {
+                "summary": "Example: Road extraction using iso3",
                 "description": "Query to extract road in Nepal",
                 "value": {
                     "iso3": "NPL",
@@ -145,9 +238,47 @@ async def process_data(
                     ],
                 },
             },
+            "normal_polygon": {
+                "summary": "Example: Road extraction set using custom polygon",
+                "description": "Query to extract road in Pokhara, Nepal",
+                "value": {
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [83.96919250488281, 28.194446860487773],
+                                [83.99751663208006, 28.194446860487773],
+                                [83.99751663208006, 28.214869548073377],
+                                [83.96919250488281, 28.214869548073377],
+                                [83.96919250488281, 28.194446860487773],
+                            ]
+                        ],
+                    },
+                    "dataset": {
+                        "subnational": True,
+                        "dataset_title": "Pokhara",
+                        "dataset_prefix": "hotosm_pkr",
+                        "dataset_locations": ["npl"],
+                    },
+                    "categories": [
+                        {
+                            "Roads": {
+                                "hdx": {
+                                    "tags": ["roads", "transportation", "geodata"],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["lines"],
+                                "select": ["name", "highway"],
+                                "where": "tags['highway'][1] IS NOT NULL",
+                                "formats": ["fgb"],
+                            }
+                        }
+                    ],
+                },
+            },
             "fullset": {
                 "summary": "Full HDX Dataset default",
-                "description": "Full yaml conversion for dataset",
+                "description": "Full yaml conversion for dataset with iso3 example",
                 "value": {
                     "iso3": "NPL",
                     "categories": [
@@ -435,5 +566,7 @@ async def process_data(
     Returns:
         dict: Result message.
     """
-    hdx_set = HDX(params.iso3).process_hdx_tags(params)
+    if not params.dataset:
+        params.dataset = DatasetConfig()
+    hdx_set = HDX(params).process_hdx_tags()
     return {"message": "Data processed successfully"}

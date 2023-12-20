@@ -251,7 +251,7 @@ class StatusResponse(BaseModel):
 
 
 class StatsRequestParams(BaseModel):
-    geometry: Union[Polygon, MultiPolygon] = Field(
+    geometry: Optional[Union[Polygon, MultiPolygon]] = Field(
         default=None,
         example={
             "type": "Polygon",
@@ -266,7 +266,7 @@ class StatsRequestParams(BaseModel):
             ],
         },
     )
-    so3: str = Field(
+    iso3: Optional[str] = Field(
         default=None,
         description="ISO3 Country Code.",
         min_length=3,

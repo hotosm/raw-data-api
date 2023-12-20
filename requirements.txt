@@ -16,10 +16,11 @@ boto3==1.24.38
 fastapi-versioning==0.10.0
 redis==4.3.4
 celery==5.2.7
-slowapi==0.1.6
+slowapi==0.1.8
 osm-login-python==1.0.2
 humanize==4.9.0
 python-slugify==8.0.1
+geomet==1.1.0
 
 #''' required for generating documentations '''
 # mkdocs-material==8.5.11
