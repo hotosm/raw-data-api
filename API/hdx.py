@@ -61,7 +61,7 @@ class CategoryModel(BaseModel):
     formats: List[str] = Field(
         ...,
         description="List of Export Formats (suffixes).",
-        example=["gpkg", "fgb"],
+        example=["gpkg", "geojson"],
     )
 
     @validator("types")
@@ -95,9 +95,9 @@ EXPORT_TYPE_MAPPING = {
     "shp": ExportTypeInfo("shp", "ESRI Shapefile", [], "GDAL"),
     "gpkg": ExportTypeInfo("gpkg", "GeoPackage", [], "GDAL"),
     "sqlite": ExportTypeInfo("sqlite", "SQLite", [], "GDAL"),
-    "fgb": ExportTypeInfo("fgb", "FlatGeobuf", ["VERIFY_BUFFERS=NO"], "GDAL"),
+    "geojson": ExportTypeInfo("geojson", "FlatGeobuf", ["VERIFY_BUFFERS=NO"], "GDAL"),
     "mvt": ExportTypeInfo("mvt", "MVT", [], "GDAL"),
-    "kl": ExportTypeInfo("kml", "KML", [], "GDAL"),
+    "kml": ExportTypeInfo("kml", "KML", [], "GDAL"),
     "gpx": ExportTypeInfo("gpx", "GPX", [], "GDAL"),
     "parquet": ExportTypeInfo("parquet", "PARQUET", [], "PARQUET"),
 }
@@ -153,7 +153,7 @@ class DynamicCategoriesModel(BaseModel):
         example="USA",
     )
     dataset: Optional[DatasetConfig] = Field(
-        description="Dataset Configurations for HDX Upload"
+        default=None, description="Dataset Configurations for HDX Upload"
     )
 
     categories: List[Dict[str, CategoryModel]] = Field(
@@ -169,7 +169,7 @@ class DynamicCategoriesModel(BaseModel):
                     "types": ["lines", "polygons"],
                     "select": ["name", "highway"],
                     "where": "highway IS NOT NULL",
-                    "formats": ["fgb"],
+                    "formats": ["geojson"],
                 }
             }
         ],
@@ -231,8 +231,29 @@ async def process_data(
                                 },
                                 "types": ["lines"],
                                 "select": ["name", "highway"],
-                                "where": "tags['highway'][1] IS NOT NULL",
-                                "formats": ["fgb"],
+                                "where": "tags['highway'] IS NOT NULL",
+                                "formats": ["geojson"],
+                            }
+                        }
+                    ],
+                },
+            },
+            "normal_iso_multiple_format": {
+                "summary": "Example: Road extraction using iso3 Multiple format",
+                "description": "Query to extract road in Nepal Multiple format",
+                "value": {
+                    "iso3": "NPL",
+                    "categories": [
+                        {
+                            "Roads": {
+                                "hdx": {
+                                    "tags": ["roads", "transportation", "geodata"],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["lines"],
+                                "select": ["name", "highway"],
+                                "where": "tags['highway'] IS NOT NULL",
+                                "formats": ["geojson", "gpkg", "kml", "shp"],
                             }
                         }
                     ],
@@ -269,8 +290,8 @@ async def process_data(
                                 },
                                 "types": ["lines"],
                                 "select": ["name", "highway"],
-                                "where": "tags['highway'][1] IS NOT NULL",
-                                "formats": ["fgb"],
+                                "where": "tags['highway'] IS NOT NULL",
+                                "formats": ["geojson"],
                             }
                         }
                     ],
@@ -304,8 +325,8 @@ async def process_data(
                                     "office",
                                     "source",
                                 ],
-                                "where": "tags['building'][1] IS NOT NULL",
-                                "formats": ["fgb"],
+                                "where": "tags['building'] IS NOT NULL",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -327,8 +348,8 @@ async def process_data(
                                     "layer",
                                     "source",
                                 ],
-                                "where": "tags['highway'][1] IS NOT NULL",
-                                "formats": ["fgb"],
+                                "where": "tags['highway'] IS NOT NULL",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -351,8 +372,8 @@ async def process_data(
                                     "water",
                                     "source",
                                 ],
-                                "where": "tags['waterway'][1] IS NOT NULL OR tags['water'][1] IS NOT NULL OR tags['natural'][1] IN ('water','wetland','bay')",
-                                "formats": ["fgb"],
+                                "where": "tags['waterway'] IS NOT NULL OR tags['water'] IS NOT NULL OR tags['natural'] IN ('water','wetland','bay')",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -381,8 +402,8 @@ async def process_data(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['amenity'][1] IS NOT NULL OR tags['man_made'][1] IS NOT NULL OR tags['shop'][1] IS NOT NULL OR tags['tourism'][1] IS NOT NULL",
-                                "formats": ["fgb"],
+                                "where": "tags['amenity'] IS NOT NULL OR tags['man_made'] IS NOT NULL OR tags['shop'] IS NOT NULL OR tags['tourism'] IS NOT NULL",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -408,8 +429,8 @@ async def process_data(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['aeroway'][1] IS NOT NULL OR tags['building'][1] = 'aerodrome' OR tags['emergency:helipad'][1] IS NOT NULL OR tags['emergency'][1] = 'landing_site'",
-                                "formats": ["fgb"],
+                                "where": "tags['aeroway'] IS NOT NULL OR tags['building'] = 'aerodrome' OR tags['emergency:helipad'] IS NOT NULL OR tags['emergency'] = 'landing_site'",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -432,8 +453,8 @@ async def process_data(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['amenity'][1] = 'ferry_terminal' OR tags['building'][1] = 'ferry_terminal' OR tags['port'][1] IS NOT NULL",
-                                "formats": ["fgb"],
+                                "where": "tags['amenity'] = 'ferry_terminal' OR tags['building'] = 'ferry_terminal' OR tags['port'] IS NOT NULL",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -456,8 +477,8 @@ async def process_data(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['amenity'][1] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
-                                "formats": ["fgb"],
+                                "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -479,8 +500,8 @@ async def process_data(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['healthcare'][1] IS NOT NULL OR tags['amenity'][1] IN ('doctors', 'dentist', 'clinic', 'hospital', 'pharmacy')",
-                                "formats": ["fgb"],
+                                "where": "tags['healthcare'] IS NOT NULL OR tags['amenity'] IN ('doctors', 'dentist', 'clinic', 'hospital', 'pharmacy')",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -500,8 +521,8 @@ async def process_data(
                                     "is_in",
                                     "source",
                                 ],
-                                "where": "tags['place'][1] IN ('isolated_dwelling', 'town', 'village', 'hamlet', 'city')",
-                                "formats": ["fgb"],
+                                "where": "tags['place'] IN ('isolated_dwelling', 'town', 'village', 'hamlet', 'city')",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -520,8 +541,8 @@ async def process_data(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['amenity'][1] IN ('mobile_money_agent','bureau_de_change','bank','microfinance','atm','sacco','money_transfer','post_office')",
-                                "formats": ["fgb"],
+                                "where": "tags['amenity'] IN ('mobile_money_agent','bureau_de_change','bank','microfinance','atm','sacco','money_transfer','post_office')",
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -546,8 +567,8 @@ async def process_data(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['railway'][1] IN ('rail','station')",
-                                "formats": ["fgb"],
+                                "where": "tags['railway'] IN ('rail','station')",
+                                "formats": ["geojson"],
                             }
                         },
                     ],

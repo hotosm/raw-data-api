@@ -1133,6 +1133,7 @@ class HDX:
     def __init__(self, params):
         self.params = params
         self.iso3 = self.params.iso3
+        self.HDX_SUPPORTED_FORMATS = ["geojson", "gpkg", "kml", "shp"]
         if self.iso3:
             self.iso3 = self.iso3.lower()
         self.cid = None
@@ -1192,12 +1193,13 @@ class HDX:
         return list(table_set)
 
     def format_where_clause(self, where_clause):
-        pattern = r"tags\['([^']+)'\]\[1\]"
+        pattern = r"tags\['([^']+)'\]"
         match = re.search(pattern, where_clause)
 
         if match:
             key = match.group(1)
-            return where_clause.replace(match.group(0), key)
+            replacement = f"tags['{key}'][1]"
+            return re.sub(pattern, replacement, where_clause)
         else:
             return where_clause
 
@@ -1285,13 +1287,40 @@ class HDX:
                 self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
                 category_data.select,
                 feature_type,
-                category_data.where,
+                self.format_where_clause(category_data.where),
             )
             resources = self.query_to_file(
                 extract_query, category_name, feature_type, category_data.formats
             )
             uploaded_resources = self.zip_to_s3(resources)
             return uploaded_resources
+
+    def resource_to_hdx(self, uploaded_resources, dataset_config, category):
+        if any(
+            map(
+                lambda v: v["format_suffix"] in uploaded_resources,
+                self.HDX_SUPPORTED_FORMATS,
+            )
+        ):
+            uploader = HDXUploader(
+                hdx=dataset_config,
+                category=category,
+                default_category_path=self.default_export_path,
+                completeness_metadata={
+                    "iso3": self.iso3,
+                    "geometry": self.params.geometry,
+                },
+            )
+            uploader.init_dataset()
+            for resource in uploaded_resources:
+                if resource["format_suffix"] in self.HDX_SUPPORTED_FORMATS:
+                    uploader.add_resource(
+                        resource["filename"],
+                        resource["format_suffix"],
+                        resource["format_description"],
+                        resource["download_url"],
+                    )
+            uploader.upload_dataset()
 
     def process_hdx_tags(self):
         table_type = [
@@ -1327,49 +1356,23 @@ class HDX:
                     )
 
                 except Exception as e:
-                    raise e
-                    # logging.error(f"An error occurred for category {category}: {e}")
-
-    def resource_to_hdx(self, uploaded_resources, dataset_config, category):
-        uploader = HDXUploader(
-            hdx=dataset_config,
-            category=category,
-            completeness_metadata={
-                "iso3": self.iso3,
-                "geometry": self.params.geometry,
-            },
-        )
-        uploader.init_dataset()
-        for resource in uploaded_resources:
-            uploader.add_resource(
-                resource["filename"],
-                resource["format_suffix"],
-                resource["format_description"],
-                resource["download_url"],
-            )
-        uploader.upload_dataset()
+                    # raise e
+                    logging.error(f"An error occurred for category {category}: {e}")
 
 
 class HDXUploader:
-    def __init__(self, category, hdx, completeness_metadata=None):
+    def __init__(
+        self, category, hdx, default_category_path, completeness_metadata=None
+    ):
         self.hdx = hdx
         self.category_name, self.category_data = list(category.items())[0]
+        self.category_path = os.path.join(default_category_path, self.category_name)
         self.dataset = None
         self.completeness_metadata = completeness_metadata
         self.data_completeness_stats = None
 
     def slugify(self, name):
         return slugify(name).replace("-", "_")
-
-    def filter_formatter(self, where_str):
-        pattern = r"tags\['([^']+)'\]\[1\]"
-        match = re.search(pattern, where_str)
-
-        if match:
-            key = match.group(1)
-            return where_str.replace(match.group(0), key)
-        else:
-            return where_str
 
     def add_notes(self):
         columns = []
@@ -1378,9 +1381,7 @@ class HDXUploader:
                 "- [{0}](http://wiki.openstreetmap.org/wiki/Key:{0})".format(key)
             )
         columns = "\n".join(columns)
-        filter_str = HDX_FILTER_CRITERIA.format(
-            criteria=self.filter_formatter(self.category_data.where)
-        )
+        filter_str = HDX_FILTER_CRITERIA.format(criteria=self.category_data.where)
         if self.category_name.lower() in ["roads", "buildings"]:
             if self.data_completeness_stats is None:
                 if self.completeness_metadata:
@@ -1407,11 +1408,13 @@ class HDXUploader:
                 "url": export_url,
                 "last_modified": datetime.now().isoformat(),
             }
-            print(resource)
             self.dataset.add_update_resource(resource)
 
     def upload_dataset(self):
         if self.dataset:
+            self.dataset.save_to_json(
+                os.path.join(self.category_path, f"{self.dataset['name']}.json")
+            )
             self.dataset.set_reference_period(datetime.now())
             self.dataset.create_in_hdx(allow_no_resources=True)
 

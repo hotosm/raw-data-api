@@ -26,7 +26,7 @@ from src.config import logger as logging
 from src.validation.models import SupportedFilters, SupportedGeometryFilters
 
 HDX_FILTER_CRITERIA = """
-This theme includes all OpenStreetMap features in this area matching:
+This theme includes all OpenStreetMap features in this area matching (learn what tags means [here](https://wiki.openstreetmap.org/wiki/Tags)):
 
 {criteria}
 """
