@@ -26,6 +26,7 @@ import subprocess
 import sys
 import time
 import uuid
+from collections import namedtuple
 from datetime import datetime
 from datetime import datetime as dt
 from datetime import timezone
@@ -54,7 +55,7 @@ from src.config import (
     EXPORT_MAX_AREA_SQKM,
 )
 from src.config import EXPORT_PATH as export_path
-from src.config import HDX_MAINTAINER, HDX_OWNER_ORG
+from src.config import HDX_MAINTAINER, HDX_OWNER_ORG, HDX_URL_PREFIX
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import POLYGON_STATISTICS_API_URL
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
@@ -939,7 +940,7 @@ class PolygonStats:
                 raise HTTPException(status_code=404, detail="Invalid iso3 code")
             self.INPUT_GEOM = result[0]
         else:
-            self.INPUT_GEOM = dumps(json_loads(geojson.json()))
+            self.INPUT_GEOM = dumps(geojson)
 
     @staticmethod
     def get_building_pattern_statement(
@@ -1160,7 +1161,9 @@ class HDX:
             if not self.params.dataset.dataset_locations:
                 self.params.dataset.dataset_locations = dataset_locations
 
-        self.uuid = str(uuid.uuid4())
+        self.uuid = str(uuid.uuid4().hex)
+        self.parallel_process_state = False
+
         self.default_export_path = os.path.join(
             export_path,
             self.uuid,
@@ -1170,12 +1173,11 @@ class HDX:
         if os.path.exists(self.default_export_path):
             shutil.rmtree(self.default_export_path)
         os.makedirs(self.default_export_path)
-        self.duck_db_instance = DuckDB(
-            os.path.join(
-                self.default_export_path,
-                f"{self.iso3 if self.iso3 else self.params.dataset.dataset_prefix}.db",
-            )
+        self.duck_db_db_path = os.path.join(
+            self.default_export_path,
+            f"{self.iso3 if self.iso3 else self.params.dataset.dataset_prefix}.db",
         )
+        self.duck_db_instance = DuckDB(self.duck_db_db_path)
 
     def types_to_tables(self, type_list: list):
         mapping = {
@@ -1203,22 +1205,26 @@ class HDX:
         else:
             return where_clause
 
+    def upload_to_s3(self, resource_path):
+        if not USE_S3_TO_UPLOAD:
+            raise HTTPException(
+                status_code=404, detail="S3 Export service is disabled on server"
+            )
+        s3_upload_name = os.path.relpath(
+            resource_path, os.path.join(export_path, self.uuid)
+        )
+        file_transfer_obj = S3FileTransfer()
+        download_url = file_transfer_obj.upload(
+            resource_path,
+            str(s3_upload_name),
+        )
+        return download_url
+
     def zip_to_s3(self, resources):
         for resource in resources:
-            s3_upload_name = os.path.relpath(
-                resource["zip_path"], os.path.join(export_path, self.uuid)
+            resource["download_url"] = self.upload_to_s3(
+                resource_path=resource["zip_path"]
             )
-
-            if not USE_S3_TO_UPLOAD:
-                raise HTTPException(
-                    status_code=404, detail="S3 Export service is disabled on server"
-                )
-            file_transfer_obj = S3FileTransfer()
-            download_url = file_transfer_obj.upload(
-                resource["zip_path"],
-                str(s3_upload_name),
-            )
-            resource["download_url"] = download_url
             os.remove(resource["zip_path"])
         return resources
 
@@ -1243,12 +1249,13 @@ class HDX:
         return zip_path
 
     def query_to_file(self, query, category_name, feature_type, export_formats):
-        category_name = category_name.lower().replace(" ", "_")
+        category_name = slugify(category_name.lower()).replace("-", "_")
         file_export_path = os.path.join(
             self.default_export_path, category_name, feature_type
         )
         resources = []
-        for export_format in export_formats:
+
+        def process_export_format(export_format):
             export_format_path = os.path.join(file_export_path, export_format.suffix)
             os.makedirs(export_format_path, exist_ok=True)
 
@@ -1277,11 +1284,41 @@ class HDX:
             resource["format_suffix"] = export_format.suffix
             resource["format_description"] = export_format.driver_name
 
+            return resource
+
+        if self.parallel_process_state is False and len(export_formats) > 1:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=os.cpu_count()
+            ) as executor:
+                futures = [
+                    executor.submit(process_export_format, export_format)
+                    for export_format in export_formats
+                ]
+                resources = [
+                    future.result()
+                    for future in concurrent.futures.as_completed(futures)
+                ]
+        else:
+            resource = process_export_format(export_formats[0])
             resources.append(resource)
+
         return resources
+
+    def process_category_result(self, category_result):
+        if self.params.hdx_upload:
+            return self.resource_to_hdx(
+                uploaded_resources=category_result.uploaded_resources,
+                dataset_config=self.params.dataset,
+                category=category_result.category,
+            )
+
+        return self.resource_to_response(
+            category_result.uploaded_resources, category_result.category
+        )
 
     def process_category(self, category):
         category_name, category_data = list(category.items())[0]
+        all_uploaded_resources = []
         for feature_type in category_data.types:
             extract_query = extract_features_duckdb(
                 self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
@@ -1293,7 +1330,26 @@ class HDX:
                 extract_query, category_name, feature_type, category_data.formats
             )
             uploaded_resources = self.zip_to_s3(resources)
-            return uploaded_resources
+            all_uploaded_resources.extend(uploaded_resources)
+        return all_uploaded_resources
+
+    def resource_to_response(self, uploaded_resources, category):
+        category_name, category_data = list(category.items())[0]
+
+        dataset_info = {}
+        resources = []
+        for resource in uploaded_resources:
+            resource_meta = {
+                "name": resource["filename"],
+                "format": resource["format_suffix"],
+                "description": resource["format_description"],
+                "url": resource["download_url"],
+                "last_modifed": datetime.now().isoformat(),
+            }
+            resource_meta["uploaded_to_hdx"]: False
+            resources.append(resource_meta)
+        dataset_info["resources"] = resources
+        return {category_name: dataset_info}
 
     def resource_to_hdx(self, uploaded_resources, dataset_config, category):
         if any(
@@ -1304,21 +1360,35 @@ class HDX:
                 hdx=dataset_config,
                 category=category,
                 default_category_path=self.default_export_path,
+                uuid=self.uuid,
                 completeness_metadata={
                     "iso3": self.iso3,
                     "geometry": self.params.geometry,
                 },
             )
             uploader.init_dataset()
+            non_hdx_resources = []
             for resource in uploaded_resources:
+                resource_meta = {
+                    "name": resource["filename"],
+                    "format": resource["format_suffix"],
+                    "description": resource["format_description"],
+                    "url": resource["download_url"],
+                    "last_modifed": datetime.now().isoformat(),
+                }
                 if resource["format_suffix"] in self.HDX_SUPPORTED_FORMATS:
-                    uploader.add_resource(
-                        resource["filename"],
-                        resource["format_suffix"],
-                        resource["format_description"],
-                        resource["download_url"],
-                    )
-            uploader.upload_dataset()
+                    uploader.add_resource(resource_meta)
+                else:
+                    resource_meta["uploaded_to_hdx"]: False
+                    non_hdx_resources.append(resource_meta)
+            category_name, hdx_dataset_info = uploader.upload_dataset(self.params.meta)
+            hdx_dataset_info["resources"].extend(non_hdx_resources)
+            return {category_name: hdx_dataset_info}
+
+    def clean_resources(self):
+        temp_dir = os.path.join(export_path, self.uuid)
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
 
     def process_hdx_tags(self):
         table_type = [
@@ -1327,47 +1397,92 @@ class HDX:
             for cat_type in list(category.values())[0].types
         ]
         table_names = self.types_to_tables(list(set(table_type)))
-
+        base_table_name = self.iso3 if self.iso3 else self.params.dataset.dataset_prefix
         for table in table_names:
             create_table = postgres2duckdb_query(
-                self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
+                base_table_name,
                 table,
                 self.cid,
                 self.params.geometry,
             )
             self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
+        CategoryResult = namedtuple(
+            "CategoryResult", ["category", "uploaded_resources"]
+        )
+
+        tag_process_results = []
+        dataset_results = []
+        if len(self.params.categories) > 1:
+            self.parallel_process_state = True
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=os.cpu_count() * 2
+            ) as executor:
+                futures = {
+                    executor.submit(self.process_category, category): category
+                    for category in self.params.categories
+                }
+
+                for future in concurrent.futures.as_completed(futures):
+                    category = futures[future]
+                    uploaded_resources = future.result()
+                    category_result = CategoryResult(
+                        category=category, uploaded_resources=uploaded_resources
+                    )
+                    tag_process_results.append(category_result)
+        else:
+            resources = self.process_category(self.params.categories[0])
+            category_result = CategoryResult(
+                category=self.params.categories[0], uploaded_resources=resources
+            )
+            tag_process_results.append(category_result)
 
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=os.cpu_count() * 2
         ) as executor:
             futures = {
-                executor.submit(self.process_category, category): category
-                for category in self.params.categories
+                executor.submit(self.process_category_result, result): result
+                for result in tag_process_results
             }
 
             for future in concurrent.futures.as_completed(futures):
-                category = futures[future]
-                try:
-                    uploaded_resources = future.result()
-                    self.resource_to_hdx(
-                        uploaded_resources, self.params.dataset, category
-                    )
+                result = futures[future]
+                result_data = future.result()
+                dataset_results.append(result_data)
 
-                except Exception as e:
-                    raise e
-                    logging.error(f"An error occurred for category {category}: {e}")
+        result = {"datasets": dataset_results}
+        if self.params.meta:
+            db_dump_path = os.path.join(
+                self.default_export_path,
+                "DB_DUMP",
+            )
+            os.makedirs(db_dump_path, exist_ok=True)
+            export_db = f"""EXPORT DATABASE '{db_dump_path}' (FORMAT PARQUET, COMPRESSION ZSTD, ROW_GROUP_SIZE 100000);"""
+            self.duck_db_instance.run_query(export_db, load_spatial=True)
+            db_zip_download_url = self.upload_to_s3(
+                self.file_to_zip(
+                    working_dir=db_dump_path,
+                    zip_path=os.path.join(self.default_export_path, "dbdump.zip"),
+                )
+            )
+            result["db_dump"] = db_zip_download_url
+        self.clean_resources()
+        return result
 
 
 class HDXUploader:
     def __init__(
-        self, category, hdx, default_category_path, completeness_metadata=None
+        self, category, hdx, uuid, default_category_path, completeness_metadata=None
     ):
         self.hdx = hdx
         self.category_name, self.category_data = list(category.items())[0]
-        self.category_path = os.path.join(default_category_path, self.category_name)
+        self.category_path = os.path.join(
+            default_category_path, slugify(self.category_name.lower()).replace("-", "_")
+        )
         self.dataset = None
+        self.uuid = uuid
         self.completeness_metadata = completeness_metadata
         self.data_completeness_stats = None
+        self.resources = []
 
     def slugify(self, name):
         return slugify(name).replace("-", "_")
@@ -1385,36 +1500,48 @@ class HDXUploader:
                 if self.completeness_metadata:
                     self.data_completeness_stats = PolygonStats(
                         iso3=self.completeness_metadata["iso3"],
-                        geojson=self.completeness_metadata["geometry"],
+                        geojson=self.completeness_metadata["geometry"].json()
+                        if self.completeness_metadata["geometry"]
+                        else None,
                     ).get_summary_stats()
             if self.data_completeness_stats:
                 self.category_data.hdx.notes += f'{self.data_completeness_stats["summary"][self.category_name.lower()]}\n'
-                self.category_data.hdx.notes += "Read about what this summary means, [indicators](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md) , [metrics](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md)"
+                self.category_data.hdx.notes += "Read about what this summary means, [indicators](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md) , [metrics](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md)\n"
 
         return self.category_data.hdx.notes + HDX_MARKDOWN.format(
             columns=columns, filter_str=filter_str
         )
 
-    def add_resource(
-        self, resource_name, resource_format, resource_description, export_url
-    ):
+    def add_resource(self, resource_meta):
         if self.dataset:
-            resource = {
-                "name": resource_name,
-                "format": resource_format,
-                "description": resource_description,
-                "url": export_url,
-                "last_modified": datetime.now().isoformat(),
-            }
-            self.dataset.add_update_resource(resource)
+            self.resources.append(resource_meta)
+            self.dataset.add_update_resource(resource_meta)
 
-    def upload_dataset(self):
+    def upload_dataset(self, dump_config_to_s3=False):
         if self.dataset:
+            dataset_info = {}
+            dt_config_path = os.path.join(
+                self.category_path, f"{self.dataset['name']}.json"
+            )
             self.dataset.save_to_json(
                 os.path.join(self.category_path, f"{self.dataset['name']}.json")
             )
+            if dump_config_to_s3:
+                s3_upload_name = os.path.relpath(
+                    dt_config_path, os.path.join(export_path, self.uuid)
+                )
+                file_transfer_obj = S3FileTransfer()
+                dataset_info["config"] = file_transfer_obj.upload(
+                    dt_config_path,
+                    str(s3_upload_name),
+                )
+
             self.dataset.set_reference_period(datetime.now())
             self.dataset.create_in_hdx(allow_no_resources=True)
+            dataset_info["name"] = self.dataset["name"]
+            dataset_info["hdx_url"] = f"{HDX_URL_PREFIX}/dataset/{self.dataset['name']}"
+            dataset_info["resources"] = self.resources
+            return self.category_name, dataset_info
 
     def init_dataset(self):
         dataset_prefix = self.hdx.dataset_prefix

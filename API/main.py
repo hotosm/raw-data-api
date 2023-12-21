@@ -27,6 +27,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from src.config import (
+    ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     EXPORT_PATH,
     LIMITER,
@@ -67,7 +68,9 @@ app = FastAPI(title="Raw Data API ")
 app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
-app.include_router(hdx_router)
+
+if ENABLE_HDX_EXPORTS:
+    app.include_router(hdx_router)
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     app.include_router(stats_router)
 

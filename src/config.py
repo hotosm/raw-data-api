@@ -191,7 +191,7 @@ if ENABLE_HDX_EXPORTS:
         "HDX", "HDX_OWNER_ORG", fallback="225b9f7d-e7cb-4156-96a6-44c9c58d31e3"
     )
     HDX_MAINTAINER = os.environ.get("HDX_MAINTAINER") or config.get(
-        "HDX", "HDX_MAINTAINER", fallback="6a0688ce-8521-46e2-8edd-8e26c0851ebd"
+        "HDX", "HDX_MAINTAINER", fallback=None
     )
     from hdx.api.configuration import Configuration
 

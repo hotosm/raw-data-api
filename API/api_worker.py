@@ -11,7 +11,7 @@ import requests
 import sozipfile.sozipfile as zipfile
 from celery import Celery
 
-from src.app import PolygonStats, RawData, S3FileTransfer
+from src.app import HDX, PolygonStats, RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
@@ -19,7 +19,7 @@ from src.config import ENABLE_TILES
 from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
 from src.config import logger as logging
 from src.query_builder.builder import format_file_name_str
-from src.validation.models import RawDataOutputType
+from src.validation.models import DatasetConfig, RawDataOutputType
 
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
@@ -183,6 +183,18 @@ def process_raw_data(self, params):
         return final_response
 
     except Exception as ex:
+        raise ex
+
+
+@celery.task(bind=True, name="process_hdx_request")
+def process_hdx_request(self, params):
+    if not params.dataset:
+        params.dataset = DatasetConfig()
+    hdx_object = HDX(params)
+    try:
+        return hdx_object.process_hdx_tags()
+    except Exception as ex:
+        hdx_object.clean_resources()
         raise ex
 
 
