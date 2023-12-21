@@ -9,11 +9,11 @@ setuptools.setup(
     description="The Raw Data API  module makes it simple for you to get osm data stats provided by api in your own project",
     packages=setuptools.find_packages(),
     install_requires=[
-        "pytest == 7.4.3",
+        "pytest==7.4.3",
         "psycopg2",
         "boto3==1.24.38",
         "fastapi==0.105.0",
-        "geojson == 7.4.3",
+        "geojson==3.1.0",
         "area==1.1.1",
         "orjson==3.9.10",
         "slowapi==0.1.8",
