@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Request
+from fastapi import APIRouter, Body, Depends, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
@@ -7,6 +7,7 @@ from src.config import RATE_LIMIT_PER_MIN
 from src.validation.models import DynamicCategoriesModel
 
 from .api_worker import process_hdx_request
+from .auth import AuthUser, staff_required
 
 router = APIRouter(prefix="/hdx", tags=["HDX"])
 
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/hdx", tags=["HDX"])
 @version(1)
 async def process_hdx_requests(
     request: Request,
+    user: AuthUser = Depends(staff_required),
     params: DynamicCategoriesModel = Body(
         ...,
         description="Input parameters including ISO3 country code and dynamic categories.",

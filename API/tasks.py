@@ -68,9 +68,16 @@ def inspect_workers():
     inspected = celery.control.inspect()
 
     def extract_file_name(args: str) -> str:
-        """Extract file_name using a pattern match."""
-        match = re.search(r"file_name\s*=\s*['\"]([^'\"]+)['\"]", args)
-        return match.group(1) if match else None
+        """Extract value prioritizing file_name, then iso3, and finally dataset_title."""
+        keys = ["file_name", "iso3", "dataset_title"]
+
+        for key in keys:
+            pattern = re.compile(rf"{key}\s*=\s*['\"]([^'\"]+)['\"]")
+            match = pattern.search(args)
+            if match:
+                return match.group(1)
+
+        return None
 
     def filter_task_details(tasks: List[dict]) -> List[dict]:
         """Filter task details to include only id and file_name."""
