@@ -18,11 +18,11 @@ def login_url(request: Request):
     Parameters: None
 
     Returns:
-    - login_url (string) - URL to authorize user to the application via. Openstreetmap
+    - login_url (dict) - URL to authorize user to the application via. Openstreetmap
         OAuth2 with client_id, redirect_uri, and permission scope as query_string parameters
     """
     login_url = osm_auth.login()
-    return json.loads(login_url)
+    return login_url
 
 
 @router.get("/callback/")
@@ -39,7 +39,7 @@ def callback(request: Request):
     """
     access_token = osm_auth.callback(str(request.url))
 
-    return json.loads(access_token)
+    return access_token
 
 
 @router.get("/me/", response_model=AuthUser)
