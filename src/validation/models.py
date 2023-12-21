@@ -29,13 +29,13 @@ from typing_extensions import TypedDict
 
 from src.config import (
     ALLOW_BIND_ZIP_FILTER,
+    ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ENABLE_TILES,
-    ENABLE_HDX_EXPORTS
 )
 
 if ENABLE_HDX_EXPORTS:
-    from src.config import ALLOWED_HDX_TAGS, ALLOWED_HDX_UPDATE_FREQUENCIES,
+    from src.config import ALLOWED_HDX_TAGS, ALLOWED_HDX_UPDATE_FREQUENCIES
 
 
 def to_camel(string: str) -> str:
