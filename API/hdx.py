@@ -266,7 +266,7 @@ async def process_hdx_requests(
                             "Education Facilities": {
                                 "hdx": {
                                     "tags": [
-                                        "education-facilities-schools",
+                                        "education facilities-schools",
                                         "geodata",
                                     ],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
@@ -313,7 +313,7 @@ async def process_hdx_requests(
                             "Populated Places": {
                                 "hdx": {
                                     "tags": [
-                                        "populated-places-settlements",
+                                        "populated places-settlements",
                                         "geodata",
                                     ],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
