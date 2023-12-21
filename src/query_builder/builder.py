@@ -829,6 +829,15 @@ def generate_polygon_stats_graphql_query(geojson_feature):
 
 
 def get_country_from_iso(iso3):
+    """
+    Generate a SQL query to retrieve country information based on ISO3 code.
+
+    Args:
+    - iso3 (str): ISO3 Country Code.
+
+    Returns:
+    str: SQL query to fetch country information.
+    """
     query = f"""SELECT
                     b.cid::int as fid, b.description as name, b.dataset_name as dataset_prefix, b.locations as locations
                 FROM
@@ -842,6 +851,19 @@ def get_country_from_iso(iso3):
 def postgres2duckdb_query(
     base_table_name, table, cid=None, geometry=None, enable_users_detail=False
 ):
+    """
+    Generate a DuckDB query to create a table from a PostgreSQL query.
+
+    Args:
+    - base_table_name (str): Base table name.
+    - table (str): PostgreSQL table name.
+    - cid (int, optional): Country ID for filtering. Defaults to None.
+    - geometry (Polygon, optional): Custom polygon geometry. Defaults to None.
+    - enable_users_detail (bool, optional): Enable user details. Defaults to False.
+
+    Returns:
+    str: DuckDB query for creating a table.
+    """
     select_query = (
         """osm_id, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
     )
@@ -863,6 +885,18 @@ def postgres2duckdb_query(
 
 
 def extract_features_duckdb(base_table_name, select, feature_type, where):
+    """
+    Generate a DuckDB query to extract features based on given parameters.
+
+    Args:
+    - base_table_name (str): Base table name.
+    - select (List[str]): List of selected fields.
+    - feature_type (str): Type of feature (points, lines, polygons).
+    - where (str): SQL-like condition to filter features.
+
+    Returns:
+    str: DuckDB query to extract features.
+    """
     map_tables = {
         "points": {"table": ["nodes"], "where": {"nodes": where}},
         "lines": {
@@ -894,6 +928,15 @@ def extract_features_duckdb(base_table_name, select, feature_type, where):
 
 
 def get_country_geom_from_iso(iso3):
+    """
+    Generate a SQL query to retrieve country geometry based on ISO3 code.
+
+    Args:
+    - iso3 (str): ISO3 Country Code.
+
+    Returns:
+    str: SQL query to fetch country geometry.
+    """
     query = f"""SELECT
                     ST_AsGeoJSON(geometry) as geom
                 FROM

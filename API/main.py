@@ -18,7 +18,6 @@
 # <info@hotosm.org>
 import time
 
-import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -47,6 +46,9 @@ from .tasks import router as tasks_router
 
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     from .stats import router as stats_router
+
+if SENTRY_DSN:
+    import sentry_sdk
 
 # only use sentry if it is specified in config blocks
 if SENTRY_DSN:
