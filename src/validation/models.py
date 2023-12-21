@@ -163,7 +163,9 @@ class RawDataCurrentParamsBase(BaseModel):
     @validator("geometry_type", allow_reuse=True)
     def return_unique_value(cls, value):
         """return unique list"""
-        return list(set(value))
+        if value:
+            return list(set(value))
+        return value
 
 
 class RawDataCurrentParams(RawDataCurrentParamsBase):
