@@ -11,8 +11,8 @@ pytest==7.4.3
 httpx==0.26.0 
 
 # # Used for new relic monitoring
-# newrelic==7.2.4.171
-# sentry-sdk==1.5.12
+newrelic==7.2.4.171
+sentry-sdk==1.5.12
 
 ## Third party
 area==1.1.1
