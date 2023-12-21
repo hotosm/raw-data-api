@@ -394,6 +394,6 @@ async def process_hdx_requests(
     """
     queue_name = "raw_special"
     task = process_hdx_request.apply_async(
-        args=(params,), queue=queue_name, track_started=True
+        args=(params.model_dump(),), queue=queue_name, track_started=True
     )
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})

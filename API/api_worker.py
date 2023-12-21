@@ -19,7 +19,12 @@ from src.config import ENABLE_TILES
 from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
 from src.config import logger as logging
 from src.query_builder.builder import format_file_name_str
-from src.validation.models import DatasetConfig, RawDataOutputType
+from src.validation.models import (
+    DatasetConfig,
+    DynamicCategoriesModel,
+    RawDataCurrentParams,
+    RawDataOutputType,
+)
 
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
@@ -32,6 +37,7 @@ celery.conf.task_track_started = True
 
 @celery.task(bind=True, name="process_raw_data")
 def process_raw_data(self, params):
+    params = RawDataCurrentParams(**params)
     try:
         start_time = dt.now()
         bind_zip = params.bind_zip if ALLOW_BIND_ZIP_FILTER else True
@@ -188,6 +194,7 @@ def process_raw_data(self, params):
 
 @celery.task(bind=True, name="process_hdx_request")
 def process_hdx_request(self, params):
+    params = DynamicCategoriesModel(**params)
     if not params.dataset:
         params.dataset = DatasetConfig()
     hdx_object = HDX(params)
