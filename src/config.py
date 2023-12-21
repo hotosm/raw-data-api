@@ -219,7 +219,7 @@ if ENABLE_HDX_EXPORTS:
     )
 
     ALLOWED_HDX_TAGS = parse_list(
-        os.environ.get("ENABLE_HDX_EXPORTS")
+        os.environ.get("ALLOWED_HDX_TAGS")
         or config.get("HDX", "ALLOWED_HDX_TAGS", fallback=None)
         or Vocabulary.approved_tags()
     )
