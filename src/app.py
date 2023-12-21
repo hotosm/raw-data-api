@@ -55,7 +55,6 @@ from src.config import (
     EXPORT_MAX_AREA_SQKM,
 )
 from src.config import EXPORT_PATH as export_path
-from src.config import HDX_MAINTAINER, HDX_OWNER_ORG, HDX_URL_PREFIX
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import POLYGON_STATISTICS_API_URL
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
@@ -88,6 +87,9 @@ import logging as log
 if ENABLE_HDX_EXPORTS:
     import duckdb
     from hdx.data.dataset import Dataset
+
+    from src.config import HDX_MAINTAINER, HDX_OWNER_ORG, HDX_URL_PREFIX
+
 
 global LOCAL_CON_POOL
 
@@ -1104,6 +1106,13 @@ class PolygonStats:
 
 
 class DuckDB:
+    """
+    Constructor for the DuckDB class.
+
+    Parameters:
+    - db_path (str): The path to the DuckDB database file.
+    """
+
     def __init__(self, db_path):
         dbdict = get_db_connection_params()
         self.db_con_str = convert_dict_to_conn_str(db_dict=dbdict)
@@ -1118,6 +1127,14 @@ class DuckDB:
         con.load_extension("json")
 
     def run_query(self, query, attach_pgsql=False, load_spatial=False):
+        """
+        Executes a query on the DuckDB database.
+
+        Parameters:
+        - query (str): The SQL query to execute.
+        - attach_pgsql (bool): Flag to indicate whether to attach a PostgreSQL database.
+        - load_spatial (bool): Flag to indicate whether to load the spatial extension.
+        """
         with duckdb.connect(self.db_path) as con:
             if attach_pgsql:
                 con.execute(
@@ -1131,6 +1148,13 @@ class DuckDB:
 
 
 class HDX:
+    """
+    Constructor for the HDX class.
+
+    Parameters:
+    - params (DynamicCategoriesModel): An instance of DynamicCategoriesModel containing configuration settings.
+    """
+
     def __init__(self, params):
         self.params = params
         self.iso3 = self.params.iso3
@@ -1180,6 +1204,15 @@ class HDX:
         self.duck_db_instance = DuckDB(self.duck_db_db_path)
 
     def types_to_tables(self, type_list: list):
+        """
+        Maps feature types to corresponding database tables.
+
+        Parameters:
+        - type_list (List[str]): List of feature types.
+
+        Returns:
+        - List of database tables associated with the given feature types.
+        """
         mapping = {
             "points": ["nodes"],
             "lines": ["ways_line", "relations"],
@@ -1195,6 +1228,15 @@ class HDX:
         return list(table_set)
 
     def format_where_clause(self, where_clause):
+        """
+        Formats the where_clause by replacing certain patterns.
+
+        Parameters:
+        - where_clause (str): SQL-like condition to filter features.
+
+        Returns:
+        - Formatted where_clause.
+        """
         pattern = r"tags\['([^']+)'\]"
         match = re.search(pattern, where_clause)
 
