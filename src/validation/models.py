@@ -318,6 +318,17 @@ class HDXModel(BaseModel):
 
     @validator("tags")
     def validate_tags(cls, value):
+        """Validates tags if they are allowed from hdx allowed approved tags
+
+        Args:
+            value (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         for item in value:
             if item.strip() not in ALLOWED_HDX_TAGS:
                 raise ValueError(
@@ -362,6 +373,17 @@ class CategoryModel(BaseModel):
 
     @validator("types")
     def validate_types(cls, value):
+        """validates geom types
+
+        Args:
+            value (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         allowed_types = {"points", "lines", "polygons"}
         for item in value:
             if item not in allowed_types:
@@ -372,6 +394,17 @@ class CategoryModel(BaseModel):
 
     @validator("formats")
     def validate_export_types(cls, value):
+        """Validates export types if they are supported
+
+        Args:
+            value (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         for export_type in value:
             if export_type not in EXPORT_TYPE_MAPPING:
                 raise ValueError(f"Unsupported export type: {export_type}")
@@ -455,6 +488,17 @@ class DatasetConfig(BaseModel):
 
     @validator("update_frequency")
     def validate_frequency(cls, value):
+        """Validates frequency
+
+        Args:
+            value (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         if value.strip() not in ALLOWED_HDX_UPDATE_FREQUENCIES:
             raise ValueError(
                 f"Invalid update frequency , Should be within {ALLOWED_HDX_UPDATE_FREQUENCIES}"
