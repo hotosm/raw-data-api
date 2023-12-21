@@ -18,7 +18,6 @@
 # <info@hotosm.org>
 import time
 
-import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +26,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from src.config import (
+    ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     EXPORT_PATH,
     LIMITER,
@@ -40,11 +40,15 @@ from src.config import logger as logging
 from src.db_session import database_instance
 
 from .auth.routers import router as auth_router
+from .hdx import router as hdx_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
 
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     from .stats import router as stats_router
+
+if SENTRY_DSN:
+    import sentry_sdk
 
 # only use sentry if it is specified in config blocks
 if SENTRY_DSN:
@@ -66,6 +70,9 @@ app = FastAPI(title="Raw Data API ")
 app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
+
+if ENABLE_HDX_EXPORTS:
+    app.include_router(hdx_router)
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     app.include_router(stats_router)
 

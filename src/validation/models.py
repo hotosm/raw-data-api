@@ -29,10 +29,13 @@ from typing_extensions import TypedDict
 
 from src.config import (
     ALLOW_BIND_ZIP_FILTER,
+    ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ENABLE_TILES,
-    EXPORT_MAX_AREA_SQKM,
 )
+
+if ENABLE_HDX_EXPORTS:
+    from src.config import ALLOWED_HDX_TAGS, ALLOWED_HDX_UPDATE_FREQUENCIES
 
 
 def to_camel(string: str) -> str:
@@ -44,7 +47,7 @@ def to_camel(string: str) -> str:
 class BaseModel(PydanticModel):
     class Config:
         alias_generator = to_camel
-        allow_population_by_field_name = True
+        populate_by_name = True
         use_enum_values = True
         # extra = "forbid"
 
@@ -91,27 +94,27 @@ class JoinFilterType(Enum):
 
 
 class SQLFilter(BaseModel):
-    join_or: Optional[Dict[str, List[str]]]
-    join_and: Optional[Dict[str, List[str]]]
+    join_or: Optional[Dict[str, List[str]]] = Field(default=None)
+    join_and: Optional[Dict[str, List[str]]] = Field(default=None)
 
 
 class TagsFilter(BaseModel):
-    point: Optional[SQLFilter]
-    line: Optional[SQLFilter]
-    polygon: Optional[SQLFilter]
-    all_geometry: Optional[SQLFilter]
+    point: Optional[SQLFilter] = Field(default=None)
+    line: Optional[SQLFilter] = Field(default=None)
+    polygon: Optional[SQLFilter] = Field(default=None)
+    all_geometry: Optional[SQLFilter] = Field(default=None)
 
 
 class AttributeFilter(BaseModel):
-    point: Optional[List[str]]
-    line: Optional[List[str]]
-    polygon: Optional[List[str]]
-    all_geometry: Optional[List[str]]
+    point: Optional[List[str]] = Field(default=None)
+    line: Optional[List[str]] = Field(default=None)
+    polygon: Optional[List[str]] = Field(default=None)
+    all_geometry: Optional[List[str]] = Field(default=None)
 
 
 class Filters(BaseModel):
-    tags: Optional[TagsFilter]
-    attributes: Optional[AttributeFilter]
+    tags: Optional[TagsFilter] = Field(default=None)
+    attributes: Optional[AttributeFilter] = Field(default=None)
 
 
 class RawDataCurrentParamsBase(BaseModel):
@@ -204,7 +207,7 @@ class SnapshotResponse(BaseModel):
     track_link: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
                 "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
@@ -227,7 +230,7 @@ class SnapshotTaskResponse(BaseModel):
     result: SnapshotTaskResult
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
                 "status": "SUCCESS",
@@ -247,11 +250,19 @@ class StatusResponse(BaseModel):
     last_updated: str
 
     class Config:
-        schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+        json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
 
 
 class StatsRequestParams(BaseModel):
-    geometry: Union[Polygon, MultiPolygon] = Field(
+    iso3: Optional[str] = Field(
+        default=None,
+        description="ISO3 Country Code.",
+        min_length=3,
+        max_length=3,
+        example="NPL",
+    )
+    geometry: Optional[Union[Polygon, MultiPolygon]] = Field(
+        default=None,
         example={
             "type": "Polygon",
             "coordinates": [
@@ -266,12 +277,313 @@ class StatsRequestParams(BaseModel):
         },
     )
 
-    @validator("geometry", allow_reuse=True)
-    def get_value_as_feature(cls, value):
-        """Converts geometry to geojson feature"""
-        feature = {
-            "type": "Feature",
-            "geometry": json.loads(value.json()),
-            "properties": {},
-        }
-        return feature
+    @validator("geometry", pre=True, always=True)
+    def set_geometry_or_iso3(cls, value, values):
+        """Either geometry or iso3 should be supplied."""
+        if value is not None and values.get("iso3") is not None:
+            raise ValueError("Only one of geometry or iso3 should be supplied.")
+        if value is None and values.get("iso3") is None:
+            raise ValueError("Either geometry or iso3 should be supplied.")
+        return value
+
+
+### HDX BLock
+
+
+class HDXModel(BaseModel):
+    """
+    Model for HDX configuration settings.
+
+    Fields:
+    - tags (List[str]): List of tags for the HDX model.
+    - caveats (str): Caveats/Warning for the Datasets.
+    - notes (str): Extra notes to append in the notes section of HDX datasets.
+    """
+
+    tags: List[str] = Field(
+        ...,
+        description="List of tags for the HDX model.",
+        example=["roads", "transportation", "geodata"],
+    )
+    caveats: str = Field(
+        default="OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+        description="Caveats/Warning for the Datasets.",
+        example="OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+    )
+    notes: str = Field(
+        default="",
+        description="Extra notes to append in notes section of hdx datasets",
+        example="Sample notes to append",
+    )
+
+    @validator("tags")
+    def validate_tags(cls, value):
+        """Validates tags if they are allowed from hdx allowed approved tags
+
+        Args:
+            value (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        for item in value:
+            if item.strip() not in ALLOWED_HDX_TAGS:
+                raise ValueError(
+                    f"Invalid tag {item.strip()} , Should be within {ALLOWED_HDX_TAGS}"
+                )
+        return value
+
+
+class CategoryModel(BaseModel):
+    """
+    Model for category configuration settings.
+
+    Fields:
+    - hdx (HDXModel): HDX configuration model.
+    - types (List[str]): List of feature types (points, lines, polygons).
+    - select (List[str]): List of selected fields.
+    - where (str): SQL-like condition to filter features.
+    - formats (List[str]): List of Export Formats (suffixes).
+    """
+
+    hdx: HDXModel
+    types: List[str] = Field(
+        ...,
+        description="List of feature types (points, lines, polygons).",
+        example=["lines"],
+    )
+    select: List[str] = Field(
+        ...,
+        description="List of selected fields.",
+        example=["name", "highway"],
+    )
+    where: str = Field(
+        ...,
+        description="SQL-like condition to filter features.",
+        example="highway IS NOT NULL",
+    )
+    formats: List[str] = Field(
+        ...,
+        description="List of Export Formats (suffixes).",
+        example=["gpkg", "geojson"],
+    )
+
+    @validator("types")
+    def validate_types(cls, value):
+        """validates geom types
+
+        Args:
+            value (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        allowed_types = {"points", "lines", "polygons"}
+        for item in value:
+            if item not in allowed_types:
+                raise ValueError(
+                    f"Invalid type: {item}. Allowed types are {', '.join(allowed_types)}"
+                )
+        return value
+
+    @validator("formats")
+    def validate_export_types(cls, value):
+        """Validates export types if they are supported
+
+        Args:
+            value (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        for export_type in value:
+            if export_type not in EXPORT_TYPE_MAPPING:
+                raise ValueError(f"Unsupported export type: {export_type}")
+        return [EXPORT_TYPE_MAPPING[export_type] for export_type in value]
+
+
+class ExportTypeInfo:
+    """
+    Class representing export type information.
+
+    Fields:
+    - suffix (str): File suffix for the export type.
+    - driver_name (str): GDAL driver name.
+    - layer_creation_options (List[str]): Layer creation options.
+    - format_option (str): Format option for GDAL.
+    """
+
+    def __init__(self, suffix, driver_name, layer_creation_options, format_option):
+        self.suffix = suffix
+        self.driver_name = driver_name
+        self.layer_creation_options = layer_creation_options
+        self.format_option = format_option
+
+
+EXPORT_TYPE_MAPPING = {
+    "geojson": ExportTypeInfo("geojson", "GeoJSON", [], "GDAL"),
+    "shp": ExportTypeInfo("shp", "ESRI Shapefile", [], "GDAL"),
+    "gpkg": ExportTypeInfo("gpkg", "GPKG", [], "GDAL"),
+    "sqlite": ExportTypeInfo("sqlite", "SQLite", [], "GDAL"),
+    "fgb": ExportTypeInfo("fgb", "FlatGeobuf", ["VERIFY_BUFFERS=NO"], "GDAL"),
+    "mvt": ExportTypeInfo("mvt", "MVT", [], "GDAL"),
+    "kml": ExportTypeInfo("kml", "KML", [], "GDAL"),
+    "gpx": ExportTypeInfo("gpx", "GPX", [], "GDAL"),
+    "parquet": ExportTypeInfo("parquet", "PARQUET", [], "PARQUET"),
+}
+
+
+class DatasetConfig(BaseModel):
+    """
+    Model for dataset configuration settings.
+
+    Fields:
+    - private (bool): Make dataset private. By default False, public is recommended.
+    - subnational (bool): Make it true if the dataset doesn't cover the nation/country.
+    - update_frequency (str): Update frequency to be added on uploads.
+    - dataset_title (str): Dataset title that appears at the top of the page.
+    - dataset_prefix (str): Dataset prefix to be appended before the category name. Ignored if iso3 is supplied.
+    - dataset_locations (List[str]): Valid dataset locations iso3.
+    """
+
+    private: bool = Field(
+        default=False,
+        description="Make dataset private , By default False , Public is recommended",
+        example="False",
+    )
+    subnational: bool = Field(
+        default=False,
+        description="Make it true if dataset doesn't cover nation/country",
+        example="False",
+    )
+    update_frequency: str = Field(
+        default="as needed",
+        description="Update frequncy to be added on uploads",
+        example="daily",
+    )
+    dataset_title: str = Field(
+        default=None,
+        description="Dataset title which appears at top of the page",
+        example="Nepal",
+    )
+    dataset_prefix: str = Field(
+        default=None,
+        description="Dataset prefix to be appended before category name, Will be ignored if iso3 is supplied",
+        example="hotosm_npl",
+    )
+    dataset_locations: List[str] = Field(
+        default=None,
+        description="Valid dataset locations iso3",
+        example="['npl']",
+    )
+
+    @validator("update_frequency")
+    def validate_frequency(cls, value):
+        """Validates frequency
+
+        Args:
+            value (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        if value.strip() not in ALLOWED_HDX_UPDATE_FREQUENCIES:
+            raise ValueError(
+                f"Invalid update frequency , Should be within {ALLOWED_HDX_UPDATE_FREQUENCIES}"
+            )
+        return value.strip()
+
+
+class DynamicCategoriesModel(BaseModel):
+    """
+    Model for dynamic categories.
+
+    Fields:
+    - iso3 (Optional[str]): ISO3 Country Code.
+    - dataset (Optional[DatasetConfig]): Dataset Configurations for HDX Upload.
+    - meta (bool): Dumps Meta db in parquet format & HDX config JSON to S3.
+    - hdx_upload (bool): Enable/Disable uploading the dataset to HDX.
+    - categories (List[Dict[str, CategoryModel]]): List of dynamic categories.
+    - geometry (Optional[Union[Polygon, MultiPolygon]]): Custom polygon geometry.
+    """
+
+    iso3: Optional[str] = Field(
+        default=None,
+        description="ISO3 Country Code",
+        min_length=3,
+        max_length=3,
+        example="USA",
+    )
+    dataset: Optional[DatasetConfig] = Field(
+        default=None, description="Dataset Configurations for HDX Upload"
+    )
+    meta: bool = Field(
+        default=False,
+        description="Dumps Meta db in parquet format & hdx config json to s3",
+    )
+    hdx_upload: bool = Field(
+        default=True, description="Enable/Disable uploading dataset to hdx"
+    )
+
+    categories: List[Dict[str, CategoryModel]] = Field(
+        ...,
+        description="List of dynamic categories.",
+        example=[
+            {
+                "Roads": {
+                    "hdx": {
+                        "tags": ["roads", "transportation", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines", "polygons"],
+                    "select": ["name", "highway"],
+                    "where": "highway IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            }
+        ],
+    )
+    geometry: Optional[Union[Polygon, MultiPolygon]] = Field(
+        default=None,
+        example={
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+    )
+
+    @validator("geometry", pre=True, always=True)
+    def set_geometry_or_iso3(cls, value, values):
+        """Either geometry or iso3 should be supplied."""
+        if value is not None and values.get("iso3") is not None:
+            raise ValueError("Only one of geometry or iso3 should be supplied.")
+        if value is None and values.get("iso3") is None:
+            raise ValueError("Either geometry or iso3 should be supplied.")
+        if value is not None:
+            dataset = values.get("dataset").dict()
+            if dataset is None:
+                raise ValueError("Dataset config should be supplied for custom polygon")
+
+            for item in dataset.keys():
+                if dataset.get(item) is None:
+                    raise ValueError(f"Missing, Dataset config : {item}")
+        return value

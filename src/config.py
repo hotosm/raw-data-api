@@ -175,6 +175,60 @@ POLYGON_STATISTICS_API_RATE_LIMIT = os.environ.get(
     "POLYGON_STATISTICS_API_RATE_LIMIT"
 ) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_RATE_LIMIT", fallback=5)
 
+ENABLE_HDX_EXPORTS = os.environ.get("ENABLE_HDX_EXPORTS") or config.getboolean(
+    "HDX", "ENABLE_HDX_EXPORTS", fallback=False
+)
+
+
+if ENABLE_HDX_EXPORTS:
+    HDX_SITE = os.environ.get("HDX_SITE") or config.getboolean(
+        "HDX", "HDX_SITE", fallback="demo"
+    )
+    HDX_API_KEY = os.environ.get("HDX_API_KEY") or config.get(
+        "HDX", "HDX_API_KEY", fallback=None
+    )
+    HDX_OWNER_ORG = os.environ.get("HDX_OWNER_ORG") or config.get(
+        "HDX", "HDX_OWNER_ORG", fallback="225b9f7d-e7cb-4156-96a6-44c9c58d31e3"
+    )
+    HDX_MAINTAINER = os.environ.get("HDX_MAINTAINER") or config.get(
+        "HDX", "HDX_MAINTAINER", fallback=None
+    )
+    from hdx.api.configuration import Configuration
+
+    try:
+        HDX_URL_PREFIX = Configuration.create(
+            hdx_site=HDX_SITE,
+            hdx_key=HDX_API_KEY,
+            user_agent="HDXPythonLibrary/6.2.0-HOTOSM OSM Exports",
+        )
+        logging.debug(HDX_URL_PREFIX)
+    except Exception as e:
+        logging.error(
+            f"Error creating HDX configuration: {e}, Disabling the hdx exports feature"
+        )
+        ENABLE_HDX_EXPORTS = False
+
+if ENABLE_HDX_EXPORTS:
+    from hdx.data.dataset import Dataset
+    from hdx.data.vocabulary import Vocabulary
+
+    parse_list = (
+        lambda value, delimiter=",": value.split(delimiter)
+        if isinstance(value, str)
+        else value or []
+    )
+
+    ALLOWED_HDX_TAGS = parse_list(
+        os.environ.get("ENABLE_HDX_EXPORTS")
+        or config.get("HDX", "ALLOWED_HDX_TAGS", fallback=None)
+        or Vocabulary.approved_tags()
+    )
+    ALLOWED_HDX_UPDATE_FREQUENCIES = parse_list(
+        os.environ.get("ALLOWED_HDX_UPDATE_FREQUENCIES")
+        or config.get("HDX", "ALLOWED_HDX_UPDATE_FREQUENCIES", fallback=None)
+        or Dataset.list_valid_update_frequencies()
+    )
+
 
 def get_db_connection_params() -> dict:
     """Return a python dict that can be passed to psycopg2 connections

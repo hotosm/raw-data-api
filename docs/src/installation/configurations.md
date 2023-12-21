@@ -31,6 +31,7 @@ The following sections are recognised.
 - `[API_CONFIG]` - API service related configuration. Required.
 - `[EXPORT_UPLOAD]` - For external file hosts like S3. Optional.
 - `[SENTRY]` - Sentry monitoring configuration. Optional.
+- `[HDX]` - HDX Exports related configuration. Optional.
 
 The following are the different configuration options that are accepted.
 
@@ -66,6 +67,12 @@ The following are the different configuration options that are accepted.
 | `AWS_SECRET_ACCESS_KEY` | `AWS_SECRET_ACCESS_KEY` | `[EXPORT_UPLOAD]` | _none_ | AWS Secret Access Key for S3 access | CONDITIONAL |
 | `SENTRY_DSN` | `SENTRY_DSN` | `[SENTRY]` | _none_ | Sentry Data Source Name | OPTIONAL |
 | `SENTRY_RATE` | `SENTRY_RATE` | `[SENTRY]` | `1.0` | Sample rate percentage for shipping errors to sentry; Allowed values between 0 (0%) to 1 (100%)| OPTIONAL |
+| `ENABLE_HDX_EXPORTS` | `ENABLE_HDX_EXPORTS` | `[HDX]` | False | Enables hdx related endpoints and imports | OPTIONAL |
+| `HDX_SITE` | `HDX_SITE` | `[HDX]` | 'demo' | HDX site to point , By default demo site , use prod for production | CONDITIONAL |
+| `HDX_API_KEY` | `HDX_API_KEY` | `[HDX]` | None | Your API Secret key for hdx upload , should have write access and it is compulsory if ENABLE_HDX_EXPORTS is True | CONDITIONAL |
+| `HDX_OWNER_ORG` | `HDX_OWNER_ORG` | `[HDX]` | None | Your HDX organization ID| CONDITIONAL |
+| `HDX_MAINTAINER` | `HDX_MAINTAINER` | `[HDX]` | None | Your HDX Maintainer ID | CONDITIONAL |
+
 
 ## Which Service uses which settings?
 
@@ -102,6 +109,14 @@ The following are the different configuration options that are accepted.
 | `AWS_SECRET_ACCESS_KEY` | TBD | No | Yes |
 | `SENTRY_DSN` | TBD | Yes | No |
 | `SENTRY_RATE` | TBD | Yes | No |
+| `ENABLE_HDX_EXPORTS` | `[HDX]` | Yes | Yes |
+| `HDX_SITE` | `[HDX]` | Yes | Yes |
+| `HDX_API_KEY` | `[HDX]` | Yes | Yes |
+| `HDX_OWNER_ORG` | `[HDX]` | Yes | Yes |
+| `HDX_MAINTAINER` | `[HDX]` | Yes | Yes |
+
+
+
 
 ## Compulsory Configuration
 

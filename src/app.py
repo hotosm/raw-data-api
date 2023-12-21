@@ -17,12 +17,19 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains Main core logic of app"""
+import concurrent.futures
 import os
+import pathlib
+import re
+import shutil
 import subprocess
 import sys
-import threading
 import time
+import uuid
+from collections import namedtuple
 from datetime import datetime
+from datetime import datetime as dt
+from datetime import timezone
 from json import dumps
 from json import loads as json_loads
 
@@ -30,16 +37,20 @@ import boto3
 import humanize
 import orjson
 import requests
+import sozipfile.sozipfile as zipfile
 from area import area
 from fastapi import HTTPException
 from geojson import FeatureCollection
 from psycopg2 import OperationalError, connect
 from psycopg2.extras import DictCursor
+from slugify import slugify
 
 from src.config import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     BUCKET_NAME,
+    ENABLE_HDX_EXPORTS,
+    ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ENABLE_TILES,
     EXPORT_MAX_AREA_SQKM,
 )
@@ -47,19 +58,22 @@ from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import POLYGON_STATISTICS_API_URL
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
-from src.config import get_db_connection_params, level
+from src.config import USE_S3_TO_UPLOAD, get_db_connection_params, level
 from src.config import logger as logging
 from src.query_builder.builder import (
+    HDX_FILTER_CRITERIA,
+    HDX_MARKDOWN,
     check_exisiting_country,
     check_last_updated_rawdata,
+    extract_features_duckdb,
     extract_geometry_type_query,
     generate_polygon_stats_graphql_query,
     get_countries_query,
-    get_country_geojson,
-    get_country_id_query,
+    get_country_from_iso,
+    get_country_geom_from_iso,
     get_osm_feature_query,
+    postgres2duckdb_query,
     raw_currentdata_extraction_query,
-    raw_extract_plain_geojson,
 )
 from src.validation.models import RawDataOutputType
 
@@ -70,8 +84,13 @@ else:
     database_instance = None
 import logging as log
 
-# assigning global variable of pooling so that it
-# will be accessible from any function within this script
+if ENABLE_HDX_EXPORTS:
+    import duckdb
+    from hdx.data.dataset import Dataset
+
+    from src.config import HDX_MAINTAINER, HDX_OWNER_ORG, HDX_URL_PREFIX
+
+
 global LOCAL_CON_POOL
 
 # getting the pool instance which was fireup when API is started
@@ -94,6 +113,11 @@ def print_psycopg2_exception(err):
     print("pgerror:", err.pgerror)
     print("pgcode:", err.pgcode, "\n")
     raise err
+
+
+def convert_dict_to_conn_str(db_dict):
+    conn_str = " ".join([f"{key}={value}" for key, value in db_dict.items()])
+    return conn_str
 
 
 def check_for_json(result_str):
@@ -640,7 +664,7 @@ class RawData:
     @staticmethod
     def geojson2tiles(geojson_path, tile_path, tile_layer_name):
         """Responsible for geojson to tiles"""
-        cmd = """tippecanoe -zg --projection=EPSG:4326 -o {tile_output_path} -l {tile_layer_name} {geojson_input_path} --force""".format(
+        cmd = """tippecanoe -zg --projection=EPSG:4326 -o {tile_output_path} -l {tile_layer_name} --force {geojson_input_path}""".format(
             tile_output_path=tile_path,
             tile_layer_name=tile_layer_name,
             geojson_input_path=geojson_path,
@@ -866,13 +890,14 @@ class S3FileTransfer:
             raise ex
         return bucket_location or "us-east-1"
 
-    def upload(self, file_path, file_name, file_suffix="zip"):
+    def upload(self, file_path, file_name, file_suffix=None):
         """Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
         Parameters :file_path --- your local file path to upload ,
             file_prefix -- prefix for the filename which is stored
         sample function call :
             S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test")"""
-        file_name = f"{file_name}.{file_suffix}"
+        if file_suffix:
+            file_name = f"{file_name}.{file_suffix}"
         logging.debug("Started Uploading %s from %s", file_name, file_path)
         # instantiate upload
         start_time = time.time()
@@ -894,7 +919,7 @@ class S3FileTransfer:
 class PolygonStats:
     """Generates stats for polygon"""
 
-    def __init__(self, geojson):
+    def __init__(self, geojson=None, iso3=None):
         """
         Initialize PolygonStats with the provided GeoJSON.
 
@@ -902,7 +927,22 @@ class PolygonStats:
             geojson (dict): GeoJSON representation of the polygon.
         """
         self.API_URL = POLYGON_STATISTICS_API_URL
-        self.INPUT_GEOM = dumps(geojson)
+        if geojson is None and iso3 is None:
+            raise HTTPException(
+                status_code=404, detail="Either geojson or iso3 should be passed"
+            )
+
+        if iso3:
+            dbdict = get_db_connection_params()
+            d_b = Database(dbdict)
+            con, cur = d_b.connect()
+            cur.execute(get_country_geom_from_iso(iso3))
+            result = cur.fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Invalid iso3 code")
+            self.INPUT_GEOM = result[0]
+        else:
+            self.INPUT_GEOM = dumps(geojson)
 
     @staticmethod
     def get_building_pattern_statement(
@@ -1036,7 +1076,7 @@ class PolygonStats:
         )
 
         return_stats = {
-            "summary": {"building": building_summary, "road": road_summary},
+            "summary": {"buildings": building_summary, "roads": road_summary},
             "raw": {
                 "population": combined_data["population"],
                 "populatedAreaKm2": combined_data["populatedAreaKm2"],
@@ -1063,3 +1103,647 @@ class PolygonStats:
         }
 
         return return_stats
+
+
+class DuckDB:
+    """
+    Constructor for the DuckDB class.
+
+    Parameters:
+    - db_path (str): The path to the DuckDB database file.
+    """
+
+    def __init__(self, db_path):
+        dbdict = get_db_connection_params()
+        self.db_con_str = convert_dict_to_conn_str(db_dict=dbdict)
+        self.db_path = db_path
+        if os.path.exists(self.db_path):
+            os.remove(self.db_path)
+        con = duckdb.connect(self.db_path)
+        con.sql(f"""ATTACH '{self.db_con_str}' AS postgres_db (TYPE POSTGRES)""")
+        con.install_extension("spatial")
+        con.install_extension("json")
+        con.load_extension("spatial")
+        con.load_extension("json")
+
+    def run_query(self, query, attach_pgsql=False, load_spatial=False):
+        """
+        Executes a query on the DuckDB database.
+
+        Parameters:
+        - query (str): The SQL query to execute.
+        - attach_pgsql (bool): Flag to indicate whether to attach a PostgreSQL database.
+        - load_spatial (bool): Flag to indicate whether to load the spatial extension.
+        """
+        with duckdb.connect(self.db_path) as con:
+            if attach_pgsql:
+                con.execute(
+                    f"""ATTACH '{self.db_con_str}' AS postgres_db (TYPE POSTGRES)"""
+                )
+                load_spatial = True
+            if load_spatial:
+                con.load_extension("spatial")
+            # con.load_extension("json")
+            con.execute(query)
+
+
+class HDX:
+    """
+    Constructor for the HDX class.
+
+    Parameters:
+    - params (DynamicCategoriesModel): An instance of DynamicCategoriesModel containing configuration settings.
+    """
+
+    def __init__(self, params):
+        self.params = params
+        self.iso3 = self.params.iso3
+        self.HDX_SUPPORTED_FORMATS = ["geojson", "gpkg", "kml", "shp"]
+        if self.iso3:
+            self.iso3 = self.iso3.lower()
+        self.cid = None
+        if self.iso3:
+            dbdict = get_db_connection_params()
+            d_b = Database(dbdict)
+            con, cur = d_b.connect()
+            cur.execute(get_country_from_iso(self.iso3))
+            result = cur.fetchall()[0]
+            if not result:
+                raise HTTPException(status_code=404, detail="Invalid iso3 code")
+
+            (
+                self.cid,
+                dataset_title,
+                dataset_prefix,
+                dataset_locations,
+            ) = result
+
+            if not self.params.dataset.dataset_title:
+                self.params.dataset.dataset_title = dataset_title
+            if not self.params.dataset.dataset_prefix:
+                self.params.dataset.dataset_prefix = dataset_prefix
+            if not self.params.dataset.dataset_locations:
+                self.params.dataset.dataset_locations = dataset_locations
+
+        self.uuid = str(uuid.uuid4().hex)
+        self.parallel_process_state = False
+
+        self.default_export_path = os.path.join(
+            export_path,
+            self.uuid,
+            "HDX",
+            self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix,
+        )
+        if os.path.exists(self.default_export_path):
+            shutil.rmtree(self.default_export_path)
+        os.makedirs(self.default_export_path)
+        self.duck_db_db_path = os.path.join(
+            self.default_export_path,
+            f"{self.iso3 if self.iso3 else self.params.dataset.dataset_prefix}.db",
+        )
+        self.duck_db_instance = DuckDB(self.duck_db_db_path)
+
+    def types_to_tables(self, type_list: list):
+        """
+        Maps feature types to corresponding database tables.
+
+        Parameters:
+        - type_list (List[str]): List of feature types.
+
+        Returns:
+        - List of database tables associated with the given feature types.
+        """
+        mapping = {
+            "points": ["nodes"],
+            "lines": ["ways_line", "relations"],
+            "polygons": ["ways_poly", "relations"],
+        }
+
+        table_set = set()
+
+        for t in type_list:
+            if t in mapping:
+                table_set.update(mapping[t])
+
+        return list(table_set)
+
+    def format_where_clause(self, where_clause):
+        """
+        Formats the where_clause by replacing certain patterns.
+
+        Parameters:
+        - where_clause (str): SQL-like condition to filter features.
+
+        Returns:
+        - Formatted where_clause.
+        """
+        pattern = r"tags\['([^']+)'\]"
+        match = re.search(pattern, where_clause)
+
+        if match:
+            key = match.group(1)
+            replacement = f"tags['{key}'][1]"
+            return re.sub(pattern, replacement, where_clause)
+        else:
+            return where_clause
+
+    def upload_to_s3(self, resource_path):
+        """
+        Uploads a resource file to Amazon S3.
+
+        Parameters:
+        - resource_path (str): Path to the resource file on the local filesystem.
+
+        Returns:
+        - Download URL for the uploaded resource.
+        """
+        if not USE_S3_TO_UPLOAD:
+            raise HTTPException(
+                status_code=404, detail="S3 Export service is disabled on server"
+            )
+        s3_upload_name = os.path.relpath(
+            resource_path, os.path.join(export_path, self.uuid)
+        )
+        file_transfer_obj = S3FileTransfer()
+        download_url = file_transfer_obj.upload(
+            resource_path,
+            str(s3_upload_name),
+        )
+        return download_url
+
+    def zip_to_s3(self, resources):
+        """
+        Zips and uploads a list of resources to Amazon S3.
+
+        Parameters:
+        - resources (List[Dict[str, Any]]): List of resource dictionaries.
+
+        Returns:
+        - List of resource dictionaries with added download URLs.
+        """
+        for resource in resources:
+            resource["download_url"] = self.upload_to_s3(
+                resource_path=resource["zip_path"]
+            )
+            os.remove(resource["zip_path"])
+        return resources
+
+    def file_to_zip(self, working_dir, zip_path):
+        """
+        Creates a ZIP file from files in a directory.
+
+        Parameters:
+        - working_dir (str): Path to the directory containing files to be zipped.
+        - zip_path (str): Path to the resulting ZIP file.
+
+        Returns:
+        - Path to the created ZIP file.
+        """
+        zf = zipfile.ZipFile(
+            zip_path,
+            "w",
+            compression=zipfile.ZIP_DEFLATED,
+            chunk_size=zipfile.SOZIP_DEFAULT_CHUNK_SIZE,
+        )
+        for file_path in pathlib.Path(working_dir).iterdir():
+            zf.write(file_path, arcname=file_path.name)
+        utc_now = dt.now(timezone.utc)
+        utc_offset = utc_now.strftime("%z")
+        # Adding metadata readme.txt
+        readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
+        readme_content += "Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n"
+        readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about \n"
+        zf.writestr("Readme.txt", readme_content)
+        zf.close()
+        shutil.rmtree(working_dir)
+        return zip_path
+
+    def query_to_file(self, query, category_name, feature_type, export_formats):
+        """
+        Executes a query and exports the result to file(s).
+
+        Parameters:
+        - query (str): SQL query to execute.
+        - category_name (str): Name of the category.
+        - feature_type (str): Feature type.
+        - export_formats (List[ExportTypeInfo]): List of export formats.
+
+        Returns:
+        - List of resource dictionaries containing export information.
+        """
+        category_name = slugify(category_name.lower()).replace("-", "_")
+        file_export_path = os.path.join(
+            self.default_export_path, category_name, feature_type
+        )
+        resources = []
+
+        def process_export_format(export_format):
+            export_format_path = os.path.join(file_export_path, export_format.suffix)
+            os.makedirs(export_format_path, exist_ok=True)
+
+            export_filename = f"""{self.params.dataset.dataset_prefix}_{category_name}_{feature_type}_{export_format.suffix}"""
+            export_file_path = os.path.join(
+                export_format_path, f"{export_filename}.{export_format.suffix}"
+            )
+
+            if os.path.exists(export_file_path):
+                os.remove(export_file_path)
+
+            layer_creation_options_str = (
+                " ".join(
+                    [f"'{option}'" for option in export_format.layer_creation_options]
+                )
+                if export_format.layer_creation_options
+                else ""
+            )
+            executable_query = f"""COPY ({query.strip()}) TO '{export_file_path}' WITH (FORMAT {export_format.format_option}, DRIVER '{export_format.driver_name}'{f', LAYER_CREATION_OPTIONS {layer_creation_options_str}' if layer_creation_options_str else ''})"""
+            self.duck_db_instance.run_query(executable_query.strip(), load_spatial=True)
+            zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
+            zip_path = self.file_to_zip(export_format_path, zip_file_path)
+            resource = {}
+            resource["filename"] = f"{export_filename}.zip"
+            resource["zip_path"] = zip_path
+            resource["format_suffix"] = export_format.suffix
+            resource["format_description"] = export_format.driver_name
+
+            return resource
+
+        if self.parallel_process_state is False and len(export_formats) > 1:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=os.cpu_count()
+            ) as executor:
+                futures = [
+                    executor.submit(process_export_format, export_format)
+                    for export_format in export_formats
+                ]
+                resources = [
+                    future.result()
+                    for future in concurrent.futures.as_completed(futures)
+                ]
+        else:
+            resource = process_export_format(export_formats[0])
+            resources.append(resource)
+
+        return resources
+
+    def process_category_result(self, category_result):
+        """
+        Processes the result of a category and prepares the response.
+
+        Parameters:
+        - category_result (CategoryResult): Instance of CategoryResult.
+
+        Returns:
+        - Dictionary containing processed category result.
+        """
+        if self.params.hdx_upload:
+            return self.resource_to_hdx(
+                uploaded_resources=category_result.uploaded_resources,
+                dataset_config=self.params.dataset,
+                category=category_result.category,
+            )
+
+        return self.resource_to_response(
+            category_result.uploaded_resources, category_result.category
+        )
+
+    def process_category(self, category):
+        """
+        Processes a category by executing queries and handling exports.
+
+        Parameters:
+        - category (Dict[str, CategoryModel]): Dictionary representing a category.
+
+        Returns:
+        - List of resource dictionaries containing export information.
+        """
+        category_name, category_data = list(category.items())[0]
+        all_uploaded_resources = []
+        for feature_type in category_data.types:
+            extract_query = extract_features_duckdb(
+                self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
+                category_data.select,
+                feature_type,
+                self.format_where_clause(category_data.where),
+            )
+            resources = self.query_to_file(
+                extract_query, category_name, feature_type, category_data.formats
+            )
+            uploaded_resources = self.zip_to_s3(resources)
+            all_uploaded_resources.extend(uploaded_resources)
+        return all_uploaded_resources
+
+    def resource_to_response(self, uploaded_resources, category):
+        """
+        Converts uploaded resources to a response format.
+
+        Parameters:
+        - uploaded_resources (List[Dict[str, Any]]): List of resource dictionaries.
+        - category (Dict[str, CategoryModel]): Dictionary representing a category.
+
+        Returns:
+        - Dictionary containing the response information.
+        """
+        category_name, category_data = list(category.items())[0]
+
+        dataset_info = {}
+        resources = []
+        for resource in uploaded_resources:
+            resource_meta = {
+                "name": resource["filename"],
+                "format": resource["format_suffix"],
+                "description": resource["format_description"],
+                "url": resource["download_url"],
+                "last_modifed": datetime.now().isoformat(),
+            }
+            resource_meta["uploaded_to_hdx"]: False
+            resources.append(resource_meta)
+        dataset_info["resources"] = resources
+        return {category_name: dataset_info}
+
+    def resource_to_hdx(self, uploaded_resources, dataset_config, category):
+        """
+        Converts uploaded resources to an HDX dataset and uploads to HDX.
+
+        Parameters:
+        - uploaded_resources (List[Dict[str, Any]]): List of resource dictionaries.
+        - dataset_config (DatasetConfig): Instance of DatasetConfig.
+        - category (Dict[str, CategoryModel]): Dictionary representing a category.
+
+        Returns:
+        - Dictionary containing the HDX upload information.
+        """
+        if any(
+            item["format_suffix"] in self.HDX_SUPPORTED_FORMATS
+            for item in uploaded_resources
+        ):
+            uploader = HDXUploader(
+                hdx=dataset_config,
+                category=category,
+                default_category_path=self.default_export_path,
+                uuid=self.uuid,
+                completeness_metadata={
+                    "iso3": self.iso3,
+                    "geometry": self.params.geometry,
+                },
+            )
+            uploader.init_dataset()
+            non_hdx_resources = []
+            for resource in uploaded_resources:
+                resource_meta = {
+                    "name": resource["filename"],
+                    "format": resource["format_suffix"],
+                    "description": resource["format_description"],
+                    "url": resource["download_url"],
+                    "last_modifed": datetime.now().isoformat(),
+                }
+                if resource["format_suffix"] in self.HDX_SUPPORTED_FORMATS:
+                    uploader.add_resource(resource_meta)
+                else:
+                    resource_meta["uploaded_to_hdx"]: False
+                    non_hdx_resources.append(resource_meta)
+            category_name, hdx_dataset_info = uploader.upload_dataset(self.params.meta)
+            hdx_dataset_info["resources"].extend(non_hdx_resources)
+            return {category_name: hdx_dataset_info}
+
+    def clean_resources(self):
+        """
+        Cleans up temporary resources.
+        """
+        temp_dir = os.path.join(export_path, self.uuid)
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
+    def process_hdx_tags(self):
+        """
+        Processes HDX tags and executes category processing in parallel.
+
+        Returns:
+        - Dictionary containing the processed dataset information.
+        """
+        table_type = [
+            cat_type
+            for category in self.params.categories
+            for cat_type in list(category.values())[0].types
+        ]
+        table_names = self.types_to_tables(list(set(table_type)))
+        base_table_name = self.iso3 if self.iso3 else self.params.dataset.dataset_prefix
+        for table in table_names:
+            create_table = postgres2duckdb_query(
+                base_table_name,
+                table,
+                self.cid,
+                self.params.geometry,
+            )
+            self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
+        CategoryResult = namedtuple(
+            "CategoryResult", ["category", "uploaded_resources"]
+        )
+
+        tag_process_results = []
+        dataset_results = []
+        if len(self.params.categories) > 1:
+            self.parallel_process_state = True
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=os.cpu_count() * 2
+            ) as executor:
+                futures = {
+                    executor.submit(self.process_category, category): category
+                    for category in self.params.categories
+                }
+
+                for future in concurrent.futures.as_completed(futures):
+                    category = futures[future]
+                    uploaded_resources = future.result()
+                    category_result = CategoryResult(
+                        category=category, uploaded_resources=uploaded_resources
+                    )
+                    tag_process_results.append(category_result)
+        else:
+            resources = self.process_category(self.params.categories[0])
+            category_result = CategoryResult(
+                category=self.params.categories[0], uploaded_resources=resources
+            )
+            tag_process_results.append(category_result)
+
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=os.cpu_count() * 2
+        ) as executor:
+            futures = {
+                executor.submit(self.process_category_result, result): result
+                for result in tag_process_results
+            }
+
+            for future in concurrent.futures.as_completed(futures):
+                result = futures[future]
+                result_data = future.result()
+                dataset_results.append(result_data)
+
+        result = {"datasets": dataset_results}
+        if self.params.meta:
+            db_dump_path = os.path.join(
+                self.default_export_path,
+                "DB_DUMP",
+            )
+            os.makedirs(db_dump_path, exist_ok=True)
+            export_db = f"""EXPORT DATABASE '{db_dump_path}' (FORMAT PARQUET, COMPRESSION ZSTD, ROW_GROUP_SIZE 100000);"""
+            self.duck_db_instance.run_query(export_db, load_spatial=True)
+            db_zip_download_url = self.upload_to_s3(
+                self.file_to_zip(
+                    working_dir=db_dump_path,
+                    zip_path=os.path.join(self.default_export_path, "dbdump.zip"),
+                )
+            )
+            result["db_dump"] = db_zip_download_url
+        self.clean_resources()
+        return result
+
+
+class HDXUploader:
+    """
+    Constructor for the HDXUploader class.
+
+    Parameters:
+    - category (Dict[str, CategoryModel]): Dictionary representing a category.
+    - hdx (HDX): Instance of the HDX class.
+    - uuid (str): Universally unique identifier.
+    - default_category_path (str): Default path for the category.
+    - completeness_metadata (Optional[Dict[str, Any]]): Metadata for completeness.
+    """
+
+    def __init__(
+        self, category, hdx, uuid, default_category_path, completeness_metadata=None
+    ):
+        self.hdx = hdx
+        self.category_name, self.category_data = list(category.items())[0]
+        self.category_path = os.path.join(
+            default_category_path, slugify(self.category_name.lower()).replace("-", "_")
+        )
+        self.dataset = None
+        self.uuid = uuid
+        self.completeness_metadata = completeness_metadata
+        self.data_completeness_stats = None
+        self.resources = []
+
+    def slugify(self, name):
+        """
+        Converts a string to a valid slug format.
+
+        Parameters:
+        - name (str): Input string.
+
+        Returns:
+        - Slugified string.
+        """
+        return slugify(name).replace("-", "_")
+
+    def add_notes(self):
+        """
+        Adds notes based on category data.
+
+        Returns:
+        - Notes string.
+        """
+        columns = []
+        for key in self.category_data.select:
+            columns.append(
+                "- [{0}](http://wiki.openstreetmap.org/wiki/Key:{0})".format(key)
+            )
+        columns = "\n".join(columns)
+        filter_str = HDX_FILTER_CRITERIA.format(criteria=self.category_data.where)
+        if self.category_name.lower() in ["roads", "buildings"]:
+            if self.data_completeness_stats is None:
+                if self.completeness_metadata:
+                    self.data_completeness_stats = PolygonStats(
+                        iso3=self.completeness_metadata["iso3"],
+                        geojson=self.completeness_metadata["geometry"].json()
+                        if self.completeness_metadata["geometry"]
+                        else None,
+                    ).get_summary_stats()
+            if self.data_completeness_stats:
+                self.category_data.hdx.notes += f'{self.data_completeness_stats["summary"][self.category_name.lower()]}\n'
+                self.category_data.hdx.notes += "Read about what this summary means, [indicators](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md) , [metrics](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md)\n"
+
+        return self.category_data.hdx.notes + HDX_MARKDOWN.format(
+            columns=columns, filter_str=filter_str
+        )
+
+    def add_resource(self, resource_meta):
+        """
+        Adds a resource to the list of resources.
+
+        Parameters:
+        - resource_meta (Dict[str, Any]): Metadata for the resource.
+        """
+        if self.dataset:
+            self.resources.append(resource_meta)
+            self.dataset.add_update_resource(resource_meta)
+
+    def upload_dataset(self, dump_config_to_s3=False):
+        """
+        Uploads the dataset to HDX.
+
+        Parameters:
+        - dump_config_to_s3 (bool): Flag to indicate whether to dump configuration to S3.
+
+        Returns:
+        - Tuple containing category name and dataset information.
+        """
+        if self.dataset:
+            dataset_info = {}
+            dt_config_path = os.path.join(
+                self.category_path, f"{self.dataset['name']}.json"
+            )
+            self.dataset.save_to_json(
+                os.path.join(self.category_path, f"{self.dataset['name']}.json")
+            )
+            if dump_config_to_s3:
+                s3_upload_name = os.path.relpath(
+                    dt_config_path, os.path.join(export_path, self.uuid)
+                )
+                file_transfer_obj = S3FileTransfer()
+                dataset_info["config"] = file_transfer_obj.upload(
+                    dt_config_path,
+                    str(s3_upload_name),
+                )
+
+            self.dataset.set_reference_period(datetime.now())
+            self.dataset.create_in_hdx(allow_no_resources=True)
+            dataset_info["name"] = self.dataset["name"]
+            dataset_info["hdx_url"] = f"{HDX_URL_PREFIX}/dataset/{self.dataset['name']}"
+            dataset_info["resources"] = self.resources
+            return self.category_name, dataset_info
+
+    def init_dataset(self):
+        """
+        Initializes the HDX dataset.
+        """
+        dataset_prefix = self.hdx.dataset_prefix
+        dataset_title = self.hdx.dataset_title
+        dataset_locations = self.hdx.dataset_locations
+        self.dataset = Dataset(
+            {
+                "name": "{0}_{1}".format(
+                    dataset_prefix, self.slugify(self.category_name)
+                ),
+                "title": "{0} {1} (OpenStreetMap Export)".format(
+                    dataset_title, self.category_name
+                ),
+                "owner_org": HDX_OWNER_ORG,
+                "maintainer": HDX_MAINTAINER,
+                "dataset_source": "OpenStreetMap contributors",
+                "methodology": "Other",
+                "methodology_other": "Volunteered geographic information",
+                "license_id": "hdx-odc-odbl",
+                "updated_by_script": f'Hotosm OSM Exports ({datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}',
+                "caveats": self.category_data.hdx.caveats,
+                "private": self.hdx.private,
+                "notes": self.add_notes(),
+                "subnational": 1 if self.hdx.subnational else 0,
+            }
+        )
+        self.dataset.set_expected_update_frequency(self.hdx.update_frequency)
+        for location in dataset_locations:
+            self.dataset.add_country_location(location)
+        for tag in self.category_data.hdx.tags:
+            self.dataset.add_tag(tag)
