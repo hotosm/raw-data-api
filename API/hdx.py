@@ -186,7 +186,7 @@ async def process_hdx_requests(
                                 "hdx": {
                                     "tags": [
                                         "facilities-infrastructure",
-                                        "points-of-interest-poi",
+                                        "points of interest-poi",
                                         "geodata",
                                     ],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
