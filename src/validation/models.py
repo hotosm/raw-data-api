@@ -94,27 +94,27 @@ class JoinFilterType(Enum):
 
 
 class SQLFilter(BaseModel):
-    join_or: Optional[Dict[str, List[str]]]
-    join_and: Optional[Dict[str, List[str]]]
+    join_or: Optional[Dict[str, List[str]]] = Field(default=None)
+    join_and: Optional[Dict[str, List[str]]] = Field(default=None)
 
 
 class TagsFilter(BaseModel):
-    point: Optional[SQLFilter]
-    line: Optional[SQLFilter]
-    polygon: Optional[SQLFilter]
-    all_geometry: Optional[SQLFilter]
+    point: Optional[SQLFilter] = Field(default=None)
+    line: Optional[SQLFilter] = Field(default=None)
+    polygon: Optional[SQLFilter] = Field(default=None)
+    all_geometry: Optional[SQLFilter] = Field(default=None)
 
 
 class AttributeFilter(BaseModel):
-    point: Optional[List[str]]
-    line: Optional[List[str]]
-    polygon: Optional[List[str]]
-    all_geometry: Optional[List[str]]
+    point: Optional[List[str]] = Field(default=None)
+    line: Optional[List[str]] = Field(default=None)
+    polygon: Optional[List[str]] = Field(default=None)
+    all_geometry: Optional[List[str]] = Field(default=None)
 
 
 class Filters(BaseModel):
-    tags: Optional[TagsFilter]
-    attributes: Optional[AttributeFilter]
+    tags: Optional[TagsFilter] = Field(default=None)
+    attributes: Optional[AttributeFilter] = Field(default=None)
 
 
 class RawDataCurrentParamsBase(BaseModel):
@@ -291,6 +291,15 @@ class StatsRequestParams(BaseModel):
 
 
 class HDXModel(BaseModel):
+    """
+    Model for HDX configuration settings.
+
+    Fields:
+    - tags (List[str]): List of tags for the HDX model.
+    - caveats (str): Caveats/Warning for the Datasets.
+    - notes (str): Extra notes to append in the notes section of HDX datasets.
+    """
+
     tags: List[str] = Field(
         ...,
         description="List of tags for the HDX model.",
@@ -318,6 +327,17 @@ class HDXModel(BaseModel):
 
 
 class CategoryModel(BaseModel):
+    """
+    Model for category configuration settings.
+
+    Fields:
+    - hdx (HDXModel): HDX configuration model.
+    - types (List[str]): List of feature types (points, lines, polygons).
+    - select (List[str]): List of selected fields.
+    - where (str): SQL-like condition to filter features.
+    - formats (List[str]): List of Export Formats (suffixes).
+    """
+
     hdx: HDXModel
     types: List[str] = Field(
         ...,
@@ -359,6 +379,16 @@ class CategoryModel(BaseModel):
 
 
 class ExportTypeInfo:
+    """
+    Class representing export type information.
+
+    Fields:
+    - suffix (str): File suffix for the export type.
+    - driver_name (str): GDAL driver name.
+    - layer_creation_options (List[str]): Layer creation options.
+    - format_option (str): Format option for GDAL.
+    """
+
     def __init__(self, suffix, driver_name, layer_creation_options, format_option):
         self.suffix = suffix
         self.driver_name = driver_name
@@ -380,6 +410,18 @@ EXPORT_TYPE_MAPPING = {
 
 
 class DatasetConfig(BaseModel):
+    """
+    Model for dataset configuration settings.
+
+    Fields:
+    - private (bool): Make dataset private. By default False, public is recommended.
+    - subnational (bool): Make it true if the dataset doesn't cover the nation/country.
+    - update_frequency (str): Update frequency to be added on uploads.
+    - dataset_title (str): Dataset title that appears at the top of the page.
+    - dataset_prefix (str): Dataset prefix to be appended before the category name. Ignored if iso3 is supplied.
+    - dataset_locations (List[str]): Valid dataset locations iso3.
+    """
+
     private: bool = Field(
         default=False,
         description="Make dataset private , By default False , Public is recommended",
@@ -421,6 +463,18 @@ class DatasetConfig(BaseModel):
 
 
 class DynamicCategoriesModel(BaseModel):
+    """
+    Model for dynamic categories.
+
+    Fields:
+    - iso3 (Optional[str]): ISO3 Country Code.
+    - dataset (Optional[DatasetConfig]): Dataset Configurations for HDX Upload.
+    - meta (bool): Dumps Meta db in parquet format & HDX config JSON to S3.
+    - hdx_upload (bool): Enable/Disable uploading the dataset to HDX.
+    - categories (List[Dict[str, CategoryModel]]): List of dynamic categories.
+    - geometry (Optional[Union[Polygon, MultiPolygon]]): Custom polygon geometry.
+    """
+
     iso3: Optional[str] = Field(
         default=None,
         description="ISO3 Country Code",

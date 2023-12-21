@@ -1248,6 +1248,15 @@ class HDX:
             return where_clause
 
     def upload_to_s3(self, resource_path):
+        """
+        Uploads a resource file to Amazon S3.
+
+        Parameters:
+        - resource_path (str): Path to the resource file on the local filesystem.
+
+        Returns:
+        - Download URL for the uploaded resource.
+        """
         if not USE_S3_TO_UPLOAD:
             raise HTTPException(
                 status_code=404, detail="S3 Export service is disabled on server"
@@ -1263,6 +1272,15 @@ class HDX:
         return download_url
 
     def zip_to_s3(self, resources):
+        """
+        Zips and uploads a list of resources to Amazon S3.
+
+        Parameters:
+        - resources (List[Dict[str, Any]]): List of resource dictionaries.
+
+        Returns:
+        - List of resource dictionaries with added download URLs.
+        """
         for resource in resources:
             resource["download_url"] = self.upload_to_s3(
                 resource_path=resource["zip_path"]
@@ -1271,6 +1289,16 @@ class HDX:
         return resources
 
     def file_to_zip(self, working_dir, zip_path):
+        """
+        Creates a ZIP file from files in a directory.
+
+        Parameters:
+        - working_dir (str): Path to the directory containing files to be zipped.
+        - zip_path (str): Path to the resulting ZIP file.
+
+        Returns:
+        - Path to the created ZIP file.
+        """
         zf = zipfile.ZipFile(
             zip_path,
             "w",
@@ -1291,6 +1319,18 @@ class HDX:
         return zip_path
 
     def query_to_file(self, query, category_name, feature_type, export_formats):
+        """
+        Executes a query and exports the result to file(s).
+
+        Parameters:
+        - query (str): SQL query to execute.
+        - category_name (str): Name of the category.
+        - feature_type (str): Feature type.
+        - export_formats (List[ExportTypeInfo]): List of export formats.
+
+        Returns:
+        - List of resource dictionaries containing export information.
+        """
         category_name = slugify(category_name.lower()).replace("-", "_")
         file_export_path = os.path.join(
             self.default_export_path, category_name, feature_type
@@ -1347,6 +1387,15 @@ class HDX:
         return resources
 
     def process_category_result(self, category_result):
+        """
+        Processes the result of a category and prepares the response.
+
+        Parameters:
+        - category_result (CategoryResult): Instance of CategoryResult.
+
+        Returns:
+        - Dictionary containing processed category result.
+        """
         if self.params.hdx_upload:
             return self.resource_to_hdx(
                 uploaded_resources=category_result.uploaded_resources,
@@ -1359,6 +1408,15 @@ class HDX:
         )
 
     def process_category(self, category):
+        """
+        Processes a category by executing queries and handling exports.
+
+        Parameters:
+        - category (Dict[str, CategoryModel]): Dictionary representing a category.
+
+        Returns:
+        - List of resource dictionaries containing export information.
+        """
         category_name, category_data = list(category.items())[0]
         all_uploaded_resources = []
         for feature_type in category_data.types:
@@ -1376,6 +1434,16 @@ class HDX:
         return all_uploaded_resources
 
     def resource_to_response(self, uploaded_resources, category):
+        """
+        Converts uploaded resources to a response format.
+
+        Parameters:
+        - uploaded_resources (List[Dict[str, Any]]): List of resource dictionaries.
+        - category (Dict[str, CategoryModel]): Dictionary representing a category.
+
+        Returns:
+        - Dictionary containing the response information.
+        """
         category_name, category_data = list(category.items())[0]
 
         dataset_info = {}
@@ -1394,6 +1462,17 @@ class HDX:
         return {category_name: dataset_info}
 
     def resource_to_hdx(self, uploaded_resources, dataset_config, category):
+        """
+        Converts uploaded resources to an HDX dataset and uploads to HDX.
+
+        Parameters:
+        - uploaded_resources (List[Dict[str, Any]]): List of resource dictionaries.
+        - dataset_config (DatasetConfig): Instance of DatasetConfig.
+        - category (Dict[str, CategoryModel]): Dictionary representing a category.
+
+        Returns:
+        - Dictionary containing the HDX upload information.
+        """
         if any(
             item["format_suffix"] in self.HDX_SUPPORTED_FORMATS
             for item in uploaded_resources
@@ -1428,11 +1507,20 @@ class HDX:
             return {category_name: hdx_dataset_info}
 
     def clean_resources(self):
+        """
+        Cleans up temporary resources.
+        """
         temp_dir = os.path.join(export_path, self.uuid)
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
 
     def process_hdx_tags(self):
+        """
+        Processes HDX tags and executes category processing in parallel.
+
+        Returns:
+        - Dictionary containing the processed dataset information.
+        """
         table_type = [
             cat_type
             for category in self.params.categories
@@ -1512,6 +1600,17 @@ class HDX:
 
 
 class HDXUploader:
+    """
+    Constructor for the HDXUploader class.
+
+    Parameters:
+    - category (Dict[str, CategoryModel]): Dictionary representing a category.
+    - hdx (HDX): Instance of the HDX class.
+    - uuid (str): Universally unique identifier.
+    - default_category_path (str): Default path for the category.
+    - completeness_metadata (Optional[Dict[str, Any]]): Metadata for completeness.
+    """
+
     def __init__(
         self, category, hdx, uuid, default_category_path, completeness_metadata=None
     ):
@@ -1527,9 +1626,24 @@ class HDXUploader:
         self.resources = []
 
     def slugify(self, name):
+        """
+        Converts a string to a valid slug format.
+
+        Parameters:
+        - name (str): Input string.
+
+        Returns:
+        - Slugified string.
+        """
         return slugify(name).replace("-", "_")
 
     def add_notes(self):
+        """
+        Adds notes based on category data.
+
+        Returns:
+        - Notes string.
+        """
         columns = []
         for key in self.category_data.select:
             columns.append(
@@ -1555,11 +1669,26 @@ class HDXUploader:
         )
 
     def add_resource(self, resource_meta):
+        """
+        Adds a resource to the list of resources.
+
+        Parameters:
+        - resource_meta (Dict[str, Any]): Metadata for the resource.
+        """
         if self.dataset:
             self.resources.append(resource_meta)
             self.dataset.add_update_resource(resource_meta)
 
     def upload_dataset(self, dump_config_to_s3=False):
+        """
+        Uploads the dataset to HDX.
+
+        Parameters:
+        - dump_config_to_s3 (bool): Flag to indicate whether to dump configuration to S3.
+
+        Returns:
+        - Tuple containing category name and dataset information.
+        """
         if self.dataset:
             dataset_info = {}
             dt_config_path = os.path.join(
@@ -1586,6 +1715,9 @@ class HDXUploader:
             return self.category_name, dataset_info
 
     def init_dataset(self):
+        """
+        Initializes the HDX dataset.
+        """
         dataset_prefix = self.hdx.dataset_prefix
         dataset_title = self.hdx.dataset_title
         dataset_locations = self.hdx.dataset_locations
