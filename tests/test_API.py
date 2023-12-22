@@ -9,12 +9,15 @@ client = TestClient(app)
 
 access_token = os.environ.get("ACCESS_TOKEN")
 
+## Status
+
 
 def test_status():
     response = client.get("/v1/status/")
     assert response.status_code == 200
 
 
+## Login
 def test_login_url():
     response = client.get("/v1/auth/login/")
     assert response.status_code == 200
@@ -26,6 +29,23 @@ def test_login_auth_me():
     assert response.status_code == 200
 
 
+## Countries
+
+
+def test_countries_endpoint():
+    response = client.get("/v1/countries/?q=nepal")
+    assert response.status_code == 200
+
+
+## test osm_id
+
+
+def test_osm_id_endpoint():
+    response = client.get("/v1/osm_id/?osm_id=421498318")
+    assert response.status_code == 200
+
+
+## Snapshot
 def test_snapshot():
     response = client.post(
         "/v1/snapshot/",
@@ -420,27 +440,6 @@ def test_snapshot_and_filter():
             ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
-def test_snapshot_plain():
-    response = client.post(
-        "/v1/snapshot/plain/",
-        json={
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [83.96919250488281, 28.194446860487773],
-                        [83.99751663208006, 28.194446860487773],
-                        [83.99751663208006, 28.214869548073377],
-                        [83.96919250488281, 28.214869548073377],
-                        [83.96919250488281, 28.194446860487773],
-                    ]
-                ],
-            }
-        },
-    )
-    assert response.status_code == 200
-
-
 def test_snapshot_authentication_uuid():
     headers = {"access-token": access_token}
     payload = {
@@ -527,6 +526,32 @@ def test_snapshot_bind_zip():
             ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
+
+## Snapshot Plain
+
+def test_snapshot_plain():
+    response = client.post(
+        "/v1/snapshot/plain/",
+        json={
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            }
+        },
+    )
+    assert response.status_code == 200
+
+
+## Stats
+
 def test_stats_endpoint_custom_polygon():
     headers = {"access-token": access_token}
     payload = {
@@ -567,6 +592,8 @@ def test_stats_endpoint_iso3():
         == "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md"
     )
 
+
+## HDX
 
 def test_hdx_submit_normal_iso3():
     headers = {"access-token": access_token}
@@ -1056,3 +1083,10 @@ def test_hdx_submit_normal_iso3_upload_option():
             assert (
                 False
             ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+## Tasks connection 
+            
+def test_worker_connection():
+    response = client.get("/v1/tasks/ping/'")
+    assert response.status_code == 200
