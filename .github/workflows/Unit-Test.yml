@@ -82,7 +82,7 @@ jobs:
 
       - name: Launch Special Worker
         run: |
-          celery --app API.api_worker worker --loglevel=INFO --queues='raw_special' &1
+          celery --app API.api_worker worker --loglevel=INFO --queues='raw_special' &
 
       - name: Run Tests
         run: |
