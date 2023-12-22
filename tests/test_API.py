@@ -526,8 +526,8 @@ def test_snapshot_bind_zip():
             ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
-
 ## Snapshot Plain
+
 
 def test_snapshot_plain():
     response = client.post(
@@ -551,6 +551,7 @@ def test_snapshot_plain():
 
 
 ## Stats
+
 
 def test_stats_endpoint_custom_polygon():
     headers = {"access-token": access_token}
@@ -594,6 +595,7 @@ def test_stats_endpoint_iso3():
 
 
 ## HDX
+
 
 def test_hdx_submit_normal_iso3():
     headers = {"access-token": access_token}
@@ -1085,8 +1087,9 @@ def test_hdx_submit_normal_iso3_upload_option():
             ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
-## Tasks connection 
-            
+## Tasks connection
+
+
 def test_worker_connection():
     response = client.get("/v1/tasks/ping/'")
     assert response.status_code == 200
