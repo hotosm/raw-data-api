@@ -1091,5 +1091,5 @@ def test_hdx_submit_normal_iso3_upload_option():
 
 
 def test_worker_connection():
-    response = client.get("/v1/tasks/ping/'")
+    response = client.get("/v1/tasks/ping/")
     assert response.status_code == 200
