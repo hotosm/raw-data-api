@@ -1381,8 +1381,9 @@ class HDX:
                     for future in concurrent.futures.as_completed(futures)
                 ]
         else:
-            resource = process_export_format(export_formats[0])
-            resources.append(resource)
+            for exf in export_formats:
+                resource = process_export_format(exf)
+                resources.append(resource)
 
         return resources
 
