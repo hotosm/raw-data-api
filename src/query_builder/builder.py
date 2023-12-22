@@ -903,14 +903,14 @@ def extract_features_duckdb(base_table_name, select, feature_type, where):
             "table": ["ways_line", "relations"],
             "where": {
                 "ways_line": where,
-                "relations": f"{where} and ST_GeometryType(geometry)='MULTILINESTRING'",
+                "relations": f"({where}) and (ST_GeometryType(geometry)='MULTILINESTRING')",
             },
         },
         "polygons": {
             "table": ["ways_poly", "relations"],
             "where": {
                 "ways_poly": where,
-                "relations": f"{where} and (ST_GeometryType(geometry)='MULTIPOLYGON' or ST_GeometryType(geometry)='POLYGON')",
+                "relations": f"({where}) and (ST_GeometryType(geometry)='MULTIPOLYGON' or ST_GeometryType(geometry)='POLYGON')",
             },
         },
     }
