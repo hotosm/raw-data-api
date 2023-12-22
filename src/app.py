@@ -1195,7 +1195,7 @@ class HDX:
             self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix,
         )
         if os.path.exists(self.default_export_path):
-            shutil.rmtree(self.default_export_path)
+            shutil.rmtree(self.default_export_path, ignore_errors=True)
         os.makedirs(self.default_export_path)
         self.duck_db_db_path = os.path.join(
             self.default_export_path,

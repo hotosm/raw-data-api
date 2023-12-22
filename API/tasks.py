@@ -37,6 +37,7 @@ def get_task_status(task_id):
         "id": task_id,
         "status": task_result.state,
         "result": task_result.result if task_result.status == "SUCCESS" else None,
+        "finished_at": task_result.date_done if task_result.date_done else None,
     }
     return JSONResponse(result)
 
