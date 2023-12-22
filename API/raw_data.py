@@ -467,7 +467,6 @@ def get_osm_current_snapshot_as_plain_geojson(
     Returns:
         Featurecollection: Geojson
     """
-    print(params.geometry.model_dump_json())
     area_m2 = area(json.loads(params.geometry.model_dump_json()))
     area_km2 = area_m2 * 1e-6
     if area_km2 > 10:

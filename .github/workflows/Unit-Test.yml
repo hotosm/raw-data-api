@@ -56,6 +56,7 @@ jobs:
         run: |
           export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
+          psql -U postgres -h localhost -p 5434 raw  < backend/sql/countries.sql
 
       - name: Install gdal
         run: sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
@@ -75,9 +76,13 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Launch Worker
+      - name: Launch Default Worker
         run: |
           celery --app API.api_worker worker --loglevel=INFO --queues='raw_default' &
+
+      - name: Launch Special Worker
+        run: |
+          celery --app API.api_worker worker --loglevel=INFO --queues='raw_special' &1
 
       - name: Run Tests
         run: |
