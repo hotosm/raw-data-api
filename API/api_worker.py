@@ -80,7 +80,7 @@ def process_raw_data(self, params):
             if params.include_stats:
                 feature = {
                     "type": "Feature",
-                    "geometry": json.loads(params.geometry.json()),
+                    "geometry": json.loads(params.geometry.model_dump_json()),
                     "properties": {},
                 }
                 polygon_stats = PolygonStats(feature).get_summary_stats()

@@ -255,7 +255,7 @@ def extract_geometry_type_query(
     ) = (None, None, None, None, None, None, None, None, None, None)
     if params.filters:
         params.filters = (
-            params.filters.dict()
+            params.filters.model_dump()
         )  # FIXME: temp fix , since validation model got changed
         (
             tags,
@@ -529,7 +529,7 @@ def raw_currentdata_extraction_query(
 
     if params.filters:
         params.filters = (
-            params.filters.dict()
+            params.filters.model_dump()
         )  # FIXME: temp fix , since validation model got changed
         (
             tags,

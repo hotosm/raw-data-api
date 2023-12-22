@@ -43,6 +43,28 @@ async def process_hdx_requests(
                     ],
                 },
             },
+            "normal_iso_non_upload": {
+                "summary": "Example: Road extraction using iso3 on raw data api only",
+                "description": "Query to extract road in Nepal, without uploading to hdx",
+                "value": {
+                    "iso3": "NPL",
+                    "hdx_upload": False,
+                    "categories": [
+                        {
+                            "Roads": {
+                                "hdx": {
+                                    "tags": ["roads", "transportation", "geodata"],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["lines"],
+                                "select": ["name", "highway"],
+                                "where": "tags['highway'] IS NOT NULL",
+                                "formats": ["geojson"],
+                            }
+                        }
+                    ],
+                },
+            },
             "normal_iso_multiple_format": {
                 "summary": "Example: Road extraction using iso3 Multiple format",
                 "description": "Query to extract road in Nepal Multiple format",

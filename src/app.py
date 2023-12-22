@@ -1369,7 +1369,7 @@ class HDX:
             return resource
 
         if self.parallel_process_state is False and len(export_formats) > 1:
-            with concurrent.futures.ThreadPoolExecutor(
+            with concurrent.futures.ProcessPoolExecutor(
                 max_workers=os.cpu_count()
             ) as executor:
                 futures = [
@@ -1544,8 +1544,8 @@ class HDX:
         dataset_results = []
         if len(self.params.categories) > 1:
             self.parallel_process_state = True
-            with concurrent.futures.ThreadPoolExecutor(
-                max_workers=os.cpu_count() * 2
+            with concurrent.futures.ProcessPoolExecutor(
+                max_workers=os.cpu_count()
             ) as executor:
                 futures = {
                     executor.submit(self.process_category, category): category
@@ -1566,9 +1566,7 @@ class HDX:
             )
             tag_process_results.append(category_result)
 
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=os.cpu_count() * 2
-        ) as executor:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = {
                 executor.submit(self.process_category_result, result): result
                 for result in tag_process_results
