@@ -413,7 +413,7 @@ def get_osm_current_snapshot_as_file(
                         }
                     ],
                 )
-        area_m2 = area(json.loads(params.geometry.json()))
+        area_m2 = area(json.loads(params.geometry.model_dump_json()))
         area_km2 = area_m2 * 1e-6
         RAWDATA_CURRENT_POLYGON_AREA = int(EXPORT_MAX_AREA_SQKM)
         if area_km2 > RAWDATA_CURRENT_POLYGON_AREA:
@@ -467,7 +467,7 @@ def get_osm_current_snapshot_as_plain_geojson(
     Returns:
         Featurecollection: Geojson
     """
-    area_m2 = area(json.loads(params.geometry.json()))
+    area_m2 = area(json.loads(params.geometry.model_dump_json()))
     area_km2 = area_m2 * 1e-6
     if area_km2 > 10:
         raise HTTPException(

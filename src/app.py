@@ -1545,7 +1545,7 @@ class HDX:
         if len(self.params.categories) > 1:
             self.parallel_process_state = True
             with concurrent.futures.ThreadPoolExecutor(
-                max_workers=os.cpu_count() * 2
+                max_workers=os.cpu_count()
             ) as executor:
                 futures = {
                     executor.submit(self.process_category, category): category
@@ -1566,9 +1566,7 @@ class HDX:
             )
             tag_process_results.append(category_result)
 
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=os.cpu_count() * 2
-        ) as executor:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = {
                 executor.submit(self.process_category_result, result): result
                 for result in tag_process_results
@@ -1744,6 +1742,6 @@ class HDXUploader:
         )
         self.dataset.set_expected_update_frequency(self.hdx.update_frequency)
         for location in dataset_locations:
-            self.dataset.add_country_location(location)
+            self.dataset.add_other_location(location)
         for tag in self.category_data.hdx.tags:
             self.dataset.add_tag(tag)

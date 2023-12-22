@@ -59,7 +59,7 @@ async def get_polygon_stats(
     if params.geometry:
         feature = {
             "type": "Feature",
-            "geometry": json.loads(params.geometry.json()),
+            "geometry": json.loads(params.geometry.model_dump_json()),
             "properties": {},
         }
     if params.iso3:

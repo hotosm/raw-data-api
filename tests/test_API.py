@@ -1,3 +1,4 @@
+import os
 import time
 
 from fastapi.testclient import TestClient
@@ -6,12 +7,45 @@ from API.main import app
 
 client = TestClient(app)
 
+access_token = os.environ.get("ACCESS_TOKEN")
+
+## Status
+
 
 def test_status():
     response = client.get("/v1/status/")
     assert response.status_code == 200
 
 
+## Login
+def test_login_url():
+    response = client.get("/v1/auth/login/")
+    assert response.status_code == 200
+
+
+def test_login_auth_me():
+    headers = {"access-token": access_token}
+    response = client.get("/v1/auth/me/", headers=headers)
+    assert response.status_code == 200
+
+
+## Countries
+
+
+def test_countries_endpoint():
+    response = client.get("/v1/countries/?q=nepal")
+    assert response.status_code == 200
+
+
+## test osm_id
+
+
+def test_osm_id_endpoint():
+    response = client.get("/v1/osm_id/?osm_id=421498318")
+    assert response.status_code == 200
+
+
+## Snapshot
 def test_snapshot():
     response = client.post(
         "/v1/snapshot/",
@@ -33,12 +67,24 @@ def test_snapshot():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    time.sleep(15)  # wait for worker to complete task
-    response = client.get(f"/v1{track_link}")
-    assert response.status_code == 200
-    res = response.json()
-    check_status = res["status"]
-    assert check_status == "SUCCESS"
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
 def test_snapshot_centroid():
@@ -63,12 +109,24 @@ def test_snapshot_centroid():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    time.sleep(15)  # wait for worker to complete task
-    response = client.get(f"/v1{track_link}")
-    assert response.status_code == 200
-    res = response.json()
-    check_status = res["status"]
-    assert check_status == "SUCCESS"
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
 def test_snapshot_filters():
@@ -294,12 +352,24 @@ def test_snapshot_filters():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    time.sleep(15)  # wait for worker to complete task
-    response = client.get(f"/v1{track_link}")
-    assert response.status_code == 200
-    res = response.json()
-    check_status = res["status"]
-    assert check_status == "SUCCESS"
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
 def test_snapshot_and_filter():
@@ -350,12 +420,113 @@ def test_snapshot_and_filter():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    time.sleep(15)  # wait for worker to complete task
-    response = client.get(f"/v1{track_link}")
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+def test_snapshot_authentication_uuid():
+    headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "uuid": False,
+    }
+
+    response = client.post("/v1/snapshot/", json=payload, headers=headers)
+
     assert response.status_code == 200
     res = response.json()
-    check_status = res["status"]
-    assert check_status == "SUCCESS"
+    track_link = res["track_link"]
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+def test_snapshot_bind_zip():
+    headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "bindZip": False,
+    }
+
+    response = client.post("/v1/snapshot/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+## Snapshot Plain
 
 
 def test_snapshot_plain():
@@ -376,4 +547,549 @@ def test_snapshot_plain():
             }
         },
     )
+    assert response.status_code == 200
+
+
+## Stats
+
+
+def test_stats_endpoint_custom_polygon():
+    headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        }
+    }
+
+    response = client.post("/v1/stats/polygon/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    assert (
+        res["meta"]["indicators"]
+        == "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md"
+    )
+
+
+def test_stats_endpoint_iso3():
+    headers = {"access-token": access_token}
+    payload = {"iso3": "npl"}
+
+    response = client.post("/v1/stats/polygon/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    assert (
+        res["meta"]["indicators"]
+        == "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md"
+    )
+
+
+## HDX
+
+
+def test_hdx_submit_normal_iso3():
+    headers = {"access-token": access_token}
+    payload = {
+        "iso3": "NPL",
+        "hdx_upload": False,
+        "categories": [
+            {
+                "Roads": {
+                    "hdx": {
+                        "tags": ["roads", "transportation", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines"],
+                    "select": ["name", "highway"],
+                    "where": "tags['highway'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            }
+        ],
+    }
+
+    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+def test_hdx_submit_normal_iso3_multiple_format():
+    headers = {"access-token": access_token}
+    payload = {
+        "iso3": "NPL",
+        "hdx_upload": False,
+        "categories": [
+            {
+                "Roads": {
+                    "hdx": {
+                        "tags": ["roads", "transportation", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines"],
+                    "select": ["name", "highway"],
+                    "where": "tags['highway'] IS NOT NULL",
+                    "formats": ["geojson", "gpkg", "kml", "shp"],
+                }
+            }
+        ],
+    }
+
+    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+def test_hdx_submit_normal_custom_polygon():
+    headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "hdx_upload": False,
+        "dataset": {
+            "subnational": True,
+            "dataset_title": "Pokhara",
+            "dataset_prefix": "hotosm_pkr",
+            "dataset_locations": ["npl"],
+        },
+        "categories": [
+            {
+                "Roads": {
+                    "hdx": {
+                        "tags": ["roads", "transportation", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines"],
+                    "select": ["name", "highway"],
+                    "where": "tags['highway'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            }
+        ],
+    }
+
+    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+def test_full_hdx_set_iso():
+    headers = {"access-token": access_token}
+    payload = {
+        "iso3": "NPL",
+        "hdx_upload": False,
+        "categories": [
+            {
+                "Buildings": {
+                    "hdx": {
+                        "tags": [
+                            "facilities-infrastructure",
+                            "geodata",
+                        ],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["polygons"],
+                    "select": [
+                        "name",
+                        "building",
+                        "building:levels",
+                        "building:materials",
+                        "addr:full",
+                        "addr:housenumber",
+                        "addr:street",
+                        "addr:city",
+                        "office",
+                        "source",
+                    ],
+                    "where": "tags['building'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Roads": {
+                    "hdx": {
+                        "tags": ["transportation", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines"],
+                    "select": [
+                        "name",
+                        "highway",
+                        "surface",
+                        "smoothness",
+                        "width",
+                        "lanes",
+                        "oneway",
+                        "bridge",
+                        "layer",
+                        "source",
+                    ],
+                    "where": "tags['highway'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Waterways": {
+                    "hdx": {
+                        "tags": ["hydrology", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines", "polygons"],
+                    "select": [
+                        "name",
+                        "waterway",
+                        "covered",
+                        "width",
+                        "depth",
+                        "layer",
+                        "blockage",
+                        "tunnel",
+                        "natural",
+                        "water",
+                        "source",
+                    ],
+                    "where": "tags['waterway'] IS NOT NULL OR tags['water'] IS NOT NULL OR tags['natural'] IN ('water','wetland','bay')",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Points of Interest": {
+                    "hdx": {
+                        "tags": [
+                            "facilities-infrastructure",
+                            "points of interest-poi",
+                            "geodata",
+                        ],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["points", "polygons"],
+                    "select": [
+                        "name",
+                        "amenity",
+                        "man_made",
+                        "shop",
+                        "tourism",
+                        "opening_hours",
+                        "beds",
+                        "rooms",
+                        "addr:full",
+                        "addr:housenumber",
+                        "addr:street",
+                        "addr:city",
+                        "source",
+                    ],
+                    "where": "tags['amenity'] IS NOT NULL OR tags['man_made'] IS NOT NULL OR tags['shop'] IS NOT NULL OR tags['tourism'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Airports": {
+                    "hdx": {
+                        "tags": [
+                            "aviation",
+                            "facilities-infrastructure",
+                            "geodata",
+                        ],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["points", "lines", "polygons"],
+                    "select": [
+                        "name",
+                        "aeroway",
+                        "building",
+                        "emergency",
+                        "emergency:helipad",
+                        "operator:type",
+                        "capacity:persons",
+                        "addr:full",
+                        "addr:city",
+                        "source",
+                    ],
+                    "where": "tags['aeroway'] IS NOT NULL OR tags['building'] = 'aerodrome' OR tags['emergency:helipad'] IS NOT NULL OR tags['emergency'] = 'landing_site'",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Sea Ports": {
+                    "hdx": {
+                        "tags": [
+                            "facilities-infrastructure",
+                            "geodata",
+                        ],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["points", "lines", "polygons"],
+                    "select": [
+                        "name",
+                        "amenity",
+                        "building",
+                        "port",
+                        "operator:type",
+                        "addr:full",
+                        "addr:city",
+                        "source",
+                    ],
+                    "where": "tags['amenity'] = 'ferry_terminal' OR tags['building'] = 'ferry_terminal' OR tags['port'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Education Facilities": {
+                    "hdx": {
+                        "tags": [
+                            "education facilities-schools",
+                            "geodata",
+                        ],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["points", "polygons"],
+                    "select": [
+                        "name",
+                        "amenity",
+                        "building",
+                        "operator:type",
+                        "capacity:persons",
+                        "addr:full",
+                        "addr:city",
+                        "source",
+                    ],
+                    "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Health Facilities": {
+                    "hdx": {
+                        "tags": ["geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["points", "polygons"],
+                    "select": [
+                        "name",
+                        "amenity",
+                        "building",
+                        "healthcare",
+                        "healthcare:speciality",
+                        "operator:type",
+                        "capacity:persons",
+                        "addr:full",
+                        "addr:city",
+                        "source",
+                    ],
+                    "where": "tags['healthcare'] IS NOT NULL OR tags['amenity'] IN ('doctors', 'dentist', 'clinic', 'hospital', 'pharmacy')",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Populated Places": {
+                    "hdx": {
+                        "tags": [
+                            "populated places-settlements",
+                            "geodata",
+                        ],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["points"],
+                    "select": [
+                        "name",
+                        "place",
+                        "population",
+                        "is_in",
+                        "source",
+                    ],
+                    "where": "tags['place'] IN ('isolated_dwelling', 'town', 'village', 'hamlet', 'city')",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Financial Services": {
+                    "hdx": {
+                        "tags": ["economics", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["points", "polygons"],
+                    "select": [
+                        "name",
+                        "amenity",
+                        "operator",
+                        "network",
+                        "addr:full",
+                        "addr:city",
+                        "source",
+                    ],
+                    "where": "tags['amenity'] IN ('mobile_money_agent','bureau_de_change','bank','microfinance','atm','sacco','money_transfer','post_office')",
+                    "formats": ["geojson"],
+                }
+            },
+            {
+                "Railways": {
+                    "hdx": {
+                        "tags": [
+                            "facilities-infrastructure",
+                            "railways",
+                            "transportation",
+                            "geodata",
+                        ],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines"],
+                    "select": [
+                        "name",
+                        "railway",
+                        "ele",
+                        "operator:type",
+                        "layer",
+                        "addr:full",
+                        "addr:city",
+                        "source",
+                    ],
+                    "where": "tags['railway'] IN ('rail','station')",
+                    "formats": ["geojson"],
+                }
+            },
+        ],
+    }
+
+    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    time.sleep(60)  # wait for worker to complete task
+    response = client.get(f"/v1{track_link}")
+    assert response.status_code == 200
+    res = response.json()
+    check_status = res["status"]
+    assert check_status == "SUCCESS"
+
+
+def test_hdx_submit_normal_iso3_upload_option():
+    headers = {"access-token": access_token}
+    payload = {
+        "iso3": "NPL",
+        "categories": [
+            {
+                "Roads": {
+                    "hdx": {
+                        "tags": ["roads", "transportation", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines"],
+                    "select": ["name", "highway"],
+                    "where": "tags['highway'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            }
+        ],
+    }
+
+    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+## Tasks connection
+
+
+def test_worker_connection():
+    response = client.get("/v1/tasks/ping/")
     assert response.status_code == 200

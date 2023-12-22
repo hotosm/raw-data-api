@@ -14,12 +14,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      PGPASSWORD: admin
-      PGDATABASE: raw
-      PGPORT: 5434
-      PGHOST: localhost
-      PGUSER: postgres
     services:
       postgres:
         image: postgis/postgis:14-3.3
@@ -29,6 +23,29 @@ jobs:
         ports:
           - 5434:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
+    env:
+      PGPASSWORD: admin
+      PGDATABASE: raw
+      PGPORT: 5434
+      PGHOST: localhost
+      PGUSER: postgres
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      ALLOW_BIND_ZIP_FILTER: ${{ secrets.ALLOW_BIND_ZIP_FILTER }}
+      APP_SECRET_KEY: ${{ secrets.APP_SECRET_KEY }}
+      ENABLE_HDX_EXPORTS: ${{ secrets.ENABLE_HDX_EXPORTS }}
+      ENABLE_POLYGON_STATISTICS_ENDPOINTS: ${{ secrets.ENABLE_POLYGON_STATISTICS_ENDPOINTS }}
+      POLYGON_STATISTICS_API_URL: ${{ secrets.POLYGON_STATISTICS_API_URL }}
+      HDX_API_KEY: ${{ secrets.HDX_API_KEY }}
+      HDX_MAINTAINER: ${{ secrets.HDX_MAINTAINER }}
+      HDX_OWNER_ORG: ${{ secrets.HDX_OWNER_ORG }}
+      LOGIN_REDIRECT_URI: ${{ secrets.LOGIN_REDIRECT_URI }}
+      OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
+      OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
+      FILE_UPLOAD_METHOD: ${{ secrets.FILE_UPLOAD_METHOD }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.10
@@ -40,6 +57,7 @@ jobs:
         run: |
           export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
+          psql -U postgres -h localhost -p 5434 raw  < backend/sql/countries.sql
 
       - name: Install gdal
         run: sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
@@ -59,16 +77,14 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Launch Worker
+      - name: Launch Default Worker
         run: |
-          export OSM_CLIENT_ID=thisisfakeosmcliendid
-          export OSM_CLIENT_SECRET=thisisclientosm
-          export APP_SECRET_KEY=thisissecretkey
           celery --app API.api_worker worker --loglevel=INFO --queues='raw_default' &
+
+      - name: Launch Special Worker
+        run: |
+          celery --app API.api_worker worker --loglevel=INFO --queues='raw_special' &
 
       - name: Run Tests
         run: |
-          export OSM_CLIENT_ID=thisisfakeosmcliendid
-          export OSM_CLIENT_SECRET=thisisclientosm
-          export APP_SECRET_KEY=thisissecretkey
           py.test -v -s

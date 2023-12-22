@@ -96,7 +96,7 @@ def get_query_as_geojson(query_list, ogr_export=None):
 
 def create_geom_filter(geom, geom_lookup_by="ST_intersects"):
     """generates geometry intersection filter - Rawdata extraction"""
-    geometry_dump = dumps(dict(geom))
+    geometry_dump = dumps(loads(geom.model_dump_json()))
     return f"""{geom_lookup_by}(geom,ST_GEOMFROMGEOJSON('{geometry_dump}'))"""
 
 
@@ -255,7 +255,7 @@ def extract_geometry_type_query(
     ) = (None, None, None, None, None, None, None, None, None, None)
     if params.filters:
         params.filters = (
-            params.filters.dict()
+            params.filters.model_dump()
         )  # FIXME: temp fix , since validation model got changed
         (
             tags,
@@ -529,7 +529,7 @@ def raw_currentdata_extraction_query(
 
     if params.filters:
         params.filters = (
-            params.filters.dict()
+            params.filters.model_dump()
         )  # FIXME: temp fix , since validation model got changed
         (
             tags,
