@@ -78,17 +78,17 @@ The following are the different configuration options that are accepted.
 
 | Parameter | Config Section | API | Worker |
 |-----------|----------------|-----|--------|
-| `PGHOST` | TBD | Yes | Yes |
-| `PGPORT` | TBD | Yes | Yes |
-| `PGUSER` | TBD | Yes | Yes |
-| `PGPASSWORD` | TBD | Yes | Yes |
-| `PGDATABASE` | TBD | Yes | Yes |
-| `OSM_CLIENT_ID` | TBD | Yes | No |
-| `OSM_CLIENT_SECRET` | TBD | Yes | No |
-| `OSM_PERMISSION_SCOPE` | TBD | Yes | No |
-| `LOGIN_REDIRECT_URI` | TBD | Yes | No |
-| `APP_SECRET_KEY` | TBD | Yes | No |
-| `OSM_URL` | TBD | Yes | No |
+| `PGHOST` | `[DB]` | Yes | Yes |
+| `PGPORT` | `[DB]` | Yes | Yes |
+| `PGUSER` | `[DB]` | Yes | Yes |
+| `PGPASSWORD` | `[DB]` | Yes | Yes |
+| `PGDATABASE` | `[DB]` | Yes | Yes |
+| `OSM_CLIENT_ID` | `[OAUTH]` | Yes | No |
+| `OSM_CLIENT_SECRET` | `[OAUTH]` | Yes | No |
+| `OSM_PERMISSION_SCOPE` | `[OAUTH]` | Yes | No |
+| `LOGIN_REDIRECT_URI` | `[OAUTH]` | Yes | No |
+| `APP_SECRET_KEY` | `[OAUTH]` | Yes | No |
+| `OSM_URL` | `[OAUTH]` | Yes | No |
 | `LOG_LEVEL` | `[API_CONFIG]` | Yes | Yes |
 | `RATE_LIMITER_STORAGE_URI` | `[API_CONFIG]` | Yes | No |
 | `RATE_LIMIT_PER_MIN` | `[API_CONFIG]` | Yes | No |
@@ -98,17 +98,17 @@ The following are the different configuration options that are accepted.
 | `ENABLE_TILES` | `[API_CONFIG]` | Yes | Yes |
 | `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | Yes | Yes |
 | `INDEX_THRESHOLD` | `[API_CONFIG]` | No | Yes |
-| `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | Yes | No |
+| `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | Yes | Yes |
 | `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | Yes | Yes |
-| `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | Yes | Yes |
-| `CELERY_BROKER_URL` | TBD | Yes | Yes |
-| `CELERY_RESULT_BACKEND` | TBD | Yes | Yes |
-| `FILE_UPLOAD_METHOD` | TBD | Yes | Yes |
-| `BUCKET_NAME` | TBD | No | Yes |
-| `AWS_ACCESS_KEY_ID` | TBD | No | Yes |
-| `AWS_SECRET_ACCESS_KEY` | TBD | No | Yes |
-| `SENTRY_DSN` | TBD | Yes | No |
-| `SENTRY_RATE` | TBD | Yes | No |
+| `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | Yes | No |
+| `CELERY_BROKER_URL` | `[CELERY]` | Yes | Yes |
+| `CELERY_RESULT_BACKEND` | `[CELERY]` | Yes | Yes |
+| `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | Yes | Yes |
+| `BUCKET_NAME` | `[EXPORT_UPLOAD]` | Yes | Yes |
+| `AWS_ACCESS_KEY_ID` | `[EXPORT_UPLOAD]` | Yes | Yes |
+| `AWS_SECRET_ACCESS_KEY` | `[EXPORT_UPLOAD]` | Yes | Yes |
+| `SENTRY_DSN` | `[SENTRY]` | Yes | No |
+| `SENTRY_RATE` | `[SENTRY]` | Yes | No |
 | `ENABLE_HDX_EXPORTS` | `[HDX]` | Yes | Yes |
 | `HDX_SITE` | `[HDX]` | Yes | Yes |
 | `HDX_API_KEY` | `[HDX]` | Yes | Yes |
