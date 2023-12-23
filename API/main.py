@@ -44,6 +44,9 @@ from .hdx import router as hdx_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
 
+if USE_S3_TO_UPLOAD:
+    from .s3 import router as s3_router
+
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     from .stats import router as stats_router
 
@@ -75,6 +78,9 @@ if ENABLE_HDX_EXPORTS:
     app.include_router(hdx_router)
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     app.include_router(stats_router)
+
+if USE_S3_TO_UPLOAD:
+    app.include_router(s3_router)
 
 app.openapi = {
     "info": {
