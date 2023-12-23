@@ -18,6 +18,7 @@
 # <info@hotosm.org>
 """Page contains Main core logic of app"""
 import concurrent.futures
+import json
 import os
 import pathlib
 import re
@@ -27,9 +28,7 @@ import sys
 import time
 import uuid
 from collections import namedtuple
-from datetime import datetime
-from datetime import datetime as dt
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 from json import dumps
 from json import loads as json_loads
 
@@ -1307,7 +1306,7 @@ class HDX:
         )
         for file_path in pathlib.Path(working_dir).iterdir():
             zf.write(file_path, arcname=file_path.name)
-        utc_now = dt.now(timezone.utc)
+        utc_now = datetime.now(timezone.utc)
         utc_offset = utc_now.strftime("%z")
         # Adding metadata readme.txt
         readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -1419,6 +1418,7 @@ class HDX:
         - List of resource dictionaries containing export information.
         """
         category_name, category_data = list(category.items())[0]
+        logging.info(f"Started Processing {category_name}")
         all_uploaded_resources = []
         for feature_type in category_data.types:
             extract_query = extract_features_duckdb(
@@ -1432,6 +1432,7 @@ class HDX:
             )
             uploaded_resources = self.zip_to_s3(resources)
             all_uploaded_resources.extend(uploaded_resources)
+        logging.info(f"Done Processing {category_name}")
         return all_uploaded_resources
 
     def resource_to_response(self, uploaded_resources, category):
@@ -1522,6 +1523,8 @@ class HDX:
         Returns:
         - Dictionary containing the processed dataset information.
         """
+        started_at = datetime.now().isoformat()
+        processing_time_start = time.time()
         table_type = [
             cat_type
             for category in self.params.categories
@@ -1536,7 +1539,13 @@ class HDX:
                 self.cid,
                 self.params.geometry,
             )
+            start = time.time()
+            logging.info("Transfer-> Postgres Data to DuckDB Started")
             self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
+            logging.info(
+                f"Transfer-> Postgres Data to DuckDB Done in {time.time()-start}s"
+            )
+
         CategoryResult = namedtuple(
             "CategoryResult", ["category", "uploaded_resources"]
         )
@@ -1566,7 +1575,7 @@ class HDX:
                 category=self.params.categories[0], uploaded_resources=resources
             )
             tag_process_results.append(category_result)
-
+        logging.info("Export generation is done, Moving forward to process result")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = {
                 executor.submit(self.process_category_result, result): result
@@ -1580,6 +1589,7 @@ class HDX:
 
         result = {"datasets": dataset_results}
         if self.params.meta:
+            logging.info("Dumping Duck DB to Parquet")
             db_dump_path = os.path.join(
                 self.default_export_path,
                 "DB_DUMP",
@@ -1594,6 +1604,18 @@ class HDX:
                 )
             )
             result["db_dump"] = db_zip_download_url
+        processing_time_close = time.time()
+        result["elapsed_time"] = humanize.naturaldelta(
+            timedelta(seconds=(processing_time_close - processing_time_start))
+        )
+        result["started_at"] = started_at
+
+        meta_last_run_dump_path = os.path.join(
+            self.default_export_path, "meta_last_run.json"
+        )
+        with open(meta_last_run_dump_path, "w") as json_file:
+            json.dump(result, json_file, indent=4)
+        self.upload_to_s3(resource_path=meta_last_run_dump_path)
         self.clean_resources()
         return result
 
