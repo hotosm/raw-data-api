@@ -109,24 +109,9 @@ def get_s3_file(
             status_code=404, detail=f"File or folder not found: {file_path}"
         )
 
-    # If it's a folder, list its contents
-    if file_path.endswith("/"):
-        contents = list_objects(bucket_name, file_path)
-        result = []
-        for item in contents:
-            item_dict = {
-                "name": item["Key"].split("/")[-1],
-                "last_modified": item["LastModified"],
-                "is_folder": item["Key"].endswith("/"),
-            }
-            result.append(item_dict)
-        return JSONResponse(content=jsonable_encoder(result))
-
-    # If it's a file, return the S3 download link
-    else:
-        presigned_url = s3.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": bucket_name, "Key": file_path},
-            ExpiresIn=3600,  # URL expires in 1 hour
-        )
-        return JSONResponse(content=jsonable_encoder({"download_link": presigned_url}))
+    presigned_url = s3.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": bucket_name, "Key": file_path},
+        ExpiresIn=3600,  # URL expires in 1 hour
+    )
+    return JSONResponse(content=jsonable_encoder({"download_link": presigned_url}))
