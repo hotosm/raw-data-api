@@ -1515,6 +1515,8 @@ class HDX:
         temp_dir = os.path.join(export_path, self.uuid)
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
+            return True
+        return False
 
     def process_hdx_tags(self):
         """
@@ -1540,10 +1542,10 @@ class HDX:
                 self.params.geometry,
             )
             start = time.time()
-            logging.info("Transfer-> Postgres Data to DuckDB Started")
+            logging.info(f"Transfer-> Postgres Data to DuckDB Started : {table}")
             self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
             logging.info(
-                f"Transfer-> Postgres Data to DuckDB Done in {time.time()-start}s"
+                f"Transfer-> Postgres Data to DuckDB : {table} Done in {humanize.naturaldelta(timedelta(seconds=(time.time()-start)))}s"
             )
 
         CategoryResult = namedtuple(

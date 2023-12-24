@@ -401,6 +401,283 @@ async def process_hdx_requests(
                     ],
                 },
             },
+            "fullset_multiple_formats": {
+                "summary": "Full HDX Dataset default Multiple formats",
+                "description": "Full yaml conversion for dataset with iso3 example with multiple formats",
+                "value": {
+                    "iso3": "NPL",
+                    "categories": [
+                        {
+                            "Buildings": {
+                                "hdx": {
+                                    "tags": [
+                                        "facilities-infrastructure",
+                                        "geodata",
+                                    ],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["polygons"],
+                                "select": [
+                                    "name",
+                                    "building",
+                                    "building:levels",
+                                    "building:materials",
+                                    "addr:full",
+                                    "addr:housenumber",
+                                    "addr:street",
+                                    "addr:city",
+                                    "office",
+                                    "source",
+                                ],
+                                "where": "tags['building'] IS NOT NULL",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Roads": {
+                                "hdx": {
+                                    "tags": ["transportation", "geodata"],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["lines"],
+                                "select": [
+                                    "name",
+                                    "highway",
+                                    "surface",
+                                    "smoothness",
+                                    "width",
+                                    "lanes",
+                                    "oneway",
+                                    "bridge",
+                                    "layer",
+                                    "source",
+                                ],
+                                "where": "tags['highway'] IS NOT NULL",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Waterways": {
+                                "hdx": {
+                                    "tags": ["hydrology", "geodata"],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["lines", "polygons"],
+                                "select": [
+                                    "name",
+                                    "waterway",
+                                    "covered",
+                                    "width",
+                                    "depth",
+                                    "layer",
+                                    "blockage",
+                                    "tunnel",
+                                    "natural",
+                                    "water",
+                                    "source",
+                                ],
+                                "where": "tags['waterway'] IS NOT NULL OR tags['water'] IS NOT NULL OR tags['natural'] IN ('water','wetland','bay')",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Points of Interest": {
+                                "hdx": {
+                                    "tags": [
+                                        "facilities-infrastructure",
+                                        "points of interest-poi",
+                                        "geodata",
+                                    ],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["points", "polygons"],
+                                "select": [
+                                    "name",
+                                    "amenity",
+                                    "man_made",
+                                    "shop",
+                                    "tourism",
+                                    "opening_hours",
+                                    "beds",
+                                    "rooms",
+                                    "addr:full",
+                                    "addr:housenumber",
+                                    "addr:street",
+                                    "addr:city",
+                                    "source",
+                                ],
+                                "where": "tags['amenity'] IS NOT NULL OR tags['man_made'] IS NOT NULL OR tags['shop'] IS NOT NULL OR tags['tourism'] IS NOT NULL",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Airports": {
+                                "hdx": {
+                                    "tags": [
+                                        "aviation",
+                                        "facilities-infrastructure",
+                                        "geodata",
+                                    ],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["points", "lines", "polygons"],
+                                "select": [
+                                    "name",
+                                    "aeroway",
+                                    "building",
+                                    "emergency",
+                                    "emergency:helipad",
+                                    "operator:type",
+                                    "capacity:persons",
+                                    "addr:full",
+                                    "addr:city",
+                                    "source",
+                                ],
+                                "where": "tags['aeroway'] IS NOT NULL OR tags['building'] = 'aerodrome' OR tags['emergency:helipad'] IS NOT NULL OR tags['emergency'] = 'landing_site'",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Sea Ports": {
+                                "hdx": {
+                                    "tags": [
+                                        "facilities-infrastructure",
+                                        "geodata",
+                                    ],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["points", "lines", "polygons"],
+                                "select": [
+                                    "name",
+                                    "amenity",
+                                    "building",
+                                    "port",
+                                    "operator:type",
+                                    "addr:full",
+                                    "addr:city",
+                                    "source",
+                                ],
+                                "where": "tags['amenity'] = 'ferry_terminal' OR tags['building'] = 'ferry_terminal' OR tags['port'] IS NOT NULL",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Education Facilities": {
+                                "hdx": {
+                                    "tags": [
+                                        "education facilities-schools",
+                                        "geodata",
+                                    ],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["points", "polygons"],
+                                "select": [
+                                    "name",
+                                    "amenity",
+                                    "building",
+                                    "operator:type",
+                                    "capacity:persons",
+                                    "addr:full",
+                                    "addr:city",
+                                    "source",
+                                ],
+                                "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Health Facilities": {
+                                "hdx": {
+                                    "tags": ["geodata"],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["points", "polygons"],
+                                "select": [
+                                    "name",
+                                    "amenity",
+                                    "building",
+                                    "healthcare",
+                                    "healthcare:speciality",
+                                    "operator:type",
+                                    "capacity:persons",
+                                    "addr:full",
+                                    "addr:city",
+                                    "source",
+                                ],
+                                "where": "tags['healthcare'] IS NOT NULL OR tags['amenity'] IN ('doctors', 'dentist', 'clinic', 'hospital', 'pharmacy')",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Populated Places": {
+                                "hdx": {
+                                    "tags": [
+                                        "populated places-settlements",
+                                        "geodata",
+                                    ],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["points"],
+                                "select": [
+                                    "name",
+                                    "place",
+                                    "population",
+                                    "is_in",
+                                    "source",
+                                ],
+                                "where": "tags['place'] IN ('isolated_dwelling', 'town', 'village', 'hamlet', 'city')",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Financial Services": {
+                                "hdx": {
+                                    "tags": ["economics", "geodata"],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["points", "polygons"],
+                                "select": [
+                                    "name",
+                                    "amenity",
+                                    "operator",
+                                    "network",
+                                    "addr:full",
+                                    "addr:city",
+                                    "source",
+                                ],
+                                "where": "tags['amenity'] IN ('mobile_money_agent','bureau_de_change','bank','microfinance','atm','sacco','money_transfer','post_office')",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                        {
+                            "Railways": {
+                                "hdx": {
+                                    "tags": [
+                                        "facilities-infrastructure",
+                                        "railways",
+                                        "transportation",
+                                        "geodata",
+                                    ],
+                                    "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                                },
+                                "types": ["lines"],
+                                "select": [
+                                    "name",
+                                    "railway",
+                                    "ele",
+                                    "operator:type",
+                                    "layer",
+                                    "addr:full",
+                                    "addr:city",
+                                    "source",
+                                ],
+                                "where": "tags['railway'] IN ('rail','station')",
+                                "formats": ["geojson", "shp", "kml"],
+                            }
+                        },
+                    ],
+                },
+            },
         },
     ),
 ):
