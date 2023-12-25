@@ -1335,10 +1335,14 @@ class HDX:
             self.default_export_path, category_name, feature_type
         )
         resources = []
+        start_export_formats_time = time.time()
 
         def process_export_format(export_format):
             export_format_path = os.path.join(file_export_path, export_format.suffix)
             os.makedirs(export_format_path, exist_ok=True)
+            logging.info(
+                "Processing %s:%s", category_name.lower(), export_format.suffix
+            )
 
             export_filename = f"""{self.params.dataset.dataset_prefix}_{category_name}_{feature_type}_{export_format.suffix}"""
             export_file_path = os.path.join(
@@ -1364,10 +1368,13 @@ class HDX:
             resource["zip_path"] = zip_path
             resource["format_suffix"] = export_format.suffix
             resource["format_description"] = export_format.driver_name
-
+            logging.info("Done %s:%s", category_name.lower(), export_format.suffix)
             return resource
 
         if self.parallel_process_state is False and len(export_formats) > 1:
+            logging.info(
+                "Using Parallel Processing for %s Export formats", category_name.lower()
+            )
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=os.cpu_count()
             ) as executor:
@@ -1383,7 +1390,13 @@ class HDX:
             for exf in export_formats:
                 resource = process_export_format(exf)
                 resources.append(resource)
-
+        logging.info(
+            "Processing Done of all Export formats for %s in %s ",
+            category_name.lower(),
+            humanize.naturaldelta(
+                timedelta(seconds=(time.time() - start_export_formats_time))
+            ),
+        )
         return resources
 
     def process_category_result(self, category_result):
@@ -1418,7 +1431,8 @@ class HDX:
         - List of resource dictionaries containing export information.
         """
         category_name, category_data = list(category.items())[0]
-        logging.info(f"Started Processing {category_name}")
+        category_start_time = time.time()
+        logging.info("Started Processing %s", category_name)
         all_uploaded_resources = []
         for feature_type in category_data.types:
             extract_query = extract_features_duckdb(
@@ -1432,7 +1446,13 @@ class HDX:
             )
             uploaded_resources = self.zip_to_s3(resources)
             all_uploaded_resources.extend(uploaded_resources)
-        logging.info(f"Done Processing {category_name}")
+        logging.info(
+            "Done Processing %s in %s ",
+            category_name,
+            humanize.naturaldelta(
+                timedelta(seconds=(time.time() - category_start_time))
+            ),
+        )
         return all_uploaded_resources
 
     def resource_to_response(self, uploaded_resources, category):
@@ -1556,6 +1576,7 @@ class HDX:
         dataset_results = []
         if len(self.params.categories) > 1:
             self.parallel_process_state = True
+            logging.info("Starting to Use Parallel Processes")
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=os.cpu_count()
             ) as executor:
