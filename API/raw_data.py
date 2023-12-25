@@ -20,22 +20,17 @@
 """[Router Responsible for Raw data API ]
 """
 import json
-import os
-import shutil
-import time
 
-import requests
+import redis
 from area import area
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
-from geojson import FeatureCollection
 
 from src.app import RawData
-from src.config import ALLOW_BIND_ZIP_FILTER, EXPORT_MAX_AREA_SQKM
+from src.config import ALLOW_BIND_ZIP_FILTER, CELERY_BROKER_URL, EXPORT_MAX_AREA_SQKM
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN as export_rate_limit
-from src.config import logger as logging
 from src.validation.models import (
     RawDataCurrentParams,
     RawDataCurrentParamsBase,
@@ -47,6 +42,8 @@ from .api_worker import process_raw_data
 from .auth import AuthUser, UserRole, get_optional_user
 
 router = APIRouter(prefix="", tags=["Extract"])
+
+redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
 
 @router.get("/status/", response_model=StatusResponse)
@@ -448,7 +445,13 @@ def get_osm_current_snapshot_as_file(
     task = process_raw_data.apply_async(
         args=(params.model_dump(),), queue=queue_name, track_started=True
     )
-    return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
+    return JSONResponse(
+        {
+            "task_id": task.id,
+            "track_link": f"/tasks/status/{task.id}/",
+            "queue": redis_client.llen(queue_name),
+        }
+    )
 
 
 @router.post("/snapshot/plain/")
