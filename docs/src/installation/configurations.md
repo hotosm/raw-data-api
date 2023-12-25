@@ -72,6 +72,8 @@ The following are the different configuration options that are accepted.
 | `HDX_API_KEY` | `HDX_API_KEY` | `[HDX]` | None | Your API Secret key for hdx upload , should have write access and it is compulsory if ENABLE_HDX_EXPORTS is True | CONDITIONAL |
 | `HDX_OWNER_ORG` | `HDX_OWNER_ORG` | `[HDX]` | None | Your HDX organization ID| CONDITIONAL |
 | `HDX_MAINTAINER` | `HDX_MAINTAINER` | `[HDX]` | None | Your HDX Maintainer ID | CONDITIONAL |
+| `DUCK_DB_MEMORY_LIMIT` | `DUCK_DB_MEMORY_LIMIT` | `[HDX]` | None | Duck DB max memory limit , 80 % of your RAM eg : '5GB'| CONDITIONAL |
+
 
 
 ## Which Service uses which settings?
@@ -114,6 +116,8 @@ The following are the different configuration options that are accepted.
 | `HDX_API_KEY` | `[HDX]` | Yes | Yes |
 | `HDX_OWNER_ORG` | `[HDX]` | Yes | Yes |
 | `HDX_MAINTAINER` | `[HDX]` | Yes | Yes |
+| `DUCK_DB_MEMORY_LIMIT` | `[HDX]` | Yes | Yes |
+
 
 
 
