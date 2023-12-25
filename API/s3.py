@@ -94,10 +94,17 @@ def list_s3_files(
 def get_s3_file(
     request: Request,
     file_path: str = Path(..., description="The path to the file or folder in S3"),
+    expiry: int = Query(
+        default=3600,
+        description="Expiry time for the presigned URL in seconds (default: 1 hour)",
+        gt=60 * 10,
+        le=3600 * 12 * 7,
+    ),
 ):
     bucket_name = BUCKET_NAME
     file_path = file_path.strip("/")
     encoded_file_path = quote(file_path)
+
     try:
         # Check if the file or folder exists
         s3.head_object(Bucket=bucket_name, Key=encoded_file_path)
@@ -112,6 +119,7 @@ def get_s3_file(
     presigned_url = s3.generate_presigned_url(
         "get_object",
         Params={"Bucket": bucket_name, "Key": file_path},
-        ExpiresIn=3600,  # URL expires in 1 hour
+        ExpiresIn=expiry,
     )
+
     return JSONResponse(content=jsonable_encoder({"download_link": presigned_url}))

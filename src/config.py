@@ -228,8 +228,9 @@ if ENABLE_HDX_EXPORTS:
         or config.get("HDX", "ALLOWED_HDX_UPDATE_FREQUENCIES", fallback=None)
         or Dataset.list_valid_update_frequencies()
     )
-    DUCK_DB_MEMORY_LIMIT = os.environ.get("DUCK_DB_MEMORY_LIMIT") or config.get("HDX", "DUCK_DB_MEMORY_LIMIT", fallback=None)
-    
+    DUCK_DB_MEMORY_LIMIT = os.environ.get("DUCK_DB_MEMORY_LIMIT") or config.get(
+        "HDX", "DUCK_DB_MEMORY_LIMIT", fallback=None
+    )
 
 
 def get_db_connection_params() -> dict:
