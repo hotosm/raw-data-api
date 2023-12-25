@@ -856,7 +856,12 @@ def get_country_from_iso(iso3):
 
 
 def postgres2duckdb_query(
-    base_table_name, table, cid=None, geometry=None, enable_users_detail=False
+    base_table_name,
+    table,
+    cid=None,
+    geometry=None,
+    single_category_where=None,
+    enable_users_detail=False,
 ):
     """
     Generate a DuckDB query to create a table from a PostgreSQL query.
@@ -866,6 +871,7 @@ def postgres2duckdb_query(
     - table (str): PostgreSQL table name.
     - cid (int, optional): Country ID for filtering. Defaults to None.
     - geometry (Polygon, optional): Custom polygon geometry. Defaults to None.
+    - single_category_where (str, optional): Where clause for single category to fetch it from postgres
     - enable_users_detail (bool, optional): Enable user details. Defaults to False.
 
     Returns:
@@ -878,11 +884,24 @@ def postgres2duckdb_query(
         select_query = """osm_id, tableoid::regclass AS type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
         create_select_duck_db = """osm_id, type, uid, user, version, changeset, timestamp,type, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
 
+    def convert_tags_pattern(query_string):
+        # Define the pattern to search for
+        pattern = r"tags\['(.*?)'\]"
+
+        # Use a lambda function as the replacement to convert the pattern
+        converted_query = re.sub(
+            pattern, lambda match: f"tags->>'{match.group(1)}'", query_string
+        )
+
+        return converted_query
+
     row_filter_condition = (
-        f"""country <@ ARRAY [{cid}]"""
+        f"""(country <@ ARRAY [{cid}])"""
         if cid
-        else f"""ST_within(geom,ST_GeomFromText('{wkt.dumps(loads(geometry.json()))}',4326))"""
+        else f"""(ST_within(geom,ST_GeomFromText('{wkt.dumps(loads(geometry.json()))}',4326)))"""
     )
+    if single_category_where:
+        row_filter_condition += f" and ({convert_tags_pattern(single_category_where)})"
 
     duck_db_create = f"""CREATE TABLE {base_table_name}_{table} AS SELECT {create_select_duck_db} FROM postgres_query("postgres_db", "SELECT {select_query} FROM {table} WHERE {row_filter_condition}") """
 

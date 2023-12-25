@@ -1564,20 +1564,28 @@ class HDX:
             for category in self.params.categories
             for cat_type in list(category.values())[0].types
         ]
+        where_0_category = None
+        if len(self.params.categories) == 1:
+            where_0_category = list(self.params.categories[0].values())[0].where
+
         table_names = self.types_to_tables(list(set(table_type)))
         base_table_name = self.iso3 if self.iso3 else self.params.dataset.dataset_prefix
         for table in table_names:
             create_table = postgres2duckdb_query(
-                base_table_name,
-                table,
-                self.cid,
-                self.params.geometry,
+                base_table_name=base_table_name,
+                table=table,
+                cid=self.cid,
+                geometry=self.params.geometry,
+                single_category_where=where_0_category,
             )
+            print(create_table)
             start = time.time()
-            logging.info(f"Transfer-> Postgres Data to DuckDB Started : {table}")
+            logging.info("Transfer-> Postgres Data to DuckDB Started : %s", table)
             self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
             logging.info(
-                f"Transfer-> Postgres Data to DuckDB : {table} Done in {humanize.naturaldelta(timedelta(seconds=(time.time()-start)))}s"
+                "Transfer-> Postgres Data to DuckDB : %s Done in %s s",
+                table,
+                humanize.naturaldelta(timedelta(seconds=(time.time() - start))),
             )
 
         CategoryResult = namedtuple(
