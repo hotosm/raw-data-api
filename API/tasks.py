@@ -1,17 +1,25 @@
+import json
 import re
+from datetime import datetime
 from typing import List
 
+import redis
 from celery.result import AsyncResult
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
+from src.config import CELERY_BROKER_URL
 from src.validation.models import SnapshotTaskResponse
 
 from .api_worker import celery
 from .auth import AuthUser, admin_required, login_required, staff_required
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
+
+
+# Connect to the Redis server using the URL
+redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
 
 @router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
@@ -58,57 +66,40 @@ def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
 
 @router.get("/inspect/")
 @version(1)
-def inspect_workers():
+def inspect_workers(
+    request: Request,
+    summary: bool = Query(
+        default=True,
+        description="Displays summary of tasks",
+    ),
+):
     """Inspects tasks assigned to workers
 
     Returns:
-        scheduled: All scheduled tasks to be picked up by workers
         active: Current Active tasks ongoing on workers
     """
     inspected = celery.control.inspect()
-
-    def extract_file_name(args: str) -> str:
-        """Extract value prioritizing file_name, then iso3, and finally dataset_title."""
-        keys = ["file_name", "iso3", "dataset_title"]
-
-        for key in keys:
-            pattern = re.compile(rf"{key}\s*=\s*['\"]([^'\"]+)['\"]")
-            match = pattern.search(args)
-            if match:
-                return match.group(1)
-
-        return None
-
-    def filter_task_details(tasks: List[dict]) -> List[dict]:
-        """Filter task details to include only id and file_name."""
-        filtered_tasks = {}
-        if tasks:
-            for worker in tasks:
-                filtered_tasks[worker] = {"total": 0, "detail": []}
-                if tasks[worker]:
-                    # key is worker name here
-                    for value_task in tasks[worker]:
-                        if value_task:
-                            if "id" in value_task:
-                                task_id = value_task.get("id")
-                                args = value_task.get("args")
-                                file_name = extract_file_name(str(args))
-                                if task_id:
-                                    filtered_tasks[worker]["total"] += 1
-                                    filtered_tasks[worker]["detail"].append(
-                                        {"id": task_id, "file_name": file_name}
-                                    )
-        return filtered_tasks
-
-    scheduled_tasks = inspected.scheduled()
-    # print(scheduled_tasks)
     active_tasks = inspected.active()
-    # print(active_tasks)
-    response_data = {
-        "scheduled": filter_task_details(scheduled_tasks),
-        "active": filter_task_details(active_tasks),
-    }
+    active_tasks_summary = []
 
+    if summary:
+        for worker, tasks in active_tasks.items():
+            for task in tasks:
+                temp_task = {}
+                temp_task["id"] = task["id"]
+                temp_task["name"] = task["name"]
+                temp_task["time_start"] = (
+                    datetime.fromtimestamp(task["time_start"]).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    )
+                    if task["time_start"]
+                    else None
+                )
+                active_tasks_summary.append(temp_task)
+
+    response_data = {
+        "active": active_tasks_summary if summary else active_tasks,
+    }
     return JSONResponse(content=response_data)
 
 
@@ -132,3 +123,46 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
     purged = celery.control.purge()
     return JSONResponse({"tasks_discarded": purged})
+
+
+queues = ["raw_default", "raw_special"]
+
+
+@router.get("/queue/")
+@version(1)
+def get_queue_info():
+    queue_info = {}
+
+    for queue_name in queues:
+        # Get queue length
+        queue_length = redis_client.llen(queue_name)
+
+        queue_info[queue_name] = {
+            "length": queue_length,
+        }
+
+    return JSONResponse(content=queue_info)
+
+
+@router.get("/queue/details/{queue_name}/")
+@version(1)
+def get_list_details(queue_name: str):
+    if queue_name not in queues:
+        raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
+
+    list_items = redis_client.lrange(queue_name, 0, -1)
+
+    # Convert bytes to strings
+    list_items = [item.decode("utf-8") for item in list_items]
+
+    # Create a list of dictionaries with item details
+    items_details = [
+        {
+            "index": index,
+            "id": json.loads(item)["headers"]["id"],
+            "args": json.loads(item)["headers"]["argsrepr"],
+        }
+        for index, item in enumerate(list_items)
+    ]
+
+    return JSONResponse(content=items_details)
