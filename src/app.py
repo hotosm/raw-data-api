@@ -1126,13 +1126,11 @@ class DuckDB:
         con = duckdb.connect(self.db_path)
         con.sql(f"""ATTACH '{self.db_con_str}' AS postgres_db (TYPE POSTGRES)""")
         con.install_extension("spatial")
-        con.install_extension("json")
         con.load_extension("spatial")
-        con.load_extension("json")
-        duck_db_temp=temp_dir
-        if temp_dir is None :
-            duck_db_temp = os.path.join(export_path,'duckdb_temp')
-            os.makedirs(duck_db_temp,exist_ok=True)
+        duck_db_temp = temp_dir
+        if temp_dir is None:
+            duck_db_temp = os.path.join(export_path, "duckdb_temp")
+            os.makedirs(duck_db_temp, exist_ok=True)
         con.sql(f"""SET temp_directory = '{str(duck_db_temp)}'""")
 
         if DUCK_DB_MEMORY_LIMIT:
@@ -1373,7 +1371,7 @@ class HDX:
                 if export_format.layer_creation_options
                 else ""
             )
-            executable_query = f"""COPY ({query.strip()}) TO '{export_file_path}' WITH (FORMAT {export_format.format_option}, DRIVER '{export_format.driver_name}'{f', LAYER_CREATION_OPTIONS {layer_creation_options_str}' if layer_creation_options_str else ''})"""
+            executable_query = f"""COPY ({query.strip()}) TO '{export_file_path}' WITH (FORMAT {export_format.format_option}{f", DRIVER '{export_format.driver_name}'{f', LAYER_CREATION_OPTIONS {layer_creation_options_str}' if layer_creation_options_str else ''}" if export_format.format_option == 'GDAL' else ''})"""
             self.duck_db_instance.run_query(executable_query.strip(), load_spatial=True)
             zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
             zip_path = self.file_to_zip(export_format_path, zip_file_path)
