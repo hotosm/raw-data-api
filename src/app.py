@@ -1131,7 +1131,7 @@ class DuckDB:
         if temp_dir is None:
             duck_db_temp = os.path.join(export_path, "duckdb_temp")
             os.makedirs(duck_db_temp, exist_ok=True)
-        con.sql(f"""SET temp_directory = '{str(duck_db_temp)}'""")
+        con.sql(f"""SET temp_directory = '{os.path.join(duck_db_temp,'temp.tmp')}'""")
 
         if DUCK_DB_MEMORY_LIMIT:
             con.sql(f"""SET memory_limit = '{DUCK_DB_MEMORY_LIMIT}'""")
