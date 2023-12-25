@@ -88,7 +88,7 @@ def list_s3_files(
         raise HTTPException(status_code=500, detail="AWS credentials not available")
 
 
-@router.get("/s3-files/{file_path:path}")
+@router.get("/get/{file_path:path}")
 @limiter.limit(f"{POLYGON_STATISTICS_API_RATE_LIMIT}/minute")
 @version(1)
 def get_s3_file(
