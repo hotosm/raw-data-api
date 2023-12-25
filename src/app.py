@@ -87,7 +87,12 @@ if ENABLE_HDX_EXPORTS:
     import duckdb
     from hdx.data.dataset import Dataset
 
-    from src.config import HDX_MAINTAINER, HDX_OWNER_ORG, HDX_URL_PREFIX
+    from src.config import (
+        DUCK_DB_MEMORY_LIMIT,
+        HDX_MAINTAINER,
+        HDX_OWNER_ORG,
+        HDX_URL_PREFIX,
+    )
 
 
 global LOCAL_CON_POOL
@@ -1124,6 +1129,9 @@ class DuckDB:
         con.install_extension("json")
         con.load_extension("spatial")
         con.load_extension("json")
+        if DUCK_DB_MEMORY_LIMIT:
+            con.sql(f"""SET memory_limit = '{DUCK_DB_MEMORY_LIMIT}'""")
+        con.sql("""SET enable_progress_bar = true""")
 
     def run_query(self, query, attach_pgsql=False, load_spatial=False):
         """
