@@ -1117,7 +1117,7 @@ class DuckDB:
     - db_path (str): The path to the DuckDB database file.
     """
 
-    def __init__(self, db_path):
+    def __init__(self, db_path, temp_dir=None):
         dbdict = get_db_connection_params()
         self.db_con_str = convert_dict_to_conn_str(db_dict=dbdict)
         self.db_path = db_path
@@ -1129,6 +1129,12 @@ class DuckDB:
         con.install_extension("json")
         con.load_extension("spatial")
         con.load_extension("json")
+        duck_db_temp=temp_dir
+        if temp_dir is None :
+            duck_db_temp = os.path.join(export_path,'duckdb_temp')
+            os.makedirs(duck_db_temp,exist_ok=True)
+        con.sql(f"""SET temp_directory = '{str(duck_db_temp)}'""")
+
         if DUCK_DB_MEMORY_LIMIT:
             con.sql(f"""SET memory_limit = '{DUCK_DB_MEMORY_LIMIT}'""")
         con.sql("""SET enable_progress_bar = true""")
