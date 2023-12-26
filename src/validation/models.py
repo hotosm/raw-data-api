@@ -410,7 +410,7 @@ class CategoryModel(BaseModel):
         for export_type in value:
             if export_type not in EXPORT_TYPE_MAPPING:
                 raise ValueError(f"Unsupported export type: {export_type}")
-        return [EXPORT_TYPE_MAPPING[export_type] for export_type in value]
+        return value
 
 
 class ExportTypeInfo:
@@ -487,6 +487,9 @@ class DatasetConfig(BaseModel):
         description="Valid dataset locations iso3",
         example="['npl']",
     )
+    dataset_folder: str = Field(
+        default="HDX", description="Default base folder for the exports", example="HDX"
+    )
 
     @validator("update_frequency")
     def validate_frequency(cls, value):
@@ -531,12 +534,17 @@ class DynamicCategoriesModel(BaseModel):
     dataset: Optional[DatasetConfig] = Field(
         default=None, description="Dataset Configurations for HDX Upload"
     )
+    queue: Optional[str] = Field(
+        default="raw_special",
+        description="Lets you decide which queue you wanna place your task, Requires admin access",
+    )
     meta: bool = Field(
         default=False,
         description="Dumps Meta db in parquet format & hdx config json to s3",
     )
     hdx_upload: bool = Field(
-        default=True, description="Enable/Disable uploading dataset to hdx"
+        default=False,
+        description="Enable/Disable uploading dataset to hdx, False by default",
     )
 
     categories: List[Dict[str, CategoryModel]] = Field(

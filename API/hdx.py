@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
@@ -7,7 +7,7 @@ from src.config import RATE_LIMIT_PER_MIN
 from src.validation.models import DynamicCategoriesModel
 
 from .api_worker import process_hdx_request
-from .auth import AuthUser, staff_required
+from .auth import AuthUser, UserRole, staff_required
 
 router = APIRouter(prefix="/hdx", tags=["HDX"])
 
@@ -691,8 +691,13 @@ async def process_hdx_requests(
     Returns:
         dict: Result message.
     """
-    queue_name = "raw_special"
+    queue_name = params.queue
+    if params.queue != "raw_special" and user.role != UserRole.ADMIN.value:
+        raise HTTPException(
+            status_code=403,
+            detail=[{"msg": "Insufficient Permission to choose queue"}],
+        )
     task = process_hdx_request.apply_async(
-        args=(params,), queue=queue_name, track_started=True
+        args=(params.model_dump(),), queue=queue_name, track_started=True
     )
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})

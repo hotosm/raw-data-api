@@ -1,7 +1,5 @@
+import html
 import json
-import re
-from datetime import datetime
-from typing import List
 
 import redis
 from celery.result import AsyncResult
@@ -24,7 +22,13 @@ redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
 @router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
 @version(1)
-def get_task_status(task_id):
+def get_task_status(
+    task_id,
+    args: bool = Query(
+        default=False,
+        description="Displays argument of task as well",
+    ),
+):
     """Tracks the request from the task id provided by Raw Data API  for the request
 
     Args:
@@ -41,11 +45,19 @@ def get_task_status(task_id):
 
     """
     task_result = AsyncResult(task_id, app=celery)
+    task_response_result = None
+    if task_result.status == "SUCCESS":
+        task_response_result = task_result.result
+    if task_result.status == "FAILED":
+        task_response_result = html.escape(task_result.traceback)
+
     result = {
         "id": task_id,
         "status": task_result.state,
-        "result": task_result.result if task_result.status == "SUCCESS" else None,
+        "result": task_response_result,
     }
+    if args:
+        result["args"] = task_result.args
     return JSONResponse(result)
 
 
@@ -66,7 +78,7 @@ def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
 
 @router.get("/inspect/")
 @version(1)
-def inspect_workers(
+async def inspect_workers(
     request: Request,
     summary: bool = Query(
         default=True,
@@ -83,19 +95,20 @@ def inspect_workers(
     active_tasks_summary = []
 
     if summary:
-        for worker, tasks in active_tasks.items():
-            for task in tasks:
-                temp_task = {}
-                temp_task["id"] = task["id"]
-                temp_task["name"] = task["name"]
-                temp_task["time_start"] = (
-                    datetime.fromtimestamp(task["time_start"]).strftime(
-                        "%Y-%m-%d %H:%M:%S"
+        if active_tasks:
+            for worker, tasks in active_tasks.items():
+                for task in tasks:
+                    temp_task = {}
+                    temp_task["id"] = task["id"]
+                    temp_task["name"] = task["name"]
+                    temp_task["time_start"] = (
+                        datetime.fromtimestamp(task["time_start"]).strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        )
+                        if task["time_start"]
+                        else None
                     )
-                    if task["time_start"]
-                    else None
-                )
-                active_tasks_summary.append(temp_task)
+                    active_tasks_summary.append(temp_task)
 
     response_data = {
         "active": active_tasks_summary if summary else active_tasks,
@@ -146,7 +159,7 @@ def get_queue_info():
 
 @router.get("/queue/details/{queue_name}/")
 @version(1)
-def get_list_details(queue_name: str):
+async def get_list_details(queue_name: str):
     if queue_name not in queues:
         raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
 
@@ -155,7 +168,6 @@ def get_list_details(queue_name: str):
     # Convert bytes to strings
     list_items = [item.decode("utf-8") for item in list_items]
 
-    # Create a list of dictionaries with item details
     items_details = [
         {
             "index": index,
