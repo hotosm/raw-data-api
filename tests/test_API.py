@@ -137,26 +137,26 @@ def test_snapshot_featurecollection():
             ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
-def test_snapshot_feature();
+def test_snapshot_feature():
     response = client.post(
         "/v1/snapshot/",
         json={
             "geometry": {
-                        "type": "Feature",
-                        "properties": {},
-                        "geometry": {
-                            "coordinates": [
-                                [
-                                    [83.97346137271688, 28.217525272345284],
-                                    [83.97346137271688, 28.192595937414737],
-                                    [84.01473909818759, 28.192595937414737],
-                                    [84.01473909818759, 28.217525272345284],
-                                    [83.97346137271688, 28.217525272345284],
-                                ]
-                            ],
-                            "type": "Polygon",
-                        },
-                    }
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [83.97346137271688, 28.217525272345284],
+                            [83.97346137271688, 28.192595937414737],
+                            [84.01473909818759, 28.192595937414737],
+                            [84.01473909818759, 28.217525272345284],
+                            [83.97346137271688, 28.217525272345284],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            }
         },
     )
     assert response.status_code == 200
