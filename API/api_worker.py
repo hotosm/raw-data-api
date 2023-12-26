@@ -33,6 +33,7 @@ celery.conf.task_serializer = "pickle"
 celery.conf.result_serializer = "pickle"
 celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
 celery.conf.task_track_started = True
+celery.conf.update(result_extended=True)
 
 
 @celery.task(bind=True, name="process_raw_data")
@@ -194,7 +195,8 @@ def process_raw_data(self, params):
 
 @celery.task(bind=True, name="process_hdx_request")
 def process_hdx_request(self, params):
-    # params = DynamicCategoriesModel(**params)
+    params = DynamicCategoriesModel(**params)
+
     if not params.dataset:
         params.dataset = DatasetConfig()
     hdx_object = HDX(params)

@@ -1,3 +1,4 @@
+import json
 from urllib.parse import quote
 
 import boto3
@@ -10,7 +11,7 @@ from fastapi_versioning import version
 
 from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
 from src.config import LIMITER as limiter
-from src.config import POLYGON_STATISTICS_API_RATE_LIMIT
+from src.config import RATE_LIMIT_PER_MIN
 
 router = APIRouter(prefix="/s3", tags=["S3"])
 
@@ -27,7 +28,7 @@ paginator = s3.get_paginator("list_objects_v2")
 
 
 @router.get("/files/")
-@limiter.limit(f"{POLYGON_STATISTICS_API_RATE_LIMIT}/minute")
+@limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 def list_s3_files(
     request: Request,
@@ -89,7 +90,7 @@ def list_s3_files(
 
 
 @router.get("/get/{file_path:path}")
-@limiter.limit(f"{POLYGON_STATISTICS_API_RATE_LIMIT}/minute")
+@limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 def get_s3_file(
     request: Request,
@@ -99,6 +100,10 @@ def get_s3_file(
         description="Expiry time for the presigned URL in seconds (default: 1 hour)",
         gt=60 * 10,
         le=3600 * 12 * 7,
+    ),
+    read_meta: bool = Query(
+        default=True,
+        description="Whether to read and deliver the content of .json file",
     ),
 ):
     bucket_name = BUCKET_NAME
@@ -116,6 +121,18 @@ def get_s3_file(
             status_code=404, detail=f"File or folder not found: {file_path}"
         )
 
+    if read_meta and file_path.lower().endswith(".json"):
+        # Read and deliver the content of meta.json
+        try:
+            response = s3.get_object(Bucket=bucket_name, Key=file_path)
+            content = json.loads(response["Body"].read())
+            return JSONResponse(content=jsonable_encoder(content))
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error reading meta.json: {str(e)}"
+            )
+
+    # If not reading meta.json, generate a presigned URL
     presigned_url = s3.generate_presigned_url(
         "get_object",
         Params={"Bucket": bucket_name, "Key": file_path},

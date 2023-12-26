@@ -74,7 +74,7 @@ from src.query_builder.builder import (
     postgres2duckdb_query,
     raw_currentdata_extraction_query,
 )
-from src.validation.models import RawDataOutputType
+from src.validation.models import EXPORT_TYPE_MAPPING, RawDataOutputType
 
 # import instance for pooling
 if use_connection_pooling:
@@ -1202,7 +1202,7 @@ class HDX:
         self.default_export_path = os.path.join(
             export_path,
             self.uuid,
-            "HDX",
+            self.params.dataset.dataset_folder,
             self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix,
         )
         if os.path.exists(self.default_export_path):
@@ -1350,6 +1350,7 @@ class HDX:
         start_export_formats_time = time.time()
 
         def process_export_format(export_format):
+            export_format = EXPORT_TYPE_MAPPING.get(export_format)
             export_format_path = os.path.join(file_export_path, export_format.suffix)
             os.makedirs(export_format_path, exist_ok=True)
             logging.info(
@@ -1578,7 +1579,7 @@ class HDX:
                 geometry=self.params.geometry,
                 single_category_where=where_0_category,
             )
-            print(create_table)
+            logging.debug(create_table)
             start = time.time()
             logging.info("Transfer-> Postgres Data to DuckDB Started : %s", table)
             self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
@@ -1653,9 +1654,7 @@ class HDX:
         )
         result["started_at"] = started_at
 
-        meta_last_run_dump_path = os.path.join(
-            self.default_export_path, "meta_last_run.json"
-        )
+        meta_last_run_dump_path = os.path.join(self.default_export_path, "meta.json")
         with open(meta_last_run_dump_path, "w") as json_file:
             json.dump(result, json_file, indent=4)
         self.upload_to_s3(resource_path=meta_last_run_dump_path)
@@ -1756,11 +1755,9 @@ class HDXUploader:
         if self.dataset:
             dataset_info = {}
             dt_config_path = os.path.join(
-                self.category_path, f"{self.dataset['name']}.json"
+                self.category_path, f"{self.dataset['name']}_config.json"
             )
-            self.dataset.save_to_json(
-                os.path.join(self.category_path, f"{self.dataset['name']}.json")
-            )
+            self.dataset.save_to_json(dt_config_path)
             if dump_config_to_s3:
                 s3_upload_name = os.path.relpath(
                     dt_config_path, os.path.join(export_path, self.uuid)
@@ -1799,7 +1796,7 @@ class HDXUploader:
                 "methodology": "Other",
                 "methodology_other": "Volunteered geographic information",
                 "license_id": "hdx-odc-odbl",
-                "updated_by_script": f'Hotosm OSM Exports ({datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}',
+                "updated_by_script": f'Hotosm OSM Exports ({datetime.now().strftime("%Y-%m-%dT%H:%M:%S")})',
                 "caveats": self.category_data.hdx.caveats,
                 "private": self.hdx.private,
                 "notes": self.add_notes(),
