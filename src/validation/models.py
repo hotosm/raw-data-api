@@ -121,23 +121,24 @@ class GeometryValidatorMixin:
     @validator("geometry")
     def validate_geometry(cls, value):
         """Validates geometry"""
-        if value.type == "Feature":
-            if value.geometry.type not in ["Polygon", "Multipolygon"]:
-                raise ValueError(
-                    f"Feature geometry type {value.geometry.type} must be of type polygon/multipolygon",
-                )
-            return value.geometry
-        if value.type == "FeatureCollection":
-            for feature in value.features:
-                if feature.geometry.type not in ["Polygon", "MultiPolygon"]:
+        if value:
+            if value.type == "Feature":
+                if value.geometry.type not in ["Polygon", "Multipolygon"]:
                     raise ValueError(
-                        f"Feature Collection can't have {feature.type} , should be polygon/multipolygon"
+                        f"Feature geometry type {value.geometry.type} must be of type polygon/multipolygon",
                     )
-            if len(value.features) > 1:
-                raise ValueError(
-                    "Feature collection with multiple features is not supported yet"
-                )
-            return value.features[0].geometry
+                return value.geometry
+            if value.type == "FeatureCollection":
+                for feature in value.features:
+                    if feature.geometry.type not in ["Polygon", "MultiPolygon"]:
+                        raise ValueError(
+                            f"Feature Collection can't have {feature.type} , should be polygon/multipolygon"
+                        )
+                if len(value.features) > 1:
+                    raise ValueError(
+                        "Feature collection with multiple features is not supported yet"
+                    )
+                return value.features[0].geometry
         return value
 
 

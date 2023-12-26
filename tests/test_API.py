@@ -1141,6 +1141,7 @@ def test_hdx_submit_normal_iso3_upload_option():
     headers = {"access-token": access_token}
     payload = {
         "iso3": "NPL",
+        "hdx_upload": "true",
         "categories": [
             {
                 "Roads": {
