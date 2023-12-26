@@ -21,7 +21,7 @@ import json
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
-from geojson_pydantic import MultiPolygon, Polygon
+from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from geojson_pydantic.types import BBox
 from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
@@ -117,7 +117,32 @@ class Filters(BaseModel):
     attributes: Optional[AttributeFilter] = Field(default=None)
 
 
-class RawDataCurrentParamsBase(BaseModel):
+class GeometryValidatorMixin:
+    @validator("geometry")
+    def validate_geometry(cls, value):
+        """Validates geometry"""
+        if value:
+            if value.type == "Feature":
+                if value.geometry.type not in ["Polygon", "Multipolygon"]:
+                    raise ValueError(
+                        f"Feature geometry type {value.geometry.type} must be of type polygon/multipolygon",
+                    )
+                return value.geometry
+            if value.type == "FeatureCollection":
+                for feature in value.features:
+                    if feature.geometry.type not in ["Polygon", "MultiPolygon"]:
+                        raise ValueError(
+                            f"Feature Collection can't have {feature.type} , should be polygon/multipolygon"
+                        )
+                if len(value.features) > 1:
+                    raise ValueError(
+                        "Feature collection with multiple features is not supported yet"
+                    )
+                return value.features[0].geometry
+        return value
+
+
+class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
     output_type: Optional[RawDataOutputType] = Field(
         default=RawDataOutputType.GEOJSON.value, example="geojson"
     )
@@ -144,7 +169,12 @@ class RawDataCurrentParamsBase(BaseModel):
         },
         description="Filter for point,line,polygon/ all geometry for both select and where clause, All geometry filter means : It will apply the same filter to all the geometry type",
     )
-    geometry: Union[Polygon, MultiPolygon] = Field(
+    geometry: Union[
+        Polygon,
+        MultiPolygon,
+        Feature,
+        FeatureCollection,
+    ] = Field(
         default=None,
         example={
             "type": "Polygon",
@@ -255,7 +285,7 @@ class StatusResponse(BaseModel):
         json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
 
 
-class StatsRequestParams(BaseModel):
+class StatsRequestParams(BaseModel, GeometryValidatorMixin):
     iso3: Optional[str] = Field(
         default=None,
         description="ISO3 Country Code.",
@@ -263,7 +293,9 @@ class StatsRequestParams(BaseModel):
         max_length=3,
         example="NPL",
     )
-    geometry: Optional[Union[Polygon, MultiPolygon]] = Field(
+    geometry: Optional[
+        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
+    ] = Field(
         default=None,
         example={
             "type": "Polygon",
@@ -511,7 +543,7 @@ class DatasetConfig(BaseModel):
         return value.strip()
 
 
-class DynamicCategoriesModel(BaseModel):
+class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
     """
     Model for dynamic categories.
 
@@ -565,7 +597,9 @@ class DynamicCategoriesModel(BaseModel):
             }
         ],
     )
-    geometry: Optional[Union[Polygon, MultiPolygon]] = Field(
+    geometry: Optional[
+        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
+    ] = Field(
         default=None,
         example={
             "type": "Polygon",
