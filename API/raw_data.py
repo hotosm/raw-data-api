@@ -399,6 +399,7 @@ def get_osm_current_snapshot_as_file(
     2. Now navigate to /tasks/ with your task id to track progress and result
 
     """
+    print(params)
     if not (user.role is UserRole.STAFF.value or user.role is UserRole.ADMIN.value):
         if params.file_name:
             if "/" in params.file_name:
