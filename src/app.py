@@ -953,6 +953,7 @@ class PolygonStats:
         osm_building_count,
         ai_building_count,
         avg_timestamp,
+        last_edit_timestamp,
         osm_building_count_6_months,
     ):
         """
@@ -961,13 +962,14 @@ class PolygonStats:
         Args:
             osm_building_count (int): Count of buildings from OpenStreetMap.
             ai_building_count (int): Count of buildings from AI estimates.
-            avg_timestamp (str): Average timestamp of data.
+            avg_timestamp (timestamp): Average timestamp of data.
+            last_edit_timestamp(timestamp): Last edit timestamp of an area
             osm_building_count_6_months (int): Count of buildings updated in the last 6 months.
 
         Returns:
             str: Human-readable building statement.
         """
-        building_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_building_count)} buildings in this region. Based on AI-mapped estimates, this is approximately {round((osm_building_count/ai_building_count)*100)}% of the total buildings. The average age of data for this region is {avg_timestamp} and {round((osm_building_count_6_months/ai_building_count)*100)}% buildings were added or updated in the last 6 months."
+        building_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_building_count)} buildings in this region. Based on AI-mapped estimates, this is approximately {round((osm_building_count/ai_building_count)*100)}% of the total buildings. The average age of data for this region is {humanize.naturaldate(avg_timestamp)} ( Last edited on {humanize.naturaldate(last_edit_timestamp)} ) and {round((osm_building_count_6_months/ai_building_count)*100)}% buildings were added or updated in the last 6 months."
         return building_statement
 
     @staticmethod
@@ -975,6 +977,7 @@ class PolygonStats:
         osm_highway_length,
         ai_highway_length,
         avg_timestamp,
+        last_edit_timestamp,
         osm_highway_length_6_months,
     ):
         """
@@ -989,7 +992,7 @@ class PolygonStats:
         Returns:
             str: Human-readable road statement.
         """
-        road_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_highway_length)} km of roads in this region. Based on AI-mapped estimates, this is approximately {round(osm_highway_length/ai_highway_length*100)} % of the total road length in the dataset region. The average age of data for the region is {avg_timestamp}, and {round((osm_highway_length_6_months/osm_highway_length)*100)}% of roads were added or updated in the last 6 months."
+        road_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_highway_length)} km of roads in this region. Based on AI-mapped estimates, this is approximately {round(osm_highway_length/ai_highway_length*100)} % of the total road length in the dataset region. The average age of data for the region is {humanize.naturaldate(avg_timestamp)} ( Last edited on {humanize.naturaldate(last_edit_timestamp)} ) and {round((osm_highway_length_6_months/osm_highway_length)*100)}% of roads were added or updated in the last 6 months."
         return road_statement
 
     def get_osm_analytics_meta_stats(self):
@@ -1069,6 +1072,7 @@ class PolygonStats:
             combined_data["osmBuildingsCount"],
             combined_data["aiBuildingsCountEstimation"],
             combined_data["averageEditTime"],
+            combined_data["lastEditTime"],
             combined_data["building_count_6_months"],
         )
 
@@ -1076,6 +1080,7 @@ class PolygonStats:
             combined_data["highway_length"],
             combined_data["aiRoadCountEstimation"],
             combined_data["averageEditTime"],
+            combined_data["lastEditTime"],
             combined_data["highway_length_6_months"],
         )
 
