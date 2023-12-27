@@ -465,7 +465,7 @@ class ExportTypeInfo:
 
 EXPORT_TYPE_MAPPING = {
     "geojson": ExportTypeInfo("geojson", "GeoJSON", [], "GDAL"),
-    "shp": ExportTypeInfo("shp", "ESRI Shapefile", [], "GDAL"),
+    "shp": ExportTypeInfo("shp", "ESRI Shapefile", ["ENCODING=UTF-8"], "GDAL"),
     "gpkg": ExportTypeInfo("gpkg", "GPKG", [], "GDAL"),
     "sqlite": ExportTypeInfo("sqlite", "SQLite", [], "GDAL"),
     "fgb": ExportTypeInfo("fgb", "FlatGeobuf", ["VERIFY_BUFFERS=NO"], "GDAL"),
