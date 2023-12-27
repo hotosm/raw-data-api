@@ -124,7 +124,7 @@ def create_column_filter(
     if len(columns) > 0:
         filter_col = []
         filter_col.append("osm_id")
-        filter_col.append("tableoid::regclass AS type")
+        filter_col.append("tableoid::regclass AS osm_type")
 
         if create_schema:
             schema = {}
@@ -154,7 +154,7 @@ def create_column_filter(
             return select_condition, schema
         return select_condition
     else:
-        return f"osm_id, tableoid::regclass AS type, tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if use_centroid else 'geom'}"  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        return f"osm_id, tableoid::regclass AS osm_type, tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if use_centroid else 'geom'}"  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
 def create_tag_sql_logic(key, value, filter_list):
@@ -229,7 +229,7 @@ def extract_geometry_type_query(
         params.geometry,
         "ST_within" if params.use_st_within is True else "ST_intersects",
     )
-    select_condition = f"""osm_id, tableoid::regclass AS type, tags,changeset,timestamp , {'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+    select_condition = f"""osm_id, tableoid::regclass AS osm_type, tags,changeset,timestamp , {'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
     schema = {
         "osm_id": "int64",
         "type": "str",
@@ -524,9 +524,9 @@ def raw_currentdata_extraction_query(
 
     # query_table = []
     if select_all:
-        select_condition = f"""osm_id, tableoid::regclass AS type, version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # FIXme have condition for displaying userinfo after user authentication
+        select_condition = f"""osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # FIXme have condition for displaying userinfo after user authentication
     else:
-        select_condition = f"""osm_id, tableoid::regclass AS type, version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
+        select_condition = f"""osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
     point_select_condition = select_condition  # initializing default
     line_select_condition = select_condition
@@ -772,7 +772,7 @@ def get_countries_query(q):
 
 def get_osm_feature_query(osm_id):
     select_condition = (
-        "osm_id, tableoid::regclass AS type, tags,changeset,timestamp,geom"
+        "osm_id, tableoid::regclass AS osm_type, tags,changeset,timestamp,geom"
     )
     query = f"""SELECT ST_AsGeoJSON(n.*)
         FROM (select {select_condition} from nodes) n 
@@ -877,11 +877,11 @@ def postgres2duckdb_query(
     Returns:
     str: DuckDB query for creating a table.
     """
-    select_query = """osm_id, tableoid::regclass AS type, version, changeset, timestamp, tags,  ST_AsBinary(geom) as geometry"""
+    select_query = """osm_id, tableoid::regclass AS osm_type, version, changeset, timestamp, tags,  ST_AsBinary(geom) as geometry"""
     create_select_duck_db = """osm_id, type , version, changeset, timestamp, type, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
 
     if enable_users_detail:
-        select_query = """osm_id, tableoid::regclass AS type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
+        select_query = """osm_id, tableoid::regclass AS osm_type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
         create_select_duck_db = """osm_id, type, uid, user, version, changeset, timestamp,type, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
 
     def convert_tags_pattern(query_string):
