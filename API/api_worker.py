@@ -5,8 +5,9 @@ import re
 import shutil
 import time
 from datetime import datetime as dt
-from datetime import timezone
+from datetime import timedelta, timezone
 
+import humanize
 import requests
 import sozipfile.sozipfile as zipfile
 from celery import Celery
@@ -40,7 +41,7 @@ celery.conf.update(result_extended=True)
 def process_raw_data(self, params):
     params = RawDataCurrentParams(**params)
     try:
-        start_time = dt.now()
+        start_time = time.time()
         bind_zip = params.bind_zip if ALLOW_BIND_ZIP_FILTER else True
         # unique id for zip file and geojson for each export
         params.output_type = (
@@ -172,8 +173,9 @@ def process_raw_data(self, params):
         if use_s3_to_upload or bind_zip:
             # remove working dir from the machine , if its inside zip / uploaded we no longer need it
             remove_file(working_dir)
-        response_time = dt.now() - start_time
-        response_time_str = str(response_time)
+        response_time_str = humanize.naturaldelta(
+            timedelta(seconds=(time.time() - start_time))
+        )
         logging.info(
             f"Done Export : {exportname} of {round(inside_file_size/1000000)} MB / {geom_area} sqkm in {response_time_str}"
         )
