@@ -175,7 +175,6 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
         Feature,
         FeatureCollection,
     ] = Field(
-        default=None,
         example={
             "type": "Polygon",
             "coordinates": [
