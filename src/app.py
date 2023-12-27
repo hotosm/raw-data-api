@@ -775,7 +775,7 @@ class RawData:
                     if self.params.file_name
                     else "Export",
                 )  # using ogr2ogr
-            if output_type in ["fgb", "gpkg", "sql", "parquet", "csv"]:
+            if output_type in ["fgb", "kml", "gpkg", "sql", "parquet", "csv"]:
                 RawData.ogr_export(
                     query=raw_currentdata_extraction_query(
                         self.params,
