@@ -967,7 +967,7 @@ class PolygonStats:
         Returns:
             str: Human-readable building statement.
         """
-        building_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_building_count)} buildings in this region. Based on AI-mapped estimates, this is approximately {round((osm_building_count/ai_building_count)*100)}% of the total buildings. The average age of data for this region is {avg_timestamp}, and {round((osm_building_count_6_months/ai_building_count)*100)}% buildings were added or updated in the last 6 months."
+        building_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_building_count)} buildings in this region. Based on AI-mapped estimates, this is approximately {round((osm_building_count/ai_building_count)*100)}% of the total buildings. The average age of data for this region is {avg_timestamp} and {round((osm_building_count_6_months/ai_building_count)*100)}% buildings were added or updated in the last 6 months."
         return building_statement
 
     @staticmethod
@@ -1519,7 +1519,13 @@ class HDX:
                 uuid=self.uuid,
                 completeness_metadata={
                     "iso3": self.iso3,
-                    "geometry": self.params.geometry,
+                    "geometry": {
+                        "type": "Feature",
+                        "geometry": json.loads(self.params.geometry.model_dump_json()),
+                        "properties": {},
+                    }
+                    if self.params.geometry
+                    else None,
                 },
             )
             uploader.init_dataset()
@@ -1719,13 +1725,13 @@ class HDXUploader:
                 if self.completeness_metadata:
                     self.data_completeness_stats = PolygonStats(
                         iso3=self.completeness_metadata["iso3"],
-                        geojson=self.completeness_metadata["geometry"].json()
+                        geojson=self.completeness_metadata["geometry"]
                         if self.completeness_metadata["geometry"]
                         else None,
                     ).get_summary_stats()
             if self.data_completeness_stats:
                 self.category_data.hdx.notes += f'{self.data_completeness_stats["summary"][self.category_name.lower()]}\n'
-                self.category_data.hdx.notes += "Read about what this summary means, [indicators](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md) , [metrics](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md)\n"
+                self.category_data.hdx.notes += "Read about what this summary means : [indicators](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md) , [metrics](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md)\n"
 
         return self.category_data.hdx.notes + HDX_MARKDOWN.format(
             columns=columns, filter_str=filter_str

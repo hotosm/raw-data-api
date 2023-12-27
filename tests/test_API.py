@@ -847,6 +847,70 @@ def test_hdx_submit_normal_custom_polygon():
             ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
+def test_hdx_submit_normal_custom_polygon_upload():
+    headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "hdx_upload": True,
+        "dataset": {
+            "subnational": True,
+            "dataset_title": "Pokhara",
+            "dataset_folder": "Test",
+            "dataset_prefix": "hotosm_pkr",
+            "dataset_locations": ["npl"],
+        },
+        "categories": [
+            {
+                "Roads": {
+                    "hdx": {
+                        "tags": ["roads", "transportation", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines"],
+                    "select": ["name", "highway"],
+                    "where": "tags['highway'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            }
+        ],
+    }
+
+    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
 def test_full_hdx_set_iso():
     headers = {"access-token": access_token}
     payload = {
@@ -1135,52 +1199,6 @@ def test_full_hdx_set_iso():
     res = response.json()
     check_status = res["status"]
     assert check_status == "SUCCESS"
-
-
-def test_hdx_submit_normal_iso3_upload_option():
-    headers = {"access-token": access_token}
-    payload = {
-        "iso3": "NPL",
-        "hdx_upload": "true",
-        "categories": [
-            {
-                "Roads": {
-                    "hdx": {
-                        "tags": ["roads", "transportation", "geodata"],
-                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
-                    },
-                    "types": ["lines"],
-                    "select": ["name", "highway"],
-                    "where": "tags['highway'] IS NOT NULL",
-                    "formats": ["geojson"],
-                }
-            }
-        ],
-    }
-
-    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
-
-    assert response.status_code == 200
-    res = response.json()
-    track_link = res["track_link"]
-    max_attempts = 6
-    interval_seconds = 10
-    for attempt in range(1, max_attempts + 1):
-        time.sleep(interval_seconds)  # wait for worker to complete task
-
-        response = client.get(f"/v1{track_link}")
-        assert response.status_code == 200
-        res = response.json()
-        check_status = res["status"]
-
-        if check_status == "SUCCESS":
-            break  # exit the loop if the status is SUCCESS
-
-        if attempt == max_attempts:
-            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
-            assert (
-                False
-            ), f"Task did not complete successfully after {max_attempts} attempts"
 
 
 ## Tasks connection
