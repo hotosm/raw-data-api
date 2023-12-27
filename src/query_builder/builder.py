@@ -878,11 +878,11 @@ def postgres2duckdb_query(
     str: DuckDB query for creating a table.
     """
     select_query = """osm_id, tableoid::regclass AS osm_type, version, changeset, timestamp, tags,  ST_AsBinary(geom) as geometry"""
-    create_select_duck_db = """osm_id, type , version, changeset, timestamp, type, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
+    create_select_duck_db = """osm_id, osm_type , version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
 
     if enable_users_detail:
         select_query = """osm_id, tableoid::regclass AS osm_type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
-        create_select_duck_db = """osm_id, type, uid, user, version, changeset, timestamp,type, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
+        create_select_duck_db = """osm_id, osm_type, uid, user, version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
 
     def convert_tags_pattern(query_string):
         # Define the pattern to search for
@@ -940,7 +940,7 @@ def extract_features_duckdb(base_table_name, select, feature_type, where):
     }
 
     select = [f"tags['{item}'][1] as '{item}'" for item in select]
-    select += ["osm_id", "type", "geometry"]
+    select += ["osm_id", "osm_type", "geometry"]
     select_query = ", ".join(select)
 
     from_query = map_tables[feature_type]["table"]
