@@ -9,13 +9,13 @@ from src.validation.models import DynamicCategoriesModel
 from .api_worker import process_hdx_request
 from .auth import AuthUser, UserRole, staff_required
 
-router = APIRouter(prefix="/hdx", tags=["HDX"])
+router = APIRouter(prefix="/custom", tags=["Custom Exports"])
 
 
-@router.post("/submit/")
+@router.post("/snapshot/")
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
-async def process_hdx_requests(
+async def process_custom_requests(
     request: Request,
     user: AuthUser = Depends(staff_required),
     params: DynamicCategoriesModel = Body(
@@ -120,6 +120,92 @@ async def process_hdx_requests(
                                 "where": "tags['highway'] IS NOT NULL",
                                 "formats": ["geojson"],
                             }
+                        }
+                    ],
+                },
+            },
+            "normal_polygon_TM": {
+                "summary": "Example: Tasking Manager Mapping type extraction for a Project",
+                "description": "Example Query to extract building,roads,waterways and landuse in sample TM Project , Pokhara, Nepal",
+                "value": {
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [83.96919250488281, 28.194446860487773],
+                                [83.99751663208006, 28.194446860487773],
+                                [83.99751663208006, 28.214869548073377],
+                                [83.96919250488281, 28.214869548073377],
+                                [83.96919250488281, 28.194446860487773],
+                            ]
+                        ],
+                    },
+                    "queue": "raw_default",
+                    "dataset": {
+                        "dataset_prefix": "hotosm_project_1",
+                        "dataset_folder": "TM",
+                        "dataset_title": "Tasking Manger Project 1",
+                    },
+                    "categories": [
+                        {
+                            "Buildings": {
+                                "types": ["polygons"],
+                                "select": [
+                                    "name",
+                                    "building",
+                                    "building:levels",
+                                    "building:materials",
+                                    "addr:full",
+                                    "addr:housenumber",
+                                    "addr:street",
+                                    "addr:city",
+                                    "office",
+                                    "source",
+                                ],
+                                "where": "tags['building'] IS NOT NULL",
+                                "formats": ["geojson", "shp", "kml"],
+                            },
+                            "Roads": {
+                                "types": ["lines"],
+                                "select": [
+                                    "name",
+                                    "highway",
+                                    "surface",
+                                    "smoothness",
+                                    "width",
+                                    "lanes",
+                                    "oneway",
+                                    "bridge",
+                                    "layer",
+                                    "source",
+                                ],
+                                "where": "tags['highway'] IS NOT NULL",
+                                "formats": ["geojson", "shp", "kml"],
+                            },
+                            "Waterways": {
+                                "types": ["lines", "polygons"],
+                                "select": [
+                                    "name",
+                                    "waterway",
+                                    "covered",
+                                    "width",
+                                    "depth",
+                                    "layer",
+                                    "blockage",
+                                    "tunnel",
+                                    "natural",
+                                    "water",
+                                    "source",
+                                ],
+                                "where": "tags['waterway'] IS NOT NULL OR tags['water'] IS NOT NULL OR tags['natural'] IN ('water','wetland','bay')",
+                                "formats": ["geojson", "shp", "kml"],
+                            },
+                            "Landuse": {
+                                "types": ["points", "polygons"],
+                                "select": ["name", "amenity", "landuse", "leisure"],
+                                "where": "tags['landuse'] IS NOT NULL",
+                                "formats": ["geojson", "shp", "kml"],
+                            },
                         }
                     ],
                 },
