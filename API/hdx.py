@@ -164,7 +164,9 @@ async def process_custom_requests(
                                 ],
                                 "where": "tags['building'] IS NOT NULL",
                                 "formats": ["geojson", "shp", "kml"],
-                            },
+                            }
+                        },
+                        {
                             "Roads": {
                                 "types": ["lines"],
                                 "select": [
@@ -181,7 +183,9 @@ async def process_custom_requests(
                                 ],
                                 "where": "tags['highway'] IS NOT NULL",
                                 "formats": ["geojson", "shp", "kml"],
-                            },
+                            }
+                        },
+                        {
                             "Waterways": {
                                 "types": ["lines", "polygons"],
                                 "select": [
@@ -199,14 +203,16 @@ async def process_custom_requests(
                                 ],
                                 "where": "tags['waterway'] IS NOT NULL OR tags['water'] IS NOT NULL OR tags['natural'] IN ('water','wetland','bay')",
                                 "formats": ["geojson", "shp", "kml"],
-                            },
+                            }
+                        },
+                        {
                             "Landuse": {
                                 "types": ["points", "polygons"],
                                 "select": ["name", "amenity", "landuse", "leisure"],
                                 "where": "tags['landuse'] IS NOT NULL",
                                 "formats": ["geojson", "shp", "kml"],
-                            },
-                        }
+                            }
+                        },
                     ],
                 },
             },
@@ -782,6 +788,11 @@ async def process_custom_requests(
         raise HTTPException(
             status_code=403,
             detail=[{"msg": "Insufficient Permission to choose queue"}],
+        )
+    params.categories = [category for category in params.categories if category]
+    if len(params.categories) == 0:
+        raise HTTPException(
+            status_code=400, detail=[{"msg": "Categories can't be empty"}]
         )
     task = process_hdx_request.apply_async(
         args=(params.model_dump(),), queue=queue_name, track_started=True

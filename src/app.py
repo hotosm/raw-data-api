@@ -1572,9 +1572,14 @@ class HDX:
         """
         started_at = datetime.now().isoformat()
         processing_time_start = time.time()
+        # clean cateories remove {}
+        self.params.categories = [
+            category for category in self.params.categories if category
+        ]
         table_type = [
             cat_type
             for category in self.params.categories
+            if category
             for cat_type in list(category.values())[0].types
         ]
         where_0_category = None
