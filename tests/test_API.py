@@ -713,7 +713,7 @@ def test_hdx_submit_normal_iso3():
         ],
     }
 
-    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
 
     assert response.status_code == 200
     res = response.json()
@@ -759,7 +759,7 @@ def test_hdx_submit_normal_iso3_multiple_format():
         ],
     }
 
-    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
 
     assert response.status_code == 200
     res = response.json()
@@ -822,7 +822,117 @@ def test_hdx_submit_normal_custom_polygon():
         ],
     }
 
-    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    max_attempts = 6
+    interval_seconds = 10
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for worker to complete task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            break  # exit the loop if the status is SUCCESS
+
+        if attempt == max_attempts:
+            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
+            assert (
+                False
+            ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+def test_custom_submit_normal_custom_polygon_TM_project():
+    headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "queue": "raw_default",
+        "dataset": {
+            "dataset_prefix": "hotosm_project_1",
+            "dataset_folder": "TM",
+            "dataset_title": "Tasking Manger Project 1",
+        },
+        "categories": [
+            {
+                "Buildings": {
+                    "types": ["polygons"],
+                    "select": [
+                        "name",
+                        "building",
+                        "building:levels",
+                        "building:materials",
+                        "addr:full",
+                        "addr:housenumber",
+                        "addr:street",
+                        "addr:city",
+                        "office",
+                        "source",
+                    ],
+                    "where": "tags['building'] IS NOT NULL",
+                    "formats": ["geojson", "shp", "kml"],
+                },
+                "Roads": {
+                    "types": ["lines"],
+                    "select": [
+                        "name",
+                        "highway",
+                        "surface",
+                        "smoothness",
+                        "width",
+                        "lanes",
+                        "oneway",
+                        "bridge",
+                        "layer",
+                        "source",
+                    ],
+                    "where": "tags['highway'] IS NOT NULL",
+                    "formats": ["geojson", "shp", "kml"],
+                },
+                "Waterways": {
+                    "types": ["lines", "polygons"],
+                    "select": [
+                        "name",
+                        "waterway",
+                        "covered",
+                        "width",
+                        "depth",
+                        "layer",
+                        "blockage",
+                        "tunnel",
+                        "natural",
+                        "water",
+                        "source",
+                    ],
+                    "where": "tags['waterway'] IS NOT NULL OR tags['water'] IS NOT NULL OR tags['natural'] IN ('water','wetland','bay')",
+                    "formats": ["geojson", "shp", "kml"],
+                },
+                "Landuse": {
+                    "types": ["points", "polygons"],
+                    "select": ["name", "amenity", "landuse", "leisure"],
+                    "where": "tags['landuse'] IS NOT NULL",
+                    "formats": ["geojson", "shp", "kml"],
+                },
+            }
+        ],
+    }
+
+    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
 
     assert response.status_code == 200
     res = response.json()
@@ -886,7 +996,7 @@ def test_hdx_submit_normal_custom_polygon_upload():
         ],
     }
 
-    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
 
     assert response.status_code == 200
     res = response.json()
@@ -1188,7 +1298,7 @@ def test_full_hdx_set_iso():
         ],
     }
 
-    response = client.post("/v1/hdx/submit/", json=payload, headers=headers)
+    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
 
     assert response.status_code == 200
     res = response.json()

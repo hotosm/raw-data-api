@@ -334,7 +334,7 @@ class HDXModel(BaseModel):
     """
 
     tags: List[str] = Field(
-        ...,
+        default=["geodata"],
         description="List of tags for the HDX model.",
         example=["roads", "transportation", "geodata"],
     )
@@ -362,11 +362,12 @@ class HDXModel(BaseModel):
         Returns:
             _type_: _description_
         """
-        for item in value:
-            if item.strip() not in ALLOWED_HDX_TAGS:
-                raise ValueError(
-                    f"Invalid tag {item.strip()} , Should be within {ALLOWED_HDX_TAGS}"
-                )
+        if value:
+            for item in value:
+                if item.strip() not in ALLOWED_HDX_TAGS:
+                    raise ValueError(
+                        f"Invalid tag {item.strip()} , Should be within {ALLOWED_HDX_TAGS}"
+                    )
         return value
 
 
@@ -382,7 +383,9 @@ class CategoryModel(BaseModel):
     - formats (List[str]): List of Export Formats (suffixes).
     """
 
-    hdx: HDXModel
+    hdx: Optional[HDXModel] = Field(
+        default=None, description="HDX Specific configurations"
+    )
     types: List[str] = Field(
         ...,
         description="List of feature types (points, lines, polygons).",
@@ -513,7 +516,7 @@ class DatasetConfig(BaseModel):
         description="Dataset prefix to be appended before category name, Will be ignored if iso3 is supplied",
         example="hotosm_npl",
     )
-    dataset_locations: List[str] = Field(
+    dataset_locations: List[str] | None = Field(
         default=None,
         description="Valid dataset locations iso3",
         example="['npl']",
@@ -562,6 +565,10 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
         max_length=3,
         example="USA",
     )
+    hdx_upload: bool = Field(
+        default=False,
+        description="Enable/Disable uploading dataset to hdx, False by default",
+    )
     dataset: Optional[DatasetConfig] = Field(
         default=None, description="Dataset Configurations for HDX Upload"
     )
@@ -573,11 +580,6 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
         default=False,
         description="Dumps Meta db in parquet format & hdx config json to s3",
     )
-    hdx_upload: bool = Field(
-        default=False,
-        description="Enable/Disable uploading dataset to hdx, False by default",
-    )
-
     categories: List[Dict[str, CategoryModel]] = Field(
         ...,
         description="List of dynamic categories.",
@@ -622,11 +624,17 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
         if value is None and values.get("iso3") is None:
             raise ValueError("Either geometry or iso3 should be supplied.")
         if value is not None:
-            dataset = values.get("dataset").dict()
-            if dataset is None:
-                raise ValueError("Dataset config should be supplied for custom polygon")
+            dataset = values.get("dataset")
+            if values.get("hdx_upload"):
+                for category in values.get("categories"):
+                    category_name, category_data = list(category.items())[0]
+                    if category_data.hdx is None:
+                        raise ValueError(f"HDX is missing for category {category}")
 
-            for item in dataset.keys():
-                if dataset.get(item) is None:
-                    raise ValueError(f"Missing, Dataset config : {item}")
+            if dataset is None and values.get("hdx_upload"):
+                raise ValueError("Dataset config should be supplied for custom polygon")
+            if values.get("hdx_upload"):
+                for item in dataset:
+                    if item is None:
+                        raise ValueError(f"Missing, Dataset config : {item}")
         return value

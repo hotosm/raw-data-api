@@ -1533,6 +1533,7 @@ class HDX:
                     else None,
                 },
             )
+            logging.info("Initiating HDX Upload")
             uploader.init_dataset()
             non_hdx_resources = []
             for resource in uploaded_resources:
