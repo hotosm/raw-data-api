@@ -627,13 +627,14 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
             dataset = values.get("dataset")
             if values.get("hdx_upload"):
                 for category in values.get("categories"):
-                    if category.hdx is None:
+                    category_name, category_data = list(category.items())[0]
+                    if category_data.hdx is None:
                         raise ValueError(f"HDX is missing for category {category}")
 
             if dataset is None and values.get("hdx_upload"):
                 raise ValueError("Dataset config should be supplied for custom polygon")
             if values.get("hdx_upload"):
-                for item in dataset.keys():
-                    if dataset.get(item) is None:
+                for item in dataset:
+                    if item is None:
                         raise ValueError(f"Missing, Dataset config : {item}")
         return value
