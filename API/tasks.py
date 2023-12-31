@@ -1,4 +1,3 @@
-import html
 import json
 from datetime import datetime
 
@@ -39,7 +38,28 @@ def get_task_status(
     Returns:
 
         id: Id of the task
-        status : SUCCESS / PENDING
+        status : Possible values includes:
+
+                PENDING
+
+                    The task is waiting for execution.
+
+                STARTED
+
+                    The task has been started.
+
+                RETRY
+
+                    The task is to be retried, possibly because of failure.
+
+                FAILURE
+
+                    The task raised an exception, or has exceeded the retry limit. The result attribute then contains the exception raised by the task.
+
+                SUCCESS
+
+                    The task executed successfully. The result attribute then contains the tasks return value.
+
         result : Result of task
 
     Successful task will have additional nested json inside
@@ -49,8 +69,8 @@ def get_task_status(
     task_response_result = None
     if task_result.status == "SUCCESS":
         task_response_result = task_result.result
-    if task_result.status == "FAILED":
-        task_response_result = html.escape(task_result.traceback)
+    if task_result.state != "SUCCESS":
+        task_response_result = str(task_result.info)
 
     result = {
         "id": task_id,

@@ -364,10 +364,11 @@ class HDXModel(BaseModel):
         """
         if value:
             for item in value:
-                if item.strip() not in ALLOWED_HDX_TAGS:
-                    raise ValueError(
-                        f"Invalid tag {item.strip()} , Should be within {ALLOWED_HDX_TAGS}"
-                    )
+                if ALLOWED_HDX_TAGS:
+                    if item.strip() not in ALLOWED_HDX_TAGS:
+                        raise ValueError(
+                            f"Invalid tag {item.strip()} , Should be within {ALLOWED_HDX_TAGS}"
+                        )
         return value
 
 
@@ -538,10 +539,11 @@ class DatasetConfig(BaseModel):
         Returns:
             _type_: _description_
         """
-        if value.strip() not in ALLOWED_HDX_UPDATE_FREQUENCIES:
-            raise ValueError(
-                f"Invalid update frequency , Should be within {ALLOWED_HDX_UPDATE_FREQUENCIES}"
-            )
+        if ALLOWED_HDX_UPDATE_FREQUENCIES:
+            if value.strip() not in ALLOWED_HDX_UPDATE_FREQUENCIES:
+                raise ValueError(
+                    f"Invalid update frequency , Should be within {ALLOWED_HDX_UPDATE_FREQUENCIES}"
+                )
         return value.strip()
 
 

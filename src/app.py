@@ -1786,7 +1786,13 @@ class HDXUploader:
                 )
 
             self.dataset.set_reference_period(datetime.now())
-            self.dataset.create_in_hdx(allow_no_resources=True)
+            try:
+                self.dataset.create_in_hdx(allow_no_resources=True)
+                dataset_info["hdx_upload"] = "SUCCESS"
+            except Exception as ex:
+                logging.error(ex)
+                dataset_info["hdx_upload"] = "FAILED"
+
             dataset_info["name"] = self.dataset["name"]
             dataset_info["hdx_url"] = f"{HDX_URL_PREFIX}/dataset/{self.dataset['name']}"
             dataset_info["resources"] = self.resources

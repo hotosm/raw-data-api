@@ -77,6 +77,15 @@ ENABLE_TILES = os.environ.get("ENABLE_TILES") or config.get(
 )
 
 
+def not_raises(func, *args, **kwargs):
+    try:
+        func(*args, **kwargs)
+        return True
+    except Exception as ex:
+        logging.error(ex)
+        return False
+
+
 ####################
 
 ### EXPORT_UPLOAD CONFIG BLOCK
@@ -204,7 +213,7 @@ if ENABLE_HDX_EXPORTS:
         logging.debug(HDX_URL_PREFIX)
     except Exception as e:
         logging.error(
-            f"Error creating HDX configuration: {e}, Disabling the hdx exports feature"
+            "Error creating HDX configuration: %s, Disabling the hdx exports feature", e
         )
         ENABLE_HDX_EXPORTS = False
 
@@ -221,13 +230,20 @@ if ENABLE_HDX_EXPORTS:
     ALLOWED_HDX_TAGS = parse_list(
         os.environ.get("ALLOWED_HDX_TAGS")
         or config.get("HDX", "ALLOWED_HDX_TAGS", fallback=None)
-        or Vocabulary.approved_tags()
+        or (
+            Vocabulary.approved_tags() if not_raises(Vocabulary.approved_tags) else None
+        )
     )
     ALLOWED_HDX_UPDATE_FREQUENCIES = parse_list(
         os.environ.get("ALLOWED_HDX_UPDATE_FREQUENCIES")
         or config.get("HDX", "ALLOWED_HDX_UPDATE_FREQUENCIES", fallback=None)
-        or Dataset.list_valid_update_frequencies()
+        or (
+            Dataset.list_valid_update_frequencies()
+            if not_raises(Dataset.list_valid_update_frequencies)
+            else None
+        )
     )
+
     DUCK_DB_MEMORY_LIMIT = os.environ.get("DUCK_DB_MEMORY_LIMIT") or config.get(
         "HDX", "DUCK_DB_MEMORY_LIMIT", fallback=None
     )
