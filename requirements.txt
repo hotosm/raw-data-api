@@ -33,8 +33,8 @@ geomet==1.1.0
 # neoteroi-mkdocs==0.1.2
 # pdocs==1.0.1
 
-## flower
-# flower==1.2.0
+# flower
+flower==2.0.1
 
 ##sozipfile
 sozipfile==0.3.2
