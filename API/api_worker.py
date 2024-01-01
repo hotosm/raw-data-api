@@ -195,8 +195,8 @@ def process_raw_data(self, params):
         raise ex
 
 
-@celery.task(bind=True, name="process_hdx_request")
-def process_hdx_request(self, params):
+@celery.task(bind=True, name="process_custom_request")
+def process_custom_request(self, params):
     params = DynamicCategoriesModel(**params)
 
     if not params.dataset:

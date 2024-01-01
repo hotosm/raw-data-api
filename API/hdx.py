@@ -6,7 +6,7 @@ from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
 from src.validation.models import DynamicCategoriesModel
 
-from .api_worker import process_hdx_request
+from .api_worker import process_custom_request
 from .auth import AuthUser, UserRole, staff_required
 
 router = APIRouter(prefix="/custom", tags=["Custom Exports"])
@@ -794,7 +794,7 @@ async def process_custom_requests(
         raise HTTPException(
             status_code=400, detail=[{"msg": "Categories can't be empty"}]
         )
-    task = process_hdx_request.apply_async(
+    task = process_custom_request.apply_async(
         args=(params.model_dump(),), queue=queue_name, track_started=True
     )
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})

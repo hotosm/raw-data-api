@@ -16,10 +16,6 @@ from .auth import AuthUser, admin_required, login_required, staff_required
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
-# Connect to the Redis server using the URL
-redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
-
-
 @router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
 @version(1)
 def get_task_status(
@@ -166,6 +162,7 @@ queues = ["raw_default", "raw_special"]
 @version(1)
 def get_queue_info():
     queue_info = {}
+    redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
     for queue_name in queues:
         # Get queue length
@@ -183,6 +180,7 @@ def get_queue_info():
 async def get_list_details(queue_name: str):
     if queue_name not in queues:
         raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
+    redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
     list_items = redis_client.lrange(queue_name, 0, -1)
 
