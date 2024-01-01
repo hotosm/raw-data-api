@@ -132,6 +132,12 @@ Raw Data API uses flower for monitoring the Celery distributed queue. Run this c
 celery --broker=redis://redis:6379// --app API.api_worker flower --port=5000 --queues="raw_special,raw_default"
 ```
 
+OR Simply use flower from application itself
+
+```bash
+celery --broker=redis://localhost:6379// flower
+```
+
 ### Navigate to the docs to view Raw Data API endpoints
 
 After sucessfully starting the server, visit [http://127.0.0.1:8000/v1/docs](http://127.0.0.1:8000/v1/docs) on your browser to view the API docs.
