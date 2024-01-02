@@ -28,7 +28,7 @@
   | PGDUMP         | :heavy_check_mark: |
   | GeoJSON        | :heavy_check_mark: |
   | Pmtiles        | :heavy_check_mark: |
-  | Mbtiles        | :heavy_check_mark: |
+  | Geoparquet     | :heavy_check_mark: |
 
 ## Installation
 
