@@ -50,6 +50,10 @@ def my_data(user_data: AuthUser = Depends(login_required)):
     Parameters:None
 
     Returns: user_data
+            User Role :
+                ADMIN = 1
+                STAFF = 2
+                GUEST = 3
     """
     return user_data
 
@@ -64,6 +68,10 @@ class User(BaseModel):
 async def create_user(params: User, user_data: AuthUser = Depends(admin_required)):
     """
     Creates a new user and returns the user's information.
+    User Role :
+        ADMIN = 1
+        STAFF = 2
+        GUEST = 3
 
     Args:
     - params (User): The user data including osm_id and role.
@@ -83,6 +91,10 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
 async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
     """
     Retrieves user information based on the given osm_id.
+    User Role :
+        ADMIN = 1
+        STAFF = 2
+        GUEST = 3
 
     Args:
     - osm_id (int): The OSM ID of the user to retrieve.
@@ -105,7 +117,10 @@ async def update_user(
 ):
     """
     Updates user information based on the given osm_id.
-
+    User Role :
+        ADMIN = 1
+        STAFF = 2
+        GUEST = 3
     Args:
     - osm_id (int): The OSM ID of the user to update.
     - update_data (User): The data to update for the user.
