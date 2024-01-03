@@ -6,7 +6,7 @@ import humanize
 from botocore.exceptions import NoCredentialsError
 from fastapi import APIRouter, HTTPException, Path, Query, Request
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_versioning import version
 
 from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
@@ -116,7 +116,6 @@ def get_s3_file(
     except NoCredentialsError:
         raise HTTPException(status_code=500, detail="AWS credentials not available")
     except Exception as e:
-        print(e)
         raise HTTPException(
             status_code=404, detail=f"File or folder not found: {file_path}"
         )
@@ -139,4 +138,4 @@ def get_s3_file(
         ExpiresIn=expiry,
     )
 
-    return JSONResponse(content=jsonable_encoder({"download_link": presigned_url}))
+    return RedirectResponse(presigned_url)
