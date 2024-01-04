@@ -86,6 +86,7 @@ import logging as log
 if ENABLE_HDX_EXPORTS:
     import duckdb
     from hdx.data.dataset import Dataset
+    from hdx.data.resource import Resource
 
     from src.config import (
         DUCK_DB_MEMORY_LIMIT,
@@ -1494,7 +1495,6 @@ class HDX:
                 "format": resource["format_suffix"],
                 "description": resource["format_description"],
                 "url": resource["download_url"],
-                "last_modifed": datetime.now().isoformat(),
             }
             resource_meta["uploaded_to_hdx"]: False
             resources.append(resource_meta)
@@ -1757,7 +1757,9 @@ class HDXUploader:
         """
         if self.dataset:
             self.resources.append(resource_meta)
-            self.dataset.add_update_resource(resource_meta)
+            resource_obj = Resource(resource_meta)
+            resource_obj.mark_data_updated()
+            self.dataset.add_update_resource(resource_obj)
 
     def upload_dataset(self, dump_config_to_s3=False):
         """
@@ -1785,9 +1787,12 @@ class HDXUploader:
                     str(s3_upload_name),
                 )
 
-            self.dataset.set_reference_period(datetime.now())
+            self.dataset.set_time_period(datetime.now())
             try:
-                self.dataset.create_in_hdx(allow_no_resources=True)
+                self.dataset.create_in_hdx(
+                    allow_no_resources=True,
+                    hxl_update=False,
+                )
                 dataset_info["hdx_upload"] = "SUCCESS"
             except Exception as ex:
                 logging.error(ex)
