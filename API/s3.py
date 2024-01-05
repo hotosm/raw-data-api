@@ -30,7 +30,7 @@ paginator = s3.get_paginator("list_objects_v2")
 @router.get("/files/")
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
-def list_s3_files(
+async def list_s3_files(
     request: Request,
     folder: str = Query(default="/HDX"),
     page: int = Query(default=1, ge=1, description="Page number"),
@@ -92,7 +92,7 @@ def list_s3_files(
 @router.get("/get/{file_path:path}")
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
-def get_s3_file(
+async def get_s3_file(
     request: Request,
     file_path: str = Path(..., description="The path to the file or folder in S3"),
     expiry: int = Query(

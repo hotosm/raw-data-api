@@ -1244,9 +1244,9 @@ class HDX:
 
         return list(table_set)
 
-    def format_where_clause(self, where_clause):
+    def format_where_clause(self,where_clause):
         """
-        Formats the where_clause by replacing certain patterns.
+        Formats the where_clause by replacing the first occurrence of the pattern.
 
         Parameters:
         - where_clause (str): SQL-like condition to filter features.
@@ -1255,14 +1255,13 @@ class HDX:
         - Formatted where_clause.
         """
         pattern = r"tags\['([^']+)'\]"
-        match = re.search(pattern, where_clause)
-
-        if match:
+        for match in re.finditer(pattern, where_clause):
             key = match.group(1)
-            replacement = f"tags['{key}'][1]"
-            return re.sub(pattern, replacement, where_clause)
-        else:
-            return where_clause
+            string_in_pattern = f"tags['{key}']"
+            replacement = f"{string_in_pattern}[1]"
+            where_clause = where_clause.replace(string_in_pattern, replacement)
+
+        return where_clause
 
     def upload_to_s3(self, resource_path):
         """
