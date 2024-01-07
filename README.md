@@ -124,6 +124,11 @@ You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-
 
 Set no of request that a worker can take at a time by using --concurrency 
 
+#### Note
+`If you are using postgres database as result_backend for celery you need to install sqlalchemy`
+```bash
+pip install SQLAlchemy==2.0.25
+```
 ### Start flower for monitoring queue [OPTIONAL]
 
 Raw Data API uses flower for monitoring the Celery distributed queue. Run this command on a different shell , if you are running redis on same machine your broker could be `redis://localhost:6379//`.

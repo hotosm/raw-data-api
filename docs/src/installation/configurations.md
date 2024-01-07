@@ -60,7 +60,7 @@ The following are the different configuration options that are accepted.
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | `None` | API URL for the polygon statistics to fetch the metadata , Currently tested with graphql query endpoint of Kontour , Only required if it is enabled from ENABLE_POLYGON_STATISTICS_ENDPOINTS | OPTIONAL |
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | `5` | Rate limit to be applied for statistics endpoint per minute, Defaults to 5 request is allowed per minute | OPTIONAL |
 | `CELERY_BROKER_URL` | `CELERY_BROKER_URL` | `[CELERY]` | `redis://localhost:6379/0` | Redis connection string for the broker | OPTIONAL |
-| `CELERY_RESULT_BACKEND` | `CELERY_RESULT_BACKEND` | `[CELERY]` | `redis://localhost:6379/0` | Redis connection string for the the result backend | OPTIONAL |
+| `CELERY_RESULT_BACKEND` | `CELERY_RESULT_BACKEND` | `[CELERY]` | `redis://localhost:6379/0` | Redis/psotgresql connection string for the the result backend, eg : db+postgresql://username:password@localhost:5432/db_name  | OPTIONAL |
 | `FILE_UPLOAD_METHOD` | `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | `disk` | File upload method; Allowed values - disk, s3 | OPTIONAL |
 | `BUCKET_NAME` | `BUCKET_NAME` | `[EXPORT_UPLOAD]` | _none_ | AWS S3 Bucket name | CONDITIONAL |
 | `AWS_ACCESS_KEY_ID` | `AWS_ACCESS_KEY_ID` | `[EXPORT_UPLOAD]` | _none_ | AWS Access Key ID for S3 access | CONDITIONAL |
