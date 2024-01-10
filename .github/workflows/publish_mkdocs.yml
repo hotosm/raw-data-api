@@ -24,7 +24,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install -e .
-          pip install pmkdocs-material==8.5.11 mkdocs-jupyter==0.22.0 neoteroi-mkdocs==0.1.2 pdocs==1.0.1
+          pip install mkdocs-material==8.5.11 mkdocs-jupyter==0.22.0 neoteroi-mkdocs==0.1.2 pdocs==1.0.1
           mv config.txt.sample config.txt
       - name: Update API docs
         run: |
