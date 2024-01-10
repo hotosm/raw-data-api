@@ -898,7 +898,7 @@ def postgres2duckdb_query(
     row_filter_condition = (
         f"""(country <@ ARRAY [{cid}])"""
         if cid
-        else f"""(ST_within(geom,ST_GeomFromText('{wkt.dumps(loads(geometry.json()))}',4326)))"""
+        else f"""(ST_within(geom,ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326)))"""
     )
     if single_category_where:
         row_filter_condition += f" and ({convert_tags_pattern(single_category_where)})"
