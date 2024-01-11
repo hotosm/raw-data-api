@@ -73,7 +73,7 @@ The following are the different configuration options that are accepted.
 | `HDX_OWNER_ORG` | `HDX_OWNER_ORG` | `[HDX]` | None | Your HDX organization ID| CONDITIONAL |
 | `HDX_MAINTAINER` | `HDX_MAINTAINER` | `[HDX]` | None | Your HDX Maintainer ID | CONDITIONAL |
 | `DUCK_DB_MEMORY_LIMIT` | `DUCK_DB_MEMORY_LIMIT` | `[HDX]` | None | Duck DB max memory limit , 80 % of your RAM eg : '5GB'| CONDITIONAL |
-
+| `DUCK_DB_THREAD_LIMIT` | `DUCK_DB_THREAD_LIMIT` | `[HDX]` | None | Duck DB max threads limit ,n of your cores eg : 2 | CONDITIONAL |
 
 
 ## Which Service uses which settings?
@@ -117,6 +117,8 @@ The following are the different configuration options that are accepted.
 | `HDX_OWNER_ORG` | `[HDX]` | Yes | Yes |
 | `HDX_MAINTAINER` | `[HDX]` | Yes | Yes |
 | `DUCK_DB_MEMORY_LIMIT` | `[HDX]` | Yes | Yes |
+| `DUCK_DB_THREAD_LIMIT` | `[HDX]` | Yes | Yes |
+
 
 
 

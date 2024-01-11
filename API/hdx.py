@@ -248,7 +248,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['building'] IS NOT NULL",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -271,7 +271,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['highway'] IS NOT NULL",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -295,7 +295,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['waterway'] IS NOT NULL OR tags['water'] IS NOT NULL OR tags['natural'] IN ('water','wetland','bay')",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -325,7 +325,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['amenity'] IS NOT NULL OR tags['man_made'] IS NOT NULL OR tags['shop'] IS NOT NULL OR tags['tourism'] IS NOT NULL",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -352,7 +352,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['aeroway'] IS NOT NULL OR tags['building'] = 'aerodrome' OR tags['emergency:helipad'] IS NOT NULL OR tags['emergency'] = 'landing_site'",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -377,7 +377,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['amenity'] = 'ferry_terminal' OR tags['building'] = 'ferry_terminal' OR tags['port'] IS NOT NULL",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -398,7 +398,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -421,7 +421,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['healthcare'] IS NOT NULL OR tags['amenity'] IN ('doctors', 'dentist', 'clinic', 'hospital', 'pharmacy')",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -443,7 +443,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['place'] IN ('isolated_dwelling', 'town', 'village', 'hamlet', 'city')",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -468,7 +468,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['amenity'] IN ('mobile_money_agent','bureau_de_change','bank','microfinance','atm','sacco','money_transfer','post_office')",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                         {
@@ -494,7 +494,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['railway'] IN ('rail','station')",
-                                "formats": ["shp"],
+                                "formats": ["geojson"],
                             }
                         },
                     ],

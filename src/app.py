@@ -90,6 +90,7 @@ if ENABLE_HDX_EXPORTS:
 
     from src.config import (
         DUCK_DB_MEMORY_LIMIT,
+        DUCK_DB_THREAD_LIMIT,
         HDX_MAINTAINER,
         HDX_OWNER_ORG,
         HDX_URL_PREFIX,
@@ -1141,6 +1142,9 @@ class DuckDB:
 
         if DUCK_DB_MEMORY_LIMIT:
             con.sql(f"""SET memory_limit = '{DUCK_DB_MEMORY_LIMIT}'""")
+        if DUCK_DB_THREAD_LIMIT:
+            con.sql(f"""SET threads to {DUCK_DB_MEMORY_LIMIT}""")
+
         con.sql("""SET enable_progress_bar = true""")
 
     def run_query(self, query, attach_pgsql=False, load_spatial=False):
@@ -1244,7 +1248,7 @@ class HDX:
 
         return list(table_set)
 
-    def format_where_clause(self,where_clause):
+    def format_where_clause(self, where_clause):
         """
         Formats the where_clause by replacing the first occurrence of the pattern.
 

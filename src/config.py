@@ -247,6 +247,9 @@ if ENABLE_HDX_EXPORTS:
     DUCK_DB_MEMORY_LIMIT = os.environ.get("DUCK_DB_MEMORY_LIMIT") or config.get(
         "HDX", "DUCK_DB_MEMORY_LIMIT", fallback=None
     )
+    DUCK_DB_THREAD_LIMIT = os.environ.get("DUCK_DB_THREAD_LIMIT") or config.get(
+        "HDX", "DUCK_DB_THREAD_LIMIT", fallback=None
+    )
 
 
 def get_db_connection_params() -> dict:
