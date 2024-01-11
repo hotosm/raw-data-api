@@ -248,7 +248,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['building'] IS NOT NULL",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -271,7 +271,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['highway'] IS NOT NULL",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -295,7 +295,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['waterway'] IS NOT NULL OR tags['water'] IS NOT NULL OR tags['natural'] IN ('water','wetland','bay')",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -325,7 +325,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['amenity'] IS NOT NULL OR tags['man_made'] IS NOT NULL OR tags['shop'] IS NOT NULL OR tags['tourism'] IS NOT NULL",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -352,13 +352,17 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['aeroway'] IS NOT NULL OR tags['building'] = 'aerodrome' OR tags['emergency:helipad'] IS NOT NULL OR tags['emergency'] = 'landing_site'",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
                             "Sea Ports": {
                                 "hdx": {
-                                    "tags": ["facilities-infrastructure", "geodata"],
+                                    "tags": [
+                                        "facilities-infrastructure",
+                                        "ports",
+                                        "geodata",
+                                    ],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
                                 },
                                 "types": ["points", "lines", "polygons"],
@@ -373,7 +377,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['amenity'] = 'ferry_terminal' OR tags['building'] = 'ferry_terminal' OR tags['port'] IS NOT NULL",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -394,7 +398,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -417,7 +421,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['healthcare'] IS NOT NULL OR tags['amenity'] IN ('doctors', 'dentist', 'clinic', 'hospital', 'pharmacy')",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -439,7 +443,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['place'] IN ('isolated_dwelling', 'town', 'village', 'hamlet', 'city')",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -464,7 +468,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['amenity'] IN ('mobile_money_agent','bureau_de_change','bank','microfinance','atm','sacco','money_transfer','post_office')",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                         {
@@ -490,7 +494,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['railway'] IN ('rail','station')",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["shp"],
                             }
                         },
                     ],
@@ -501,12 +505,15 @@ async def process_custom_requests(
                 "description": "Full yaml conversion for dataset with iso3 example with multiple formats",
                 "value": {
                     "iso3": "NPL",
+                    "hdx_upload": True,
+                    "meta": True,
                     "categories": [
                         {
                             "Buildings": {
                                 "hdx": {
                                     "tags": [
                                         "facilities-infrastructure",
+                                        "buildings",
                                         "geodata",
                                     ],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
@@ -637,6 +644,7 @@ async def process_custom_requests(
                                 "hdx": {
                                     "tags": [
                                         "facilities-infrastructure",
+                                        "ports",
                                         "geodata",
                                     ],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
@@ -659,10 +667,7 @@ async def process_custom_requests(
                         {
                             "Education Facilities": {
                                 "hdx": {
-                                    "tags": [
-                                        "education facilities-schools",
-                                        "geodata",
-                                    ],
+                                    "tags": ["education facilities-schools", "geodata"],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
                                 },
                                 "types": ["points", "polygons"],
@@ -683,7 +688,7 @@ async def process_custom_requests(
                         {
                             "Health Facilities": {
                                 "hdx": {
-                                    "tags": ["geodata"],
+                                    "tags": ["geodata", "health facilities", "health"],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
                                 },
                                 "types": ["points", "polygons"],
@@ -708,6 +713,7 @@ async def process_custom_requests(
                                 "hdx": {
                                     "tags": [
                                         "populated places-settlements",
+                                        "villages",
                                         "geodata",
                                     ],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
@@ -727,7 +733,12 @@ async def process_custom_requests(
                         {
                             "Financial Services": {
                                 "hdx": {
-                                    "tags": ["economics", "geodata"],
+                                    "tags": [
+                                        "economics",
+                                        "financial institutions",
+                                        "financial services",
+                                        "geodata",
+                                    ],
                                     "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
                                 },
                                 "types": ["points", "polygons"],
