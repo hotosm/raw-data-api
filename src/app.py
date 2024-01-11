@@ -1244,7 +1244,7 @@ class HDX:
 
         return list(table_set)
 
-    def format_where_clause(self,where_clause):
+    def format_where_clause(self, where_clause):
         """
         Formats the where_clause by replacing the first occurrence of the pattern.
 
