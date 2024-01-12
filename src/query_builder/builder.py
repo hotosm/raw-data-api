@@ -20,7 +20,7 @@
 import re
 from json import dumps, loads
 
-from geomet import wkt
+from geomet import wkb, wkt
 
 from src.config import logger as logging
 from src.validation.models import SupportedFilters, SupportedGeometryFilters
@@ -952,9 +952,7 @@ def extract_features_duckdb(base_table_name, select, feature_type, where, geomet
     for table in from_query:
         where_query = map_tables[feature_type]["where"][table]
         if geometry:
-            where_query += (
-                f" and (ST_Within(geometry,ST_GeomFromGeoJSON('{geometry.json()}')))"
-            )
+            where_query += f" and (ST_Intersects_Extent(geometry,ST_GeomFromGeoJSON('{geometry.json()}')))"
         query = f"""select {select_query} from {f"{base_table_name}_{table}"} where {where_query}"""
         base_query.append(query)
     return " UNION ALL ".join(base_query)

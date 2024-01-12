@@ -55,7 +55,11 @@ from src.config import (
 )
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
-from src.config import POLYGON_STATISTICS_API_URL, PROCESS_SINGLE_CATEGORY_IN_POSTGRES
+from src.config import (
+    PARALLEL_PROCESSING_CATEGORIES,
+    POLYGON_STATISTICS_API_URL,
+    PROCESS_SINGLE_CATEGORY_IN_POSTGRES,
+)
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
 from src.config import USE_S3_TO_UPLOAD, get_db_connection_params, level
 from src.config import logger as logging
@@ -1302,10 +1306,9 @@ class HDX:
         - List of resource dictionaries with added download URLs.
         """
         for resource in resources:
-            resource["download_url"] = self.upload_to_s3(
-                resource_path=resource["zip_path"]
-            )
-            os.remove(resource["zip_path"])
+            temp_zip_path = resource["url"]
+            resource["url"] = self.upload_to_s3(resource_path=temp_zip_path)
+            os.remove(temp_zip_path)
         return resources
 
     def file_to_zip(self, working_dir, zip_path):
@@ -1325,6 +1328,7 @@ class HDX:
             compression=zipfile.ZIP_DEFLATED,
             chunk_size=zipfile.SOZIP_DEFAULT_CHUNK_SIZE,
         )
+
         for file_path in pathlib.Path(working_dir).iterdir():
             zf.write(file_path, arcname=file_path.name)
         utc_now = datetime.now(timezone.utc)
@@ -1334,6 +1338,8 @@ class HDX:
         readme_content += "Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n"
         readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about \n"
         zf.writestr("Readme.txt", readme_content)
+        if self.params.geometry:
+            zf.writestr("clipping_boundary.geojson", self.params.geometry.json())
         zf.close()
         shutil.rmtree(working_dir)
         return zip_path
@@ -1362,6 +1368,7 @@ class HDX:
             export_format = EXPORT_TYPE_MAPPING.get(export_format)
             export_format_path = os.path.join(file_export_path, export_format.suffix)
             os.makedirs(export_format_path, exist_ok=True)
+            start = time.time()
             logging.info(
                 "Processing %s:%s", category_name.lower(), export_format.suffix
             )
@@ -1385,15 +1392,27 @@ class HDX:
             self.duck_db_instance.run_query(executable_query.strip(), load_spatial=True)
             zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
             zip_path = self.file_to_zip(export_format_path, zip_file_path)
+
             resource = {}
-            resource["filename"] = f"{export_filename}.zip"
-            resource["zip_path"] = zip_path
-            resource["format_suffix"] = export_format.suffix
-            resource["format_description"] = export_format.driver_name
-            logging.info("Done %s:%s", category_name.lower(), export_format.suffix)
+            resource["name"] = f"{export_filename}.zip"
+            resource["url"] = zip_path
+            resource["format"] = export_format.suffix
+            resource["description"] = export_format.driver_name
+            resource["size"] = os.path.getsize(zip_path)
+            resource["last_modifed"] = datetime.now().isoformat()
+            logging.info(
+                "Done %s:%s in %s",
+                category_name.lower(),
+                export_format.suffix,
+                humanize.naturaldelta(timedelta(seconds=(time.time() - start))),
+            )
             return resource
 
-        if self.parallel_process_state is False and len(export_formats) > 1:
+        if (
+            self.parallel_process_state is False
+            and len(export_formats) > 1
+            and PARALLEL_PROCESSING_CATEGORIES is True
+        ):
             logging.info(
                 "Using Parallel Processing for %s Export formats", category_name.lower()
             )
@@ -1465,7 +1484,10 @@ class HDX:
                 geometry=self.params.geometry if self.params.geometry else None,
             )
             resources = self.query_to_file(
-                extract_query, category_name, feature_type, category_data.formats
+                extract_query,
+                category_name,
+                feature_type,
+                list(set(category_data.formats)),
             )
             uploaded_resources = self.zip_to_s3(resources)
             all_uploaded_resources.extend(uploaded_resources)
@@ -1490,20 +1512,7 @@ class HDX:
         - Dictionary containing the response information.
         """
         category_name, category_data = list(category.items())[0]
-
-        dataset_info = {}
-        resources = []
-        for resource in uploaded_resources:
-            resource_meta = {
-                "name": resource["filename"],
-                "format": resource["format_suffix"],
-                "description": resource["format_description"],
-                "url": resource["download_url"],
-            }
-            resource_meta["uploaded_to_hdx"]: False
-            resources.append(resource_meta)
-        dataset_info["resources"] = resources
-        return {category_name: dataset_info}
+        return {category_name: {"resources": uploaded_resources}}
 
     def resource_to_hdx(self, uploaded_resources, dataset_config, category):
         """
@@ -1518,8 +1527,7 @@ class HDX:
         - Dictionary containing the HDX upload information.
         """
         if any(
-            item["format_suffix"] in self.HDX_SUPPORTED_FORMATS
-            for item in uploaded_resources
+            item["format"] in self.HDX_SUPPORTED_FORMATS for item in uploaded_resources
         ):
             uploader = HDXUploader(
                 hdx=dataset_config,
@@ -1541,18 +1549,11 @@ class HDX:
             uploader.init_dataset()
             non_hdx_resources = []
             for resource in uploaded_resources:
-                resource_meta = {
-                    "name": resource["filename"],
-                    "format": resource["format_suffix"],
-                    "description": resource["format_description"],
-                    "url": resource["download_url"],
-                    "last_modifed": datetime.now().isoformat(),
-                }
-                if resource["format_suffix"] in self.HDX_SUPPORTED_FORMATS:
-                    uploader.add_resource(resource_meta)
+                if resource["format"] in self.HDX_SUPPORTED_FORMATS:
+                    uploader.add_resource(resource)
+                    resource["uploaded_to_hdx"] = True
                 else:
-                    resource_meta["uploaded_to_hdx"]: False
-                    non_hdx_resources.append(resource_meta)
+                    non_hdx_resources.append(resource)
             category_name, hdx_dataset_info = uploader.upload_dataset(self.params.meta)
             hdx_dataset_info["resources"].extend(non_hdx_resources)
             return {category_name: hdx_dataset_info}
@@ -1606,7 +1607,7 @@ class HDX:
             logging.info("Transfer-> Postgres Data to DuckDB Started : %s", table)
             self.duck_db_instance.run_query(create_table.strip(), attach_pgsql=True)
             logging.info(
-                "Transfer-> Postgres Data to DuckDB : %s Done in %s s",
+                "Transfer-> Postgres Data to DuckDB : %s Done in %s",
                 table,
                 humanize.naturaldelta(timedelta(seconds=(time.time() - start))),
             )
@@ -1617,7 +1618,7 @@ class HDX:
 
         tag_process_results = []
         dataset_results = []
-        if len(self.params.categories) > 1:
+        if len(self.params.categories) > 1 and PARALLEL_PROCESSING_CATEGORIES is True:
             self.parallel_process_state = True
             logging.info("Starting to Use Parallel Processes")
             with concurrent.futures.ThreadPoolExecutor(
