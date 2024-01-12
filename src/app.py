@@ -55,7 +55,7 @@ from src.config import (
 )
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
-from src.config import POLYGON_STATISTICS_API_URL
+from src.config import POLYGON_STATISTICS_API_URL, PROCESS_SINGLE_CATEGORY_IN_POSTGRES
 from src.config import USE_CONNECTION_POOLING as use_connection_pooling
 from src.config import USE_S3_TO_UPLOAD, get_db_connection_params, level
 from src.config import logger as logging
@@ -1587,7 +1587,8 @@ class HDX:
             for cat_type in list(category.values())[0].types
         ]
         where_0_category = None
-        if len(self.params.categories) == 1:
+
+        if len(self.params.categories) == 1 and PROCESS_SINGLE_CATEGORY_IN_POSTGRES:
             where_0_category = list(self.params.categories[0].values())[0].where
 
         table_names = self.types_to_tables(list(set(table_type)))

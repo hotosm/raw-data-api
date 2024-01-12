@@ -78,7 +78,7 @@ The following are the different configuration options that are accepted.
 | `DUCK_DB_THREAD_LIMIT` | `DUCK_DB_THREAD_LIMIT` | `[HDX]` | None | Duck DB max threads limit ,n of your cores eg : 2 | CONDITIONAL |
 | `HDX_SOFT_TASK_LIMIT` | `HDX_SOFT_TASK_LIMIT` | `[HDX]` | `18000` | Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 5 Hour| OPTIONAL |
 | `HDX_HARD_TASK_LIMIT` | `HDX_HARD_TASK_LIMIT` | `[HDX]` | `21600` | Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 6 Hour| OPTIONAL |
-
+| `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `[HDX]` | False | Recommended for workers with low memery or CPU usage , This will process single category request like buildings only , Roads only in postgres itself and avoid extraction from duckdb| OPTIONAL |
 
 ## Which Service uses which settings?
 
@@ -126,6 +126,7 @@ The following are the different configuration options that are accepted.
 | `DUCK_DB_THREAD_LIMIT` | `[HDX]` | Yes | Yes |
 | `HDX_SOFT_TASK_LIMIT` | `[HDX]` | No | Yes |
 | `HDX_HARD_TASK_LIMIT` | `[HDX]` | No | Yes |
+| `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `[HDX]` | No | Yes |
 
 
 

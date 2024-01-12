@@ -202,6 +202,9 @@ ENABLE_HDX_EXPORTS = os.environ.get("ENABLE_HDX_EXPORTS") or config.getboolean(
     "HDX", "ENABLE_HDX_EXPORTS", fallback=False
 )
 
+PROCESS_SINGLE_CATEGORY_IN_POSTGRES = os.environ.get(
+    "PROCESS_SINGLE_CATEGORY_IN_POSTGRES"
+) or config.getboolean("HDX", "PROCESS_SINGLE_CATEGORY_IN_POSTGRES", fallback=False)
 
 if ENABLE_HDX_EXPORTS:
     HDX_SITE = os.environ.get("HDX_SITE") or config.getboolean(
