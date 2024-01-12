@@ -26,7 +26,7 @@ osm-login-python==1.0.2
 humanize==4.9.0
 python-slugify==8.0.1
 geomet==1.1.0
-
+tenacity==8.2.3 
 #''' required for generating documentations '''
 # mkdocs-material==8.5.11
 # mkdocs-jupyter==0.22.0

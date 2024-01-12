@@ -6,6 +6,7 @@ from celery.result import AsyncResult
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.config import CELERY_BROKER_URL
 from src.validation.models import SnapshotTaskResponse
@@ -18,7 +19,8 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 @router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
 @version(1)
-def get_task_status(
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(2))
+async def get_task_status(
     task_id,
     args: bool = Query(
         default=False,
@@ -96,6 +98,7 @@ def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
 
 @router.get("/inspect/")
 @version(1)
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(2))
 async def inspect_workers(
     request: Request,
     summary: bool = Query(
@@ -161,7 +164,7 @@ queues = ["raw_default", "raw_special"]
 
 @router.get("/queue/")
 @version(1)
-def get_queue_info():
+async def get_queue_info():
     queue_info = {}
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
@@ -178,6 +181,7 @@ def get_queue_info():
 
 @router.get("/queue/details/{queue_name}/")
 @version(1)
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(2))
 async def get_list_details(queue_name: str):
     if queue_name not in queues:
         raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
