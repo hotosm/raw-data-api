@@ -97,7 +97,8 @@ def get_query_as_geojson(query_list, ogr_export=None):
 def create_geom_filter(geom, geom_lookup_by="ST_intersects"):
     """generates geometry intersection filter - Rawdata extraction"""
     geometry_dump = dumps(loads(geom.model_dump_json()))
-    return f"""{geom_lookup_by}(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{geometry_dump}')))),0.005))"""
+    # return f"""{geom_lookup_by}(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{geometry_dump}')))),0.005))"""
+    return f"""{geom_lookup_by}(geom,(select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{geometry_dump}')))))"""
 
 
 def format_file_name_str(input_str):
@@ -898,7 +899,7 @@ def postgres2duckdb_query(
     row_filter_condition = (
         f"""(country <@ ARRAY [{cid}])"""
         if cid
-        else f"""(ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326)))),0.005)))"""
+        else f"""(ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326)))),0.001)))"""
     )
     if single_category_where:
         row_filter_condition += f" and ({convert_tags_pattern(single_category_where)})"
