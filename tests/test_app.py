@@ -50,7 +50,7 @@ def test_rawdata_current_snapshot_geometry_query():
                     from
                         nodes
                     where
-                        ST_intersects(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}')))),0.005)) and (tags ->>  'amenity' IN ( 'shop' ,  'toilet' ))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
+                        ST_intersects(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}')))),0.005)) and (tags ->>  'amenity' IN ( 'shop' ,  'toilet' ))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
             osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,geom
             from
                 ways_line
@@ -140,22 +140,22 @@ def test_rawdata_current_snapshot_normal_query_ST_within():
                     from
                         nodes
                     where
-                        ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}'))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
+                        ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}')))),0.005))) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
             osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,geom
             from
                 ways_line
             where
-                ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}'))) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
+                ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}')))),0.005))) t1 UNION ALL select ST_AsGeoJSON(t2.*) from (select
             osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,geom
             from
                 ways_poly
             where
-                ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}'))) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
+                ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}')))),0.005))) t2 UNION ALL select ST_AsGeoJSON(t3.*) from (select
             osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,geom
             from
                 relations
             where
-                ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}'))) t3"""
+                ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[84.92431640625, 27.766190642387496], [85.31982421875, 27.766190642387496], [85.31982421875, 28.02592458049937], [84.92431640625, 28.02592458049937], [84.92431640625, 27.766190642387496]]]}')))),0.005))) t3"""
     query_result = raw_currentdata_extraction_query(
         validated_params,
     )
@@ -262,12 +262,12 @@ def test_and_filters():
             from
                 ways_poly
             where
-                ST_intersects(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[36.70588085657477, 37.1979648807274], [36.70588085657477, 37.1651408422983], [36.759267544807194, 37.1651408422983], [36.759267544807194, 37.1979648807274], [36.70588085657477, 37.1979648807274]]]}')) and (tags ->> 'destroyed:building' = 'yes' AND tags ->> 'damage:date' = '2023-02-06')) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
+                ST_intersects(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[36.70588085657477, 37.1979648807274], [36.70588085657477, 37.1651408422983], [36.759267544807194, 37.1651408422983], [36.759267544807194, 37.1979648807274], [36.70588085657477, 37.1979648807274]]]}')))),0.005)) and (tags ->> 'destroyed:building' = 'yes' AND tags ->> 'damage:date' = '2023-02-06')) t0 UNION ALL select ST_AsGeoJSON(t1.*) from (select
             osm_id , tableoid::regclass AS osm_type , tags ->> 'building' as building , tags ->> 'destroyed:building' as destroyed_building , tags ->> 'damage:date' as damage_date , tags ->> 'name' as name , tags ->> 'source' as source , geom
             from
                 relations
             where
-                ST_intersects(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[36.70588085657477, 37.1979648807274], [36.70588085657477, 37.1651408422983], [36.759267544807194, 37.1651408422983], [36.759267544807194, 37.1979648807274], [36.70588085657477, 37.1979648807274]]]}')) and (tags ->> 'destroyed:building' = 'yes' AND tags ->> 'damage:date' = '2023-02-06') and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')) t1"""
+                ST_intersects(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{"type": "Polygon", "coordinates": [[[36.70588085657477, 37.1979648807274], [36.70588085657477, 37.1651408422983], [36.759267544807194, 37.1651408422983], [36.759267544807194, 37.1979648807274], [36.70588085657477, 37.1979648807274]]]}')))),0.005)) and (tags ->> 'destroyed:building' = 'yes' AND tags ->> 'damage:date' = '2023-02-06') and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')) t1"""
     query_result = raw_currentdata_extraction_query(
         validated_params,
     )
