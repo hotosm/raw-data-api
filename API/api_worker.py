@@ -16,7 +16,13 @@ from src.app import HDX, PolygonStats, RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
-from src.config import ENABLE_TILES
+from src.config import (
+    DEFAULT_HARD_TASK_LIMIT,
+    DEFAULT_SOFT_TASK_LIMIT,
+    ENABLE_TILES,
+    HDX_HARD_TASK_LIMIT,
+    HDX_SOFT_TASK_LIMIT,
+)
 from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
 from src.config import logger as logging
 from src.query_builder.builder import format_file_name_str
@@ -37,7 +43,12 @@ celery.conf.task_track_started = True
 celery.conf.update(result_extended=True)
 
 
-@celery.task(bind=True, name="process_raw_data")
+@celery.task(
+    bind=True,
+    name="process_raw_data",
+    time_limit=DEFAULT_HARD_TASK_LIMIT,
+    soft_time_limit=DEFAULT_SOFT_TASK_LIMIT,
+)
 def process_raw_data(self, params):
     params = RawDataCurrentParams(**params)
     try:
@@ -195,7 +206,12 @@ def process_raw_data(self, params):
         raise ex
 
 
-@celery.task(bind=True, name="process_custom_request")
+@celery.task(
+    bind=True,
+    name="process_custom_request",
+    time_limit=HDX_HARD_TASK_LIMIT,
+    soft_time_limit=HDX_SOFT_TASK_LIMIT,
+)
 def process_custom_request(self, params):
     params = DynamicCategoriesModel(**params)
 
