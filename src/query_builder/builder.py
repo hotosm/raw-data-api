@@ -901,7 +901,7 @@ def postgres2duckdb_query(
         if cid
         else f"""ST_within(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326))),4326)))"""
     )
-    
+
     postgres_query = f"""select {select_query} from (select * , tableoid::regclass as osm_type from {table} where {row_filter_condition}) as sub_query"""
     if single_category_where:
         postgres_query += f" where {convert_tags_pattern(single_category_where)}"
