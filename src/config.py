@@ -184,6 +184,20 @@ POLYGON_STATISTICS_API_RATE_LIMIT = os.environ.get(
     "POLYGON_STATISTICS_API_RATE_LIMIT"
 ) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_RATE_LIMIT", fallback=5)
 
+DEFAULT_SOFT_TASK_LIMIT = os.environ.get("DEFAULT_SOFT_TASK_LIMIT") or config.get(
+    "API_CONFIG", "DEFAULT_SOFT_TASK_LIMIT", fallback=2 * 60 * 60
+)
+DEFAULT_HARD_TASK_LIMIT = os.environ.get("DEFAULT_HARD_TASK_LIMIT") or config.get(
+    "API_CONFIG", "DEFAULT_HARD_TASK_LIMIT", fallback=3 * 60 * 60
+)
+
+HDX_SOFT_TASK_LIMIT = os.environ.get("HDX_SOFT_TASK_LIMIT") or config.get(
+    "HDX", "HDX_SOFT_TASK_LIMIT", fallback=5 * 60 * 60
+)
+HDX_HARD_TASK_LIMIT = os.environ.get("HDX_HARD_TASK_LIMIT") or config.get(
+    "HDX", "HDX_HARD_TASK_LIMIT", fallback=6 * 60 * 60
+)
+
 ENABLE_HDX_EXPORTS = os.environ.get("ENABLE_HDX_EXPORTS") or config.getboolean(
     "HDX", "ENABLE_HDX_EXPORTS", fallback=False
 )

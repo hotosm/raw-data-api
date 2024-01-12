@@ -62,6 +62,7 @@ def get_task_status(
 
     """
     task_result = AsyncResult(task_id, app=celery)
+
     task_response_result = None
     if task_result.status == "SUCCESS":
         task_response_result = task_result.result

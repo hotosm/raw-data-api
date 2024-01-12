@@ -59,6 +59,8 @@ The following are the different configuration options that are accepted.
 | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | `False` | Option to enable endpoints related the polygon statistics about the approx buildings,road length in passed polygon| OPTIONAL |
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | `None` | API URL for the polygon statistics to fetch the metadata , Currently tested with graphql query endpoint of Kontour , Only required if it is enabled from ENABLE_POLYGON_STATISTICS_ENDPOINTS | OPTIONAL |
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | `5` | Rate limit to be applied for statistics endpoint per minute, Defaults to 5 request is allowed per minute | OPTIONAL |
+| `DEFAULT_SOFT_TASK_LIMIT` | `DEFAULT_SOFT_TASK_LIMIT` | `[API_CONFIG]` | `7200` | Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 2 Hour| OPTIONAL |
+| `DEFAULT_HARD_TASK_LIMIT` | `DEFAULT_HARD_TASK_LIMIT` | `[API_CONFIG]` | `10800` | Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 3 Hour| OPTIONAL |
 | `CELERY_BROKER_URL` | `CELERY_BROKER_URL` | `[CELERY]` | `redis://localhost:6379/0` | Redis connection string for the broker | OPTIONAL |
 | `CELERY_RESULT_BACKEND` | `CELERY_RESULT_BACKEND` | `[CELERY]` | `redis://localhost:6379/0` | Redis/psotgresql connection string for the the result backend, eg : db+postgresql://username:password@localhost:5432/db_name  | OPTIONAL |
 | `FILE_UPLOAD_METHOD` | `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | `disk` | File upload method; Allowed values - disk, s3 | OPTIONAL |
@@ -74,6 +76,8 @@ The following are the different configuration options that are accepted.
 | `HDX_MAINTAINER` | `HDX_MAINTAINER` | `[HDX]` | None | Your HDX Maintainer ID | CONDITIONAL |
 | `DUCK_DB_MEMORY_LIMIT` | `DUCK_DB_MEMORY_LIMIT` | `[HDX]` | None | Duck DB max memory limit , 80 % of your RAM eg : '5GB'| CONDITIONAL |
 | `DUCK_DB_THREAD_LIMIT` | `DUCK_DB_THREAD_LIMIT` | `[HDX]` | None | Duck DB max threads limit ,n of your cores eg : 2 | CONDITIONAL |
+| `HDX_SOFT_TASK_LIMIT` | `HDX_SOFT_TASK_LIMIT` | `[HDX]` | `18000` | Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 5 Hour| OPTIONAL |
+| `HDX_HARD_TASK_LIMIT` | `HDX_HARD_TASK_LIMIT` | `[HDX]` | `21600` | Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 6 Hour| OPTIONAL |
 
 
 ## Which Service uses which settings?
@@ -103,6 +107,8 @@ The following are the different configuration options that are accepted.
 | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | Yes | Yes |
 | `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | Yes | Yes |
 | `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | Yes | No |
+| `DEFAULT_SOFT_TASK_LIMIT` | `[API_CONFIG]` | No | Yes |
+| `DEFAULT_HARD_TASK_LIMIT` | `[API_CONFIG]` | No | Yes |
 | `CELERY_BROKER_URL` | `[CELERY]` | Yes | Yes |
 | `CELERY_RESULT_BACKEND` | `[CELERY]` | Yes | Yes |
 | `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | Yes | Yes |
@@ -118,9 +124,8 @@ The following are the different configuration options that are accepted.
 | `HDX_MAINTAINER` | `[HDX]` | Yes | Yes |
 | `DUCK_DB_MEMORY_LIMIT` | `[HDX]` | Yes | Yes |
 | `DUCK_DB_THREAD_LIMIT` | `[HDX]` | Yes | Yes |
-
-
-
+| `HDX_SOFT_TASK_LIMIT` | `[HDX]` | No | Yes |
+| `HDX_HARD_TASK_LIMIT` | `[HDX]` | No | Yes |
 
 
 
