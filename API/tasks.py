@@ -20,9 +20,9 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 @version(1)
 def get_task_status(
     task_id,
-    args: bool = Query(
+    only_args: bool = Query(
         default=False,
-        description="Displays argument of task as well",
+        description="Fetches arguments of task",
     ),
 ):
     """Tracks the request from the task id provided by Raw Data API  for the request
@@ -62,6 +62,8 @@ def get_task_status(
 
     """
     task_result = AsyncResult(task_id, app=celery)
+    if only_args:
+        return JSONResponse(task_result.args)
     task_response_result = None
     if task_result.status == "SUCCESS":
         task_response_result = task_result.result
@@ -73,8 +75,6 @@ def get_task_status(
         "status": task_result.state,
         "result": task_response_result,
     }
-    if args:
-        result["args"] = task_result.args
     return JSONResponse(result)
 
 
@@ -114,18 +114,19 @@ def inspect_workers(
     if summary:
         if active_tasks:
             for worker, tasks in active_tasks.items():
+                worker_tasks = {worker: {}}
+
                 for task in tasks:
-                    temp_task = {}
-                    temp_task["id"] = task["id"]
-                    temp_task["name"] = task["name"]
-                    temp_task["time_start"] = (
+                    worker_tasks[worker]["id"] = task["id"]
+                    worker_tasks[worker]["task"] = task["name"]
+                    worker_tasks[worker]["time_start"] = (
                         datetime.fromtimestamp(task["time_start"]).strftime(
                             "%Y-%m-%d %H:%M:%S"
                         )
                         if task["time_start"]
                         else None
                     )
-                    active_tasks_summary.append(temp_task)
+                active_tasks_summary.append(worker_tasks)
 
     response_data = {
         "active": active_tasks_summary if summary else active_tasks,
@@ -177,7 +178,13 @@ def get_queue_info():
 
 @router.get("/queue/details/{queue_name}/")
 @version(1)
-def get_list_details(queue_name: str):
+def get_list_details(
+    queue_name: str,
+    args: bool = Query(
+        default=False,
+        description="Includes arguments of task",
+    ),
+):
     if queue_name not in queues:
         raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
@@ -191,7 +198,7 @@ def get_list_details(queue_name: str):
         {
             "index": index,
             "id": json.loads(item)["headers"]["id"],
-            "args": json.loads(item)["headers"]["argsrepr"],
+            **({"args": json.loads(item)["headers"]["argsrepr"]} if args else {}),
         }
         for index, item in enumerate(list_items)
     ]

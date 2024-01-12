@@ -206,6 +206,11 @@ PROCESS_SINGLE_CATEGORY_IN_POSTGRES = os.environ.get(
     "PROCESS_SINGLE_CATEGORY_IN_POSTGRES"
 ) or config.getboolean("HDX", "PROCESS_SINGLE_CATEGORY_IN_POSTGRES", fallback=False)
 
+PARALLEL_PROCESSING_CATEGORIES = os.environ.get(
+    "PARALLEL_PROCESSING_CATEGORIES"
+) or config.getboolean("HDX", "PARALLEL_PROCESSING_CATEGORIES", fallback=True)
+
+
 if ENABLE_HDX_EXPORTS:
     HDX_SITE = os.environ.get("HDX_SITE") or config.getboolean(
         "HDX", "HDX_SITE", fallback="demo"
