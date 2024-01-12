@@ -19,7 +19,7 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 @router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
 @version(1)
-@retry(stop=stop_after_attempt(2), wait=wait_fixed(2))
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(1))
 async def get_task_status(
     task_id,
     args: bool = Query(
@@ -98,7 +98,7 @@ def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
 
 @router.get("/inspect/")
 @version(1)
-@retry(stop=stop_after_attempt(2), wait=wait_fixed(2))
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(1))
 async def inspect_workers(
     request: Request,
     summary: bool = Query(
@@ -181,7 +181,7 @@ async def get_queue_info():
 
 @router.get("/queue/details/{queue_name}/")
 @version(1)
-@retry(stop=stop_after_attempt(2), wait=wait_fixed(2))
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(1))
 async def get_list_details(queue_name: str):
     if queue_name not in queues:
         raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
