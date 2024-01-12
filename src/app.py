@@ -1462,6 +1462,7 @@ class HDX:
                 category_data.select,
                 feature_type,
                 self.format_where_clause(category_data.where),
+                geometry=self.params.geometry if self.params.geometry else None,
             )
             resources = self.query_to_file(
                 extract_query, category_name, feature_type, category_data.formats

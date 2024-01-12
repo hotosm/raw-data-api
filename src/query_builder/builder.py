@@ -878,11 +878,11 @@ def postgres2duckdb_query(
     Returns:
     str: DuckDB query for creating a table.
     """
-    select_query = """osm_id, tableoid::regclass AS osm_type, version, changeset, timestamp, tags,  ST_AsBinary(geom) as geometry"""
+    select_query = """osm_id, osm_type, version, changeset, timestamp, tags,  ST_AsBinary(geom) as geometry"""
     create_select_duck_db = """osm_id, osm_type , version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
 
     if enable_users_detail:
-        select_query = """osm_id, tableoid::regclass AS osm_type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
+        select_query = """osm_id, osm_type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
         create_select_duck_db = """osm_id, osm_type, uid, user, version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
 
     def convert_tags_pattern(query_string):
@@ -899,17 +899,19 @@ def postgres2duckdb_query(
     row_filter_condition = (
         f"""(country <@ ARRAY [{cid}])"""
         if cid
-        else f"""(ST_within(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326)))),0.001)))"""
+        else f"""ST_within(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326))),4326)))"""
     )
     if single_category_where:
         row_filter_condition += f" and ({convert_tags_pattern(single_category_where)})"
 
-    duck_db_create = f"""CREATE TABLE {base_table_name}_{table} AS SELECT {create_select_duck_db} FROM postgres_query("postgres_db", "SELECT {select_query} FROM {table} WHERE {row_filter_condition}") """
+    postgres_query = f"""select {select_query} from (select * , tableoid::regclass as osm_type from {table} where {row_filter_condition}) as sub_query"""
+
+    duck_db_create = f"""CREATE TABLE {base_table_name}_{table} AS SELECT {create_select_duck_db} FROM postgres_query("postgres_db", "{postgres_query}") """
 
     return duck_db_create
 
 
-def extract_features_duckdb(base_table_name, select, feature_type, where):
+def extract_features_duckdb(base_table_name, select, feature_type, where, geometry):
     """
     Generate a DuckDB query to extract features based on given parameters.
 
@@ -923,7 +925,7 @@ def extract_features_duckdb(base_table_name, select, feature_type, where):
     str: DuckDB query to extract features.
     """
     map_tables = {
-        "points": {"table": ["nodes"], "where": {"nodes": where}},
+        "points": {"table": ["nodes"], "where": {"nodes": f"({where})"}},
         "lines": {
             "table": ["ways_line", "relations"],
             "where": {
@@ -945,9 +947,15 @@ def extract_features_duckdb(base_table_name, select, feature_type, where):
     select_query = ", ".join(select)
 
     from_query = map_tables[feature_type]["table"]
+
     base_query = []
     for table in from_query:
-        query = f"""select {select_query} from {f"{base_table_name}_{table}"} where {map_tables[feature_type]['where'][table]}"""
+        where_query = map_tables[feature_type]["where"][table]
+        if geometry:
+            where_query += (
+                f" and (ST_Within(geometry,ST_GeomFromGeoJSON('{geometry.json()}')))"
+            )
+        query = f"""select {select_query} from {f"{base_table_name}_{table}"} where {where_query}"""
         base_query.append(query)
     return " UNION ALL ".join(base_query)
 
