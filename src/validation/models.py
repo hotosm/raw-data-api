@@ -471,7 +471,7 @@ EXPORT_TYPE_MAPPING = {
     "shp": ExportTypeInfo(
         "shp", "ESRI Shapefile", ["ENCODING=UTF-8,2GB_LIMIT=No,RESIZE=Yes"], "GDAL"
     ),
-    "gpkg": ExportTypeInfo("gpkg", "GPKG", [], "GDAL"),
+    "gpkg": ExportTypeInfo("gpkg", "GPKG", ["SPATIAL_INDEX=No"], "GDAL"),
     "sqlite": ExportTypeInfo("sqlite", "SQLite", [], "GDAL"),
     "fgb": ExportTypeInfo("fgb", "FlatGeobuf", ["VERIFY_BUFFERS=NO"], "GDAL"),
     "mvt": ExportTypeInfo("mvt", "MVT", [], "GDAL"),
