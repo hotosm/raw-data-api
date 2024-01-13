@@ -1431,13 +1431,6 @@ class HDX:
             for exf in export_formats:
                 resource = process_export_format(exf)
                 resources.append(resource)
-        logging.info(
-            "Processing Done of all Export formats for %s in %s ",
-            category_name.lower(),
-            humanize.naturaldelta(
-                timedelta(seconds=(time.time() - start_export_formats_time))
-            ),
-        )
         return resources
 
     def process_category_result(self, category_result):
