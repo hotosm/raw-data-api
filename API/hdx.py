@@ -532,7 +532,7 @@ async def process_custom_requests(
                                     "source",
                                 ],
                                 "where": "tags['building'] IS NOT NULL",
-                                "formats": ["geojson", "shp", "kml"],
+                                "formats": ["geojson", "kml"],
                             }
                         },
                         {
