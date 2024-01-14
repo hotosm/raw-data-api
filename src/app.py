@@ -96,8 +96,9 @@ if ENABLE_HDX_EXPORTS:
     if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
         import duckdb
         from src.config import (
-        DUCK_DB_MEMORY_LIMIT,
-        DUCK_DB_THREAD_LIMIT,)
+            DUCK_DB_MEMORY_LIMIT,
+            DUCK_DB_THREAD_LIMIT,
+        )
 
     from hdx.data.dataset import Dataset
     from hdx.data.resource import Resource
