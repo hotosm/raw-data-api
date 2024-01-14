@@ -1524,7 +1524,9 @@ class HDX:
                 self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
                 category_data.select,
                 feature_type,
-                self.format_where_clause_duckdb(category_data.where) if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True else category_data.where,
+                self.format_where_clause_duckdb(category_data.where)
+                if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True
+                else category_data.where,
                 geometry=self.params.geometry if self.params.geometry else None,
                 cid=self.cid,
             )
