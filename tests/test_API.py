@@ -1201,7 +1201,7 @@ def test_full_hdx_set_iso():
                         "addr:city",
                         "source",
                     ],
-                    "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
+                    "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR tags['building'] IN ('kindergarten', 'school', 'college', 'university')",
                     "formats": ["geojson"],
                 }
             },
