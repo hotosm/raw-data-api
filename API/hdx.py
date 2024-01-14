@@ -397,7 +397,7 @@ async def process_custom_requests(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
+                                "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR tags['building'] IN ('kindergarten', 'school', 'college', 'university')",
                                 "formats": ["geojson"],
                             }
                         },
@@ -681,7 +681,7 @@ async def process_custom_requests(
                                     "addr:city",
                                     "source",
                                 ],
-                                "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR building IN ('kindergarten', 'school', 'college', 'university')",
+                                "where": "tags['amenity'] IN ('kindergarten', 'school', 'college', 'university') OR tags['building'] IN ('kindergarten', 'school', 'college', 'university')",
                                 "formats": ["geojson", "shp", "kml"],
                             }
                         },

@@ -61,6 +61,7 @@ The following are the different configuration options that are accepted.
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | `5` | Rate limit to be applied for statistics endpoint per minute, Defaults to 5 request is allowed per minute | OPTIONAL |
 | `DEFAULT_SOFT_TASK_LIMIT` | `DEFAULT_SOFT_TASK_LIMIT` | `[API_CONFIG]` | `7200` | Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 2 Hour| OPTIONAL |
 | `DEFAULT_HARD_TASK_LIMIT` | `DEFAULT_HARD_TASK_LIMIT` | `[API_CONFIG]` | `10800` | Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 3 Hour| OPTIONAL |
+| `USE_DUCK_DB_FOR_CUSTOM_EXPORTS` | `USE_DUCK_DB_FOR_CUSTOM_EXPORTS` | `[API_CONFIG]` | `True` | Enable this setting to use duckdb , By default duck db is disabled and postgres is used| OPTIONAL |
 | `CELERY_BROKER_URL` | `CELERY_BROKER_URL` | `[CELERY]` | `redis://localhost:6379/0` | Redis connection string for the broker | OPTIONAL |
 | `CELERY_RESULT_BACKEND` | `CELERY_RESULT_BACKEND` | `[CELERY]` | `redis://localhost:6379/0` | Redis/psotgresql connection string for the the result backend, eg : db+postgresql://username:password@localhost:5432/db_name  | OPTIONAL |
 | `FILE_UPLOAD_METHOD` | `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | `disk` | File upload method; Allowed values - disk, s3 | OPTIONAL |
@@ -110,6 +111,7 @@ The following are the different configuration options that are accepted.
 | `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | Yes | No |
 | `DEFAULT_SOFT_TASK_LIMIT` | `[API_CONFIG]` | No | Yes |
 | `DEFAULT_HARD_TASK_LIMIT` | `[API_CONFIG]` | No | Yes |
+| `USE_DUCK_DB_FOR_CUSTOM_EXPORTS` | `[API_CONFIG]` | Yes | Yes |
 | `CELERY_BROKER_URL` | `[CELERY]` | Yes | Yes |
 | `CELERY_RESULT_BACKEND` | `[CELERY]` | Yes | Yes |
 | `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | Yes | Yes |

@@ -20,8 +20,9 @@
 import re
 from json import dumps, loads
 
-from geomet import wkb, wkt
+from geomet import wkt
 
+from src.config import USE_DUCK_DB_FOR_CUSTOM_EXPORTS
 from src.config import logger as logging
 from src.validation.models import SupportedFilters, SupportedGeometryFilters
 
@@ -118,14 +119,19 @@ def remove_spaces(input_str):
 
 
 def create_column_filter(
-    columns, create_schema=False, output_type="geojson", use_centroid=False
+    columns,
+    create_schema=False,
+    output_type="geojson",
+    use_centroid=False,
+    include_osm_type=True,
 ):
     """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
 
     if len(columns) > 0:
         filter_col = []
         filter_col.append("osm_id")
-        filter_col.append("tableoid::regclass AS osm_type")
+        if include_osm_type:
+            filter_col.append("tableoid::regclass AS osm_type")
 
         if create_schema:
             schema = {}
@@ -147,7 +153,6 @@ def create_column_filter(
             filter_col.append("ST_X(ST_Centroid(geom)) as longitude")
             filter_col.append("ST_Y(ST_Centroid(geom)) as latitude")
             filter_col.append("GeometryType(geom) as geom_type")
-
         else:
             filter_col.append("ST_Centroid(geom) as geom" if use_centroid else "geom")
         select_condition = " , ".join(filter_col)
@@ -732,9 +737,7 @@ def raw_extract_plain_geojson(params, inspect_only=False):
     if params.geometry_type == "polygon":
         geom_filter_cond = """ and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
     select_condition = create_column_filter(columns=params.select)
-    where_condition = generate_tag_filter_query(
-        params.where, params.join_by, user_for_geojson=True
-    )
+    where_condition = generate_tag_filter_query(params.where, params.join_by)
     if params.bbox:
         xmin, ymin, xmax, ymax = (
             params.bbox[0],
@@ -856,6 +859,16 @@ def get_country_from_iso(iso3):
     return query
 
 
+def convert_tags_pattern_to_postgres(query_string):
+    pattern = r"tags\['(.*?)'\]"
+
+    converted_query = re.sub(
+        pattern, lambda match: f"tags->>'{match.group(1)}'", query_string
+    )
+
+    return converted_query
+
+
 def postgres2duckdb_query(
     base_table_name,
     table,
@@ -878,23 +891,12 @@ def postgres2duckdb_query(
     Returns:
     str: DuckDB query for creating a table.
     """
-    select_query = """osm_id, osm_type, version, changeset, timestamp, tags,  ST_AsBinary(geom) as geometry"""
-    create_select_duck_db = """osm_id, osm_type , version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
+    select_query = """osm_id, osm_type, version, changeset, timestamp, tags,  ST_AsBinary(geom) as geom"""
+    create_select_duck_db = """osm_id, osm_type , version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geom) as GEOMETRY) AS geom"""
 
     if enable_users_detail:
-        select_query = """osm_id, osm_type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geometry"""
-        create_select_duck_db = """osm_id, osm_type, uid, user, version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geometry) as GEOMETRY) AS geometry"""
-
-    def convert_tags_pattern(query_string):
-        # Define the pattern to search for
-        pattern = r"tags\['(.*?)'\]"
-
-        # Use a lambda function as the replacement to convert the pattern
-        converted_query = re.sub(
-            pattern, lambda match: f"tags->>'{match.group(1)}'", query_string
-        )
-
-        return converted_query
+        select_query = """osm_id, osm_type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geom"""
+        create_select_duck_db = """osm_id, osm_type, uid, user, version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geom) as GEOMETRY) AS geom"""
 
     row_filter_condition = (
         f"""(country <@ ARRAY [{cid}])"""
@@ -904,16 +906,34 @@ def postgres2duckdb_query(
 
     postgres_query = f"""select {select_query} from (select * , tableoid::regclass as osm_type from {table} where {row_filter_condition}) as sub_query"""
     if single_category_where:
-        postgres_query += f" where {convert_tags_pattern(single_category_where)}"
+        postgres_query += (
+            f" where {convert_tags_pattern_to_postgres(single_category_where)}"
+        )
 
     duck_db_create = f"""CREATE TABLE {base_table_name}_{table} AS SELECT {create_select_duck_db} FROM postgres_query("postgres_db", "{postgres_query}") """
 
     return duck_db_create
 
 
-def extract_features_duckdb(base_table_name, select, feature_type, where, geometry):
+def extract_custom_features_from_postgres(
+    select_q, from_q, where_q, geom=None, cid=None
+):
     """
-    Generate a DuckDB query to extract features based on given parameters.
+    Generates Postgresql query for custom feature extraction
+    """
+    geom_filter = f"""(country <@ ARRAY [{cid}])""" if cid else create_geom_filter(geom)
+
+    postgres_query = f"""select {select_q} from (select * , tableoid::regclass as osm_type from {from_q} where {geom_filter}) as sub_query"""
+    if where_q:
+        postgres_query += f" where {convert_tags_pattern_to_postgres(where_q)}"
+    return postgres_query
+
+
+def extract_features_custom_exports(
+    base_table_name, select, feature_type, where, geometry=None, cid=None
+):
+    """
+    Generate a Extraction query to extract features based on given parameters.
 
     Args:
     - base_table_name (str): Base table name.
@@ -922,7 +942,7 @@ def extract_features_duckdb(base_table_name, select, feature_type, where, geomet
     - where (str): SQL-like condition to filter features.
 
     Returns:
-    str: DuckDB query to extract features.
+    str: Extraction query to extract features.
     """
     map_tables = {
         "points": {"table": ["nodes"], "where": {"nodes": f"({where})"}},
@@ -930,30 +950,41 @@ def extract_features_duckdb(base_table_name, select, feature_type, where, geomet
             "table": ["ways_line", "relations"],
             "where": {
                 "ways_line": where,
-                "relations": f"({where}) and (ST_GeometryType(geometry)='MULTILINESTRING')",
+                "relations": f"({where}) and (ST_GeometryType(geom)='MULTILINESTRING')",
             },
         },
         "polygons": {
             "table": ["ways_poly", "relations"],
             "where": {
                 "ways_poly": where,
-                "relations": f"({where}) and (ST_GeometryType(geometry)='MULTIPOLYGON' or ST_GeometryType(geometry)='POLYGON')",
+                "relations": f"({where}) and (ST_GeometryType(geom)='MULTIPOLYGON' or ST_GeometryType(geom)='POLYGON')",
             },
         },
     }
-
-    select = [f"tags['{item}'][1] as '{item}'" for item in select]
-    select += ["osm_id", "osm_type", "geometry"]
-    select_query = ", ".join(select)
+    if USE_DUCK_DB_FOR_CUSTOM_EXPORTS:
+        select = [f"tags['{item}'][1] as '{item}'" for item in select]
+        select += ["osm_id", "osm_type", "geom"]
+        select_query = ", ".join(select)
+    else:
+        select_query = create_column_filter(select, include_osm_type=False)
 
     from_query = map_tables[feature_type]["table"]
 
     base_query = []
     for table in from_query:
         where_query = map_tables[feature_type]["where"][table]
-        if geometry:
-            where_query += f" and (ST_Intersects(geometry,ST_GeomFromGeoJSON('{geometry.json()}')))"
-        query = f"""select {select_query} from {f"{base_table_name}_{table}"} where {where_query}"""
+        if USE_DUCK_DB_FOR_CUSTOM_EXPORTS:
+            if geometry:
+                where_query += f" and (ST_Intersects(geom,ST_GeomFromGeoJSON('{geometry.json()}')))"
+            query = f"""select {select_query} from {f"{base_table_name}_{table}"} where {where_query}"""
+        else:
+            query = extract_custom_features_from_postgres(
+                select_q=select_query,
+                from_q=table,
+                where_q=where_query,
+                geom=geometry,
+                cid=cid,
+            )
         base_query.append(query)
     return " UNION ALL ".join(base_query)
 
