@@ -5,9 +5,14 @@ import boto3
 import humanize
 from boto3.session import Session
 from botocore.exceptions import NoCredentialsError
-from fastapi import APIRouter, HTTPException, Path, Query, Request
+from fastapi import APIRouter, Header, HTTPException, Path, Query, Request
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import (
+    JSONResponse,
+    RedirectResponse,
+    Response,
+    StreamingResponse,
+)
 from fastapi_versioning import version
 
 from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
@@ -16,7 +21,6 @@ from src.config import RATE_LIMIT_PER_MIN
 
 router = APIRouter(prefix="/s3", tags=["S3"])
 
-BUCKET_NAME = "production-raw-data-api"
 AWS_REGION = "us-east-1"
 session = Session()
 s3 = session.client(
@@ -101,6 +105,33 @@ async def read_meta_json(bucket_name, file_path):
         raise HTTPException(
             status_code=500, detail=f"Error reading meta.json: {str(e)}"
         )
+
+
+@router.head("/get/{file_path:path}")
+@limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
+@version(1)
+async def head_s3_file(
+    request: Request,
+    file_path: str = Path(..., description="The path to the file or folder in S3"),
+):
+    bucket_name = BUCKET_NAME
+    encoded_file_path = quote(file_path.strip("/"))
+    try:
+        response = s3.head_object(Bucket=bucket_name, Key=encoded_file_path)
+        return Response(
+            status_code=200,
+            headers={
+                "Last-Modified": response["LastModified"].strftime(
+                    "%a, %d %b %Y %H:%M:%S GMT"
+                ),
+                "Content-Length": str(response["ContentLength"]),
+            },
+        )
+    except Exception as e:
+        if e.response["Error"]["Code"] == "404":
+            return Response(status_code=404)
+        else:
+            raise HTTPException(status_code=500, detail=f"AWS Error: {str(e)}")
 
 
 @router.get("/get/{file_path:path}")
