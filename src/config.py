@@ -217,7 +217,7 @@ PARALLEL_PROCESSING_CATEGORIES = os.environ.get(
 
 
 if ENABLE_HDX_EXPORTS:
-    HDX_SITE = os.environ.get("HDX_SITE") or config.getboolean(
+    HDX_SITE = os.environ.get("HDX_SITE") or config.get(
         "HDX", "HDX_SITE", fallback="demo"
     )
     HDX_API_KEY = os.environ.get("HDX_API_KEY") or config.get(
