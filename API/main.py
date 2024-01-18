@@ -18,6 +18,7 @@
 # <info@hotosm.org>
 import time
 
+import psycopg2
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -26,6 +27,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from src.config import (
+    ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     EXPORT_PATH,
@@ -35,12 +37,13 @@ from src.config import (
     SENTRY_RATE,
     USE_CONNECTION_POOLING,
     USE_S3_TO_UPLOAD,
+    get_db_connection_params,
 )
 from src.config import logger as logging
 from src.db_session import database_instance
 
 from .auth.routers import router as auth_router
-from .hdx import router as hdx_router
+from .custom_exports import router as custom_exports_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
 
@@ -49,6 +52,9 @@ if USE_S3_TO_UPLOAD:
 
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     from .stats import router as stats_router
+
+if ENABLE_HDX_EXPORTS:
+    from .hdx import router as hdx_router
 
 if SENTRY_DSN:
     import sentry_sdk
@@ -74,10 +80,12 @@ app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
 
-if ENABLE_HDX_EXPORTS:
-    app.include_router(hdx_router)
+if ENABLE_CUSTOM_EXPORTS:
+    app.include_router(custom_exports_router)
 if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
     app.include_router(stats_router)
+if ENABLE_HDX_EXPORTS:
+    app.include_router(hdx_router)
 
 if USE_S3_TO_UPLOAD:
     app.include_router(s3_router)
@@ -139,6 +147,21 @@ async def on_startup():
         e: if connection is rejected to database
     """
     try:
+        sql_file_path = os.path.join(
+            os.path.realpath(os.path.dirname(__file__)), "data/tables.sql"
+        )
+        with open(sql_file_path, "r", encoding="UTF-8") as sql_file:
+            create_tables_sql = sql_file.read()
+        conn = psycopg2.connect(**get_db_connection_params())
+        cursor = conn.cursor()
+        # Execute SQL statements
+        cursor.execute(create_tables_sql)
+        conn.commit()
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
         if USE_CONNECTION_POOLING:
             database_instance.connect()
     except Exception as e:

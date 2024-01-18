@@ -35,12 +35,13 @@ from json import loads as json_loads
 import boto3
 import humanize
 import orjson
+import psycopg2.extras
 import requests
 import sozipfile.sozipfile as zipfile
 from area import area
 from fastapi import HTTPException
 from geojson import FeatureCollection
-from psycopg2 import OperationalError, connect
+from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
 
@@ -48,6 +49,7 @@ from src.config import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     BUCKET_NAME,
+    ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ENABLE_TILES,
@@ -92,14 +94,13 @@ else:
     database_instance = None
 import logging as log
 
-if ENABLE_HDX_EXPORTS:
+if ENABLE_CUSTOM_EXPORTS:
     if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
         import duckdb
-        from src.config import (
-            DUCK_DB_MEMORY_LIMIT,
-            DUCK_DB_THREAD_LIMIT,
-        )
 
+        from src.config import DUCK_DB_MEMORY_LIMIT, DUCK_DB_THREAD_LIMIT
+
+if ENABLE_HDX_EXPORTS:
     from hdx.data.dataset import Dataset
     from hdx.data.resource import Resource
 
@@ -276,7 +277,6 @@ class Database:
                 if self.cur is not None:
                     self.cur.close()
                     self.conn.close()
-                    logging.debug("Database Connection closed")
         except Exception as err:
             raise err
 
@@ -1208,9 +1208,9 @@ class DuckDB:
             con.execute(query)
 
 
-class HDX:
+class CustomExport:
     """
-    Constructor for the HDX class.
+    Constructor for the custom export class.
 
     Parameters:
     - params (DynamicCategoriesModel): An instance of DynamicCategoriesModel containing configuration settings.
@@ -1493,7 +1493,7 @@ class HDX:
         Returns:
         - Dictionary containing processed category result.
         """
-        if self.params.hdx_upload:
+        if self.params.hdx_upload and ENABLE_HDX_EXPORTS:
             return self.resource_to_hdx(
                 uploaded_resources=category_result.uploaded_resources,
                 dataset_config=self.params.dataset,
@@ -1614,7 +1614,7 @@ class HDX:
             return True
         return False
 
-    def process_hdx_tags(self):
+    def process_custom_categories(self):
         """
         Processes HDX tags and executes category processing in parallel.
 
@@ -1892,3 +1892,107 @@ class HDXUploader:
             self.dataset.add_other_location(location)
         for tag in self.category_data.hdx.tags:
             self.dataset.add_tag(tag)
+
+
+class HDX:
+    def __init__(self) -> None:
+        """
+        Initializes an instance of the HDX class, connecting to the database.
+        """
+        dbdict = get_db_connection_params()
+        self.d_b = Database(dbdict)
+        self.con, self.cur = self.d_b.connect()
+
+    def create_hdx(self, hdx_data):
+        insert_query = sql.SQL(
+            """
+            INSERT INTO public.hdx (iso_3, hdx_upload, dataset, queue, meta, categories, geometry)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING *
+        """
+        )
+        self.cur.execute(
+            insert_query,
+            (
+                hdx_data.get("iso_3", None),
+                hdx_data.get("hdx_upload", True),
+                json.dumps(hdx_data.get("dataset")),
+                hdx_data.get("queue", "raw_special"),
+                hdx_data.get("meta", False),
+                json.dumps(hdx_data.get("categories", {})),
+                json.dumps(hdx_data.get("geometry")),
+            ),
+        )
+        self.con.commit()
+        self.d_b.close_conn()
+        return {"create": True}
+
+    def get_hdx_list(self, skip: int = 0, limit: int = 10):
+        select_query = sql.SQL(
+            """
+            SELECT * FROM public.hdx
+            OFFSET %s LIMIT %s
+        """
+        )
+        self.cur.execute(select_query, (skip, limit))
+        result = self.cur.fetchall()
+        self.d_b.close_conn()
+        return [dict(item) for item in result]
+
+    def get_hdx_by_id(self, hdx_id: int):
+        select_query = sql.SQL(
+            """
+            SELECT * FROM public.hdx
+            WHERE id = %s
+        """
+        )
+        self.cur.execute(select_query, (hdx_id,))
+        result = self.cur.fetchone()
+        self.d_b.close_conn()
+        if result:
+            return dict(result[0])
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    def update_hdx(self, hdx_id: int, hdx_data):
+        update_query = sql.SQL(
+            """
+            UPDATE public.hdx
+            SET iso_3 = %s, hdx_upload = %s, dataset = %s, queue = %s, meta = %s, categories = %s, geometry = %s
+            WHERE id = %s
+            RETURNING *
+        """
+        )
+        self.cur.execute(
+            update_query,
+            (
+                hdx_data.get("iso_3", None),
+                hdx_data.get("hdx_upload", True),
+                json.dumps(hdx_data.get("dataset")),
+                hdx_data.get("queue", "raw_special"),
+                hdx_data.get("meta", False),
+                json.dumps(hdx_data.get("categories", {})),
+                json.dumps(hdx_data.get("geometry")),
+                hdx_id,
+            ),
+        )
+        self.con.commit()
+        self.d_b.close_conn()
+        if result:
+            return {"update": True}
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    def delete_hdx(self, hdx_id: int):
+        delete_query = sql.SQL(
+            """
+            DELETE FROM public.hdx
+            WHERE id = %s
+            RETURNING *
+        """
+        )
+        self.cur.execute(delete_query, (hdx_id,))
+        self.con.commit()
+        result = self.cur.fetchone()
+        self.d_b.close_conn()
+        if result:
+            return dict(result[0])
+        raise HTTPException(status_code=404, detail="HDX item not found")
