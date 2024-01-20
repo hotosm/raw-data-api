@@ -33,6 +33,7 @@ jobs:
       ALLOW_BIND_ZIP_FILTER: ${{ secrets.ALLOW_BIND_ZIP_FILTER }}
       APP_SECRET_KEY: ${{ secrets.APP_SECRET_KEY }}
       ENABLE_HDX_EXPORTS: ${{ secrets.ENABLE_HDX_EXPORTS }}
+      ENABLE_CUSTOM_EXPORTS: True
       ENABLE_POLYGON_STATISTICS_ENDPOINTS: ${{ secrets.ENABLE_POLYGON_STATISTICS_ENDPOINTS }}
       POLYGON_STATISTICS_API_URL: ${{ secrets.POLYGON_STATISTICS_API_URL }}
       HDX_API_KEY: ${{ secrets.HDX_API_KEY }}
@@ -58,6 +59,7 @@ jobs:
           export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
           psql -U postgres -h localhost -p 5434 raw  < backend/sql/countries.sql
+          psql -U postgres -h localhost -p 5434 raw  < API/data/hdx.sql
 
       - name: Install gdal
         run: sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean

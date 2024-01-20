@@ -57,6 +57,7 @@ The following are the different configuration options that are accepted.
 | `ALLOW_BIND_ZIP_FILTER` | `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | `true` | Enable zip compression for exports | OPTIONAL |
 | `ENABLE_TILES` | `ENABLE_TILES` | `[API_CONFIG]` | `false` | Enable Tile Output (Pmtiles and Mbtiles) | OPTIONAL |
 | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | `False` | Option to enable endpoints related the polygon statistics about the approx buildings,road length in passed polygon| OPTIONAL |
+| `ENABLE_CUSTOM_EXPORTS` | `ENABLE_CUSTOM_EXPORTS` | `[API_CONFIG]` | False | Enables custom exports endpoint and imports | OPTIONAL |
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | `None` | API URL for the polygon statistics to fetch the metadata , Currently tested with graphql query endpoint of Kontour , Only required if it is enabled from ENABLE_POLYGON_STATISTICS_ENDPOINTS | OPTIONAL |
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | `5` | Rate limit to be applied for statistics endpoint per minute, Defaults to 5 request is allowed per minute | OPTIONAL |
 | `DEFAULT_SOFT_TASK_LIMIT` | `DEFAULT_SOFT_TASK_LIMIT` | `[API_CONFIG]` | `7200` | Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 2 Hour| OPTIONAL |
@@ -75,8 +76,8 @@ The following are the different configuration options that are accepted.
 | `HDX_API_KEY` | `HDX_API_KEY` | `[HDX]` | None | Your API Secret key for hdx upload , should have write access and it is compulsory if ENABLE_HDX_EXPORTS is True | CONDITIONAL |
 | `HDX_OWNER_ORG` | `HDX_OWNER_ORG` | `[HDX]` | None | Your HDX organization ID| CONDITIONAL |
 | `HDX_MAINTAINER` | `HDX_MAINTAINER` | `[HDX]` | None | Your HDX Maintainer ID | CONDITIONAL |
-| `DUCK_DB_MEMORY_LIMIT` | `DUCK_DB_MEMORY_LIMIT` | `[HDX]` | None | Duck DB max memory limit , 80 % of your RAM eg : '5GB'| CONDITIONAL |
-| `DUCK_DB_THREAD_LIMIT` | `DUCK_DB_THREAD_LIMIT` | `[HDX]` | None | Duck DB max threads limit ,n of your cores eg : 2 | CONDITIONAL |
+| `DUCK_DB_MEMORY_LIMIT` | `DUCK_DB_MEMORY_LIMIT` | `[API_CONFIG]` | None | Duck DB max memory limit , 80 % of your RAM eg : '5GB'| CONDITIONAL |
+| `DUCK_DB_THREAD_LIMIT` | `DUCK_DB_THREAD_LIMIT` | `[API_CONFIG]` | None | Duck DB max threads limit ,n of your cores eg : 2 | CONDITIONAL |
 | `HDX_SOFT_TASK_LIMIT` | `HDX_SOFT_TASK_LIMIT` | `[HDX]` | `18000` | Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 5 Hour| OPTIONAL |
 | `HDX_HARD_TASK_LIMIT` | `HDX_HARD_TASK_LIMIT` | `[HDX]` | `21600` | Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 6 Hour| OPTIONAL |
 | `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `[HDX]` | False | Recommended for workers with low memery or CPU usage , This will process single category request like buildings only , Roads only in postgres itself and avoid extraction from duckdb| OPTIONAL |
@@ -112,6 +113,9 @@ The following are the different configuration options that are accepted.
 | `DEFAULT_SOFT_TASK_LIMIT` | `[API_CONFIG]` | No | Yes |
 | `DEFAULT_HARD_TASK_LIMIT` | `[API_CONFIG]` | No | Yes |
 | `USE_DUCK_DB_FOR_CUSTOM_EXPORTS` | `[API_CONFIG]` | Yes | Yes |
+| `DUCK_DB_MEMORY_LIMIT` | `[API_CONFIG]` | Yes | Yes |
+| `DUCK_DB_THREAD_LIMIT` | `[API_CONFIG]` | Yes | Yes |
+| `ENABLE_CUSTOM_EXPORTS` | `[API_CONFIG]` | Yes | Yes |
 | `CELERY_BROKER_URL` | `[CELERY]` | Yes | Yes |
 | `CELERY_RESULT_BACKEND` | `[CELERY]` | Yes | Yes |
 | `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | Yes | Yes |
@@ -125,8 +129,6 @@ The following are the different configuration options that are accepted.
 | `HDX_API_KEY` | `[HDX]` | Yes | Yes |
 | `HDX_OWNER_ORG` | `[HDX]` | Yes | Yes |
 | `HDX_MAINTAINER` | `[HDX]` | Yes | Yes |
-| `DUCK_DB_MEMORY_LIMIT` | `[HDX]` | Yes | Yes |
-| `DUCK_DB_THREAD_LIMIT` | `[HDX]` | Yes | Yes |
 | `HDX_SOFT_TASK_LIMIT` | `[HDX]` | No | Yes |
 | `HDX_HARD_TASK_LIMIT` | `[HDX]` | No | Yes |
 | `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `[HDX]` | No | Yes |
