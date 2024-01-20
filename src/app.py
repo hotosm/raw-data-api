@@ -1993,6 +1993,7 @@ class HDX:
         self.cur.execute(select_query, (hdx_id,))
         result = self.cur.fetchone()
         self.d_b.close_conn()
+        result = self.cur.fetchone()
         if result:
             return orjson.loads(result[0])
         raise HTTPException(status_code=404, detail="Item not found")
@@ -2034,7 +2035,7 @@ class HDX:
         )
         self.con.commit()
         self.d_b.close_conn()
-        if result:
+        
             return {"update": True}
         raise HTTPException(status_code=404, detail="Item not found")
 
