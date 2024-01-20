@@ -1927,22 +1927,34 @@ class HDX:
         self.d_b.close_conn()
         return {"create": True}
 
-    def get_hdx_list(self, skip: int = 0, limit: int = 10):
+    def get_hdx_list_with_filters(
+        self, skip: int = 0, limit: int = 10, filters: dict = {}
+    ):
+        filter_conditions = []
+        filter_values = []
+
+        for key, value in filters.items():
+            filter_conditions.append(key)
+            filter_values.append(value)
+
+        where_clause = " AND ".join(filter_conditions)
+
         select_query = sql.SQL(
-            """
-            SELECT * FROM public.hdx
+            f"""
+            SELECT ST_AsGeoJSON(c.*) FROM public.hdx c
+            {"WHERE " + where_clause if where_clause else ""}
             OFFSET %s LIMIT %s
         """
         )
-        self.cur.execute(select_query, (skip, limit))
+        self.cur.execute(select_query, tuple(filter_values) + (skip, limit))
         result = self.cur.fetchall()
         self.d_b.close_conn()
-        return [dict(item) for item in result]
+        return [orjson.loads(item[0]) for item in result]
 
     def get_hdx_by_id(self, hdx_id: int):
         select_query = sql.SQL(
             """
-            SELECT * FROM public.hdx
+            SELECT ST_AsGeoJSON(c.*) FROM public.hdx
             WHERE id = %s
         """
         )
@@ -1950,7 +1962,7 @@ class HDX:
         result = self.cur.fetchone()
         self.d_b.close_conn()
         if result:
-            return dict(result[0])
+            return orjson.loads(result[0])
         raise HTTPException(status_code=404, detail="Item not found")
 
     def update_hdx(self, hdx_id: int, hdx_data):

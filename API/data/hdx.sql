@@ -1,6 +1,5 @@
 INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('AFG',168,true,'{"dataset_title": "Afghanistan", "dataset_folder": "HDX", "dataset_prefix": "hotosm_afg", "dataset_locations": ["afg"]}','raw_special',false,NULL,NULL),
-	 (NULL,142,true,'{"dataset_title": "American Oceania", "dataset_folder": "HDX", "dataset_prefix": "", "dataset_locations": [""]}','raw_special',false,NULL,NULL),
 	 ('AND',108,true,'{"dataset_title": "Andorra", "dataset_folder": "HDX", "dataset_prefix": "hotosm_and", "dataset_locations": ["and"]}','raw_special',false,NULL,NULL),
 	 ('ALB',170,true,'{"dataset_title": "Albania", "dataset_folder": "HDX", "dataset_prefix": "hotosm_alb", "dataset_locations": ["alb"]}','raw_special',false,NULL,NULL),
 	 ('DZA',100,true,'{"dataset_title": "Algeria", "dataset_folder": "HDX", "dataset_prefix": "hotosm_dza", "dataset_locations": ["dza"]}','raw_special',false,NULL,NULL),

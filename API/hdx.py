@@ -1,6 +1,6 @@
-from typing import List
+from typing import Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi_versioning import version
 
 from src.app import HDX
@@ -29,10 +29,29 @@ async def create_hdx(
 @router.get("/", response_model=List[dict])
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
-async def read_hdx_list(request: Request, skip: int = 0, limit: int = 10):
+async def read_hdx_list(
+    request: Request,
+    skip: int = 0,
+    limit: int = 10,
+):
     hdx_instance = HDX()
+    filters = {}
+    for key, values in request.query_params.items():
+        if key not in ["skip", "limit"]:
+            if key in ["iso_3", "queue", "meta", "hdx_upload", "cid"]:
+                # if isinstance(values, list):
+                #     filters[f"{key} IN %s"] = tuple(values)
+                #     continue
+                filters[f"{key} = %s"] = values
+                continue
+                # if isinstance(values, list):
+                #     filters[f"dataset->>'{key}' IN %s"] = tuple(values)
+                # else:
+            filters[f"dataset->>'{key}' = %s"] = values
 
-    return hdx_instance.get_hdx_list(skip, limit)
+    hdx_list = hdx_instance.get_hdx_list_with_filters(skip, limit, filters)
+
+    return hdx_list
 
 
 @router.get("/{hdx_id}", response_model=dict)

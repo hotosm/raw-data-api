@@ -26,3 +26,4 @@ CREATE TABLE if not exists public.hdx (
     geometry public.geometry(MultiPolygon, 4326) NULL
 );
 CREATE INDEX if not exists hdx_dataset_idx ON public.hdx (dataset);
+CREATE UNIQUE INDEX if not exists unique_dataset_prefix_idx ON public.hdx ((dataset->>'dataset_prefix'));
