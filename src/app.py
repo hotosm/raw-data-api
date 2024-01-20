@@ -1904,6 +1904,15 @@ class HDX:
         self.con, self.cur = self.d_b.connect()
 
     def create_hdx(self, hdx_data):
+        """
+        Create a new HDX entry in the database.
+
+        Args:
+            hdx_data (dict): Data for creating the HDX entry.
+
+        Returns:
+            dict: Result of the HDX creation process.
+        """
         insert_query = sql.SQL(
             """
             INSERT INTO public.hdx (iso_3, hdx_upload, dataset, queue, meta, categories, geometry)
@@ -1930,6 +1939,17 @@ class HDX:
     def get_hdx_list_with_filters(
         self, skip: int = 0, limit: int = 10, filters: dict = {}
     ):
+        """
+        Retrieve a list of HDX entries based on provided filters.
+
+        Args:
+            skip (int): Number of entries to skip.
+            limit (int): Maximum number of entries to retrieve.
+            filters (dict): Filtering criteria.
+
+        Returns:
+            List[dict]: List of HDX entries.
+        """
         filter_conditions = []
         filter_values = []
 
@@ -1952,6 +1972,18 @@ class HDX:
         return [orjson.loads(item[0]) for item in result]
 
     def get_hdx_by_id(self, hdx_id: int):
+        """
+        Retrieve a specific HDX entry by its ID.
+
+        Args:
+            hdx_id (int): ID of the HDX entry to retrieve.
+
+        Returns:
+            dict: Details of the requested HDX entry.
+
+        Raises:
+            HTTPException: If the HDX entry is not found.
+        """
         select_query = sql.SQL(
             """
             SELECT ST_AsGeoJSON(c.*) FROM public.hdx
@@ -1966,6 +1998,19 @@ class HDX:
         raise HTTPException(status_code=404, detail="Item not found")
 
     def update_hdx(self, hdx_id: int, hdx_data):
+        """
+        Update an existing HDX entry in the database.
+
+        Args:
+            hdx_id (int): ID of the HDX entry to update.
+            hdx_data (dict): Data for updating the HDX entry.
+
+        Returns:
+            dict: Result of the HDX update process.
+
+        Raises:
+            HTTPException: If the HDX entry is not found.
+        """
         update_query = sql.SQL(
             """
             UPDATE public.hdx
@@ -1994,6 +2039,18 @@ class HDX:
         raise HTTPException(status_code=404, detail="Item not found")
 
     def delete_hdx(self, hdx_id: int):
+        """
+        Delete an existing HDX entry from the database.
+
+        Args:
+            hdx_id (int): ID of the HDX entry to delete.
+
+        Returns:
+            dict: Result of the HDX deletion process.
+
+        Raises:
+            HTTPException: If the HDX entry is not found.
+        """
         delete_query = sql.SQL(
             """
             DELETE FROM public.hdx
