@@ -1,6 +1,6 @@
 CREATE TABLE if not exists public.hdx (
     id SERIAL PRIMARY KEY,
-    iso_3 VARCHAR(3) NULL,
+    iso3 VARCHAR(3) NULL,
     cid INT NULL,
     hdx_upload BOOLEAN DEFAULT true,
     dataset JSONB,
@@ -11,7 +11,7 @@ CREATE TABLE if not exists public.hdx (
 );
 CREATE INDEX if not exists hdx_dataset_idx ON public.hdx (dataset);
 
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('AFG',168,true,'{"dataset_title": "Afghanistan", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_afg", "dataset_locations": ["afg"]}','raw_special',false,NULL,NULL),
 	 ('AND',108,true,'{"dataset_title": "Andorra", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_and", "dataset_locations": ["and"]}','raw_special',false,NULL,NULL),
 	 ('ALB',170,true,'{"dataset_title": "Albania", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_alb", "dataset_locations": ["alb"]}','raw_special',false,NULL,NULL),
@@ -21,7 +21,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('ATA',66,true,'{"dataset_title": "Antarctica", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_ata", "dataset_locations": ["ata"]}','raw_special',false,NULL,NULL),
 	 ('ATG',57,true,'{"dataset_title": "Antigua and Barbuda", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_atg", "dataset_locations": ["atg"]}','raw_special',false,NULL,NULL),
 	 ('AZE',166,true,'{"dataset_title": "Azerbaijan", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_aze", "dataset_locations": ["aze"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('BHS',4,true,'{"dataset_title": "Bahamas", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_bhs", "dataset_locations": ["bhs"]}','raw_special',false,NULL,NULL),
 	 ('BHR',2,true,'{"dataset_title": "Bahrain", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_bhr", "dataset_locations": ["bhr"]}','raw_special',false,NULL,NULL),
 	 ('VGB',42,true,'{"dataset_title": "British Virgin Islands", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_vgb", "dataset_locations": ["vgb"]}','raw_special',false,NULL,NULL),
@@ -32,7 +32,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('ARM',174,true,'{"dataset_title": "Armenia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_arm", "dataset_locations": ["arm"]}','raw_special',false,NULL,NULL),
 	 ('ABW',68,true,'{"dataset_title": "Aruba", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_abw", "dataset_locations": ["abw"]}','raw_special',false,NULL,NULL),
 	 ('AUS',56,true,'{"dataset_title": "Australia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_aus", "dataset_locations": ["aus"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('CMR',91,true,'{"dataset_title": "Cameroon", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_cmr", "dataset_locations": ["cmr"]}','raw_special',false,NULL,NULL),
 	 ('AUT',176,true,'{"dataset_title": "Austria", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_aut", "dataset_locations": ["aut"]}','raw_special',false,NULL,NULL),
 	 ('PSE',107,true,'{"dataset_title": "State of Palestine", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_pse", "dataset_locations": ["pse"]}','raw_special',false,NULL,NULL),
@@ -43,7 +43,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('BRB',69,true,'{"dataset_title": "Barbados", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_brb", "dataset_locations": ["brb"]}','raw_special',false,NULL,NULL),
 	 ('GIN',39,true,'{"dataset_title": "Guinea", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_gin", "dataset_locations": ["gin"]}','raw_special',false,NULL,NULL),
 	 ('BLR',180,true,'{"dataset_title": "Belarus", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_blr", "dataset_locations": ["blr"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('GNB',188,true,'{"dataset_title": "Guinea Bissau", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_gnb", "dataset_locations": ["gnb"]}','raw_special',false,NULL,NULL),
 	 ('TTO',12,true,'{"dataset_title": "Trinidad and Tobago", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_tto", "dataset_locations": ["tto"]}','raw_special',false,NULL,NULL),
 	 ('BEL',182,true,'{"dataset_title": "Belgium", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_bel", "dataset_locations": ["bel"]}','raw_special',false,NULL,NULL),
@@ -54,7 +54,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('IOT',30,true,'{"dataset_title": "British Indian Ocean Territory", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_iot", "dataset_locations": ["iot"]}','raw_special',false,NULL,NULL),
 	 ('BIH',187,true,'{"dataset_title": "Bosnia and Herzegovina", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_bih", "dataset_locations": ["bih"]}','raw_special',false,NULL,NULL),
 	 ('PER',156,true,'{"dataset_title": "Peru", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_per", "dataset_locations": ["per"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('BWA',189,true,'{"dataset_title": "Botswana", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_bwa", "dataset_locations": ["bwa"]}','raw_special',false,NULL,NULL),
 	 ('BVT',38,true,'{"dataset_title": "Bouvet Island", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_bvt", "dataset_locations": ["bvt"]}','raw_special',false,NULL,NULL),
 	 ('PHL',183,true,'{"dataset_title": "Philippines", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_phl", "dataset_locations": ["phl"]}','raw_special',false,NULL,NULL),
@@ -65,7 +65,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('BGR',191,true,'{"dataset_title": "Bulgaria", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_bgr", "dataset_locations": ["bgr"]}','raw_special',false,NULL,NULL),
 	 ('CHL',217,true,'{"dataset_title": "Chile", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_chl", "dataset_locations": ["chl"]}','raw_special',false,NULL,NULL),
 	 ('VCT',19,true,'{"dataset_title": "Saint Vincent And The Grenadines", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_vct", "dataset_locations": ["vct"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('WSM',13,true,'{"dataset_title": "Samoa", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_wsm", "dataset_locations": ["wsm"]}','raw_special',false,NULL,NULL),
 	 ('BFA',195,true,'{"dataset_title": "Burkina Faso", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_bfa", "dataset_locations": ["bfa"]}','raw_special',false,NULL,NULL),
 	 ('DOM',164,true,'{"dataset_title": "Dominican Republic", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_dom", "dataset_locations": ["dom"]}','raw_special',false,NULL,NULL),
@@ -76,7 +76,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('CYM',34,true,'{"dataset_title": "Cayman Islands", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_cym", "dataset_locations": ["cym"]}','raw_special',false,NULL,NULL),
 	 ('CAF',106,true,'{"dataset_title": "Central African Republic", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_caf", "dataset_locations": ["caf"]}','raw_special',false,NULL,NULL),
 	 ('GUF',65,true,'{"dataset_title": "French Guiana", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_guf", "dataset_locations": ["guf"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('CHN',63,true,'{"dataset_title": "China", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_chn", "dataset_locations": ["chn"]}','raw_special',false,NULL,NULL),
 	 ('PYF',10,true,'{"dataset_title": "French Polynesia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_pyf", "dataset_locations": ["pyf"]}','raw_special',false,NULL,NULL),
 	 ('HKG',76,true,'{"dataset_title": "China, Hong Kong Special Administrative Region", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_hkg", "dataset_locations": ["hkg"]}','raw_special',false,NULL,NULL),
@@ -87,7 +87,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('COG',131,true,'{"dataset_title": "Congo", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_cog", "dataset_locations": ["cog"]}','raw_special',false,NULL,NULL),
 	 ('COK',109,true,'{"dataset_title": "Cook Islands", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_cok", "dataset_locations": ["cok"]}','raw_special',false,NULL,NULL),
 	 ('CRI',196,true,'{"dataset_title": "Costa Rica", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_cri", "dataset_locations": ["cri"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('CIV',221,true,'{"dataset_title": "Côte d''Ivoire", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_civ", "dataset_locations": ["civ"]}','raw_special',false,NULL,NULL),
 	 ('HRV',67,true,'{"dataset_title": "Croatia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_hrv", "dataset_locations": ["hrv"]}','raw_special',false,NULL,NULL),
 	 ('CUB',149,true,'{"dataset_title": "Cuba", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_cub", "dataset_locations": ["cub"]}','raw_special',false,NULL,NULL),
@@ -98,7 +98,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('COD',89,true,'{"dataset_title": "Democratic Republic of the Congo", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_cod", "dataset_locations": ["cod"]}','raw_special',false,NULL,NULL),
 	 ('DNK',16,true,'{"dataset_title": "Denmark", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_dnk", "dataset_locations": ["dnk"]}','raw_special',false,NULL,NULL),
 	 ('DJI',48,true,'{"dataset_title": "Djibouti", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_dji", "dataset_locations": ["dji"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('DMA',33,true,'{"dataset_title": "Dominica", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_dma", "dataset_locations": ["dma"]}','raw_special',false,NULL,NULL),
 	 ('GMB',207,true,'{"dataset_title": "Gambia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_gmb", "dataset_locations": ["gmb"]}','raw_special',false,NULL,NULL),
 	 ('ECU',200,true,'{"dataset_title": "Ecuador", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_ecu", "dataset_locations": ["ecu"]}','raw_special',false,NULL,NULL),
@@ -109,7 +109,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('GEO',1,true,'{"dataset_title": "Georgia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_geo", "dataset_locations": ["geo"]}','raw_special',false,NULL,NULL),
 	 ('DEU',50,true,'{"dataset_title": "Germany", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_deu", "dataset_locations": ["deu"]}','raw_special',false,NULL,NULL),
 	 ('EST',201,true,'{"dataset_title": "Estonia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_est", "dataset_locations": ["est"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('SWZ',144,true,'{"dataset_title": "Eswatini", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_swz", "dataset_locations": ["swz"]}','raw_special',false,NULL,NULL),
 	 ('ETH',75,true,'{"dataset_title": "Ethiopia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_eth", "dataset_locations": ["eth"]}','raw_special',false,NULL,NULL),
 	 ('FLK',165,true,'{"dataset_title": "Falkland Islands ( Malvinas)", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_flk", "dataset_locations": ["flk"]}','raw_special',false,NULL,NULL),
@@ -120,7 +120,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('HTI',210,true,'{"dataset_title": "Haiti", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_hti", "dataset_locations": ["hti"]}','raw_special',false,NULL,NULL),
 	 ('VAT',55,true,'{"dataset_title": "Holy See (Vatican City State)", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_vat", "dataset_locations": ["vat"]}','raw_special',false,NULL,NULL),
 	 ('HND',169,true,'{"dataset_title": "Honduras", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_hnd", "dataset_locations": ["hnd"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('HUN',14,true,'{"dataset_title": "Hungary", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_hun", "dataset_locations": ["hun"]}','raw_special',false,NULL,NULL),
 	 ('FRA',226,true,'{"dataset_title": "France", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_fra", "dataset_locations": ["fra"]}','raw_special',false,NULL,NULL),
 	 ('GRC',202,true,'{"dataset_title": "Greece", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_grc", "dataset_locations": ["grc"]}','raw_special',false,NULL,NULL),
@@ -131,7 +131,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('IND',7,true,'{"dataset_title": "India", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_ind", "dataset_locations": ["ind"]}','raw_special',false,NULL,NULL),
 	 ('GTM',203,true,'{"dataset_title": "Guatemala", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_gtm", "dataset_locations": ["gtm"]}','raw_special',false,NULL,NULL),
 	 ('GGY',83,true,'{"dataset_title": "Guernsey", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_ggy", "dataset_locations": ["ggy"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('GUY',94,true,'{"dataset_title": "Guyana", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_guy", "dataset_locations": ["guy"]}','raw_special',false,NULL,NULL),
 	 ('IRN',204,true,'{"dataset_title": "Iran", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_irn", "dataset_locations": ["irn"]}','raw_special',false,NULL,NULL),
 	 ('ITA',123,true,'{"dataset_title": "Italy", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_ita", "dataset_locations": ["ita"]}','raw_special',false,NULL,NULL),
@@ -142,7 +142,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('IMN',125,true,'{"dataset_title": "Isle Of Man", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_imn", "dataset_locations": ["imn"]}','raw_special',false,NULL,NULL),
 	 ('ISR',185,true,'{"dataset_title": "Israel", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_isr", "dataset_locations": ["isr"]}','raw_special',false,NULL,NULL),
 	 ('JEY',84,true,'{"dataset_title": "Jersey", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_jey", "dataset_locations": ["jey"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('JOR',239,true,'{"dataset_title": "Jordan", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_jor", "dataset_locations": ["jor"]}','raw_special',false,NULL,NULL),
 	 ('KEN',141,true,'{"dataset_title": "Kenya", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_ken", "dataset_locations": ["ken"]}','raw_special',false,NULL,NULL),
 	 ('KIR',46,true,'{"dataset_title": "Kiribati", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_kir", "dataset_locations": ["kir"]}','raw_special',false,NULL,NULL),
@@ -153,7 +153,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('LVA',175,true,'{"dataset_title": "Latvia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_lva", "dataset_locations": ["lva"]}','raw_special',false,NULL,NULL),
 	 ('LAO',78,true,'{"dataset_title": "Laos", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_lao", "dataset_locations": ["lao"]}','raw_special',false,NULL,NULL),
 	 ('LBY',153,true,'{"dataset_title": "Libya", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_lby", "dataset_locations": ["lby"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('LBN',208,true,'{"dataset_title": "Lebanon", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_lbn", "dataset_locations": ["lbn"]}','raw_special',false,NULL,NULL),
 	 ('LSO',192,true,'{"dataset_title": "Lesotho", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_lso", "dataset_locations": ["lso"]}','raw_special',false,NULL,NULL),
 	 ('LBR',148,true,'{"dataset_title": "Liberia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_lbr", "dataset_locations": ["lbr"]}','raw_special',false,NULL,NULL),
@@ -164,7 +164,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('MNE',214,true,'{"dataset_title": "Montenegro", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mne", "dataset_locations": ["mne"]}','raw_special',false,NULL,NULL),
 	 ('MWI',211,true,'{"dataset_title": "Malawi", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mwi", "dataset_locations": ["mwi"]}','raw_special',false,NULL,NULL),
 	 ('NZL',129,true,'{"dataset_title": "New Zealand", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_nzl", "dataset_locations": ["nzl"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('MYS',230,true,'{"dataset_title": "Malaysia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mys", "dataset_locations": ["mys"]}','raw_special',false,NULL,NULL),
 	 ('MDV',23,true,'{"dataset_title": "Maldives", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mdv", "dataset_locations": ["mdv"]}','raw_special',false,NULL,NULL),
 	 ('MLI',158,true,'{"dataset_title": "Mali", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mli", "dataset_locations": ["mli"]}','raw_special',false,NULL,NULL),
@@ -175,7 +175,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('MUS',64,true,'{"dataset_title": "Mauritius", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mus", "dataset_locations": ["mus"]}','raw_special',false,NULL,NULL),
 	 ('MYT',31,true,'{"dataset_title": "Mayotte", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_myt", "dataset_locations": ["myt"]}','raw_special',false,NULL,NULL),
 	 ('MEX',212,true,'{"dataset_title": "Mexico", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mex", "dataset_locations": ["mex"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('FSM',47,true,'{"dataset_title": "Micronesia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_fsm", "dataset_locations": ["fsm"]}','raw_special',false,NULL,NULL),
 	 ('MDA',186,true,'{"dataset_title": "Moldova", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mda", "dataset_locations": ["mda"]}','raw_special',false,NULL,NULL),
 	 ('MCO',213,true,'{"dataset_title": "Monaco", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mco", "dataset_locations": ["mco"]}','raw_special',false,NULL,NULL),
@@ -186,7 +186,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('MOZ',215,true,'{"dataset_title": "Mozambique", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_moz", "dataset_locations": ["moz"]}','raw_special',false,NULL,NULL),
 	 ('NER',90,true,'{"dataset_title": "Niger", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_ner", "dataset_locations": ["ner"]}','raw_special',false,NULL,NULL),
 	 ('PNG',133,true,'{"dataset_title": "Papua New Guinea", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_png", "dataset_locations": ["png"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('MMR',86,true,'{"dataset_title": "Myanmar", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mmr", "dataset_locations": ["mmr"]}','raw_special',false,NULL,NULL),
 	 ('NAM',115,true,'{"dataset_title": "Namibia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_nam", "dataset_locations": ["nam"]}','raw_special',false,NULL,NULL),
 	 ('NRU',32,true,'{"dataset_title": "Nauru", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_nru", "dataset_locations": ["nru"]}','raw_special',false,NULL,NULL),
@@ -197,7 +197,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('NCL',120,true,'{"dataset_title": "New Caledonia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_ncl", "dataset_locations": ["ncl"]}','raw_special',false,NULL,NULL),
 	 ('NGA',151,true,'{"dataset_title": "Nigeria", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_nga", "dataset_locations": ["nga"]}','raw_special',false,NULL,NULL),
 	 ('NIU',17,true,'{"dataset_title": "Niue", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_niu", "dataset_locations": ["niu"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('PAN',155,true,'{"dataset_title": "Panama", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_pan", "dataset_locations": ["pan"]}','raw_special',false,NULL,NULL),
 	 ('MKD',206,true,'{"dataset_title": "North Macedonia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_mkd", "dataset_locations": ["mkd"]}','raw_special',false,NULL,NULL),
 	 ('NOR',154,true,'{"dataset_title": "Norway", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_nor", "dataset_locations": ["nor"]}','raw_special',false,NULL,NULL),
@@ -208,7 +208,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('POL',157,true,'{"dataset_title": "Poland", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_pol", "dataset_locations": ["pol"]}','raw_special',false,NULL,NULL),
 	 ('PRT',161,true,'{"dataset_title": "Portugal", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_prt", "dataset_locations": ["prt"]}','raw_special',false,NULL,NULL),
 	 ('PRI',103,true,'{"dataset_title": "Puerto Rico", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_pri", "dataset_locations": ["pri"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('ROU',177,true,'{"dataset_title": "Romania", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_rou", "dataset_locations": ["rou"]}','raw_special',false,NULL,NULL),
 	 ('RUS',126,true,'{"dataset_title": "Russia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_rus", "dataset_locations": ["rus"]}','raw_special',false,NULL,NULL),
 	 ('RWA',181,true,'{"dataset_title": "Rwanda", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_rwa", "dataset_locations": ["rwa"]}','raw_special',false,NULL,NULL),
@@ -219,7 +219,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('',18,true,'{"dataset_title": "Saint Martin and Sint Maarten", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_maf_sxm", "dataset_locations": ["maf", "sxm"]}','raw_special',false,NULL,NULL),
 	 ('SMR',105,true,'{"dataset_title": "San Marino", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_smr", "dataset_locations": ["smr"]}','raw_special',false,NULL,NULL),
 	 ('STP',51,true,'{"dataset_title": "Sao Tome And Principe", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_stp", "dataset_locations": ["stp"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('SLE',134,true,'{"dataset_title": "Sierra Leone", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_sle", "dataset_locations": ["sle"]}','raw_special',false,NULL,NULL),
 	 ('SAU',236,true,'{"dataset_title": "Saudi Arabia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_sau", "dataset_locations": ["sau"]}','raw_special',false,NULL,NULL),
 	 ('SGP',222,true,'{"dataset_title": "Singaore", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_sgp", "dataset_locations": ["sgp"]}','raw_special',false,NULL,NULL),
@@ -230,7 +230,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('ESP',5,true,'{"dataset_title": "Spain", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_esp", "dataset_locations": ["esp"]}','raw_special',false,NULL,NULL),
 	 ('LKA',130,true,'{"dataset_title": "Sri Lanka", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_lka", "dataset_locations": ["lka"]}','raw_special',false,NULL,NULL),
 	 ('SRB',218,true,'{"dataset_title": "Serbia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_srb", "dataset_locations": ["srb"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('SYC',219,true,'{"dataset_title": "Seychelles", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_syc", "dataset_locations": ["syc"]}','raw_special',false,NULL,NULL),
 	 ('SVK',220,true,'{"dataset_title": "Slovakia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_svk", "dataset_locations": ["svk"]}','raw_special',false,NULL,NULL),
 	 ('SVN',137,true,'{"dataset_title": "Slovenia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_svn", "dataset_locations": ["svn"]}','raw_special',false,NULL,NULL),
@@ -241,7 +241,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('KOR',136,true,'{"dataset_title": "South Korea", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_kor", "dataset_locations": ["kor"]}','raw_special',false,NULL,NULL),
 	 ('SJM',111,true,'{"dataset_title": "Svalbard and Jan Mayen Islands", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_sjm", "dataset_locations": ["sjm"]}','raw_special',false,NULL,NULL),
 	 ('SWE',124,true,'{"dataset_title": "Sweden", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_swe", "dataset_locations": ["swe"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('CHE',21,true,'{"dataset_title": "Switzerland", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_che", "dataset_locations": ["che"]}','raw_special',false,NULL,NULL),
 	 ('TUN',102,true,'{"dataset_title": "Tunisia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_tun", "dataset_locations": ["tun"]}','raw_special',false,NULL,NULL),
 	 ('SYR',237,true,'{"dataset_title": "Syria", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_syr", "dataset_locations": ["syr"]}','raw_special',false,NULL,NULL),
@@ -252,7 +252,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('TZA',145,true,'{"dataset_title": "Tanzania", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_tza", "dataset_locations": ["tza"]}','raw_special',false,NULL,NULL),
 	 ('THA',20,true,'{"dataset_title": "Thailand", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_tha", "dataset_locations": ["tha"]}','raw_special',false,NULL,NULL),
 	 ('TLS',96,true,'{"dataset_title": "Timor-Leste", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_tls", "dataset_locations": ["tls"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('TUR',163,true,'{"dataset_title": "Turkey", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_tur", "dataset_locations": ["tur"]}','raw_special',false,NULL,NULL),
 	 ('TKM',147,true,'{"dataset_title": "Turkmenistan", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_tkm", "dataset_locations": ["tjk"]}','raw_special',false,NULL,NULL),
 	 ('TCA',85,true,'{"dataset_title": "Turks and Caicos Islands", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_tca", "dataset_locations": ["tca"]}','raw_special',false,NULL,NULL),
@@ -263,7 +263,7 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('ARE',224,true,'{"dataset_title": "United Arab Emirates", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_are", "dataset_locations": ["are"]}','raw_special',false,NULL,NULL),
 	 ('GBR',80,true,'{"dataset_title": "United Kingdom", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_gbr", "dataset_locations": ["gbr"]}','raw_special',false,NULL,NULL),
 	 ('USA',235,true,'{"dataset_title": "United States", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_usa", "dataset_locations": ["usa"]}','raw_special',false,NULL,NULL);
-INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
+INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('VIR',113,true,'{"dataset_title": "United States Virgin Islands", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_vir", "dataset_locations": ["vir"]}','raw_special',false,NULL,NULL),
 	 ('UZB',232,true,'{"dataset_title": "Uzbekistan", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_uzb", "dataset_locations": ["uzb"]}','raw_special',false,NULL,NULL),
 	 ('VUT',25,true,'{"dataset_title": "Vanuatu", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_vut", "dataset_locations": ["vut"]}','raw_special',false,NULL,NULL),

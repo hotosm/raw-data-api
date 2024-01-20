@@ -1227,11 +1227,12 @@ class CustomExport:
             dbdict = get_db_connection_params()
             d_b = Database(dbdict)
             con, cur = d_b.connect()
-            cur.execute(get_country_from_iso(self.iso3))
-            result = cur.fetchall()[0]
+            query = get_country_from_iso(self.iso3)
+            cur.execute(query)
+            result = cur.fetchall()
             if not result:
                 raise HTTPException(status_code=404, detail="Invalid iso3 code")
-
+            result = result[0]
             (
                 self.cid,
                 dataset_title,
@@ -1915,7 +1916,7 @@ class HDX:
         """
         insert_query = sql.SQL(
             """
-            INSERT INTO public.hdx (iso_3, hdx_upload, dataset, queue, meta, categories, geometry)
+            INSERT INTO public.hdx (iso3, hdx_upload, dataset, queue, meta, categories, geometry)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING *
         """
@@ -1923,7 +1924,7 @@ class HDX:
         self.cur.execute(
             insert_query,
             (
-                hdx_data.get("iso_3", None),
+                hdx_data.get("iso3", None),
                 hdx_data.get("hdx_upload", True),
                 json.dumps(hdx_data.get("dataset")),
                 hdx_data.get("queue", "raw_special"),
@@ -2018,7 +2019,7 @@ class HDX:
         update_query = sql.SQL(
             """
             UPDATE public.hdx
-            SET iso_3 = %s, hdx_upload = %s, dataset = %s, queue = %s, meta = %s, categories = %s, geometry = %s
+            SET iso3 = %s, hdx_upload = %s, dataset = %s, queue = %s, meta = %s, categories = %s, geometry = %s
             WHERE id = %s
             RETURNING *
         """
@@ -2026,7 +2027,7 @@ class HDX:
         self.cur.execute(
             update_query,
             (
-                hdx_data.get("iso_3", None),
+                hdx_data.get("iso3", None),
                 hdx_data.get("hdx_upload", True),
                 json.dumps(hdx_data.get("dataset")),
                 hdx_data.get("queue", "raw_special"),
