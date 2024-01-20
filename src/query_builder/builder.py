@@ -854,7 +854,7 @@ def get_country_from_iso(iso3):
                 FROM
                     hdx b
                 WHERE
-                    LOWER(iso_3) = '{iso3}'
+                    LOWER(iso3) = '{iso3}'
                 """
     return query
 
@@ -961,8 +961,8 @@ def extract_features_custom_exports(
             },
         },
     }
-    if USE_DUCK_DB_FOR_CUSTOM_EXPORTS:
-        select = [f"tags['{item}'][1] as '{item}'" for item in select]
+    if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
+        select = [f"""tags['{item}'][1] as "{item}" """ for item in select]
         select += ["osm_id", "osm_type", "geom"]
         select_query = ", ".join(select)
     else:
@@ -973,7 +973,7 @@ def extract_features_custom_exports(
     base_query = []
     for table in from_query:
         where_query = map_tables[feature_type]["where"][table]
-        if USE_DUCK_DB_FOR_CUSTOM_EXPORTS:
+        if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
             if geometry:
                 where_query += f" and (ST_Intersects(geom,ST_GeomFromGeoJSON('{geometry.json()}')))"
             query = f"""select {select_query} from {f"{base_table_name}_{table}"} where {where_query}"""
@@ -1004,6 +1004,6 @@ def get_country_geom_from_iso(iso3):
                 FROM
                     countries b
                 WHERE
-                    LOWER(iso_3) = '{iso3}'
+                    LOWER(iso3) = '{iso3}'
                 """
     return query

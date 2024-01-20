@@ -1,4 +1,4 @@
-cid,description,iso_3,dataset_name,locations
+cid,description,iso3,dataset_name,locations
 168,Afghanistan,AFG,hotosm_afg,{afg}
 170,Albania,ALB,hotosm_alb,{alb}
 100,Algeria,DZA,hotosm_dza,{dza}

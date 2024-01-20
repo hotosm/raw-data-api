@@ -59,7 +59,7 @@ async def read_hdx_list(
     filters = {}
     for key, values in request.query_params.items():
         if key not in ["skip", "limit"]:
-            if key in ["iso_3", "queue", "meta", "hdx_upload", "cid"]:
+            if key in ["iso3", "id", "queue", "meta", "hdx_upload", "cid"]:
                 filters[f"{key} = %s"] = values
                 continue
             filters[f"dataset->>'{key}' = %s"] = values

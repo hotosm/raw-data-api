@@ -1,7 +1,7 @@
 CREATE TABLE if not exists public.countries (
 	cid int4 NOT NULL,
 	"name" varchar NULL,
-	iso_3 varchar(3) NULL,
+	iso3 varchar(3) NULL,
 	geometry public.geometry(multipolygon, 4326),
 	CONSTRAINT countries_pk PRIMARY KEY (cid)
 );
@@ -16,7 +16,7 @@ CREATE table if not exists public.users (
 
 CREATE TABLE if not exists public.hdx (
     id SERIAL PRIMARY KEY,
-    iso_3 VARCHAR(3) NULL,
+    iso3 VARCHAR(3) NULL,
     cid INT NULL,
     hdx_upload BOOLEAN DEFAULT true,
     dataset JSONB,
