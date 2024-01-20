@@ -1,3 +1,16 @@
+CREATE TABLE if not exists public.hdx (
+    id SERIAL PRIMARY KEY,
+    iso_3 VARCHAR(3) NULL,
+    cid INT NULL,
+    hdx_upload BOOLEAN DEFAULT true,
+    dataset JSONB,
+    queue VARCHAR DEFAULT 'raw_special',
+    meta BOOLEAN DEFAULT false,
+    categories JSONB NULL,
+    geometry public.geometry(MultiPolygon, 4326) NULL
+);
+CREATE INDEX if not exists hdx_dataset_idx ON public.hdx (dataset);
+
 INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('AFG',168,true,'{"dataset_title": "Afghanistan", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_afg", "dataset_locations": ["afg"]}','raw_special',false,NULL,NULL),
 	 ('AND',108,true,'{"dataset_title": "Andorra", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_and", "dataset_locations": ["and"]}','raw_special',false,NULL,NULL),
@@ -260,3 +273,5 @@ INSERT INTO public.hdx (iso_3,cid,hdx_upload,dataset,queue,meta,categories,geome
 	 ('YEM',135,true,'{"dataset_title": "Yemen", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_yem", "dataset_locations": ["yem"]}','raw_special',false,NULL,NULL),
 	 ('ZMB',184,true,'{"dataset_title": "Zambia", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_zmb", "dataset_locations": ["zmb"]}','raw_special',false,NULL,NULL),
 	 ('ZWE',190,true,'{"dataset_title": "Zimbabwe", "dataset_folder": "HDX", "dataset_update_frequency": "monthly", "dataset_prefix": "hotosm_zwe", "dataset_locations": ["zwe"]}','raw_special',false,NULL,NULL);
+
+CREATE UNIQUE INDEX if not exists unique_dataset_prefix_idx ON public.hdx ((dataset->>'dataset_prefix'));

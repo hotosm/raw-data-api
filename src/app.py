@@ -1938,7 +1938,6 @@ class HDX:
         if result:
             return {"create": True}
         raise HTTPException(status_code=500, detail="Insert failed")
-    
 
     def get_hdx_list_with_filters(
         self, skip: int = 0, limit: int = 10, filters: dict = {}

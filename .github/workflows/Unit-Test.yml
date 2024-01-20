@@ -59,6 +59,7 @@ jobs:
           export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
           psql -U postgres -h localhost -p 5434 raw  < backend/sql/countries.sql
+          psql -U postgres -h localhost -p 5434 raw  < API/data/hdx.sql
 
       - name: Install gdal
         run: sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
