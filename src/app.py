@@ -1934,7 +1934,11 @@ class HDX:
         )
         self.con.commit()
         self.d_b.close_conn()
-        return {"create": True}
+        result = self.cur.fetchone()
+        if result:
+            return {"create": True}
+        raise HTTPException(status_code=500, detail="Insert failed")
+    
 
     def get_hdx_list_with_filters(
         self, skip: int = 0, limit: int = 10, filters: dict = {}
@@ -2035,7 +2039,8 @@ class HDX:
         )
         self.con.commit()
         self.d_b.close_conn()
-        
+        result = self.cur.fetchone()
+        if result:
             return {"update": True}
         raise HTTPException(status_code=404, detail="Item not found")
 

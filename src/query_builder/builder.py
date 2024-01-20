@@ -770,7 +770,7 @@ def raw_extract_plain_geojson(params, inspect_only=False):
 def get_countries_query(q):
     query = "Select ST_AsGeoJSON(cf.*) FROM countries cf"
     if q:
-        query += f" WHERE description ILIKE '%{q}%'"
+        query += f" WHERE name ILIKE '%{q}%'"
     return query
 
 
@@ -850,9 +850,9 @@ def get_country_from_iso(iso3):
     str: SQL query to fetch country information.
     """
     query = f"""SELECT
-                    b.cid::int as fid, b.description as name, b.dataset_name as dataset_prefix, b.locations as locations
+                    b.cid::int as fid, b.dataset->>'dataset_title' as dataset_title, b.dataset->>'dataset_prefix' as dataset_prefix,  b.dataset->>'dataset_locations' as locations
                 FROM
-                    countries b
+                    hdx b
                 WHERE
                     LOWER(iso_3) = '{iso3}'
                 """
