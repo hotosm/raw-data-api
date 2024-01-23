@@ -809,6 +809,9 @@ async def process_custom_requests(
             status_code=400, detail=[{"msg": "Categories can't be empty"}]
         )
     task = process_custom_request.apply_async(
-        args=(params.model_dump(),), queue=queue_name, track_started=True
+        args=(params.model_dump(),),
+        queue=queue_name,
+        track_started=True,
+        kwargs={"user": user.model_dump()},
     )
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
