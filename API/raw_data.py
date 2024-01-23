@@ -443,7 +443,10 @@ def get_osm_current_snapshot_as_file(
     # queue_name = "raw_special" if not params.uuid else "raw_default"
     queue_name = "raw_default"  # Everything directs to default now
     task = process_raw_data.apply_async(
-        args=(params.model_dump(),), queue=queue_name, track_started=True
+        args=(params.model_dump(),),
+        queue=queue_name,
+        track_started=True,
+        kwargs={"user": user.model_dump()},
     )
     return JSONResponse(
         {

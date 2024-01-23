@@ -49,7 +49,7 @@ celery.conf.update(result_extended=True)
     time_limit=DEFAULT_HARD_TASK_LIMIT,
     soft_time_limit=DEFAULT_SOFT_TASK_LIMIT,
 )
-def process_raw_data(self, params):
+def process_raw_data(self, params, user=None):
     params = RawDataCurrentParams(**params)
     try:
         start_time = time.time()
@@ -209,7 +209,7 @@ def process_raw_data(self, params):
     time_limit=HDX_HARD_TASK_LIMIT,
     soft_time_limit=HDX_SOFT_TASK_LIMIT,
 )
-def process_custom_request(self, params):
+def process_custom_request(self, params, user=None):
     params = DynamicCategoriesModel(**params)
 
     if not params.dataset:
