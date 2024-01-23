@@ -23,9 +23,16 @@ import errno
 import logging
 import os
 from configparser import ConfigParser
+from distutils.util import strtobool
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+
+
+def get_bool_env_var(key, default=False):
+    value = os.environ.get(key, default)
+    return bool(strtobool(str(value)))
+
 
 CONFIG_FILE_PATH = "config.txt"
 USE_S3_TO_UPLOAD = False
@@ -159,22 +166,25 @@ EXPORT_PATH = os.environ.get("EXPORT_PATH") or config.get(
 if not os.path.exists(EXPORT_PATH):
     # Create a exports directory because it does not exist
     os.makedirs(EXPORT_PATH)
-ALLOW_BIND_ZIP_FILTER = os.environ.get("ALLOW_BIND_ZIP_FILTER") or config.getboolean(
-    "API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=False
+ALLOW_BIND_ZIP_FILTER = get_bool_env_var(
+    "ALLOW_BIND_ZIP_FILTER",
+    config.getboolean("API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=False),
 )
 
 # check either to use connection pooling or not
-USE_CONNECTION_POOLING = os.environ.get("USE_CONNECTION_POOLING") or config.getboolean(
-    "API_CONFIG", "USE_CONNECTION_POOLING", fallback=False
+USE_CONNECTION_POOLING = get_bool_env_var(
+    "USE_CONNECTION_POOLING",
+    config.getboolean("API_CONFIG", "USE_CONNECTION_POOLING", fallback=False),
 )
 
 
 ### Polygon statistics which will deliver the stats of approx buildings/ roads in the area
 
-ENABLE_POLYGON_STATISTICS_ENDPOINTS = os.environ.get(
-    "ENABLE_POLYGON_STATISTICS_ENDPOINTS"
-) or config.getboolean(
-    "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
+ENABLE_POLYGON_STATISTICS_ENDPOINTS = get_bool_env_var(
+    "ENABLE_POLYGON_STATISTICS_ENDPOINTS",
+    config.getboolean(
+        "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
+    ),
 )
 POLYGON_STATISTICS_API_URL = os.environ.get("POLYGON_STATISTICS_API_URL") or config.get(
     "API_CONFIG", "POLYGON_STATISTICS_API_URL", fallback=None
@@ -191,9 +201,14 @@ DEFAULT_HARD_TASK_LIMIT = os.environ.get("DEFAULT_HARD_TASK_LIMIT") or config.ge
     "API_CONFIG", "DEFAULT_HARD_TASK_LIMIT", fallback=3 * 60 * 60
 )
 
-USE_DUCK_DB_FOR_CUSTOM_EXPORTS = os.environ.get(
-    "USE_DUCK_DB_FOR_CUSTOM_EXPORTS"
-) or config.getboolean("API_CONFIG", "USE_DUCK_DB_FOR_CUSTOM_EXPORTS", fallback=False)
+USE_DUCK_DB_FOR_CUSTOM_EXPORTS = get_bool_env_var(
+    "USE_DUCK_DB_FOR_CUSTOM_EXPORTS",
+    config.getboolean("API_CONFIG", "USE_DUCK_DB_FOR_CUSTOM_EXPORTS", fallback=False),
+)
+
+logger.info(
+    "USE_DUCK_DB_FOR_CUSTOM_EXPORTS %s ", USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True
+)
 
 if USE_DUCK_DB_FOR_CUSTOM_EXPORTS:
     DUCK_DB_MEMORY_LIMIT = os.environ.get("DUCK_DB_MEMORY_LIMIT") or config.get(
@@ -202,8 +217,9 @@ if USE_DUCK_DB_FOR_CUSTOM_EXPORTS:
     DUCK_DB_THREAD_LIMIT = os.environ.get("DUCK_DB_THREAD_LIMIT") or config.get(
         "API_CONFIG", "DUCK_DB_THREAD_LIMIT", fallback=None
     )
-ENABLE_CUSTOM_EXPORTS = os.environ.get("ENABLE_CUSTOM_EXPORTS") or config.getboolean(
-    "API_CONFIG", "ENABLE_CUSTOM_EXPORTS", fallback=False
+ENABLE_CUSTOM_EXPORTS = get_bool_env_var(
+    "ENABLE_CUSTOM_EXPORTS",
+    config.getboolean("API_CONFIG", "ENABLE_CUSTOM_EXPORTS", fallback=False),
 )
 
 HDX_SOFT_TASK_LIMIT = os.environ.get("HDX_SOFT_TASK_LIMIT") or config.get(
@@ -213,17 +229,19 @@ HDX_HARD_TASK_LIMIT = os.environ.get("HDX_HARD_TASK_LIMIT") or config.get(
     "HDX", "HDX_HARD_TASK_LIMIT", fallback=6 * 60 * 60
 )
 
-ENABLE_HDX_EXPORTS = os.environ.get("ENABLE_HDX_EXPORTS") or config.getboolean(
-    "HDX", "ENABLE_HDX_EXPORTS", fallback=False
+ENABLE_HDX_EXPORTS = get_bool_env_var(
+    "ENABLE_HDX_EXPORTS", config.getboolean("HDX", "ENABLE_HDX_EXPORTS", fallback=False)
 )
 
-PROCESS_SINGLE_CATEGORY_IN_POSTGRES = os.environ.get(
-    "PROCESS_SINGLE_CATEGORY_IN_POSTGRES"
-) or config.getboolean("HDX", "PROCESS_SINGLE_CATEGORY_IN_POSTGRES", fallback=False)
+PROCESS_SINGLE_CATEGORY_IN_POSTGRES = get_bool_env_var(
+    "PROCESS_SINGLE_CATEGORY_IN_POSTGRES",
+    config.getboolean("HDX", "PROCESS_SINGLE_CATEGORY_IN_POSTGRES", fallback=False),
+)
 
-PARALLEL_PROCESSING_CATEGORIES = os.environ.get(
-    "PARALLEL_PROCESSING_CATEGORIES"
-) or config.getboolean("HDX", "PARALLEL_PROCESSING_CATEGORIES", fallback=True)
+PARALLEL_PROCESSING_CATEGORIES = get_bool_env_var(
+    "PARALLEL_PROCESSING_CATEGORIES",
+    config.getboolean("HDX", "PARALLEL_PROCESSING_CATEGORIES", fallback=True),
+)
 
 
 if ENABLE_HDX_EXPORTS:
