@@ -83,6 +83,14 @@ The following are the different configuration options that are accepted.
 | `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `[HDX]` | False | Recommended for workers with low memery or CPU usage , This will process single category request like buildings only , Roads only in postgres itself and avoid extraction from duckdb| OPTIONAL |
 | `PARALLEL_PROCESSING_CATEGORIES` | `PARALLEL_PROCESSING_CATEGORIES` | `[HDX]` | True | Enable parallel processing for mulitple categories and export formats , Disable this if you have single cpu and limited RAM , Enabled by default| OPTIONAL |
 
+**Note :** HDX_API_KEY 
+
+In order to generate HDX_API_KEY , You need to be logged in to https://data.humdata.org/ .
+Follow following navigation to generate tokens : 
+  - Your profile section > User settings > API Tokens
+
+API Tokens have expiry , It is `important to update API Tokens manually each year` for hosted api service ! 
+
 ## Which Service uses which settings?
 
 | Parameter | Config Section | API | Worker |
