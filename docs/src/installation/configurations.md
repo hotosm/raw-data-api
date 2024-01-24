@@ -89,7 +89,7 @@ In order to generate HDX_API_KEY , You need to be logged in to https://data.humd
 Follow following navigation to generate tokens : 
   - Your profile section > User settings > API Tokens
 
-API Tokens have expiry , It is `important to update API Tokens manually each year` for hosted api service ! 
+API Tokens have expiry date, It is `important to update API Tokens manually each year` for hosted api service ! 
 
 ## Which Service uses which settings?
 
