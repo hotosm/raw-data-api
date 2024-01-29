@@ -1975,6 +1975,32 @@ class HDX:
         self.d_b.close_conn()
         return [orjson.loads(item[0]) for item in result]
 
+    def search_hdx_by_dataset_title(
+        self, dataset_title: str, skip: int = 0, limit: int = 10
+    ):
+        """
+        Search for HDX entries by dataset title.
+
+        Args:
+            dataset_title (str): The title of the dataset to search for.
+            skip (int): Number of entries to skip.
+            limit (int): Maximum number of entries to retrieve.
+
+        Returns:
+            List[dict]: List of HDX entries matching the dataset title.
+        """
+        search_query = sql.SQL(
+            """
+            SELECT ST_AsGeoJSON(c.*) FROM public.hdx c
+            WHERE c.dataset->>'dataset_title' ILIKE %s
+            OFFSET %s LIMIT %s
+            """
+        )
+        self.cur.execute(search_query, ("%" + dataset_title + "%", skip, limit))
+        result = self.cur.fetchall()
+        self.d_b.close_conn()
+        return [orjson.loads(item[0]) for item in result]
+
     def get_hdx_by_id(self, hdx_id: int):
         """
         Retrieve a specific HDX entry by its ID.
@@ -1990,14 +2016,13 @@ class HDX:
         """
         select_query = sql.SQL(
             """
-            SELECT ST_AsGeoJSON(c.*) FROM public.hdx
+            SELECT ST_AsGeoJSON(c.*) FROM public.hdx c
             WHERE id = %s
         """
         )
         self.cur.execute(select_query, (hdx_id,))
         result = self.cur.fetchone()
         self.d_b.close_conn()
-        result = self.cur.fetchone()
         if result:
             return orjson.loads(result[0])
         raise HTTPException(status_code=404, detail="Item not found")
@@ -2038,8 +2063,48 @@ class HDX:
             ),
         )
         self.con.commit()
-        self.d_b.close_conn()
         result = self.cur.fetchone()
+        self.d_b.close_conn()
+        if result:
+            return {"update": True}
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    def patch_hdx(self, hdx_id: int, hdx_data: dict):
+        """
+        Partially update an existing HDX entry in the database.
+
+        Args:
+            hdx_id (int): ID of the HDX entry to update.
+            hdx_data (dict): Data for partially updating the HDX entry.
+
+        Returns:
+            dict: Result of the HDX update process.
+
+        Raises:
+            HTTPException: If the HDX entry is not found.
+        """
+        if not hdx_data:
+            raise ValueError("No data provided for update")
+
+        set_clauses = []
+        params = []
+        for field, value in hdx_data.items():
+            set_clauses.append(sql.SQL("{} = %s").format(sql.Identifier(field)))
+            if isinstance(value, dict):
+                params.append(json.dumps(value))
+            else:
+                params.append(value)
+
+        query = sql.SQL("UPDATE public.hdx SET {} WHERE id = %s RETURNING *").format(
+            sql.SQL(", ").join(set_clauses)
+        )
+        params.append(hdx_id)
+
+        self.cur.execute(query, tuple(params))
+        self.con.commit()
+        result = self.cur.fetchone()
+        self.d_b.close_conn()
+
         if result:
             return {"update": True}
         raise HTTPException(status_code=404, detail="Item not found")

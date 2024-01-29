@@ -68,6 +68,34 @@ async def read_hdx_list(
     return hdx_list
 
 
+@router.get("/search/", response_model=List[dict])
+@limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
+@version(1)
+async def search_hdx(
+    request: Request,
+    dataset_title: str = Query(
+        ..., description="The title of the dataset to search for."
+    ),
+    skip: int = Query(0, description="Number of entries to skip."),
+    limit: int = Query(10, description="Maximum number of entries to retrieve."),
+):
+    """
+    Search for HDX entries by dataset title.
+
+    Args:
+        request (Request): The request object.
+        dataset_title (str): The title of the dataset to search for.
+        skip (int): Number of entries to skip.
+        limit (int): Maximum number of entries to retrieve.
+
+    Returns:
+        List[dict]: List of HDX entries matching the dataset title.
+    """
+    hdx_instance = HDX()
+    hdx_list = hdx_instance.search_hdx_by_dataset_title(dataset_title, skip, limit)
+    return hdx_list
+
+
 @router.get("/{hdx_id}", response_model=dict)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
@@ -120,8 +148,40 @@ async def update_hdx(
     existing_hdx = hdx_instance.get_hdx_by_id(hdx_id)
     if not existing_hdx:
         raise HTTPException(status_code=404, detail="HDX not found")
+    hdx_instance_update = HDX()
+    return hdx_instance_update.update_hdx(hdx_id, hdx_data)
 
-    return hdx_instance.update_hdx(hdx_id, hdx_data)
+
+@router.patch("/{hdx_id}", response_model=Dict)
+@limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
+@version(1)
+async def patch_hdx(
+    request: Request,
+    hdx_id: int,
+    hdx_data: Dict,
+    user_data: AuthUser = Depends(staff_required),
+):
+    """
+    Partially update an existing HDX entry.
+
+    Args:
+        request (Request): The request object.
+        hdx_id (int): ID of the HDX entry to update.
+        hdx_data (Dict): Data for partially updating the HDX entry.
+        user_data (AuthUser): User authentication data.
+
+    Returns:
+        Dict: Result of the HDX update process.
+
+    Raises:
+        HTTPException: If the HDX entry is not found.
+    """
+    hdx_instance = HDX()
+    existing_hdx = hdx_instance.get_hdx_by_id(hdx_id)
+    if not existing_hdx:
+        raise HTTPException(status_code=404, detail="HDX not found")
+    patch_instance = HDX()
+    return patch_instance.patch_hdx(hdx_id, hdx_data)
 
 
 @router.delete("/{hdx_id}", response_model=dict)
