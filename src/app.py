@@ -1970,7 +1970,9 @@ class HDX:
             OFFSET %s LIMIT %s
         """
         )
+
         self.cur.execute(select_query, tuple(filter_values) + (skip, limit))
+
         result = self.cur.fetchall()
         self.d_b.close_conn()
         return [orjson.loads(item[0]) for item in result]

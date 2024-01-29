@@ -63,8 +63,10 @@ async def read_hdx_list(
                 filters[f"{key} = %s"] = values
                 continue
             filters[f"dataset->>'{key}' = %s"] = values
-
-    hdx_list = hdx_instance.get_hdx_list_with_filters(skip, limit, filters)
+    try:
+        hdx_list = hdx_instance.get_hdx_list_with_filters(skip, limit, filters)
+    except Exception as ex:
+        raise HTTPException(status_code=422, detail="Couldn't process query")
     return hdx_list
 
 
