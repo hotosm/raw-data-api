@@ -1011,7 +1011,12 @@ class PolygonStats:
         Returns:
             str: Human-readable building statement.
         """
-        building_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_building_count)} buildings in this region. Based on AI-mapped estimates, this is approximately {round((osm_building_count/ai_building_count)*100)}% of the total buildings. The average age of data for this region is {humanize.naturaltime(avg_timestamp).replace('ago', '')}( Last edited {humanize.naturaltime(last_edit_timestamp)} ) and {round((osm_building_count_6_months/ai_building_count)*100)}% buildings were added or updated in the last 6 months."
+        building_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_building_count)} buildings in this region. "
+        if ai_building_count > 0:
+            building_statement += f"Based on AI-mapped estimates, this is approximately {round((osm_building_count/ai_building_count)*100)}% of the total buildings."
+        building_statement += f"The average age of data for this region is {humanize.naturaltime(avg_timestamp).replace('ago', '')}( Last edited {humanize.naturaltime(last_edit_timestamp)} ) "
+        if osm_building_count > 0:
+            building_statement += f"and {round((osm_building_count_6_months/osm_building_count)*100)}% buildings were added or updated in the last 6 months."
         return building_statement
 
     @staticmethod
@@ -1034,7 +1039,12 @@ class PolygonStats:
         Returns:
             str: Human-readable road statement.
         """
-        road_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_highway_length)} km of roads in this region. Based on AI-mapped estimates, this is approximately {round(osm_highway_length/ai_highway_length*100)} % of the total road length in the dataset region. The average age of data for the region is {humanize.naturaltime(avg_timestamp).replace('ago', '')} ( Last edited {humanize.naturaltime(last_edit_timestamp)} ) and {round((osm_highway_length_6_months/osm_highway_length)*100)}% of roads were added or updated in the last 6 months."
+        road_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_highway_length)} km of roads in this region. "
+        if ai_highway_length > 1:
+            road_statement += f"Based on AI-mapped estimates, this is approximately {round(osm_highway_length/ai_highway_length*100)} % of the total road length in the dataset region. "
+        road_statement += f"The average age of data for the region is {humanize.naturaltime(avg_timestamp).replace('ago', '')} ( Last edited {humanize.naturaltime(last_edit_timestamp)} ) "
+        if osm_highway_length > 1:
+            road_statement += f"and {round((osm_highway_length_6_months/osm_highway_length)*100)}% of roads were added or updated in the last 6 months."
         return road_statement
 
     def get_osm_analytics_meta_stats(self):
