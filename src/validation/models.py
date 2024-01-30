@@ -123,7 +123,7 @@ class GeometryValidatorMixin:
         """Validates geometry"""
         if value:
             if value.type == "Feature":
-                if value.geometry.type not in ["Polygon", "Multipolygon"]:
+                if value.geometry.type not in ["Polygon", "MultiPolygon"]:
                     raise ValueError(
                         f"Feature geometry type {value.geometry.type} must be of type polygon/multipolygon",
                     )
