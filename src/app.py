@@ -1057,7 +1057,7 @@ class PolygonStats:
         try:
             query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
             payload = {"query": query}
-            response = requests.post(self.API_URL, json=payload, timeout=20)
+            response = requests.post(self.API_URL, json=payload, timeout=60)
             response.raise_for_status()  # Raise an HTTPError for bad responses
             return response.json()
         except Exception as e:
@@ -1647,7 +1647,10 @@ class CustomExport:
             ]
             where_0_category = None
 
-            if len(self.params.categories) == 1 and PROCESS_SINGLE_CATEGORY_IN_POSTGRES:
+            if (
+                len(self.params.categories) == 1
+                and PROCESS_SINGLE_CATEGORY_IN_POSTGRES is True
+            ):
                 where_0_category = list(self.params.categories[0].values())[0].where
 
             table_names = self.types_to_tables(list(set(table_type)))
