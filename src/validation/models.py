@@ -525,7 +525,9 @@ class DatasetConfig(BaseModel):
         example="['npl']",
     )
     dataset_folder: str = Field(
-        default="HDX", description="Default base folder for the exports", example="HDX"
+        default="ISO3",
+        description="Default base folder for the exports",
+        example="ISO3",
     )
 
     @validator("update_frequency")
