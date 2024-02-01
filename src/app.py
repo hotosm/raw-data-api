@@ -1110,7 +1110,13 @@ class PolygonStats:
         )
 
         combined_data["osm_roads_completeness_percentage"] = (
-            100 - combined_data["osmRoadGapsPercentage"]
+            100
+            if combined_data["osm_highway_length"] == 0
+            and combined_data["ai_highway_length"] == 0
+            else (
+                combined_data["osm_highway_length"] / combined_data["ai_highway_length"]
+            )
+            * 100
         )
 
         combined_data["averageEditTime"] = datetime.fromtimestamp(
