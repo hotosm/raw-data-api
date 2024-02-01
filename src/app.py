@@ -1147,10 +1147,16 @@ class PolygonStats:
                 "lastEditTime": combined_data["lastEditTime"].strftime(
                     "%Y-%m-%d %H:%M:%S"
                 ),
+                "osmBuildingCompletenessPercentage": combined_data[
+                    "osm_building_completeness_percentage"
+                ],
+                "osmRoadsCompletenessPercentage": combined_data[
+                    "osm_roads_completeness_percentage"
+                ],
                 "osmBuildingsCount": combined_data["osmBuildingsCount"],
                 "osmHighwayLengthKm": combined_data["highway_length"],
                 "osmUsersCount": combined_data["osmUsersCount"],
-                "aiBuildingsCountEstimationKm": combined_data[
+                "aiBuildingsCountEstimation": combined_data[
                     "aiBuildingsCountEstimation"
                 ],
                 "aiRoadCountEstimationKm": combined_data["aiRoadCountEstimation"],
