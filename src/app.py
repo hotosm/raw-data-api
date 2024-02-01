@@ -1111,10 +1111,10 @@ class PolygonStats:
 
         combined_data["osm_roads_completeness_percentage"] = (
             100
-            if combined_data["osm_highway_length"] == 0
-            and combined_data["ai_highway_length"] == 0
+            if combined_data["highway_length"] == 0
+            and combined_data["aiRoadCountEstimation"] == 0
             else (
-                combined_data["osm_highway_length"] / combined_data["ai_highway_length"]
+                combined_data["highway_length"] / combined_data["aiRoadCountEstimation"]
             )
             * 100
         )
