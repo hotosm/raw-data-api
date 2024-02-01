@@ -1147,6 +1147,7 @@ class PolygonStats:
                 "lastEditTime": combined_data["lastEditTime"].strftime(
                     "%Y-%m-%d %H:%M:%S"
                 ),
+                "osmUsersCount": combined_data["osmUsersCount"],
                 "osmBuildingCompletenessPercentage": combined_data[
                     "osm_building_completeness_percentage"
                 ],
@@ -1155,13 +1156,12 @@ class PolygonStats:
                 ],
                 "osmBuildingsCount": combined_data["osmBuildingsCount"],
                 "osmHighwayLengthKm": combined_data["highway_length"],
-                "osmUsersCount": combined_data["osmUsersCount"],
                 "aiBuildingsCountEstimation": combined_data[
                     "aiBuildingsCountEstimation"
                 ],
                 "aiRoadCountEstimationKm": combined_data["aiRoadCountEstimation"],
                 "buildingCount6Months": combined_data["building_count_6_months"],
-                "highwayLength6Months": combined_data["highway_length_6_months"],
+                "highwayLength6MonthsKm": combined_data["highway_length_6_months"],
             },
             "meta": {
                 "indicators": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md",
