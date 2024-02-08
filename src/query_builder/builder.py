@@ -629,8 +629,10 @@ def raw_currentdata_extraction_query(
                 poly_tag = generate_tag_filter_query(poly_tag_filter)
 
     # condition for geometry types
-    if params.geometry_type is None:
+
+    if params.geometry_type is None or len(params.geometry_type) == 0:
         params.geometry_type = ["point", "line", "polygon"]
+
     if SupportedGeometryFilters.ALLGEOM.value in params.geometry_type:
         params.geometry_type = ["point", "line", "polygon"]
     if SupportedGeometryFilters.POINT.value in params.geometry_type:
@@ -724,6 +726,7 @@ def raw_currentdata_extraction_query(
     final_query = " UNION ALL ".join(table_base_query)
     if params.output_type == "csv":
         logging.debug(final_query)
+
     return final_query
 
 

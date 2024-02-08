@@ -184,9 +184,9 @@ def generate_ogr2ogr_cmd_from_psql(
         db=db_items.get("dbname"),
         password=db_items.get("password"),
         pg_sql_select=query_path,
-        layer_creation_options_str=f"-lco {layer_creation_options}"
-        if layer_creation_options
-        else "",
+        layer_creation_options_str=(
+            f"-lco {layer_creation_options}" if layer_creation_options else ""
+        ),
     )
     return ogr2ogr_cmd
 
@@ -641,7 +641,7 @@ class RawData:
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
         post_geojson = """]}"""
-        logging.debug(extraction_query)
+        logging.debug("Query : %s", extraction_query)
         # writing to the file
         # directly writing query result to the file one by one without holding them in object so that it will not eat up our memory
         with open(dump_temp_file_path, "a", encoding="utf-8") as f:
@@ -701,9 +701,9 @@ class RawData:
             g_id,
             geometry_dump,
             geom_area,
-            countries
-            if len(countries) > 0 and len(countries) <= 3
-            else None,  # don't go through countires if they are more than 3
+            (
+                countries if len(countries) > 0 and len(countries) <= 3 else None
+            ),  # don't go through countires if they are more than 3
             country_export,
         )
 
@@ -813,9 +813,9 @@ class RawData:
                     line_query=line_query,
                     poly_query=poly_query,
                     working_dir=working_dir,
-                    file_name=self.params.file_name
-                    if self.params.file_name
-                    else "Export",
+                    file_name=(
+                        self.params.file_name if self.params.file_name else "Export"
+                    ),
                 )  # using ogr2ogr
             if output_type in ["fgb", "kml", "gpkg", "sql", "parquet", "csv"]:
                 RawData.ogr_export(
@@ -1546,9 +1546,11 @@ class CustomExport:
                 self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
                 category_data.select,
                 feature_type,
-                self.format_where_clause_duckdb(category_data.where)
-                if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True
-                else category_data.where,
+                (
+                    self.format_where_clause_duckdb(category_data.where)
+                    if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True
+                    else category_data.where
+                ),
                 geometry=self.params.geometry if self.params.geometry else None,
                 cid=self.cid,
             )
@@ -1605,13 +1607,17 @@ class CustomExport:
                 uuid=self.uuid,
                 completeness_metadata={
                     "iso3": self.iso3,
-                    "geometry": {
-                        "type": "Feature",
-                        "geometry": json.loads(self.params.geometry.model_dump_json()),
-                        "properties": {},
-                    }
-                    if self.params.geometry
-                    else None,
+                    "geometry": (
+                        {
+                            "type": "Feature",
+                            "geometry": json.loads(
+                                self.params.geometry.model_dump_json()
+                            ),
+                            "properties": {},
+                        }
+                        if self.params.geometry
+                        else None
+                    ),
                 },
             )
             logging.info("Initiating HDX Upload")
@@ -1818,9 +1824,11 @@ class HDXUploader:
                 if self.completeness_metadata:
                     self.data_completeness_stats = PolygonStats(
                         iso3=self.completeness_metadata["iso3"],
-                        geojson=self.completeness_metadata["geometry"]
-                        if self.completeness_metadata["geometry"]
-                        else None,
+                        geojson=(
+                            self.completeness_metadata["geometry"]
+                            if self.completeness_metadata["geometry"]
+                            else None
+                        ),
                     ).get_summary_stats()
             if self.data_completeness_stats:
                 self.category_data.hdx.notes += f'{self.data_completeness_stats["summary"][self.category_name.lower()]}\n'
