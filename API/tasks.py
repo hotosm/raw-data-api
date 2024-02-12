@@ -156,7 +156,7 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     return JSONResponse({"tasks_discarded": purged})
 
 
-queues = ["raw_default", "raw_special"]
+queues = ["raw_ondemand", "raw_daemon"]
 
 
 @router.get("/queue/")

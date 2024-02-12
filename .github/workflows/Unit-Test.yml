@@ -81,11 +81,11 @@ jobs:
 
       - name: Launch Default Worker
         run: |
-          celery --app API.api_worker worker --loglevel=INFO --queues='raw_default' &
+          celery --app API.api_worker worker --loglevel=INFO --queues='raw_ondemand' &
 
       - name: Launch Special Worker
         run: |
-          celery --app API.api_worker worker --loglevel=INFO --queues='raw_special' &
+          celery --app API.api_worker worker --loglevel=INFO --queues='raw_daemon' &
 
       - name: Run Tests
         run: |

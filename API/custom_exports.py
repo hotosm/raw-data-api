@@ -140,7 +140,7 @@ async def process_custom_requests(
                             ]
                         ],
                     },
-                    "queue": "raw_default",
+                    "queue": "raw_ondemand",
                     "dataset": {
                         "dataset_prefix": "hotosm_project_1",
                         "dataset_folder": "TM",
@@ -798,7 +798,7 @@ async def process_custom_requests(
         dict: Result message.
     """
     queue_name = params.queue
-    if params.queue != "raw_special" and user.role != UserRole.ADMIN.value:
+    if params.queue != "raw_daemon" and user.role != UserRole.ADMIN.value:
         raise HTTPException(
             status_code=403,
             detail=[{"msg": "Insufficient Permission to choose queue"}],

@@ -20,7 +20,7 @@ CREATE TABLE if not exists public.hdx (
     cid INT NULL,
     hdx_upload BOOLEAN DEFAULT true,
     dataset JSONB,
-    queue VARCHAR DEFAULT 'raw_special',
+    queue VARCHAR DEFAULT 'raw_daemon',
     meta BOOLEAN DEFAULT false,
     categories JSONB NULL,
     geometry public.geometry(MultiPolygon, 4326) NULL
