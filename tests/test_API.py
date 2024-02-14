@@ -862,7 +862,7 @@ def test_custom_submit_normal_custom_polygon_TM_project():
                 ]
             ],
         },
-        "queue": "raw_default",
+        "queue": "raw_ondemand",
         "dataset": {
             "dataset_prefix": "hotosm_project_1",
             "dataset_folder": "TM",

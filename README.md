@@ -106,8 +106,8 @@ uvicorn API.main:app --reload
 ### Queues 
 
 Currently there are two type of queue implemented : 
-- "raw_special" : Queue for recurring exports which will replace the previous exports if present on the system , can be enabled through uuid:false API Param 
-- "raw_default" : Queue for default exports which will create each unique id for exports 
+- "raw_daemon" : Queue for recurring exports which will replace the previous exports if present on the system , can be enabled through uuid:false API Param 
+- "raw_ondemand" : Queue for default exports which will create each unique id for exports 
 
 ### Start Celery Worker
 
@@ -115,11 +115,11 @@ You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-
 
 - Start for default queue 
   ```
-  celery --app API.api_worker worker --loglevel=INFO --queues="raw_default" -n 'default_worker'
+  celery --app API.api_worker worker --loglevel=INFO --queues="raw_ondemand" -n 'default_worker'
   ```
 - Start for recurring queue 
   ```
-  celery --app API.api_worker worker --loglevel=INFO --queues="raw_special" -n 'recurring_worker'
+  celery --app API.api_worker worker --loglevel=INFO --queues="raw_daemon" -n 'recurring_worker'
   ```
 
 Set no of request that a worker can take at a time by using --concurrency 
@@ -134,7 +134,7 @@ pip install SQLAlchemy==2.0.25
 Raw Data API uses flower for monitoring the Celery distributed queue. Run this command on a different shell , if you are running redis on same machine your broker could be `redis://localhost:6379//`.
 
 ```
-celery --broker=redis://redis:6379// --app API.api_worker flower --port=5000 --queues="raw_special,raw_default"
+celery --broker=redis://redis:6379// --app API.api_worker flower --port=5000 --queues="raw_daemon,raw_ondemand"
 ```
 
 OR Simply use flower from application itself
