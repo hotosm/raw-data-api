@@ -1332,7 +1332,7 @@ class CustomExport:
 
         return where_clause
 
-    def upload_to_s3(self, resource_path):
+    def upload_resources(self, resource_path):
         """
         Uploads a resource file to Amazon S3.
 
@@ -1342,19 +1342,17 @@ class CustomExport:
         Returns:
         - Download URL for the uploaded resource.
         """
-        if not USE_S3_TO_UPLOAD:
-            raise HTTPException(
-                status_code=404, detail="S3 Export service is disabled on server"
+        if USE_S3_TO_UPLOAD:
+            s3_upload_name = os.path.relpath(
+                resource_path, os.path.join(export_path, self.uuid)
             )
-        s3_upload_name = os.path.relpath(
-            resource_path, os.path.join(export_path, self.uuid)
-        )
-        file_transfer_obj = S3FileTransfer()
-        download_url = file_transfer_obj.upload(
-            resource_path,
-            str(s3_upload_name),
-        )
-        return download_url
+            file_transfer_obj = S3FileTransfer()
+            download_url = file_transfer_obj.upload(
+                resource_path,
+                str(s3_upload_name),
+            )
+            return download_url
+        return resource_path
 
     def zip_to_s3(self, resources):
         """
@@ -1368,7 +1366,7 @@ class CustomExport:
         """
         for resource in resources:
             temp_zip_path = resource["url"]
-            resource["url"] = self.upload_to_s3(resource_path=temp_zip_path)
+            resource["url"] = self.upload_resources(resource_path=temp_zip_path)
             os.remove(temp_zip_path)
         return resources
 
@@ -1560,6 +1558,7 @@ class CustomExport:
                 feature_type,
                 list(set(category_data.formats)),
             )
+
             uploaded_resources = self.zip_to_s3(resources)
             all_uploaded_resources.extend(uploaded_resources)
         logging.info(
@@ -1746,7 +1745,7 @@ class CustomExport:
                 os.makedirs(db_dump_path, exist_ok=True)
                 export_db = f"""EXPORT DATABASE '{db_dump_path}' (FORMAT PARQUET, COMPRESSION ZSTD, ROW_GROUP_SIZE 100000);"""
                 self.duck_db_instance.run_query(export_db, load_spatial=True)
-                db_zip_download_url = self.upload_to_s3(
+                db_zip_download_url = self.upload_resources(
                     self.file_to_zip(
                         working_dir=db_dump_path,
                         zip_path=os.path.join(self.default_export_path, "dbdump.zip"),
@@ -1762,7 +1761,7 @@ class CustomExport:
         meta_last_run_dump_path = os.path.join(self.default_export_path, "meta.json")
         with open(meta_last_run_dump_path, "w", encoding="UTF-8") as json_file:
             json.dump(result, json_file, indent=4)
-        self.upload_to_s3(resource_path=meta_last_run_dump_path)
+        self.upload_resources(resource_path=meta_last_run_dump_path)
         self.clean_resources()
         return result
 

@@ -689,7 +689,7 @@ def test_stats_endpoint_iso3():
     )
 
 
-## HDX
+# HDX
 
 
 def test_hdx_submit_normal_iso3():
@@ -1307,11 +1307,12 @@ def test_full_hdx_set_iso():
     response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
+    print(res)
     check_status = res["status"]
     assert check_status == "SUCCESS"
 
 
-## Tasks connection
+# ## Tasks connection
 
 
 def test_worker_connection():
