@@ -1307,6 +1307,7 @@ def test_full_hdx_set_iso():
     response = client.get(f"/v1{track_link}")
     assert response.status_code == 200
     res = response.json()
+    print(res)
     check_status = res["status"]
     assert check_status == "SUCCESS"
 
