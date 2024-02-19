@@ -352,7 +352,7 @@ def get_oauth_credentials() -> tuple:
         "OAUTH", "OSM_CLIENT_SECRET"
     )
     secret_key = os.environ.get("APP_SECRET_KEY") or config.get(
-        "OAUTH", "APP_SECRET_KEY"
+        "OAUTH", "APP_SECRET_KEY", fallback="development"
     )
     login_redirect_uri = os.environ.get("LOGIN_REDIRECT_URI") or config.get(
         "OAUTH", "LOGIN_REDIRECT_URI", fallback="http://127.0.0.1:8000/v1/auth/callback"
