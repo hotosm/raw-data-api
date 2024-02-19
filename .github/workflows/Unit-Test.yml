@@ -43,9 +43,6 @@ jobs:
       OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
       OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
       FILE_UPLOAD_METHOD: ${{ secrets.FILE_UPLOAD_METHOD }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
 
     steps:
       - uses: actions/checkout@v2
