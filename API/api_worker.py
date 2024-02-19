@@ -36,7 +36,7 @@ from src.validation.models import (
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
 celery.conf.result_backend = celery_backend
-# celery.conf.task_serializer = "json"
+celery.conf.task_serializer = "pickle"
 # celery.conf.result_serializer = "json"
 celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
 celery.conf.task_track_started = True
