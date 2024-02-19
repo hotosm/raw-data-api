@@ -57,6 +57,7 @@ jobs:
           export PGPASSWORD='admin';
           psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
           psql -U postgres -h localhost -p 5434 raw  < backend/sql/countries.sql
+          psql -U postgres -h localhost -p 5434 raw  < API/data/tables.sql
           psql -U postgres -h localhost -p 5434 raw  < API/data/hdx.sql
 
       - name: Install gdal
