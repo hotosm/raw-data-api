@@ -177,6 +177,14 @@ USE_CONNECTION_POOLING = get_bool_env_var(
     config.getboolean("API_CONFIG", "USE_CONNECTION_POOLING", fallback=False),
 )
 
+## Queue
+
+DEFAULT_QUEUE_NAME = os.environ.get("DEFAULT_QUEUE_NAME") or config.get(
+    "API_CONFIG", "DEFAULT_QUEUE_NAME", fallback="raw_ondemand"
+)
+DAEMON_QUEUE_NAME = os.environ.get("DAEMON_QUEUE_NAME") or config.get(
+    "API_CONFIG", "DAEMON_QUEUE_NAME", fallback="raw_daemon"
+)
 
 ### Polygon statistics which will deliver the stats of approx buildings/ roads in the area
 
@@ -194,12 +202,16 @@ POLYGON_STATISTICS_API_RATE_LIMIT = os.environ.get(
     "POLYGON_STATISTICS_API_RATE_LIMIT"
 ) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_RATE_LIMIT", fallback=5)
 
+## task limit
+
 DEFAULT_SOFT_TASK_LIMIT = os.environ.get("DEFAULT_SOFT_TASK_LIMIT") or config.get(
     "API_CONFIG", "DEFAULT_SOFT_TASK_LIMIT", fallback=2 * 60 * 60
 )
 DEFAULT_HARD_TASK_LIMIT = os.environ.get("DEFAULT_HARD_TASK_LIMIT") or config.get(
     "API_CONFIG", "DEFAULT_HARD_TASK_LIMIT", fallback=3 * 60 * 60
 )
+
+## duckdb
 
 USE_DUCK_DB_FOR_CUSTOM_EXPORTS = get_bool_env_var(
     "USE_DUCK_DB_FOR_CUSTOM_EXPORTS",
@@ -217,6 +229,8 @@ if USE_DUCK_DB_FOR_CUSTOM_EXPORTS:
     DUCK_DB_THREAD_LIMIT = os.environ.get("DUCK_DB_THREAD_LIMIT") or config.get(
         "API_CONFIG", "DUCK_DB_THREAD_LIMIT", fallback=None
     )
+
+## hdx and custom exports
 ENABLE_CUSTOM_EXPORTS = get_bool_env_var(
     "ENABLE_CUSTOM_EXPORTS",
     config.getboolean("API_CONFIG", "ENABLE_CUSTOM_EXPORTS", fallback=False),
@@ -276,10 +290,8 @@ if ENABLE_HDX_EXPORTS:
     from hdx.data.dataset import Dataset
     from hdx.data.vocabulary import Vocabulary
 
-    parse_list = (
-        lambda value, delimiter=",": value.split(delimiter)
-        if isinstance(value, str)
-        else value or []
+    parse_list = lambda value, delimiter=",": (
+        value.split(delimiter) if isinstance(value, str) else value or []
     )
 
     ALLOWED_HDX_TAGS = parse_list(

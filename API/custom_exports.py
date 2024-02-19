@@ -2,6 +2,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
+from src.config import DEFAULT_QUEUE_NAME
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
 from src.validation.models import DynamicCategoriesModel
@@ -798,7 +799,7 @@ async def process_custom_requests(
         dict: Result message.
     """
     queue_name = params.queue
-    if params.queue != "raw_daemon" and user.role != UserRole.ADMIN.value:
+    if params.queue != DEFAULT_QUEUE_NAME and user.role != UserRole.ADMIN.value:
         raise HTTPException(
             status_code=403,
             detail=[{"msg": "Insufficient Permission to choose queue"}],

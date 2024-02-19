@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
-from src.config import CELERY_BROKER_URL
+from src.config import CELERY_BROKER_URL, DAEMON_QUEUE_NAME, DEFAULT_QUEUE_NAME
 from src.validation.models import SnapshotTaskResponse
 
 from .api_worker import celery
@@ -156,7 +156,7 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     return JSONResponse({"tasks_discarded": purged})
 
 
-queues = ["raw_ondemand", "raw_daemon"]
+queues = [DEFAULT_QUEUE_NAME, DAEMON_QUEUE_NAME]
 
 
 @router.get("/queue/")

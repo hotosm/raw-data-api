@@ -28,7 +28,12 @@ from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
 from src.app import RawData
-from src.config import ALLOW_BIND_ZIP_FILTER, CELERY_BROKER_URL, EXPORT_MAX_AREA_SQKM
+from src.config import (
+    ALLOW_BIND_ZIP_FILTER,
+    CELERY_BROKER_URL,
+    DEFAULT_QUEUE_NAME,
+    EXPORT_MAX_AREA_SQKM,
+)
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN as export_rate_limit
 from src.validation.models import (
@@ -441,7 +446,7 @@ def get_osm_current_snapshot_as_file(
                     )
 
     # queue_name = "raw_daemon" if not params.uuid else "raw_ondemand"
-    queue_name = "raw_ondemand"  # Everything directs to default now
+    queue_name = DEFAULT_QUEUE_NAME  # Everything directs to default now
     task = process_raw_data.apply_async(
         args=(params.model_dump(),),
         queue=queue_name,
