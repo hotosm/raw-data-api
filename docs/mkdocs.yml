@@ -19,6 +19,7 @@ extra:
 nav:
   - Raw Data API : "index.md"
   - Installation:
+      - Backend: "installation/backend.md"
       - Docker Installation: "installation/docker.md"
       - Configurations: "installation/configurations.md"
   # - User Guide: 'user_guide/index.md'
