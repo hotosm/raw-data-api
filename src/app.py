@@ -567,7 +567,7 @@ class RawData:
                 f"PG:'host={db_items.get('host')} port={db_items.get('port')} "
                 f"user={db_items.get('user')} dbname={db_items.get('dbname')} "
                 f"password={db_items.get('password')}' "
-                f"-sql @'{query_path}' -lco ENCODING=UTF-8 -progress "
+                f"-sql @'{query_path}' -progress "
                 f"VERIFY_BUFFERS=NO"
             )
             run_ogr2ogr_cmd(cmd)
