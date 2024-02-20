@@ -570,6 +570,8 @@ class RawData:
                 f"-sql @'{query_path}' -lco SPATIAL_INDEX=YES -progress "
                 f"VERIFY_BUFFERS=NO"
             )
+            if params.fgb_wrap_geoms:
+                cmd = cmd + " -nlt GEOMETRYCOLLECTION"
             run_ogr2ogr_cmd(cmd)
 
         if outputtype == RawDataOutputType.GEOPARQUET.value:
