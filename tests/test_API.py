@@ -12,6 +12,32 @@ access_token = os.environ.get("ACCESS_TOKEN")
 ## Status
 
 
+def wait_for_task_completion(track_link, max_attempts=6, interval_seconds=10):
+    """
+    Waits for a task to complete, polling the task status at specified intervals.
+
+    :param track_link: The endpoint to check the task status.
+    :param max_attempts: Maximum number of polling attempts.
+    :param interval_seconds: Time to wait between each polling attempt.
+    :return: The final response JSON on success or raises an AssertionError on failure.
+    """
+    for attempt in range(1, max_attempts + 1):
+        time.sleep(interval_seconds)  # wait for the worker to complete the task
+
+        response = client.get(f"/v1{track_link}")
+        assert response.status_code == 200, "Task status check failed"
+        res = response.json()
+        check_status = res["status"]
+
+        if check_status == "SUCCESS":
+            return res  # Task completed successfully
+
+        if attempt == max_attempts:
+            raise AssertionError(
+                f"Task did not complete successfully after {max_attempts} attempts"
+            )
+
+
 def test_status():
     response = client.get("/v1/status/")
     assert response.status_code == 200
@@ -67,24 +93,7 @@ def test_snapshot():
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
-    max_attempts = 6
-    interval_seconds = 10
-    for attempt in range(1, max_attempts + 1):
-        time.sleep(interval_seconds)  # wait for worker to complete task
-
-        response = client.get(f"/v1{track_link}")
-        assert response.status_code == 200
-        res = response.json()
-        check_status = res["status"]
-
-        if check_status == "SUCCESS":
-            break  # exit the loop if the status is SUCCESS
-
-        if attempt == max_attempts:
-            # If max_attempts reached and status is not SUCCESS, raise an AssertionError
-            assert (
-                False
-            ), f"Task did not complete successfully after {max_attempts} attempts"
+    wait_for_task_completion(client, track_link)
 
 
 def test_snapshot_featurecollection():
@@ -180,6 +189,36 @@ def test_snapshot_feature():
             assert (
                 False
             ), f"Task did not complete successfully after {max_attempts} attempts"
+
+
+def test_snapshot_feature_fgb_wrap_geom():
+    response = client.post(
+        "/v1/snapshot/",
+        json={
+            "fgbWrapGeoms": True,
+            "outputType": "fgb",
+            "geometry": {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [83.97346137271688, 28.217525272345284],
+                            [83.97346137271688, 28.192595937414737],
+                            [84.01473909818759, 28.192595937414737],
+                            [84.01473909818759, 28.217525272345284],
+                            [83.97346137271688, 28.217525272345284],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            },
+        },
+    )
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(client, track_link)
 
 
 def test_snapshot_centroid():
