@@ -529,6 +529,15 @@ class RawData:
 
     @staticmethod
     def ogr_export(query, outputtype, working_dir, dump_temp_path, params):
+        """Generates ogr2ogr command based on outputtype and parameters
+
+        Args:
+            query (_type_): Postgresql query to extract
+            outputtype (_type_): _description_
+            working_dir (_type_): _description_
+            dump_temp_path (_type_): temp file path for metadata gen
+            params (_type_): _description_
+        """
         db_items = get_db_connection_params()
         query_path = os.path.join(working_dir, "export_query.sql")
         with open(query_path, "w", encoding="UTF-8") as file:
