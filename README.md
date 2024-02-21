@@ -32,11 +32,16 @@
 
 ## Installation
 
-#### To setup Backend Follow [Backend_Installation](./backend/Readme.md)
+Raw Data API consists of two elements:
+
+- A **backend** database, tools, and scripts: used to import OSM data into a specific database structure and keep it updated.
+- An **API** that is used to serve data from the backend database.
+
+#### To setup the backend see [Backend Installation](./installation/backend)
 
 Raw Data API can be installed through `docker` or locally on your computer.
 
-- To install with docker see [docker installation](./docs/src/installation/docker.md).
+- To install with docker see [docker installation](./installation/docker).
 - To install locally, continue below.
 
 NOTE: The installation guide below is only tested to work on Ubuntu, we recommend using docker for other operating systems.
@@ -90,7 +95,7 @@ pip install -r requirements.txt
 
 ### Additional required configurations for Raw Data API
 
-Setup the necessary configurations for Raw Data API from [configurations](./docs/src/installation/configurations.md).
+Setup the necessary configurations for Raw Data API from [configurations](./installation/configurations).
 
 Setup config.txt in project root.
 
@@ -202,7 +207,7 @@ py.test -k test function name
 
 ## Contribution & Development
 
-Learn about current priorities and work going through Roadmap  & see here  [CONTRIBUTING](./docs/src/contributing.md)
+Learn about current priorities and work going through Roadmap  & see here  [CONTRIBUTING](./contributing)
 
 ## Roadmap
   https://github.com/orgs/hotosm/projects/29 

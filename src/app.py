@@ -529,110 +529,69 @@ class RawData:
 
     @staticmethod
     def ogr_export(query, outputtype, working_dir, dump_temp_path, params):
-        """Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow"""
+        """Generates ogr2ogr command based on outputtype and parameters
+
+        Args:
+            query (_type_): Postgresql query to extract
+            outputtype (_type_): _description_
+            working_dir (_type_): _description_
+            dump_temp_path (_type_): temp file path for metadata gen
+            params (_type_): _description_
+        """
         db_items = get_db_connection_params()
-        # format query if it has " in string"
         query_path = os.path.join(working_dir, "export_query.sql")
-        # writing to .sql to pass in ogr2ogr because we don't want to pass too much argument on command with sql
         with open(query_path, "w", encoding="UTF-8") as file:
             file.write(query)
-        # for mbtiles we need additional input as well i.e. minzoom and maxzoom , setting default at max=22 and min=10
-        if ENABLE_TILES:
-            if outputtype == RawDataOutputType.MBTILES.value:
-                if params.min_zoom and params.max_zoom:
-                    cmd = """ogr2ogr -overwrite -f MBTILES  -dsco MINZOOM={min_zoom} -dsco MAXZOOM={max_zoom} {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                        min_zoom=params.min_zoom,
-                        max_zoom=params.max_zoom,
-                        export_path=dump_temp_path,
-                        host=db_items.get("host"),
-                        username=db_items.get("user"),
-                        db=db_items.get("dbname"),
-                        password=db_items.get("password"),
-                        pg_sql_select=query_path,
+
+        format_options = {
+            RawDataOutputType.MBTILES.value: {
+                "format": "MBTILES",
+                "extra": (
+                    "-dsco MINZOOM={} -dsco MAXZOOM={} ".format(
+                        params.min_zoom, params.max_zoom
                     )
-                else:
-                    cmd = """ogr2ogr -overwrite -f MBTILES  -dsco ZOOM_LEVEL_AUTO=YES {export_path} PG:"host={host} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                        export_path=dump_temp_path,
-                        host=db_items.get("host"),
-                        username=db_items.get("user"),
-                        db=db_items.get("dbname"),
-                        password=db_items.get("password"),
-                        pg_sql_select=query_path,
-                    )
-                run_ogr2ogr_cmd(cmd)
+                    if params.min_zoom and params.max_zoom
+                    else "-dsco ZOOM_LEVEL_AUTO=YES"
+                ),
+            },
+            RawDataOutputType.FLATGEOBUF.value: {
+                "format": "FLATGEOBUF",
+                "extra": "-lco SPATIAL_INDEX=YES VERIFY_BUFFERS=NO",
+            },
+            RawDataOutputType.GEOPARQUET.value: {
+                "format": "Parquet",
+                "extra": "",
+            },
+            RawDataOutputType.PGDUMP.value: {
+                "format": "PGDump",
+                "extra": "--config PG_USE_COPY YES -lco SRID=4326",
+            },
+            RawDataOutputType.KML.value: {
+                "format": "KML",
+                "extra": "",
+            },
+            RawDataOutputType.CSV.value: {
+                "format": "CSV",
+                "extra": "",
+            },
+            RawDataOutputType.GEOPACKAGE.value: {
+                "format": "GPKG",
+                "extra": "",
+            },
+        }
 
-        if outputtype == RawDataOutputType.FLATGEOBUF.value:
-            cmd = """ogr2ogr -overwrite -f FLATGEOBUF {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress VERIFY_BUFFERS=NO""".format(
-                export_path=dump_temp_path,
-                host=db_items.get("host"),
-                port=db_items.get("port"),
-                username=db_items.get("user"),
-                db=db_items.get("dbname"),
-                password=db_items.get("password"),
-                pg_sql_select=query_path,
-            )
-            run_ogr2ogr_cmd(cmd)
+        file_name_option = (
+            f"-nln {params.file_name if params.file_name else 'raw_export'}"
+        )
 
-        if outputtype == RawDataOutputType.GEOPARQUET.value:
-            cmd = """ogr2ogr -overwrite -f Parquet {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                export_path=dump_temp_path,
-                host=db_items.get("host"),
-                port=db_items.get("port"),
-                username=db_items.get("user"),
-                db=db_items.get("dbname"),
-                password=db_items.get("password"),
-                pg_sql_select=query_path,
-            )
-            run_ogr2ogr_cmd(cmd)
+        if outputtype == RawDataOutputType.FLATGEOBUF.value and params.fgb_wrap_geoms:
+            format_options[outputtype]["extra"] += " -nlt GEOMETRYCOLLECTION"
 
-        if outputtype == RawDataOutputType.PGDUMP.value:
-            cmd = """ogr2ogr -overwrite --config PG_USE_COPY YES -f PGDump {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco SRID=4326 -progress""".format(
-                export_path=dump_temp_path,
-                host=db_items.get("host"),
-                port=db_items.get("port"),
-                username=db_items.get("user"),
-                db=db_items.get("dbname"),
-                password=db_items.get("password"),
-                pg_sql_select=query_path,
-            )
-            run_ogr2ogr_cmd(cmd)
+        format_option = format_options.get(outputtype, {"format": "", "extra": ""})
 
-        if outputtype == RawDataOutputType.KML.value:
-            cmd = """ogr2ogr -overwrite -f KML {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                export_path=dump_temp_path,
-                host=db_items.get("host"),
-                port=db_items.get("port"),
-                username=db_items.get("user"),
-                db=db_items.get("dbname"),
-                password=db_items.get("password"),
-                pg_sql_select=query_path,
-            )
-            run_ogr2ogr_cmd(cmd)
+        cmd = f"ogr2ogr -overwrite -f {format_option['format']} {dump_temp_path} PG:\"host={db_items.get('host')} port={db_items.get('port')} user={db_items.get('user')} dbname={db_items.get('dbname')} password={db_items.get('password')}\" -sql @{query_path} -lco ENCODING=UTF-8 -progress {format_option['extra']} {file_name_option}"
+        run_ogr2ogr_cmd(cmd)
 
-        if outputtype == RawDataOutputType.CSV.value:
-            cmd = """ogr2ogr -overwrite -f CSV  {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                export_path=dump_temp_path,
-                host=db_items.get("host"),
-                port=db_items.get("port"),
-                username=db_items.get("user"),
-                db=db_items.get("dbname"),
-                password=db_items.get("password"),
-                pg_sql_select=query_path,
-            )
-            run_ogr2ogr_cmd(cmd)
-
-        if outputtype == RawDataOutputType.GEOPACKAGE.value:
-            cmd = """ogr2ogr -overwrite -f GPKG {export_path} PG:"host={host} port={port} user={username} dbname={db} password={password}" -sql @"{pg_sql_select}" -lco ENCODING=UTF-8 -progress""".format(
-                export_path=dump_temp_path,
-                host=db_items.get("host"),
-                port=db_items.get("port"),
-                username=db_items.get("user"),
-                db=db_items.get("dbname"),
-                password=db_items.get("password"),
-                pg_sql_select=query_path,
-            )
-            run_ogr2ogr_cmd(cmd)
-        # clear query file we don't need it anymore
         os.remove(query_path)
 
     @staticmethod

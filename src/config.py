@@ -75,14 +75,6 @@ LOG_LEVEL = os.environ.get("LOG_LEVEL") or config.get(
     "API_CONFIG", "LOG_LEVEL", fallback="debug"
 )
 
-ALLOW_BIND_ZIP_FILTER = os.environ.get("ALLOW_BIND_ZIP_FILTER") or config.get(
-    "API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=None
-)
-
-ENABLE_TILES = os.environ.get("ENABLE_TILES") or config.get(
-    "API_CONFIG", "ENABLE_TILES", fallback=None
-)
-
 
 def not_raises(func, *args, **kwargs):
     try:
@@ -166,9 +158,13 @@ EXPORT_PATH = os.environ.get("EXPORT_PATH") or config.get(
 if not os.path.exists(EXPORT_PATH):
     # Create a exports directory because it does not exist
     os.makedirs(EXPORT_PATH)
+
 ALLOW_BIND_ZIP_FILTER = get_bool_env_var(
     "ALLOW_BIND_ZIP_FILTER",
     config.getboolean("API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=False),
+)
+ENABLE_TILES = get_bool_env_var(
+    "ENABLE_TILES", config.getboolean("API_CONFIG", "ENABLE_TILES", fallback=False)
 )
 
 # check either to use connection pooling or not
