@@ -157,12 +157,156 @@ def test_snapshot_feature():
     wait_for_task_completion(track_link)
 
 
-def test_snapshot_feature_fgb_wrap_geom():
+def test_snapshot_feature_fgb():
     response = client.post(
         "/v1/snapshot/",
         json={
-            "fgbWrapGeoms": True,
             "outputType": "fgb",
+            "geometry": {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [83.97346137271688, 28.217525272345284],
+                            [83.97346137271688, 28.192595937414737],
+                            [84.01473909818759, 28.192595937414737],
+                            [84.01473909818759, 28.217525272345284],
+                            [83.97346137271688, 28.217525272345284],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            },
+        },
+    )
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
+def test_snapshot_feature_shp():
+    response = client.post(
+        "/v1/snapshot/",
+        json={
+            "outputType": "shp",
+            "geometry": {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [83.97346137271688, 28.217525272345284],
+                            [83.97346137271688, 28.192595937414737],
+                            [84.01473909818759, 28.192595937414737],
+                            [84.01473909818759, 28.217525272345284],
+                            [83.97346137271688, 28.217525272345284],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            },
+        },
+    )
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
+def test_snapshot_feature_gpkg():
+    response = client.post(
+        "/v1/snapshot/",
+        json={
+            "outputType": "gpkg",
+            "geometry": {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [83.97346137271688, 28.217525272345284],
+                            [83.97346137271688, 28.192595937414737],
+                            [84.01473909818759, 28.192595937414737],
+                            [84.01473909818759, 28.217525272345284],
+                            [83.97346137271688, 28.217525272345284],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            },
+        },
+    )
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
+def test_snapshot_feature_kml():
+    response = client.post(
+        "/v1/snapshot/",
+        json={
+            "outputType": "kml",
+            "geometry": {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [83.97346137271688, 28.217525272345284],
+                            [83.97346137271688, 28.192595937414737],
+                            [84.01473909818759, 28.192595937414737],
+                            [84.01473909818759, 28.217525272345284],
+                            [83.97346137271688, 28.217525272345284],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            },
+        },
+    )
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
+def test_snapshot_feature_sql():
+    response = client.post(
+        "/v1/snapshot/",
+        json={
+            "outputType": "sql",
+            "geometry": {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [83.97346137271688, 28.217525272345284],
+                            [83.97346137271688, 28.192595937414737],
+                            [84.01473909818759, 28.192595937414737],
+                            [84.01473909818759, 28.217525272345284],
+                            [83.97346137271688, 28.217525272345284],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            },
+        },
+    )
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
+def test_snapshot_feature_csv():
+    response = client.post(
+        "/v1/snapshot/",
+        json={
+            "outputType": "csv",
             "geometry": {
                 "type": "Feature",
                 "properties": {},
