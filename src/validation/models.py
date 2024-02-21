@@ -296,22 +296,22 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         max_length=3,
         example="NPL",
     )
-    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
-        Field(
-            default=None,
-            example={
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [83.96919250488281, 28.194446860487773],
-                        [83.99751663208006, 28.194446860487773],
-                        [83.99751663208006, 28.214869548073377],
-                        [83.96919250488281, 28.214869548073377],
-                        [83.96919250488281, 28.194446860487773],
-                    ]
-                ],
-            },
-        )
+    geometry: Optional[
+        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
+    ] = Field(
+        default=None,
+        example={
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
     )
 
     @validator("geometry", pre=True, always=True)
@@ -608,22 +608,22 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
             }
         ],
     )
-    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
-        Field(
-            default=None,
-            example={
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [83.96919250488281, 28.194446860487773],
-                        [83.99751663208006, 28.194446860487773],
-                        [83.99751663208006, 28.214869548073377],
-                        [83.96919250488281, 28.214869548073377],
-                        [83.96919250488281, 28.194446860487773],
-                    ]
-                ],
-            },
-        )
+    geometry: Optional[
+        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
+    ] = Field(
+        default=None,
+        example={
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
     )
 
     @validator("geometry", pre=True, always=True)
