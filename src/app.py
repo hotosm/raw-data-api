@@ -544,16 +544,6 @@ class RawData:
             file.write(query)
 
         format_options = {
-            RawDataOutputType.MBTILES.value: {
-                "format": "MBTILES",
-                "extra": (
-                    "-dsco MINZOOM={} -dsco MAXZOOM={} ".format(
-                        params.min_zoom, params.max_zoom
-                    )
-                    if params.min_zoom and params.max_zoom
-                    else "-dsco ZOOM_LEVEL_AUTO=YES"
-                ),
-            },
             RawDataOutputType.FLATGEOBUF.value: {
                 "format": "FLATGEOBUF",
                 "extra": "-lco SPATIAL_INDEX=YES VERIFY_BUFFERS=NO",
@@ -579,6 +569,18 @@ class RawData:
                 "extra": "",
             },
         }
+
+        if ENABLE_TILES:
+            format_options[RawDataOutputType.MBTILES.value] = {
+                "format": "MBTILES",
+                "extra": (
+                    "-dsco MINZOOM={} -dsco MAXZOOM={} ".format(
+                        params.min_zoom, params.max_zoom
+                    )
+                    if params.min_zoom and params.max_zoom
+                    else "-dsco ZOOM_LEVEL_AUTO=YES"
+                ),
+            }
 
         file_name_option = (
             f"-nln {params.file_name if params.file_name else 'raw_export'}"
