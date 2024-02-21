@@ -582,7 +582,6 @@ class RawData:
                 ),
             }
 
-
         file_name_option = (
             f"-nln {params.file_name if params.file_name else 'raw_export'}"
         )
