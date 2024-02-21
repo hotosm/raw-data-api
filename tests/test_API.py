@@ -34,7 +34,7 @@ def wait_for_task_completion(track_link, max_attempts=12, interval_seconds=5):
 
         if attempt == max_attempts:
             raise AssertionError(
-                f"Task did not complete successfully after {max_attempts} attempts"
+                f"Task did not complete successfully after {max_attempts} attempts with following response {res}"
             )
 
 
