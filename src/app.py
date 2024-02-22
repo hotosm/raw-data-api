@@ -156,6 +156,8 @@ def dict_none_clean(to_clean):
     for key, value in to_clean.items():
         if value is None:
             value = 0
+        elif key is None:
+            continue
         result[key] = value
     return result
 
