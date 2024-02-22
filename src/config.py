@@ -87,7 +87,7 @@ def not_raises(func, *args, **kwargs):
 
 ####################
 
-### EXPORT_UPLOAD CONFIG BLOCK
+# EXPORT_UPLOAD CONFIG BLOCK
 FILE_UPLOAD_METHOD = os.environ.get("FILE_UPLOAD_METHOD") or config.get(
     "EXPORT_UPLOAD", "FILE_UPLOAD_METHOD", fallback="disk"
 )
@@ -173,7 +173,7 @@ USE_CONNECTION_POOLING = get_bool_env_var(
     config.getboolean("API_CONFIG", "USE_CONNECTION_POOLING", fallback=False),
 )
 
-## Queue
+# Queue
 
 DEFAULT_QUEUE_NAME = os.environ.get("DEFAULT_QUEUE_NAME") or config.get(
     "API_CONFIG", "DEFAULT_QUEUE_NAME", fallback="raw_ondemand"
@@ -182,7 +182,7 @@ DAEMON_QUEUE_NAME = os.environ.get("DAEMON_QUEUE_NAME") or config.get(
     "API_CONFIG", "DAEMON_QUEUE_NAME", fallback="raw_daemon"
 )
 
-### Polygon statistics which will deliver the stats of approx buildings/ roads in the area
+# Polygon statistics which will deliver the stats of approx buildings/ roads in the area
 
 ENABLE_POLYGON_STATISTICS_ENDPOINTS = get_bool_env_var(
     "ENABLE_POLYGON_STATISTICS_ENDPOINTS",
@@ -198,7 +198,7 @@ POLYGON_STATISTICS_API_RATE_LIMIT = os.environ.get(
     "POLYGON_STATISTICS_API_RATE_LIMIT"
 ) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_RATE_LIMIT", fallback=5)
 
-## task limit
+# task limit
 
 DEFAULT_SOFT_TASK_LIMIT = os.environ.get("DEFAULT_SOFT_TASK_LIMIT") or config.get(
     "API_CONFIG", "DEFAULT_SOFT_TASK_LIMIT", fallback=2 * 60 * 60
@@ -207,7 +207,7 @@ DEFAULT_HARD_TASK_LIMIT = os.environ.get("DEFAULT_HARD_TASK_LIMIT") or config.ge
     "API_CONFIG", "DEFAULT_HARD_TASK_LIMIT", fallback=3 * 60 * 60
 )
 
-## duckdb
+# duckdb
 
 USE_DUCK_DB_FOR_CUSTOM_EXPORTS = get_bool_env_var(
     "USE_DUCK_DB_FOR_CUSTOM_EXPORTS",
@@ -226,7 +226,7 @@ if USE_DUCK_DB_FOR_CUSTOM_EXPORTS:
         "API_CONFIG", "DUCK_DB_THREAD_LIMIT", fallback=None
     )
 
-## hdx and custom exports
+# hdx and custom exports
 ENABLE_CUSTOM_EXPORTS = get_bool_env_var(
     "ENABLE_CUSTOM_EXPORTS",
     config.getboolean("API_CONFIG", "ENABLE_CUSTOM_EXPORTS", fallback=False),
@@ -255,18 +255,38 @@ PARALLEL_PROCESSING_CATEGORIES = get_bool_env_var(
 
 
 if ENABLE_HDX_EXPORTS:
-    HDX_SITE = os.environ.get("HDX_SITE") or config.get(
-        "HDX", "HDX_SITE", fallback="demo"
-    )
-    HDX_API_KEY = os.environ.get("HDX_API_KEY") or config.get(
-        "HDX", "HDX_API_KEY", fallback=None
-    )
-    HDX_OWNER_ORG = os.environ.get("HDX_OWNER_ORG") or config.get(
-        "HDX", "HDX_OWNER_ORG", fallback="225b9f7d-e7cb-4156-96a6-44c9c58d31e3"
-    )
-    HDX_MAINTAINER = os.environ.get("HDX_MAINTAINER") or config.get(
-        "HDX", "HDX_MAINTAINER", fallback=None
-    )
+    try:
+        hdx_credentials = os.environ["REMOTE_HDX"]
+
+    except KeyError:
+        print("EnvVar: REMOTE_HDX not supplied; Falling back to other means")
+        HDX_SITE = os.environ.get("HDX_SITE") or config.get(
+            "HDX", "HDX_SITE", fallback="demo"
+        )
+        HDX_API_KEY = os.environ.get("HDX_API_KEY") or config.get(
+            "HDX", "HDX_API_KEY", fallback=None
+        )
+        HDX_OWNER_ORG = os.environ.get("HDX_OWNER_ORG") or config.get(
+            "HDX", "HDX_OWNER_ORG", fallback="225b9f7d-e7cb-4156-96a6-44c9c58d31e3"
+        )
+        HDX_MAINTAINER = os.environ.get("HDX_MAINTAINER") or config.get(
+            "HDX", "HDX_MAINTAINER", fallback=None
+        )
+
+    else:
+        import json
+
+        hdx_credentials_json = json.loads(hdx_credentials)
+
+        HDX_SITE = hdx_credentials_json["HDX_SITE"]
+        HDX_API_KEY = hdx_credentials_json["HDX_API_KEY"]
+        HDX_OWNER_ORG = hdx_credentials_json["HDX_OWNER_ORG"]
+        HDX_MAINTAINER = hdx_credentials_json["HDX_MAINTAINER"]
+
+        if None in (HDX_SITE, HDX_API_KEY, HDX_OWNER_ORG, HDX_MAINTAINER):
+            raise ValueError("HDX Remote Credentials Malformed")
+            logging.error("HDX Remote Credentials Malformed")
+
     from hdx.api.configuration import Configuration
 
     try:
@@ -312,43 +332,67 @@ def get_db_connection_params() -> dict:
     """Return a python dict that can be passed to psycopg2 connections
     to authenticate to Postgres Databases
 
-
     Returns: connection_params (dict): PostgreSQL connection parameters
              corresponding to the configuration section.
 
     """
+    # This block fetches PostgreSQL (database) credentials passed as
+    # environment variables as a JSON object, from AWS Secrets Manager or
+    # Azure Key Vault.
     try:
-        connection_params = {
-            "host": os.environ.get("PGHOST") or config.get("DB", "PGHOST"),
-            "port": os.environ.get("PGPORT")
+        db_credentials = os.environ["REMOTE_DB"]
+
+    except KeyError:
+        print("EnvVar: REMOTE_DB not supplied; Falling back to other means")
+
+        connection_params = dict(
+            host=os.environ.get("PGHOST") or config.get("DB", "PGHOST"),
+            port=os.environ.get("PGPORT")
             or config.get("DB", "PGPORT", fallback="5432"),
-            "dbname": os.environ.get("PGDATABASE") or config.get("DB", "PGDATABASE"),
-            "user": os.environ.get("PGUSER") or config.get("DB", "PGUSER"),
-            "password": os.environ.get("PGPASSWORD") or config.get("DB", "PGPASSWORD"),
-        }
-        if any(value is None for value in connection_params.values()):
-            raise ValueError(
-                "Connection Params Value Error :  Couldn't be Loaded , Check DB Credentials"
-            )
-    except Exception as ex:
+            dbname=os.environ.get("PGDATABASE") or config.get("DB", "PGDATABASE"),
+            user=os.environ.get("PGUSER") or config.get("DB", "PGUSER"),
+            password=os.environ.get("PGPASSWORD") or config.get("DB", "PGPASSWORD"),
+        )
+
+    else:
+        import json
+
+        connection_params = json.loads(db_credentials)
+
+        connection_params["username"] = connection_params["user"]
+        for k in ("dbinstanceidentifier", "engine", "user"):
+            connection_params.pop(k, None)
+
+    if None in connection_params.values():
+        raise ValueError(
+            "Connection Params Value Error :  Couldn't be Loaded , Check DB Credentials"
+        )
         logging.error(
             "Can't find database credentials , Either export them as env variable or include in config Block DB"
         )
-        raise ex
+
     return connection_params
 
 
 def get_oauth_credentials() -> tuple:
-    """Gets oauth credentials from the env file and returns a config dict"""
-    osm_url = os.environ.get("OSM_URL") or config.get(
-        "OAUTH", "OSM_URL", fallback="https://www.openstreetmap.org"
-    )
+    """Get OAuth2 credentials from env file and return a config dict
+
+    Return an ordered python tuple that can be passed to functions that
+    authenticate to OSM.
+
+    Order of precedence:
+    1. Environment Variables
+    2. Config File
+    3. Default fallback
+
+    Returns: oauth2_credentials (tuple): Tuple containing OAuth2 client
+             secret, client ID, and redirect URL.
+
+    """
+
     client_id = os.environ.get("OSM_CLIENT_ID") or config.get("OAUTH", "OSM_CLIENT_ID")
     client_secret = os.environ.get("OSM_CLIENT_SECRET") or config.get(
         "OAUTH", "OSM_CLIENT_SECRET"
-    )
-    secret_key = os.environ.get("APP_SECRET_KEY") or config.get(
-        "OAUTH", "APP_SECRET_KEY", fallback="development"
     )
     login_redirect_uri = os.environ.get("LOGIN_REDIRECT_URI") or config.get(
         "OAUTH", "LOGIN_REDIRECT_URI", fallback="http://127.0.0.1:8000/v1/auth/callback"
@@ -356,6 +400,32 @@ def get_oauth_credentials() -> tuple:
     scope = os.environ.get("OSM_PERMISSION_SCOPE") or config.get(
         "OAUTH", "OSM_PERMISSION_SCOPE", fallback="read_prefs"
     )
+    osm_url = os.environ.get("OSM_URL") or config.get(
+        "OAUTH", "OSM_URL", fallback="https://www.openstreetmap.org"
+    )
+    secret_key = os.environ.get("APP_SECRET_KEY") or config.get(
+        "OAUTH", "APP_SECRET_KEY"
+    )
+
+    # This block fetches OSM OAuth2 app credentials passed as
+    # environment variables as a JSON object, from AWS Secrets Manager or
+    # Azure Key Vault.
+    try:
+        oauth2_credentials = os.environ["REMOTE_OAUTH"]
+
+    except KeyError:
+        print("EnvVar: REMOTE_OAUTH not supplied; Falling back to other means")
+
+    else:
+        import json
+
+        oauth2_credentials_json = json.loads(oauth2_credentials)
+
+        client_id = oauth2_credentials_json["OSM_CLIENT_ID"]
+        client_secret = oauth2_credentials_json["OSM_CLIENT_SECRET"]
+        login_redirect_uri = oauth2_credentials_json["LOGIN_REDIRECT_URI"]
+        scope = oauth2_credentials_json["OSM_PERMISSION_SCOPE"]
+
     oauth_cred = (
         osm_url,
         client_id,
@@ -364,7 +434,9 @@ def get_oauth_credentials() -> tuple:
         login_redirect_uri,
         scope,
     )
-    if any(item is None for item in oauth_cred):
+
+    if None in oauth_cred:
         raise ValueError("Oauth Credentials can't be loaded")
+        logging.error("Malformed OSM OAuth2 App credentials")
 
     return oauth_cred
