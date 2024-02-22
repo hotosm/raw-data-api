@@ -1,0 +1,111 @@
+NOTE: The installation guide below is only tested to work on Ubuntu, we recommend using docker for other operating systems.
+
+### Local Installation Requirements.
+
+- Install [GDAL](https://gdal.org/index.html) on your computer using the command below:
+
+```
+sudo apt-get update && \
+sudo apt-get -y install gdal-bin python3-gdal && \
+sudo apt-get -y autoremove && \
+sudo apt-get clean
+
+```
+
+- Install [redis](https://redis.io/docs/getting-started/installation/) on your computer using the command below:
+
+```
+sudo apt-get -y install redis
+sudo apt-get -y install redis-tools # For client
+```
+
+- Confirm Redis Installation
+
+```
+redis-cli
+```
+
+Type `ping` it should return `pong`.
+
+If _redis_ is not running check out its [documentation](https://redis.io/docs/getting-started/)
+
+- Clone the Raw Data API repository on your computer
+
+```
+git clone https://github.com/hotosm/raw-data-api.git
+```
+
+- Navigate to the repository directory
+
+```
+cd raw-data-api
+```
+
+- Install the python dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### Optional : For Tiles Output
+If you opt for tiles output and have ```ENABLE_TILES : True``` in env variable . Make sure you install [Tippecanoe] (https://github.com/felt/tippecanoe)
+
+### Start the Server
+
+```
+uvicorn API.main:app --reload
+```
+
+### Queues 
+
+Currently there are two type of queue implemented : 
+- "raw_daemon" : Queue for recurring exports which will replace the previous exports if present on the system , can be enabled through uuid:false API Param 
+- "raw_ondemand" : Queue for default exports which will create each unique id for exports 
+
+### Start Celery Worker
+
+You should be able to start [celery](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html#running-the-celery-worker-server) worker by running following command on different shell
+
+- Start for default queue 
+  ```
+  celery --app API.api_worker worker --loglevel=INFO --queues="raw_ondemand" -n 'default_worker'
+  ```
+- Start for recurring queue 
+  ```
+  celery --app API.api_worker worker --loglevel=INFO --queues="raw_daemon" -n 'recurring_worker'
+  ```
+
+Set no of request that a worker can take at a time by using --concurrency 
+
+#### Note
+`If you are using postgres database as result_backend for celery you need to install sqlalchemy`
+```bash
+pip install SQLAlchemy==2.0.25
+```
+### Start flower for monitoring queue [OPTIONAL]
+
+Raw Data API uses flower for monitoring the Celery distributed queue. Run this command on a different shell , if you are running redis on same machine your broker could be `redis://localhost:6379//`.
+
+```
+celery --broker=redis://redis:6379// --app API.api_worker flower --port=5000 --queues="raw_daemon,raw_ondemand"
+```
+
+OR Simply use flower from application itself
+
+```bash
+celery --broker=redis://localhost:6379// flower
+```
+
+### Navigate to the docs to view Raw Data API endpoints
+
+After sucessfully starting the server, visit [http://127.0.0.1:8000/v1/docs](http://127.0.0.1:8000/v1/docs) on your browser to view the API docs.
+
+```
+http://127.0.0.1:8000/v1/docs
+```
+
+Flower dashboard should be available on port `5000` on your localhost.
+
+```
+http://127.0.0.1:5000/
+```
