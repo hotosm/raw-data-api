@@ -359,8 +359,8 @@ def get_db_connection_params() -> dict:
 
         connection_params = json.loads(db_credentials)
 
-        connection_params["username"] = connection_params["user"]
-        for k in ("dbinstanceidentifier", "engine", "user"):
+        connection_params["user"] = connection_params["username"]
+        for k in ("dbinstanceidentifier", "engine", "username"):
             connection_params.pop(k, None)
 
     if None in connection_params.values():
