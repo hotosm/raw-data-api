@@ -37,11 +37,11 @@ Raw Data API consists of two elements:
 - A **backend** database, tools, and scripts: used to import OSM data into a specific database structure and keep it updated.
 - An **API** that is used to serve data from the backend database.
 
-#### To setup the backend see [Backend Installation](./installation/backend)
+#### To setup the backend see [Backend Installation](./backend/Readme.md)
 
 Raw Data API can be installed through `docker` or locally on your computer.
 
-- To install with docker see [docker installation](./installation/docker).
+- To install with docker see [docker installation](./docs/src/installation/docker.md).
 - To install locally, continue below.
 
 NOTE: The installation guide below is only tested to work on Ubuntu, we recommend using docker for other operating systems.
@@ -93,13 +93,13 @@ cd raw-data-api
 pip install -r requirements.txt
 ```
 
-### Additional required configurations for Raw Data API
+## Configurations
 
-Setup the necessary configurations for Raw Data API from [configurations](./installation/configurations).
+Setup the necessary configurations for Raw Data API from [configurations](./docs/src/installation/configurations.md).
 
-Setup config.txt in project root.
+Setup config.txt in project root or include your env variables in ```.env```
 
-## Optional : For Tiles Output
+### Optional : For Tiles Output
 If you opt for tiles output and have ```ENABLE_TILES : True``` in env variable . Make sure you install [Tippecanoe] (https://github.com/felt/tippecanoe)
 
 ### Start the Server
@@ -207,10 +207,10 @@ py.test -k test function name
 
 ## Contribution & Development
 
-Learn about current priorities and work going through Roadmap  & see here  [CONTRIBUTING](./contributing)
+Learn about current priorities and work going through Roadmap  & see here  [CONTRIBUTING](./docs/src/contributing.md)
 
 ## Roadmap
-  https://github.com/orgs/hotosm/projects/29 
+see [Roadmap](https://github.com/orgs/hotosm/projects/29)
 
 ## License
 
