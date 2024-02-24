@@ -149,6 +149,9 @@ logging.getLogger("s3transfer").propagate = False  # disable boto3 logging
 logging.getLogger("boto").propagate = False  # disable boto3 logging
 
 
+## Readme txt
+
+
 logger = logging.getLogger("raw_data_api")
 
 EXPORT_PATH = os.environ.get("EXPORT_PATH") or config.get(
@@ -158,6 +161,14 @@ EXPORT_PATH = os.environ.get("EXPORT_PATH") or config.get(
 if not os.path.exists(EXPORT_PATH):
     # Create a exports directory because it does not exist
     os.makedirs(EXPORT_PATH)
+
+
+DEFAULT_README_TEXT = """Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n Exports are made available under the Open Database License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in individual contents of the database are licensed under the Database Contents License: http://opendatacommons.org/licenses/dbcl/1.0/. \n Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about \n"""
+
+EXTRA_README_TXT = os.environ.get("EXTRA_README_TXT") or config.get(
+    "API_CONFIG", "EXTRA_README_TXT", fallback=""
+)
+DEFAULT_README_TEXT += EXTRA_README_TXT
 
 ALLOW_BIND_ZIP_FILTER = get_bool_env_var(
     "ALLOW_BIND_ZIP_FILTER",

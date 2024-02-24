@@ -18,6 +18,7 @@ from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
 from src.config import (
     DEFAULT_HARD_TASK_LIMIT,
+    DEFAULT_README_TEXT,
     DEFAULT_SOFT_TASK_LIMIT,
     ENABLE_TILES,
     HDX_HARD_TASK_LIMIT,
@@ -121,8 +122,7 @@ def process_raw_data(self, params, user=None):
             utc_offset = utc_now.strftime("%z")
             # Adding metadata readme.txt
             readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
-            readme_content += "Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n"
-            readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about \n"
+            readme_content += DEFAULT_README_TEXT
             if polygon_stats:
                 readme_content += f'{polygon_stats["summary"]["buildings"]}\n'
                 readme_content += f'{polygon_stats["summary"]["roads"]}\n'

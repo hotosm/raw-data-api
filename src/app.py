@@ -49,6 +49,7 @@ from src.config import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     BUCKET_NAME,
+    DEFAULT_README_TEXT,
     ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
@@ -1355,8 +1356,7 @@ class CustomExport:
         utc_offset = utc_now.strftime("%z")
         # Adding metadata readme.txt
         readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
-        readme_content += "Exported through Raw-data-api (https://github.com/hotosm/raw-data-api) using OpenStreetMap data.\n"
-        readme_content += "Learn more about OpenStreetMap and its data usage policy : https://www.openstreetmap.org/about \n"
+        readme_content += DEFAULT_README_TEXT
         zf.writestr("Readme.txt", readme_content)
         if self.params.geometry:
             zf.writestr("clipping_boundary.geojson", self.params.geometry.json())

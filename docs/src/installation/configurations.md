@@ -55,6 +55,7 @@ The following are the different configuration options that are accepted.
 | `EXPORT_MAX_AREA_SQKM` | `EXPORT_MAX_AREA_SQKM` | `[API_CONFIG]` | `100000` | max area in sq. km. to support for rawdata input | OPTIONAL |
 | `USE_CONNECTION_POOLING` | `USE_CONNECTION_POOLING` | `[API_CONFIG]` | `false` | Enable psycopg2 connection pooling | OPTIONAL |
 | `ALLOW_BIND_ZIP_FILTER` | `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | `true` | Enable zip compression for exports | OPTIONAL |
+| `EXTRA_README_TXT` | `EXTRA_README_TXT` | `[API_CONFIG]` | `` | Append extra string to export readme.txt | OPTIONAL |
 | `ENABLE_TILES` | `ENABLE_TILES` | `[API_CONFIG]` | `false` | Enable Tile Output (Pmtiles and Mbtiles) | OPTIONAL |
 | `DEFAULT_QUEUE_NAME` | `DEFAULT_QUEUE_NAME` | `[API_CONFIG]` | `raw_ondemand` | Option to define default queue name| OPTIONAL |
 | `DAEMON_QUEUE_NAME` | `DAEMON_QUEUE_NAME` | `[API_CONFIG]` | `raw_daemon` | Option to define daemon queue name for scheduled and long exports | OPTIONAL |
@@ -116,6 +117,7 @@ API Tokens have expiry date, It is `important to update API Tokens manually each
 | `USE_CONNECTION_POOLING` | `[API_CONFIG]` | Yes | Yes |
 | `ENABLE_TILES` | `[API_CONFIG]` | Yes | Yes |
 | `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | Yes | Yes |
+| `EXTRA_README_TXT` | `[API_CONFIG]` | No | Yes |
 | `INDEX_THRESHOLD` | `[API_CONFIG]` | No | Yes |
 | `DEFAULT_QUEUE_NAME` | `[API_CONFIG]` | Yes | No |
 | `DAEMON_QUEUE_NAME` | `[API_CONFIG]` | Yes | No |
