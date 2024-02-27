@@ -4,3 +4,4 @@ python-dateutil
 wget
 osmium
 tqdm
+asyncpg
