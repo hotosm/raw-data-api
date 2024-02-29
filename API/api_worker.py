@@ -42,6 +42,8 @@ celery.conf.result_backend = celery_backend
 # celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
 celery.conf.task_track_started = True
 celery.conf.update(result_extended=True)
+celery.conf.task_reject_on_worker_lost = True
+celery.conf.task_acks_late = True
 
 
 @celery.task(
@@ -51,6 +53,8 @@ celery.conf.update(result_extended=True)
     soft_time_limit=DEFAULT_SOFT_TASK_LIMIT,
 )
 def process_raw_data(self, params, user=None):
+    if self.request.retries > 0:
+        raise ValueError("Retry limit reached. Marking task as failed.")
     params = RawDataCurrentParams(**params)
     try:
         start_time = time.time()
@@ -210,6 +214,8 @@ def process_raw_data(self, params, user=None):
     soft_time_limit=HDX_SOFT_TASK_LIMIT,
 )
 def process_custom_request(self, params, user=None):
+    if self.request.retries > 0:
+        raise ValueError("Retry limit reached. Marking task as failed.")
     params = DynamicCategoriesModel(**params)
 
     if not params.dataset:
