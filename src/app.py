@@ -92,7 +92,7 @@ if ENABLE_SOZIP:
     import sozipfile.sozipfile as zipfile
 else:
     import zipfile
-    
+
 # import instance for pooling
 if use_connection_pooling:
     from src.db_session import database_instance
@@ -1353,7 +1353,6 @@ class CustomExport:
             "w",
             compression=zipfile.ZIP_DEFLATED,
             allowZip64=True,
-            chunk_size=zipfile.SOZIP_DEFAULT_CHUNK_SIZE,
         )
 
         for file_path in pathlib.Path(working_dir).iterdir():
