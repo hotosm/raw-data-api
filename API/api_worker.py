@@ -113,6 +113,7 @@ def process_raw_data(self, params, user=None):
                 working_dir, os.pardir, f"{exportname_parts[-1]}.zip"
             )
             zs = ZipStream(compress_type=ZIP_DEFLATED, compress_level=9)
+            logging.debug("ZipStream Object Instantiated")
             # zs.from_path(pathlib.Path(working_dir))
 
             for file_path in pathlib.Path(working_dir).iterdir():
