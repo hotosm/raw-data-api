@@ -1352,6 +1352,7 @@ class CustomExport:
             zip_path,
             "w",
             compression=zipfile.ZIP_DEFLATED,
+            compresslevel=8,
             allowZip64=True,
         )
 

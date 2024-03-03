@@ -123,6 +123,7 @@ def process_raw_data(self, params, user=None):
                 "w",
                 compression=zipfile.ZIP_DEFLATED,
                 allowZip64=True,
+                compresslevel=8,
             )
             for file_path in pathlib.Path(working_dir).iterdir():
                 zf.write(file_path, arcname=file_path.name)
