@@ -113,10 +113,10 @@ def process_raw_data(self, params, user=None):
                 working_dir, os.pardir, f"{exportname_parts[-1]}.zip"
             )
             zs = ZipStream(compress_type=ZIP_DEFLATED, compress_level=9)
-            zs.add_path(pathlib.Path(working_dir))
+            # zs.from_path(pathlib.Path(working_dir))
 
             for file_path in pathlib.Path(working_dir).iterdir():
-                # zf.write(file_path, arcname=file_path.name)
+                zs.add_path(file_path, file_path.name)
                 inside_file_size += os.path.getsize(file_path)
 
             # Compressing geojson file
