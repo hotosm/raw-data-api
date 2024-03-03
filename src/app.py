@@ -37,7 +37,6 @@ import humanize
 import orjson
 import psycopg2.extras
 import requests
-import sozipfile.sozipfile as zipfile
 from area import area
 from fastapi import HTTPException
 from geojson import FeatureCollection
@@ -53,6 +52,7 @@ from src.config import (
     ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
+    ENABLE_SOZIP,
     ENABLE_TILES,
     EXPORT_MAX_AREA_SQKM,
 )
@@ -88,6 +88,10 @@ from src.query_builder.builder import (
 )
 from src.validation.models import EXPORT_TYPE_MAPPING, RawDataOutputType
 
+if ENABLE_SOZIP:
+    import sozipfile.sozipfile as zipfile
+else:
+    from zipfile import zipfile
 # import instance for pooling
 if use_connection_pooling:
     from src.db_session import database_instance

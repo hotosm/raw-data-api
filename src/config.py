@@ -179,6 +179,12 @@ ALLOW_BIND_ZIP_FILTER = get_bool_env_var(
     "ALLOW_BIND_ZIP_FILTER",
     config.getboolean("API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=False),
 )
+
+ENABLE_SOZIP = get_bool_env_var(
+    "ENABLE_SOZIP",
+    config.getboolean("API_CONFIG", "ENABLE_SOZIP", fallback=False),
+)
+
 ENABLE_TILES = get_bool_env_var(
     "ENABLE_TILES", config.getboolean("API_CONFIG", "ENABLE_TILES", fallback=False)
 )

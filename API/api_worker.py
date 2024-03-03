@@ -9,7 +9,6 @@ from datetime import timedelta, timezone
 
 import humanize
 import requests
-import sozipfile.sozipfile as zipfile
 from celery import Celery
 
 from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
@@ -20,6 +19,7 @@ from src.config import (
     DEFAULT_HARD_TASK_LIMIT,
     DEFAULT_README_TEXT,
     DEFAULT_SOFT_TASK_LIMIT,
+    ENABLE_SOZIP,
     ENABLE_TILES,
     HDX_HARD_TASK_LIMIT,
     HDX_SOFT_TASK_LIMIT,
@@ -34,6 +34,11 @@ from src.validation.models import (
     RawDataCurrentParams,
     RawDataOutputType,
 )
+
+if ENABLE_SOZIP:
+    import sozipfile.sozipfile as zipfile
+else:
+    from zipfile import zipfile
 
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
