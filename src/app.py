@@ -1347,6 +1347,7 @@ class CustomExport:
             zip_path,
             "w",
             compression=zipfile.ZIP_DEFLATED,
+            allowZip64=True,
             chunk_size=zipfile.SOZIP_DEFAULT_CHUNK_SIZE,
         )
 

@@ -117,6 +117,7 @@ def process_raw_data(self, params, user=None):
                 upload_file_path,
                 "w",
                 compression=zipfile.ZIP_DEFLATED,
+                allowZip64=True,
                 chunk_size=zipfile.SOZIP_DEFAULT_CHUNK_SIZE,
             )
             for file_path in pathlib.Path(working_dir).iterdir():
