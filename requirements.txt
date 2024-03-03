@@ -46,3 +46,6 @@ hdx-python-api==6.2.0
 
 ## only needed if used postgres as celery backend 
 SQLAlchemy==2.0.25
+
+
+zipstream-ng==1.7.1

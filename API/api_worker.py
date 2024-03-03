@@ -8,8 +8,8 @@ from datetime import datetime as dt
 from datetime import timedelta, timezone
 
 import humanize
-import requests
 from celery import Celery
+from zipstream import ZIP_DEFLATED, ZipStream
 
 from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
@@ -34,11 +34,6 @@ from src.validation.models import (
     RawDataCurrentParams,
     RawDataOutputType,
 )
-
-if ENABLE_SOZIP:
-    import sozipfile.sozipfile as zipfile
-else:
-    import zipfile
 
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
@@ -117,19 +112,15 @@ def process_raw_data(self, params, user=None):
             upload_file_path = os.path.join(
                 working_dir, os.pardir, f"{exportname_parts[-1]}.zip"
             )
+            zs = ZipStream(compress_type=ZIP_DEFLATED, compress_level=9)
+            zs.add_path(pathlib.Path(working_dir))
 
-            zf = zipfile.ZipFile(
-                upload_file_path,
-                "w",
-                compression=zipfile.ZIP_DEFLATED,
-                allowZip64=True,
-            )
             for file_path in pathlib.Path(working_dir).iterdir():
-                zf.write(file_path, arcname=file_path.name)
+                # zf.write(file_path, arcname=file_path.name)
                 inside_file_size += os.path.getsize(file_path)
 
             # Compressing geojson file
-            zf.writestr("clipping_boundary.geojson", geom_dump)
+            zs.add(geom_dump, "clipping_boundary.geojson")
 
             utc_now = dt.now(timezone.utc)
             utc_offset = utc_now.strftime("%z")
@@ -141,9 +132,11 @@ def process_raw_data(self, params, user=None):
                 readme_content += f'{polygon_stats["summary"]["roads"]}\n'
                 readme_content += "Read about what this summary means: indicators: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md,metrics: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md"
 
-            zf.writestr("Readme.txt", readme_content)
+            zs.add(readme_content, "Readme.txt")
 
-            zf.close()
+            with open(upload_file_path, "wb") as f:
+                f.writelines(zs)
+
             logging.debug("Zip Binding Done !")
         else:
             for file_path in pathlib.Path(working_dir).iterdir():
