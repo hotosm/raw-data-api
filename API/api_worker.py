@@ -48,8 +48,8 @@ celery.conf.result_backend = celery_backend
 # celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
 celery.conf.task_track_started = True
 celery.conf.update(result_extended=True)
-celery.conf.task_reject_on_worker_lost = True
-celery.conf.task_acks_late = True
+# celery.conf.task_reject_on_worker_lost = True
+# celery.conf.task_acks_late = True
 
 if WORKER_PREFETCH_MULTIPLIER:
     celery.conf.update(worker_prefetch_multiplier=WORKER_PREFETCH_MULTIPLIER)
