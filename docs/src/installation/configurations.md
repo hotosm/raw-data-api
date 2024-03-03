@@ -63,6 +63,7 @@ The following are the different configuration options that are accepted.
 | `ENABLE_CUSTOM_EXPORTS` | `ENABLE_CUSTOM_EXPORTS` | `[API_CONFIG]` | False | Enables custom exports endpoint and imports | OPTIONAL |
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | `None` | API URL for the polygon statistics to fetch the metadata , Currently tested with graphql query endpoint of Kontour , Only required if it is enabled from ENABLE_POLYGON_STATISTICS_ENDPOINTS | OPTIONAL |
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | `5` | Rate limit to be applied for statistics endpoint per minute, Defaults to 5 request is allowed per minute | OPTIONAL |
+| `WORKER_PREFETCH_MULTIPLIER` | `WORKER_PREFETCH_MULTIPLIER` | `[CELERY]` | `1` | No of tasks that worker can prefetch at a time | OPTIONAL |
 | `DEFAULT_SOFT_TASK_LIMIT` | `DEFAULT_SOFT_TASK_LIMIT` | `[API_CONFIG]` | `7200` | Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 2 Hour| OPTIONAL |
 | `DEFAULT_HARD_TASK_LIMIT` | `DEFAULT_HARD_TASK_LIMIT` | `[API_CONFIG]` | `10800` | Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 3 Hour| OPTIONAL |
 | `USE_DUCK_DB_FOR_CUSTOM_EXPORTS` | `USE_DUCK_DB_FOR_CUSTOM_EXPORTS` | `[API_CONFIG]` | `False` | Enable this setting to use duckdb , By default duck db is disabled and postgres is used| OPTIONAL |
@@ -132,6 +133,7 @@ API Tokens have expiry date, It is `important to update API Tokens manually each
 | `ENABLE_CUSTOM_EXPORTS` | `[API_CONFIG]` | Yes | Yes |
 | `CELERY_BROKER_URL` | `[CELERY]` | Yes | Yes |
 | `CELERY_RESULT_BACKEND` | `[CELERY]` | Yes | Yes |
+| `WORKER_PREFETCH_MULTIPLIER` | `[CELERY]` | Yes | Yes |
 | `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | Yes | Yes |
 | `BUCKET_NAME` | `[EXPORT_UPLOAD]` | Yes | Yes |
 | `AWS_ACCESS_KEY_ID` | `[EXPORT_UPLOAD]` | Yes | Yes |

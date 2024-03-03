@@ -51,6 +51,11 @@ CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or config.get(
     "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
 )
 
+WORKER_PREFETCH_MULTIPLIER = int(
+    os.environ.get("WORKER_PREFETCH_MULTIPLIER")
+    or config.get("CELERY", "WORKER_PREFETCH_MULTIPLIER", fallback=1)
+)
+
 ### API CONFIG BLOCK #######################
 
 RATE_LIMIT_PER_MIN = os.environ.get("RATE_LIMIT_PER_MIN") or int(

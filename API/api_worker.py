@@ -25,6 +25,7 @@ from src.config import (
     HDX_SOFT_TASK_LIMIT,
 )
 from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
+from src.config import WORKER_PREFETCH_MULTIPLIER
 from src.config import logger as logging
 from src.query_builder.builder import format_file_name_str
 from src.validation.models import (
@@ -44,6 +45,9 @@ celery.conf.task_track_started = True
 celery.conf.update(result_extended=True)
 celery.conf.task_reject_on_worker_lost = True
 celery.conf.task_acks_late = True
+
+if WORKER_PREFETCH_MULTIPLIER:
+    celery.conf.update(worker_prefetch_multiplier=WORKER_PREFETCH_MULTIPLIER)
 
 
 @celery.task(
