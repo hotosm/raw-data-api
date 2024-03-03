@@ -91,7 +91,8 @@ from src.validation.models import EXPORT_TYPE_MAPPING, RawDataOutputType
 if ENABLE_SOZIP:
     import sozipfile.sozipfile as zipfile
 else:
-    from zipfile import zipfile
+    import zipfile
+    
 # import instance for pooling
 if use_connection_pooling:
     from src.db_session import database_instance

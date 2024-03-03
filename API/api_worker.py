@@ -38,7 +38,7 @@ from src.validation.models import (
 if ENABLE_SOZIP:
     import sozipfile.sozipfile as zipfile
 else:
-    from zipfile import zipfile
+    import zipfile
 
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
