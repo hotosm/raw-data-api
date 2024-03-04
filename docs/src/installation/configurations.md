@@ -114,7 +114,7 @@ API Tokens have expiry date, It is `important to update API Tokens manually each
 | `LOG_LEVEL` | `[API_CONFIG]` | Yes | Yes |
 | `RATE_LIMITER_STORAGE_URI` | `[API_CONFIG]` | Yes | No |
 | `RATE_LIMIT_PER_MIN` | `[API_CONFIG]` | Yes | No |
-| `EXPORT_PATH` | `[API_CONFIG]` | Yes | Yes |
+| `EXPORT_PATH` | `[API_CONFIG]` | Yes (Not needed for upload_s3) | Yes |
 | `EXPORT_MAX_AREA_SQKM` | `[API_CONFIG]` | Yes | No |
 | `USE_CONNECTION_POOLING` | `[API_CONFIG]` | Yes | Yes |
 | `ENABLE_TILES` | `[API_CONFIG]` | Yes | Yes |
