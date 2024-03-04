@@ -86,12 +86,13 @@ def zip_binding(
         temp_path = os.path.join(working_dir, name)
         with open(temp_path, "w") as f:
             f.write(content)
-
+    logging.debug("Metadata written")
     inside_file_size = sum(
         os.path.getsize(f)
         for f in pathlib.Path(working_dir).glob("**/*")
         if f.is_file()
     )
+    logging.debug("Total %s to be zipped", humanize.naturalsize(inside_file_size))
 
     system_ram = psutil.virtual_memory().total  # system RAM in bytes
     if inside_file_size < 0.8 * system_ram:  # if less than 80%
@@ -104,9 +105,8 @@ def zip_binding(
 
     else:
         logging.debug(
-            "System ram %s is not enough for %s export default zipfile approach hence falling to memory optimized zip",
+            "System ram %s is not enough for default zipfile approach hence falling to memory optimized zip",
             humanize.naturalsize(system_ram),
-            humanize.naturalsize(inside_file_size),
         )
 
         paths = [
