@@ -95,13 +95,16 @@ def zip_binding(
     logging.debug("Total %s to be zipped", humanize.naturalsize(inside_file_size))
 
     system_ram = psutil.virtual_memory().total  # system RAM in bytes
-    if inside_file_size < 0.8 * system_ram:  # if less than 80%
-        logging.debug(
-            "System RAM : %s , Using default zipfile module for zipping",
-            humanize.naturalsize(system_ram),
-        )
+    if (
+        inside_file_size < 0.8 * system_ram and inside_file_size < 5 * 1024**3
+    ):  # if less than 80% or less than 5 gb
+        logging.debug("Using default zipfile module for zipping")
         with zipfile.ZipFile(
-            upload_file_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=8
+            upload_file_path,
+            "w",
+            compression=zipfile.ZIP_DEFLATED,
+            compresslevel=9,
+            allowZip64=True,
         ) as zf:
             for file_path in pathlib.Path(working_dir).iterdir():
                 if file_path.is_file():
@@ -109,8 +112,7 @@ def zip_binding(
 
     else:
         logging.debug(
-            "System RAM %s is not enough for default zipfile approach hence falling to memory optimized zip",
-            humanize.naturalsize(system_ram),
+            "Using memory optimized zip",
         )
 
         paths = [
