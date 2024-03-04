@@ -96,6 +96,10 @@ def zip_binding(
 
     system_ram = psutil.virtual_memory().total  # system RAM in bytes
     if inside_file_size < 0.8 * system_ram:  # if less than 80%
+        logging.debug(
+            "System RAM : %s , Using default zipfile module for zipping",
+            humanize.naturalsize(system_ram),
+        )
         with zipfile.ZipFile(
             upload_file_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=8
         ) as zf:
@@ -105,7 +109,7 @@ def zip_binding(
 
     else:
         logging.debug(
-            "System ram %s is not enough for default zipfile approach hence falling to memory optimized zip",
+            "System RAM %s is not enough for default zipfile approach hence falling to memory optimized zip",
             humanize.naturalsize(system_ram),
         )
 
