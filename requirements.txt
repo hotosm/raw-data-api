@@ -48,4 +48,5 @@ hdx-python-api==6.2.0
 SQLAlchemy==2.0.25
 
 
-zipstream-ng==1.7.1
+zipfly==6.0.5
+psutil==5.9.8 

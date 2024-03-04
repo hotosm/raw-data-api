@@ -8,8 +8,9 @@ from datetime import datetime as dt
 from datetime import timedelta, timezone
 
 import humanize
+import psutil
+import zipfly
 from celery import Celery
-from zipstream import ZIP_DEFLATED, ZipStream
 
 from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
@@ -35,6 +36,11 @@ from src.validation.models import (
     RawDataOutputType,
 )
 
+if ENABLE_SOZIP:
+    import sozipfile.sozipfile as zipfile
+else:
+    import zipfile
+
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
 celery.conf.result_backend = celery_backend
@@ -48,6 +54,75 @@ celery.conf.update(result_extended=True)
 
 if WORKER_PREFETCH_MULTIPLIER:
     celery.conf.update(worker_prefetch_multiplier=WORKER_PREFETCH_MULTIPLIER)
+
+
+def create_readme_content(default_readme, polygon_stats):
+    utc_now = dt.now(timezone.utc)
+    utc_offset = utc_now.strftime("%z")
+    readme_content = f"Exported Timestamp (UTC{utc_offset}): {dt.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
+    readme_content += default_readme
+    if polygon_stats:
+        readme_content += f'{polygon_stats["summary"]["buildings"]}\n'
+        readme_content += f'{polygon_stats["summary"]["roads"]}\n'
+        readme_content += "Read about what this summary means: indicators: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md,metrics: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md"
+    return readme_content
+
+
+def zip_binding(
+    working_dir, exportname_parts, geom_dump, polygon_stats, default_readme
+):
+    logging.debug("Zip Binding Started!")
+    upload_file_path = os.path.join(
+        working_dir, os.pardir, f"{exportname_parts[-1]}.zip"
+    )
+    additional_files = {
+        "clipping_boundary.geojson": geom_dump,
+        "Readme.txt": create_readme_content(
+            default_readme=default_readme, polygon_stats=polygon_stats
+        ),
+    }
+
+    for name, content in additional_files.items():
+        temp_path = os.path.join(working_dir, name)
+        with open(temp_path, "w") as f:
+            f.write(content)
+
+    inside_file_size = sum(
+        os.path.getsize(f)
+        for f in pathlib.Path(working_dir).glob("**/*")
+        if f.is_file()
+    )
+
+    system_ram = psutil.virtual_memory().total  # system RAM in bytes
+    if inside_file_size < 0.8 * system_ram:  # if less than 80%
+        with zipfile.ZipFile(
+            upload_file_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=8
+        ) as zf:
+            for file_path in pathlib.Path(working_dir).iterdir():
+                if file_path.is_file():
+                    zf.write(file_path, arcname=file_path.name)
+
+    else:
+        logging.debug(
+            "System ram %s is not enough for %s export default zipfile approach hence falling to memory optimized zip",
+            humanize.naturalsize(system_ram),
+            humanize.naturalsize(inside_file_size),
+        )
+
+        paths = [
+            {"fs": str(file_path), "n": file_path.name}
+            for file_path in pathlib.Path(working_dir).iterdir()
+            if file_path.is_file()
+        ]
+
+        zfly = zipfly.ZipFly(paths=paths)
+        generator = zfly.generator()
+        with open(upload_file_path, "wb") as f:
+            for chunk in generator:
+                f.write(chunk)
+
+    logging.debug("Zip Binding Done!")
+    return upload_file_path, inside_file_size
 
 
 @celery.task(
@@ -107,36 +182,13 @@ def process_raw_data(self, params, user=None):
                 }
                 polygon_stats = PolygonStats(feature).get_summary_stats()
         if bind_zip:
-            logging.debug("Zip Binding Started !")
-            # saving file in temp directory instead of memory so that zipping file will not eat memory
-            upload_file_path = os.path.join(
-                working_dir, os.pardir, f"{exportname_parts[-1]}.zip"
+            upload_file_path, inside_file_size = zip_binding(
+                working_dir=working_dir,
+                exportname_parts=exportname_parts,
+                geom_dump=geom_dump,
+                polygon_stats=polygon_stats,
+                default_readme=DEFAULT_README_TEXT,
             )
-            zs = ZipStream(compress_type=ZIP_DEFLATED, compress_level=9)
-            logging.debug("ZipStream Object Instantiated")
-            # zs.from_path(pathlib.Path(working_dir))
-
-            for file_path in pathlib.Path(working_dir).iterdir():
-                zs.add_path(file_path, file_path.name)
-                inside_file_size += os.path.getsize(file_path)
-
-            # Compressing geojson file
-            zs.add(geom_dump, "clipping_boundary.geojson")
-
-            utc_now = dt.now(timezone.utc)
-            utc_offset = utc_now.strftime("%z")
-            # Adding metadata readme.txt
-            readme_content = f"Exported Timestamp (UTC{utc_offset}): {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
-            readme_content += DEFAULT_README_TEXT
-            if polygon_stats:
-                readme_content += f'{polygon_stats["summary"]["buildings"]}\n'
-                readme_content += f'{polygon_stats["summary"]["roads"]}\n'
-                readme_content += "Read about what this summary means: indicators: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md,metrics: https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md"
-
-            zs.add(readme_content, "Readme.txt")
-
-            with open(upload_file_path, "wb") as f:
-                f.writelines(zs)
 
             logging.debug("Zip Binding Done !")
         else:
