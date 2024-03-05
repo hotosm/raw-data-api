@@ -244,8 +244,8 @@ class SnapshotResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
-                "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
+                "taskId": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
+                "trackLink": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
             }
         }
 

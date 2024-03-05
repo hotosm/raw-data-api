@@ -51,7 +51,7 @@ router = APIRouter(prefix="", tags=["Extract"])
 redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
 
-@router.get("/status/", response_model=StatusResponse)
+@router.get("/status", response_model=StatusResponse)
 @version(1)
 def check_database_last_updated():
     """Gives status about how recent the osm data is , it will give the last time that database was updated completely"""
@@ -59,7 +59,7 @@ def check_database_last_updated():
     return {"last_updated": result}
 
 
-@router.post("/snapshot/", response_model=SnapshotResponse)
+@router.post("/snapshot", response_model=SnapshotResponse)
 @limiter.limit(f"{export_rate_limit}/minute")
 @version(1)
 def get_osm_current_snapshot_as_file(
@@ -462,7 +462,7 @@ def get_osm_current_snapshot_as_file(
     )
 
 
-@router.post("/snapshot/plain/")
+@router.post("/snapshot/plain")
 @version(1)
 def get_osm_current_snapshot_as_plain_geojson(
     request: Request,
@@ -494,14 +494,14 @@ def get_osm_current_snapshot_as_plain_geojson(
     return result
 
 
-@router.get("/countries/")
+@router.get("/countries")
 @version(1)
 def get_countries(q: str = ""):
     result = RawData().get_countries_list(q)
     return result
 
 
-@router.get("/osm_id/")
+@router.get("/osm_id")
 @version(1)
 def get_osm_feature(osm_id: int):
     return RawData().get_osm_feature(osm_id)

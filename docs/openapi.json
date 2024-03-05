@@ -5,11 +5,7 @@
         "version": "1",
         "description": "Raw Data API  is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats." 
     },
-    "tags": [
-        {
-
-        }
-    ],
+    "tags": [],
     "servers": [
         {
             "url": "/latest"
