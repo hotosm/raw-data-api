@@ -1,9 +1,10 @@
 import json
 from datetime import datetime
+from typing import Any
 
 import redis
 from celery.result import AsyncResult
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Path
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
@@ -19,7 +20,9 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 @router.get("/status/{task_id}", response_model=SnapshotTaskResponse)
 @version(1)
 def get_task_status(
-    task_id,
+    task_id: Any = Path(
+        description="Unique id provided on response from /snapshot",
+    ),
     only_args: bool = Query(
         default=False,
         description="Fetches arguments of task",
