@@ -2,15 +2,21 @@
     "openapi": "3.0.2",
     "info": {
         "title": "Raw Data API ",
-        "version": "1"
+        "version": "1",
+        "description": "Raw Data API  is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats." 
     },
+    "tags": [
+        {
+
+        }
+    ],
     "servers": [
         {
             "url": "/latest"
         }
     ],
     "paths": {
-        "/status/": {
+        "/status": {
             "get": {
                 "summary": "Check Database Last Updated",
                 "description": "Gives status about how recent the osm data is , it will give the last time that database was updated completely",
@@ -29,7 +35,7 @@
                 }
             }
         },
-        "/snapshot/": {
+        "/snapshot": {
             "post": {
                 "summary": "Get Osm Current Snapshot As File",
                 "description": "Generates the current raw OpenStreetMap data available on database based on the input geometry, query and spatial features.\n\nSteps to Run Snapshot :\n\n1.  Post the your request here and your request will be on queue, endpoint will return as following :\n    {\n        \"task_id\": \"your task_id\",\n        \"track_link\": \"/tasks/task_id/\"\n    }\n2. Now navigate to /tasks/ with your task id to track progress and result",
@@ -546,7 +552,7 @@
                 }
             }
         },
-        "/snapshot/plain/": {
+        "/snapshot/plain": {
             "post": {
                 "summary": "Get Current Snapshot As Plain Geojson",
                 "description": "Simple API to get osm features as geojson for small region. This is designed only for querying small data for large data follow /snapshot/\n\nParams ::\n\n    bbox: Optional List = takes xmin, ymin, xmax, ymax uses srid=4326\n    select: List = this is select query  you can pass [*] to select all attribute\n    where: List[WhereCondition] = [{'key': 'building', 'value': ['*']},{'key':'amenity','value':['school','college']}]\n    join_by: Optional[JoinFilterType] = or/ and\n    look_in: Optional[List[OsmFeatureType]] = [\"nodes\", \"ways_poly\",\"ways_line\",\"relations\"] : tables name",
@@ -659,7 +665,7 @@
                 }
             }
         },
-        "/tasks/status/{task_id}/": {
+        "/tasks/status/{task_id}": {
             "get": {
                 "summary": "Get Task Status",
                 "description": "Tracks the request from the task id provided by Raw Data API  for the request\n\nArgs:\n\n    task_id ([type]): [Unique id provided on response from /snapshot/]\n\nReturns:\n\n    id: Id of the task\n    status : SUCCESS / PENDING\n    result : Result of task\n\nSuccessful task will have additional nested json inside",
@@ -671,7 +677,8 @@
                             "title": "Task Id"
                         },
                         "name": "task_id",
-                        "in": "path"
+                        "in": "path",
+                        "description": "Unique id provided on response from /snapshot/" 
                     }
                 ],
                 "responses": {
@@ -1016,7 +1023,7 @@
                         "type": "boolean",
                         "description": "Intersects the passed geom to country boundary if set to true and exports whole country : Use with Caution , May take hours",
                         "default": false,
-                        "example": "false"
+                        "example": false
                     },
                     "filters": {
                         "title": "Filters",
@@ -1285,7 +1292,7 @@
                 },
                 "additionalProperties": false,
                 "example": {
-                    "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
+                    "taskId": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
                     "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/"
                 }
             },
