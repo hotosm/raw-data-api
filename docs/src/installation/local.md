@@ -50,6 +50,46 @@ pip install -r requirements.txt
 ### Optional : For Tiles Output
 If you opt for tiles output and have ```ENABLE_TILES : True``` in env variable . Make sure you install [Tippecanoe] (https://github.com/felt/tippecanoe)
 
+### Set up your database
+- Ensure postgres is installed and running :
+``` bash
+  sudo apt-get install postgresql postgresql-contrib
+  service postgresql start 
+  service postgresql status
+```
+
+- Install postgis
+```bash
+  sudo apt-get install postgis
+``` 
+
+- Create a database
+```bash
+  su postgres
+  psql
+  > CREATE DATABASE db_name;
+  > \q
+```
+
+- Setup postgis on that database
+```bash
+  su postgres
+  psql -U postgres db_name
+  > CREATE EXTENSION  postgis;
+  > \q
+```
+
+### Prevent eventlet epoll error
+
+To prevent
+```
+AttributeError: module 'eventlet.green.select' has no attribute 'epoll'
+```
+Set EVENTLET_NO_GREENDNS to "yes"
+```bash
+  export EVENTLET_NO_GREENDNS=yes
+```
+
 ### Start the Server
 
 ```
