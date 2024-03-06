@@ -17,8 +17,6 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-from json import dumps
-
 from src.query_builder.builder import raw_currentdata_extraction_query
 from src.validation.models import RawDataCurrentParams
 

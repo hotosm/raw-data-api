@@ -87,4 +87,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          py.test -v -s
+          python -m pytest -v -s
