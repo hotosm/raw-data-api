@@ -1,0 +1,923 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Raw Data API  is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.">
+      
+      
+      
+        <link rel="canonical" href="https://hotosm.github.io/export-tool-api/api/src/query_builder/builder/">
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>Builder - Raw Data API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.2505c338.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../css/mkdocsoad.cssmkdocs">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-srcquery_builderbuilder" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="Raw Data API" class="md-header__button md-logo" aria-label="Raw Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Raw Data API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Builder
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent=""  aria-label=""  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hotosm/export-tool-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hotosm/export-tool-api
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Raw Data API" class="md-nav__button md-logo" aria-label="Raw Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Raw Data API
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hotosm/export-tool-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hotosm/export-tool-api
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Raw Data API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Installation" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../installation/backend/" class="md-nav__link">
+        Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../installation/docker/" class="md-nav__link">
+        Docker Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../installation/configurations/" class="md-nav__link">
+        Configurations
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../endpoints/" class="md-nav__link">
+        Endpoints
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/Example_Python/" class="md-nav__link">
+        Examples
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../API/" class="md-nav__link">
+        API Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        Source Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../code_of_conduct/" class="md-nav__link">
+        Code of Conduct
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check_exisiting_country" class="md-nav__link">
+    check_exisiting_country
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check_last_updated_rawdata" class="md-nav__link">
+    check_last_updated_rawdata
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#convert_tags_pattern_to_postgres" class="md-nav__link">
+    convert_tags_pattern_to_postgres
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_column_filter" class="md-nav__link">
+    create_column_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_geom_filter" class="md-nav__link">
+    create_geom_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_tag_sql_logic" class="md-nav__link">
+    create_tag_sql_logic
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_attributes_tags" class="md-nav__link">
+    extract_attributes_tags
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_custom_features_from_postgres" class="md-nav__link">
+    extract_custom_features_from_postgres
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_features_custom_exports" class="md-nav__link">
+    extract_features_custom_exports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_geometry_type_query" class="md-nav__link">
+    extract_geometry_type_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_file_name_str" class="md-nav__link">
+    format_file_name_str
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_polygon_stats_graphql_query" class="md-nav__link">
+    generate_polygon_stats_graphql_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_tag_filter_query" class="md-nav__link">
+    generate_tag_filter_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_where_clause_indexes_case" class="md-nav__link">
+    generate_where_clause_indexes_case
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_countries_query" class="md-nav__link">
+    get_countries_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_country_from_iso" class="md-nav__link">
+    get_country_from_iso
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_country_geojson" class="md-nav__link">
+    get_country_geojson
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_country_geom_from_iso" class="md-nav__link">
+    get_country_geom_from_iso
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_country_id_query" class="md-nav__link">
+    get_country_id_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_grid_id_query" class="md-nav__link">
+    get_grid_id_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_osm_feature_query" class="md-nav__link">
+    get_osm_feature_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_query_as_geojson" class="md-nav__link">
+    get_query_as_geojson
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgres2duckdb_query" class="md-nav__link">
+    postgres2duckdb_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raw_currentdata_extraction_query" class="md-nav__link">
+    raw_currentdata_extraction_query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raw_extract_plain_geojson" class="md-nav__link">
+    raw_extract_plain_geojson
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove_spaces" class="md-nav__link">
+    remove_spaces
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/hotosm/export-tool-api/edit/master/docs/api/src/query_builder/builder.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="module-srcquery_builderbuilder">Module src.query_builder.builder</h1>
+<p>Page Contains Query logic required for application</p>
+<h2 id="variables">Variables</h2>
+<div class="highlight"><pre><span></span><code><span class="n">HDX_FILTER_CRITERIA</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">HDX_MARKDOWN</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">USE_DUCK_DB_FOR_CUSTOM_EXPORTS</span>
+</code></pre></div>
+<h2 id="functions">Functions</h2>
+<h4 id="check_exisiting_country">check_exisiting_country</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">check_exisiting_country</span><span class="p">(</span>
+    <span class="n">geom</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="check_last_updated_rawdata">check_last_updated_rawdata</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">check_last_updated_rawdata</span><span class="p">(</span>
+
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="convert_tags_pattern_to_postgres">convert_tags_pattern_to_postgres</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">convert_tags_pattern_to_postgres</span><span class="p">(</span>
+    <span class="n">query_string</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="create_column_filter">create_column_filter</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_column_filter</span><span class="p">(</span>
+    <span class="n">columns</span><span class="p">,</span>
+    <span class="n">create_schema</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">output_type</span><span class="o">=</span><span class="s1">&#39;geojson&#39;</span><span class="p">,</span>
+    <span class="n">use_centroid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">include_osm_type</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</code></pre></div>
+generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction</p>
+<h4 id="create_geom_filter">create_geom_filter</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_geom_filter</span><span class="p">(</span>
+    <span class="n">geom</span><span class="p">,</span>
+    <span class="n">geom_lookup_by</span><span class="o">=</span><span class="s1">&#39;ST_intersects&#39;</span>
+<span class="p">)</span>
+</code></pre></div>
+generates geometry intersection filter - Rawdata extraction</p>
+<h4 id="create_tag_sql_logic">create_tag_sql_logic</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_tag_sql_logic</span><span class="p">(</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span><span class="p">,</span>
+    <span class="n">filter_list</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="extract_attributes_tags">extract_attributes_tags</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">extract_attributes_tags</span><span class="p">(</span>
+    <span class="n">filters</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="extract_custom_features_from_postgres">extract_custom_features_from_postgres</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">extract_custom_features_from_postgres</span><span class="p">(</span>
+    <span class="n">select_q</span><span class="p">,</span>
+    <span class="n">from_q</span><span class="p">,</span>
+    <span class="n">where_q</span><span class="p">,</span>
+    <span class="n">geom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cid</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+Generates Postgresql query for custom feature extraction</p>
+<h4 id="extract_features_custom_exports">extract_features_custom_exports</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">extract_features_custom_exports</span><span class="p">(</span>
+    <span class="n">base_table_name</span><span class="p">,</span>
+    <span class="n">select</span><span class="p">,</span>
+    <span class="n">feature_type</span><span class="p">,</span>
+    <span class="n">where</span><span class="p">,</span>
+    <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cid</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+Generate a Extraction query to extract features based on given parameters.</p>
+<p>Args:
+- base_table_name (str): Base table name.
+- select (List[str]): List of selected fields.
+- feature_type (str): Type of feature (points, lines, polygons).
+- where (str): SQL-like condition to filter features.</p>
+<p>Returns:
+str: Extraction query to extract features.</p>
+<h4 id="extract_geometry_type_query">extract_geometry_type_query</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">extract_geometry_type_query</span><span class="p">(</span>
+    <span class="n">params</span><span class="p">,</span>
+    <span class="n">ogr_export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">g_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">c_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">country_export</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</code></pre></div>
+used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction</p>
+<h4 id="format_file_name_str">format_file_name_str</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">format_file_name_str</span><span class="p">(</span>
+    <span class="n">input_str</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="generate_polygon_stats_graphql_query">generate_polygon_stats_graphql_query</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_polygon_stats_graphql_query</span><span class="p">(</span>
+    <span class="n">geojson_feature</span>
+<span class="p">)</span>
+</code></pre></div>
+Gernerates the graphql query for the statistics</p>
+<h4 id="generate_tag_filter_query">generate_tag_filter_query</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_tag_filter_query</span><span class="p">(</span>
+    <span class="nb">filter</span><span class="p">,</span>
+    <span class="n">join_by</span><span class="o">=</span><span class="s1">&#39; OR &#39;</span><span class="p">,</span>
+    <span class="n">plain_query_filter</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="generate_where_clause_indexes_case">generate_where_clause_indexes_case</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_where_clause_indexes_case</span><span class="p">(</span>
+    <span class="n">geom_filter</span><span class="p">,</span>
+    <span class="n">g_id</span><span class="p">,</span>
+    <span class="n">c_id</span><span class="p">,</span>
+    <span class="n">country_export</span><span class="p">,</span>
+    <span class="n">table_name</span><span class="o">=</span><span class="s1">&#39;ways_poly&#39;</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="get_countries_query">get_countries_query</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_countries_query</span><span class="p">(</span>
+    <span class="n">q</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="get_country_from_iso">get_country_from_iso</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_country_from_iso</span><span class="p">(</span>
+    <span class="n">iso3</span>
+<span class="p">)</span>
+</code></pre></div>
+Generate a SQL query to retrieve country information based on ISO3 code.</p>
+<p>Args:
+- iso3 (str): ISO3 Country Code.</p>
+<p>Returns:
+str: SQL query to fetch country information.</p>
+<h4 id="get_country_geojson">get_country_geojson</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_country_geojson</span><span class="p">(</span>
+    <span class="n">c_id</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="get_country_geom_from_iso">get_country_geom_from_iso</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_country_geom_from_iso</span><span class="p">(</span>
+    <span class="n">iso3</span>
+<span class="p">)</span>
+</code></pre></div>
+Generate a SQL query to retrieve country geometry based on ISO3 code.</p>
+<p>Args:
+- iso3 (str): ISO3 Country Code.</p>
+<p>Returns:
+str: SQL query to fetch country geometry.</p>
+<h4 id="get_country_id_query">get_country_id_query</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_country_id_query</span><span class="p">(</span>
+    <span class="n">geom_dump</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="get_grid_id_query">get_grid_id_query</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_grid_id_query</span><span class="p">(</span>
+    <span class="n">geometry_dump</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="get_osm_feature_query">get_osm_feature_query</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_osm_feature_query</span><span class="p">(</span>
+    <span class="n">osm_id</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="get_query_as_geojson">get_query_as_geojson</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_query_as_geojson</span><span class="p">(</span>
+    <span class="n">query_list</span><span class="p">,</span>
+    <span class="n">ogr_export</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="postgres2duckdb_query">postgres2duckdb_query</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">postgres2duckdb_query</span><span class="p">(</span>
+    <span class="n">base_table_name</span><span class="p">,</span>
+    <span class="n">table</span><span class="p">,</span>
+    <span class="n">cid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">single_category_where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">enable_users_detail</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</code></pre></div>
+Generate a DuckDB query to create a table from a PostgreSQL query.</p>
+<p>Args:
+- base_table_name (str): Base table name.
+- table (str): PostgreSQL table name.
+- cid (int, optional): Country ID for filtering. Defaults to None.
+- geometry (Polygon, optional): Custom polygon geometry. Defaults to None.
+- single_category_where (str, optional): Where clause for single category to fetch it from postgres
+- enable_users_detail (bool, optional): Enable user details. Defaults to False.</p>
+<p>Returns:
+str: DuckDB query for creating a table.</p>
+<h4 id="raw_currentdata_extraction_query">raw_currentdata_extraction_query</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">raw_currentdata_extraction_query</span><span class="p">(</span>
+    <span class="n">params</span><span class="p">,</span>
+    <span class="n">g_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">c_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ogr_export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">select_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">country_export</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</code></pre></div>
+Default function to support current snapshot extraction with all of the feature that export_tool_api has</p>
+<h4 id="raw_extract_plain_geojson">raw_extract_plain_geojson</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">raw_extract_plain_geojson</span><span class="p">(</span>
+    <span class="n">params</span><span class="p">,</span>
+    <span class="n">inspect_only</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="remove_spaces">remove_spaces</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">remove_spaces</span><span class="p">(</span>
+    <span class="n">input_str</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/hotosm" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+    
+    
+  </body>
+</html>

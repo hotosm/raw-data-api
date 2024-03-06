@@ -1,0 +1,1638 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Raw Data API  is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.">
+      
+      
+      
+        <link rel="canonical" href="https://hotosm.github.io/export-tool-api/installation/configurations/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>Configurations - Raw Data API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../css/mkdocsoad.cssmkdocs">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configuring-the-api-service" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Raw Data API" class="md-header__button md-logo" aria-label="Raw Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Raw Data API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Configurations
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent=""  aria-label=""  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hotosm/export-tool-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hotosm/export-tool-api
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Raw Data API" class="md-nav__button md-logo" aria-label="Raw Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Raw Data API
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hotosm/export-tool-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hotosm/export-tool-api
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Raw Data API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Installation" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/" class="md-nav__link">
+        Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docker/" class="md-nav__link">
+        Docker Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Configurations
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Configurations
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-need-to-start" class="md-nav__link">
+    What you need to start?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#users-table" class="md-nav__link">
+    Users Table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sections" class="md-nav__link">
+    Sections
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#which-service-uses-which-settings" class="md-nav__link">
+    Which Service uses which settings?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compulsory-configuration" class="md-nav__link">
+    Compulsory Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Compulsory Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-configtxt-inside-root-directory" class="md-nav__link">
+    Create config.txt inside root directory.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prepare-your-osm-snapshot-data" class="md-nav__link">
+    Prepare your OSM Snapshot Data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup-oauth-for-authentication" class="md-nav__link">
+    Setup Oauth for Authentication
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-celery-and-redis" class="md-nav__link">
+    Configure celery and redis
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finalizing-configtxt" class="md-nav__link">
+    Finalizing config.txt
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-configuration-you-can-skip-this-part-for-basic-installation" class="md-nav__link">
+    Optional Configuration [ You can skip this part for basic installation ]
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional Configuration [ You can skip this part for basic installation ]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#you-can-export-config-variables-without-block-as-system-env-variables-too" class="md-nav__link">
+    You can export config variables without block as system env variables too
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/endpoints/" class="md-nav__link">
+        Endpoints
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/Example_Python/" class="md-nav__link">
+        Examples
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/API/" class="md-nav__link">
+        API Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/src/" class="md-nav__link">
+        Source Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code_of_conduct/" class="md-nav__link">
+        Code of Conduct
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-need-to-start" class="md-nav__link">
+    What you need to start?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#users-table" class="md-nav__link">
+    Users Table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sections" class="md-nav__link">
+    Sections
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#which-service-uses-which-settings" class="md-nav__link">
+    Which Service uses which settings?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compulsory-configuration" class="md-nav__link">
+    Compulsory Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Compulsory Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-configtxt-inside-root-directory" class="md-nav__link">
+    Create config.txt inside root directory.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prepare-your-osm-snapshot-data" class="md-nav__link">
+    Prepare your OSM Snapshot Data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup-oauth-for-authentication" class="md-nav__link">
+    Setup Oauth for Authentication
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-celery-and-redis" class="md-nav__link">
+    Configure celery and redis
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finalizing-configtxt" class="md-nav__link">
+    Finalizing config.txt
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-configuration-you-can-skip-this-part-for-basic-installation" class="md-nav__link">
+    Optional Configuration [ You can skip this part for basic installation ]
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional Configuration [ You can skip this part for basic installation ]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#you-can-export-config-variables-without-block-as-system-env-variables-too" class="md-nav__link">
+    You can export config variables without block as system env variables too
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/hotosm/export-tool-api/edit/master/docs/installation/configurations.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="configuring-the-api-service">Configuring the API service</h1>
+<p>Raw Data API can be setup using two configuration options. You can choose based on your convienience 
+- <em>config.txt</em> : You can follow  <code>config.txt.sample</code> in dir and documentation below to set your configurations 
+- <em>.env</em> : Another option is from OS Environment variable , You can export all your env variables ( They are same as you put in config without blocks ) and pass it to API , API will pick it up automatically.</p>
+<h2 id="what-you-need-to-start">What you need to start?</h2>
+<ul>
+<li>A working <a href="https://www.postgresql.org/">Postgres</a> instance with <a href="https://postgis.net/">Postgis</a> module enabled.</li>
+<li>A working <a href="https://redis.io/">Redis</a> instance.</li>
+</ul>
+<p>The default configuration file is an ini-style text file named <code>config.txt</code> in the project root.</p>
+<h2 id="users-table">Users Table</h2>
+<p>Users table is present on <code>backend/sql/users.sql</code> Make sure you have it before moving forward</p>
+<p><div class="highlight"><pre><span></span><code>psql -a -f backend/sql/users.sql
+</code></pre></div>
+&amp; Add your admin's OSM ID as admin </p>
+<div class="highlight"><pre><span></span><code>INSERT INTO users (osm_id, role) VALUES (1234, 1);
+</code></pre></div>
+<h2 id="sections">Sections</h2>
+<p>The following sections are recognised.</p>
+<ul>
+<li><code>[DB]</code> - For database connection information. Required.</li>
+<li><code>[OAUTH]</code> - For connecting to OpenStreetMap using an OAuth2 app. Required.</li>
+<li><code>[CELERY]</code> - For task queues on Redis. Required.</li>
+<li><code>[API_CONFIG]</code> - API service related configuration. Required.</li>
+<li><code>[EXPORT_UPLOAD]</code> - For external file hosts like S3. Optional.</li>
+<li><code>[SENTRY]</code> - Sentry monitoring configuration. Optional.</li>
+<li><code>[HDX]</code> - HDX Exports related configuration. Optional.</li>
+</ul>
+<p>The following are the different configuration options that are accepted.</p>
+<table>
+<thead>
+<tr>
+<th>Config option</th>
+<th>ENVVAR</th>
+<th>Section</th>
+<th>Defaults</th>
+<th>Description</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PGHOST</code></td>
+<td><code>PGHOST</code></td>
+<td><code>[DB]</code></td>
+<td><em>none</em></td>
+<td>PostgreSQL hostname or IP</td>
+<td>REQUIRED</td>
+</tr>
+<tr>
+<td><code>PGPORT</code></td>
+<td><code>PGPORT</code></td>
+<td><code>[DB]</code></td>
+<td><code>5432</code></td>
+<td>PostgreSQL connection port</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>PGUSER</code></td>
+<td><code>PGUSER</code></td>
+<td><code>[DB]</code></td>
+<td><em>none</em></td>
+<td>PostgreSQL user/role</td>
+<td>REQUIRED</td>
+</tr>
+<tr>
+<td><code>PGPASSWORD</code></td>
+<td><code>PGPASSWORD</code></td>
+<td><code>[DB]</code></td>
+<td><em>none</em></td>
+<td>PostgreSQL user/role password</td>
+<td>REQUIRED</td>
+</tr>
+<tr>
+<td><code>PGDATABASE</code></td>
+<td><code>PGDATABASE</code></td>
+<td><code>[DB]</code></td>
+<td><em>none</em></td>
+<td>PostgreSQL database name</td>
+<td>REQUIRED</td>
+</tr>
+<tr>
+<td><code>OSM_CLIENT_ID</code></td>
+<td><code>OSM_CLIENT_ID</code></td>
+<td><code>[OAUTH]</code></td>
+<td><em>none</em></td>
+<td>Client ID of OSM OAuth2 application</td>
+<td>REQIRED</td>
+</tr>
+<tr>
+<td><code>OSM_CLIENT_SECRET</code></td>
+<td><code>OSM_CLIENT_SECRET</code></td>
+<td><code>[OAUTH]</code></td>
+<td><em>none</em></td>
+<td>Client Secret of OSM OAuth2 application</td>
+<td>REQIRED</td>
+</tr>
+<tr>
+<td><code>OSM_PERMISSION_SCOPE</code></td>
+<td><code>OSM_PERMISSION_SCOPE</code></td>
+<td><code>[OAUTH]</code></td>
+<td><code>read_prefs</code></td>
+<td>OSM access permission for OAuth2 application</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>LOGIN_REDIRECT_URI</code></td>
+<td><code>LOGIN_REDIRECT_URI</code></td>
+<td><code>[OAUTH]</code></td>
+<td><em>none</em></td>
+<td>Redirect URL set in the OAuth2 application</td>
+<td>REQUIRED</td>
+</tr>
+<tr>
+<td><code>APP_SECRET_KEY</code></td>
+<td><code>APP_SECRET_KEY</code></td>
+<td><code>[OAUTH]</code></td>
+<td><em>none</em></td>
+<td>High-entropy string generated for the application</td>
+<td>REQUIRED</td>
+</tr>
+<tr>
+<td><code>OSM_URL</code></td>
+<td><code>OSM_URL</code></td>
+<td><code>[OAUTH]</code></td>
+<td><code>https://www.openstreetmap.org</code></td>
+<td>OSM instance Base URL</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>LOG_LEVEL</code></td>
+<td><code>LOG_LEVEL</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>debug</code></td>
+<td>Application log level; info,debug,warning,error</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>RATE_LIMITER_STORAGE_URI</code></td>
+<td><code>RATE_LIMITER_STORAGE_URI</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>redis://redis:6379</code></td>
+<td>Redis connection string for rate-limiter data</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>RATE_LIMIT_PER_MIN</code></td>
+<td><code>RATE_LIMIT_PER_MIN</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>5</code></td>
+<td>Number of requests per minute before being rate limited</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>EXPORT_PATH</code></td>
+<td><code>EXPORT_PATH</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>exports</code>?</td>
+<td>Local path to store exports</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>EXPORT_MAX_AREA_SQKM</code></td>
+<td><code>EXPORT_MAX_AREA_SQKM</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>100000</code></td>
+<td>max area in sq. km. to support for rawdata input</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>USE_CONNECTION_POOLING</code></td>
+<td><code>USE_CONNECTION_POOLING</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>false</code></td>
+<td>Enable psycopg2 connection pooling</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>ALLOW_BIND_ZIP_FILTER</code></td>
+<td><code>ALLOW_BIND_ZIP_FILTER</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>true</code></td>
+<td>Enable zip compression for exports</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>EXTRA_README_TXT</code></td>
+<td><code>EXTRA_README_TXT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>``</td>
+<td>Append extra string to export readme.txt</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>ENABLE_TILES</code></td>
+<td><code>ENABLE_TILES</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>false</code></td>
+<td>Enable Tile Output (Pmtiles and Mbtiles)</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>ENABLE_SOZIP</code></td>
+<td><code>ENABLE_SOZIP</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>false</code></td>
+<td>Enables sozip compression</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>DEFAULT_QUEUE_NAME</code></td>
+<td><code>DEFAULT_QUEUE_NAME</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>raw_ondemand</code></td>
+<td>Option to define default queue name</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>DAEMON_QUEUE_NAME</code></td>
+<td><code>DAEMON_QUEUE_NAME</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>raw_daemon</code></td>
+<td>Option to define daemon queue name for scheduled and long exports</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>ENABLE_POLYGON_STATISTICS_ENDPOINTS</code></td>
+<td><code>ENABLE_POLYGON_STATISTICS_ENDPOINTS</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>False</code></td>
+<td>Option to enable endpoints related the polygon statistics about the approx buildings,road length in passed polygon</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>ENABLE_CUSTOM_EXPORTS</code></td>
+<td><code>ENABLE_CUSTOM_EXPORTS</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>False</td>
+<td>Enables custom exports endpoint and imports</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>POLYGON_STATISTICS_API_URL</code></td>
+<td><code>POLYGON_STATISTICS_API_URL</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>None</code></td>
+<td>API URL for the polygon statistics to fetch the metadata , Currently tested with graphql query endpoint of Kontour , Only required if it is enabled from ENABLE_POLYGON_STATISTICS_ENDPOINTS</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>POLYGON_STATISTICS_API_URL</code></td>
+<td><code>POLYGON_STATISTICS_API_RATE_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>5</code></td>
+<td>Rate limit to be applied for statistics endpoint per minute, Defaults to 5 request is allowed per minute</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>WORKER_PREFETCH_MULTIPLIER</code></td>
+<td><code>WORKER_PREFETCH_MULTIPLIER</code></td>
+<td><code>[CELERY]</code></td>
+<td><code>1</code></td>
+<td>No of tasks that worker can prefetch at a time</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>DEFAULT_SOFT_TASK_LIMIT</code></td>
+<td><code>DEFAULT_SOFT_TASK_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>7200</code></td>
+<td>Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 2 Hour</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>DEFAULT_HARD_TASK_LIMIT</code></td>
+<td><code>DEFAULT_HARD_TASK_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>10800</code></td>
+<td>Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 3 Hour</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>USE_DUCK_DB_FOR_CUSTOM_EXPORTS</code></td>
+<td><code>USE_DUCK_DB_FOR_CUSTOM_EXPORTS</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td><code>False</code></td>
+<td>Enable this setting to use duckdb , By default duck db is disabled and postgres is used</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>CELERY_BROKER_URL</code></td>
+<td><code>CELERY_BROKER_URL</code></td>
+<td><code>[CELERY]</code></td>
+<td><code>redis://localhost:6379/0</code></td>
+<td>Redis connection string for the broker</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>CELERY_RESULT_BACKEND</code></td>
+<td><code>CELERY_RESULT_BACKEND</code></td>
+<td><code>[CELERY]</code></td>
+<td><code>redis://localhost:6379/0</code></td>
+<td>Redis/psotgresql connection string for the the result backend, eg : db+postgresql://username:password@localhost:5432/db_name</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>FILE_UPLOAD_METHOD</code></td>
+<td><code>FILE_UPLOAD_METHOD</code></td>
+<td><code>[EXPORT_UPLOAD]</code></td>
+<td><code>disk</code></td>
+<td>File upload method; Allowed values - disk, s3</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>BUCKET_NAME</code></td>
+<td><code>BUCKET_NAME</code></td>
+<td><code>[EXPORT_UPLOAD]</code></td>
+<td><em>none</em></td>
+<td>AWS S3 Bucket name</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>AWS_ACCESS_KEY_ID</code></td>
+<td><code>AWS_ACCESS_KEY_ID</code></td>
+<td><code>[EXPORT_UPLOAD]</code></td>
+<td><em>none</em></td>
+<td>AWS Access Key ID for S3 access</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>AWS_SECRET_ACCESS_KEY</code></td>
+<td><code>AWS_SECRET_ACCESS_KEY</code></td>
+<td><code>[EXPORT_UPLOAD]</code></td>
+<td><em>none</em></td>
+<td>AWS Secret Access Key for S3 access</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>SENTRY_DSN</code></td>
+<td><code>SENTRY_DSN</code></td>
+<td><code>[SENTRY]</code></td>
+<td><em>none</em></td>
+<td>Sentry Data Source Name</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>SENTRY_RATE</code></td>
+<td><code>SENTRY_RATE</code></td>
+<td><code>[SENTRY]</code></td>
+<td><code>1.0</code></td>
+<td>Sample rate percentage for shipping errors to sentry; Allowed values between 0 (0%) to 1 (100%)</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>ENABLE_HDX_EXPORTS</code></td>
+<td><code>ENABLE_HDX_EXPORTS</code></td>
+<td><code>[HDX]</code></td>
+<td>False</td>
+<td>Enables hdx related endpoints and imports</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>HDX_SITE</code></td>
+<td><code>HDX_SITE</code></td>
+<td><code>[HDX]</code></td>
+<td>'demo'</td>
+<td>HDX site to point , By default demo site , use prod for production</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>HDX_API_KEY</code></td>
+<td><code>HDX_API_KEY</code></td>
+<td><code>[HDX]</code></td>
+<td>None</td>
+<td>Your API Secret key for hdx upload , should have write access and it is compulsory if ENABLE_HDX_EXPORTS is True</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>HDX_OWNER_ORG</code></td>
+<td><code>HDX_OWNER_ORG</code></td>
+<td><code>[HDX]</code></td>
+<td>None</td>
+<td>Your HDX organization ID</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>HDX_MAINTAINER</code></td>
+<td><code>HDX_MAINTAINER</code></td>
+<td><code>[HDX]</code></td>
+<td>None</td>
+<td>Your HDX Maintainer ID</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>DUCK_DB_MEMORY_LIMIT</code></td>
+<td><code>DUCK_DB_MEMORY_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>None</td>
+<td>Duck DB max memory limit , 80 % of your RAM eg : '5GB'</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>DUCK_DB_THREAD_LIMIT</code></td>
+<td><code>DUCK_DB_THREAD_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>None</td>
+<td>Duck DB max threads limit ,n of your cores eg : 2</td>
+<td>CONDITIONAL</td>
+</tr>
+<tr>
+<td><code>HDX_SOFT_TASK_LIMIT</code></td>
+<td><code>HDX_SOFT_TASK_LIMIT</code></td>
+<td><code>[HDX]</code></td>
+<td><code>18000</code></td>
+<td>Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 5 Hour</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>HDX_HARD_TASK_LIMIT</code></td>
+<td><code>HDX_HARD_TASK_LIMIT</code></td>
+<td><code>[HDX]</code></td>
+<td><code>21600</code></td>
+<td>Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 6 Hour</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>PROCESS_SINGLE_CATEGORY_IN_POSTGRES</code></td>
+<td><code>PROCESS_SINGLE_CATEGORY_IN_POSTGRES</code></td>
+<td><code>[HDX]</code></td>
+<td>False</td>
+<td>Recommended for workers with low memery or CPU usage , This will process single category request like buildings only , Roads only in postgres itself and avoid extraction from duckdb</td>
+<td>OPTIONAL</td>
+</tr>
+<tr>
+<td><code>PARALLEL_PROCESSING_CATEGORIES</code></td>
+<td><code>PARALLEL_PROCESSING_CATEGORIES</code></td>
+<td><code>[HDX]</code></td>
+<td>True</td>
+<td>Enable parallel processing for mulitple categories and export formats , Disable this if you have single cpu and limited RAM , Enabled by default</td>
+<td>OPTIONAL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note :</strong> HDX_API_KEY </p>
+<p>In order to generate HDX_API_KEY , You need to be logged in to https://data.humdata.org/ .
+Follow following navigation to generate tokens : 
+  - Your profile section &gt; User settings &gt; API Tokens</p>
+<p>API Tokens have expiry date, It is <code>important to update API Tokens manually each year</code> for hosted api service ! </p>
+<h2 id="which-service-uses-which-settings">Which Service uses which settings?</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Config Section</th>
+<th>API</th>
+<th>Worker</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PGHOST</code></td>
+<td><code>[DB]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PGPORT</code></td>
+<td><code>[DB]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PGUSER</code></td>
+<td><code>[DB]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PGPASSWORD</code></td>
+<td><code>[DB]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PGDATABASE</code></td>
+<td><code>[DB]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>OSM_CLIENT_ID</code></td>
+<td><code>[OAUTH]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>OSM_CLIENT_SECRET</code></td>
+<td><code>[OAUTH]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>OSM_PERMISSION_SCOPE</code></td>
+<td><code>[OAUTH]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>LOGIN_REDIRECT_URI</code></td>
+<td><code>[OAUTH]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>APP_SECRET_KEY</code></td>
+<td><code>[OAUTH]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>OSM_URL</code></td>
+<td><code>[OAUTH]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>LOG_LEVEL</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>RATE_LIMITER_STORAGE_URI</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>RATE_LIMIT_PER_MIN</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>EXPORT_PATH</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes (Not needed for upload_s3)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>EXPORT_MAX_AREA_SQKM</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>USE_CONNECTION_POOLING</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>ENABLE_TILES</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>ENABLE_SOZIP</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>ALLOW_BIND_ZIP_FILTER</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>EXTRA_README_TXT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>INDEX_THRESHOLD</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DEFAULT_QUEUE_NAME</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>DAEMON_QUEUE_NAME</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>ENABLE_POLYGON_STATISTICS_ENDPOINTS</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POLYGON_STATISTICS_API_URL</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POLYGON_STATISTICS_API_RATE_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>DEFAULT_SOFT_TASK_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DEFAULT_HARD_TASK_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>USE_DUCK_DB_FOR_CUSTOM_EXPORTS</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DUCK_DB_MEMORY_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DUCK_DB_THREAD_LIMIT</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>ENABLE_CUSTOM_EXPORTS</code></td>
+<td><code>[API_CONFIG]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>CELERY_BROKER_URL</code></td>
+<td><code>[CELERY]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>CELERY_RESULT_BACKEND</code></td>
+<td><code>[CELERY]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>WORKER_PREFETCH_MULTIPLIER</code></td>
+<td><code>[CELERY]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>FILE_UPLOAD_METHOD</code></td>
+<td><code>[EXPORT_UPLOAD]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>BUCKET_NAME</code></td>
+<td><code>[EXPORT_UPLOAD]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>AWS_ACCESS_KEY_ID</code></td>
+<td><code>[EXPORT_UPLOAD]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>AWS_SECRET_ACCESS_KEY</code></td>
+<td><code>[EXPORT_UPLOAD]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>SENTRY_DSN</code></td>
+<td><code>[SENTRY]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>SENTRY_RATE</code></td>
+<td><code>[SENTRY]</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>ENABLE_HDX_EXPORTS</code></td>
+<td><code>[HDX]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>HDX_SITE</code></td>
+<td><code>[HDX]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>HDX_API_KEY</code></td>
+<td><code>[HDX]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>HDX_OWNER_ORG</code></td>
+<td><code>[HDX]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>HDX_MAINTAINER</code></td>
+<td><code>[HDX]</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>HDX_SOFT_TASK_LIMIT</code></td>
+<td><code>[HDX]</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>HDX_HARD_TASK_LIMIT</code></td>
+<td><code>[HDX]</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PROCESS_SINGLE_CATEGORY_IN_POSTGRES</code></td>
+<td><code>[HDX]</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PARALLEL_PROCESSING_CATEGORIES</code></td>
+<td><code>[HDX]</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="compulsory-configuration">Compulsory Configuration</h2>
+<h3 id="create-configtxt-inside-root-directory">Create <code>config.txt</code> inside root directory.</h3>
+<p>It should be on the same place where <code>config.txt.sample</code></p>
+<h3 id="prepare-your-osm-snapshot-data">Prepare your OSM Snapshot Data</h3>
+<p>Initialize rawdata from <a href="https://github.com/hotosm/underpass/tree/master/raw">here</a> OR Create database "raw" in your local postgres and insert sample dump from</p>
+<div class="highlight"><pre><span></span><code>/tests/fixtures/pokhara.sql
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>psql -U postgres -h localhost raw &lt; pokhara.sql
+</code></pre></div>
+<p>Put your credentials on Rawdata block</p>
+<div class="highlight"><pre><span></span><code>[DB]
+PGHOST=localhost
+PGUSER=postgres
+PGPASSWORD=admin
+PGDATABASE=raw
+PGPORT=5432
+</code></pre></div>
+<h3 id="setup-oauth-for-authentication">Setup Oauth for Authentication</h3>
+<p>Login to <a href="https://www.openstreetmap.org/">OSM</a> , Click on My Settings and register your local galaxy app to Oauth2applications</p>
+<p><img alt="image" src="https://user-images.githubusercontent.com/36752999/188452619-aababf28-b685-4141-b381-9c25d0367b57.png" /></p>
+<p>Check on read user preferences and Enter redirect URI as following</p>
+<div class="highlight"><pre><span></span><code>http://127.0.0.1:8000/v1/auth/callback/
+</code></pre></div>
+<p>Grab Client ID and Client Secret and put it inside config.txt as OAUTH Block , you can generate secret key for your application by yourself</p>
+<div class="highlight"><pre><span></span><code>[OAUTH]
+OSM_CLIENT_ID= your client id
+OSM_CLIENT_SECRET= your client secret
+OSM_URL=https://www.openstreetmap.org
+OSM_PERMISSION_SCOPE=read_prefs
+LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
+APP_SECRET_KEY=your generated secret key
+</code></pre></div>
+<h3 id="configure-celery-and-redis">Configure celery and redis</h3>
+<p>API uses <a href="https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html">Celery 5</a> and <a href="https://redis.io/download/#redis-stack-downloads">Redis 6</a> for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port . if you are running redis on same machine your broker could be <code>redis://localhost:6379/</code>. You can change the port according to your configuration for the current docker compose use following</p>
+<div class="highlight"><pre><span></span><code>[CELERY]
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+</code></pre></div>
+<h3 id="finalizing-configtxt">Finalizing config.txt</h3>
+<p>Insert your config blocks with the database credentials where you have underpass ,insight and rawdata in your database along with oauth block</p>
+<p>Summary of command :</p>
+<p>Considering You have PSQL-POSTGIS setup with user <strong>postgres</strong> host <strong>localhost</strong> on port <strong>5432</strong> as password <strong>admin</strong></p>
+<div class="highlight"><pre><span></span><code>  export PGPASSWORD=&#39;admin&#39;;
+  psql -U postgres -h localhost -p 5432 -c &quot;CREATE DATABASE raw;&quot;
+
+  cd tests/fixtures/
+  psql -U postgres -h localhost -p 5432 raw  &lt; pokhara.sql
+</code></pre></div>
+<p>Your config.txt will look like this</p>
+<div class="highlight"><pre><span></span><code>[DB]
+PGHOST=localhost
+PGUSER=postgres
+PGPASSWORD=admin
+PGDATABASE=raw
+PGPORT=5432
+
+[OAUTH]
+OSM_CLIENT_ID= your client id
+OSM_CLIENT_SECRET= your client secret
+OSM_URL=https://www.openstreetmap.org
+OSM_PERMISSION_SCOPE=read_prefs
+LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
+APP_SECRET_KEY=jnfdsjkfndsjkfnsdkjfnskfn
+
+[API_CONFIG]
+LOG_LEVEL=debug
+RATE_LIMITER_STORAGE_URI=redis://redis:6379
+
+[CELERY]
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+</code></pre></div>
+<p><strong>Tips</strong> : Follow .github/workflows/<a href="https://github.com/hotosm/export-tool-api/blob/feature/celery/.github/workflows/unit-test.yml">unit-test</a> If you have any confusion on implementation of config file .</p>
+<h2 id="optional-configuration-you-can-skip-this-part-for-basic-installation">Optional Configuration [ You can skip this part for basic installation ]</h2>
+<p>You can further customize API if you wish with API_CONFIG Block</p>
+<div class="highlight"><pre><span></span><code>[API_CONFIG]
+EXPORT_PATH=exports # used to store export path
+EXPORT_MAX_AREA_SQKM=100000 # max area to support for rawdata input
+USE_CONNECTION_POOLING=True # default it will not use connection pooling but you can configure api to use to for psycopg2 connections
+LOG_LEVEL=info #options are info,debug,warning,error
+ALLOW_BIND_ZIP_FILTER=true # option to configure export output zipped/unzipped Default all output will be zipped
+RATE_LIMITER_STORAGE_URI=redis://localhost:6379 # API uses redis as backend for rate limiting
+INDEX_THRESHOLD=5000 # value in sqkm to apply grid/country index filter
+RATE_LIMIT_PER_MIN=5 # no of requests per minute - default is 5 requests per minute
+</code></pre></div>
+<p>Based on your requirement you can also customize rawdata exports parameter using EXPORT_UPLOAD block</p>
+<div class="highlight"><pre><span></span><code>[EXPORT_UPLOAD]
+FILE_UPLOAD_METHOD=disk # options are s3,disk , default disk
+AWS_ACCESS_KEY_ID= your id
+AWS_SECRET_ACCESS_KEY= yourkey
+BUCKET_NAME= your bucket name
+</code></pre></div>
+<p>Sentry Config :</p>
+<div class="highlight"><pre><span></span><code>[SENTRY]
+SENTRY_DSN=
+SENTRY_RATE=
+</code></pre></div>
+<h3 id="you-can-export-config-variables-without-block-as-system-env-variables-too">You can export config variables without block as system env variables too</h3>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../docker/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Docker Installation" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Docker Installation
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../../api/endpoints/" class="md-footer__link md-footer__link--next" aria-label="Next: Endpoints" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Endpoints
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/hotosm" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+    
+    
+  </body>
+</html>

@@ -1,0 +1,1895 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Raw Data API  is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.">
+      
+      
+      
+        <link rel="canonical" href="https://hotosm.github.io/export-tool-api/api/src/app/">
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>App - Raw Data API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.2505c338.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../css/mkdocsoad.cssmkdocs">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-srcapp" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Raw Data API" class="md-header__button md-logo" aria-label="Raw Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Raw Data API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              App
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent=""  aria-label=""  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hotosm/export-tool-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hotosm/export-tool-api
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Raw Data API" class="md-nav__button md-logo" aria-label="Raw Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Raw Data API
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hotosm/export-tool-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hotosm/export-tool-api
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Raw Data API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Installation" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../installation/backend/" class="md-nav__link">
+        Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../installation/docker/" class="md-nav__link">
+        Docker Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../installation/configurations/" class="md-nav__link">
+        Configurations
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../endpoints/" class="md-nav__link">
+        Endpoints
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/Example_Python/" class="md-nav__link">
+        Examples
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API/" class="md-nav__link">
+        API Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        Source Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code_of_conduct/" class="md-nav__link">
+        Code of Conduct
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check_for_json" class="md-nav__link">
+    check_for_json
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#convert_dict_to_conn_str" class="md-nav__link">
+    convert_dict_to_conn_str
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dict_none_clean" class="md-nav__link">
+    dict_none_clean
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_ogr2ogr_cmd_from_psql" class="md-nav__link">
+    generate_ogr2ogr_cmd_from_psql
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print_psycopg2_exception" class="md-nav__link">
+    print_psycopg2_exception
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run_ogr2ogr_cmd" class="md-nav__link">
+    run_ogr2ogr_cmd
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#customexport" class="md-nav__link">
+    CustomExport
+  </a>
+  
+    <nav class="md-nav" aria-label="CustomExport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clean_resources" class="md-nav__link">
+    clean_resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_to_zip" class="md-nav__link">
+    file_to_zip
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_where_clause_duckdb" class="md-nav__link">
+    format_where_clause_duckdb
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process_category" class="md-nav__link">
+    process_category
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process_category_result" class="md-nav__link">
+    process_category_result
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process_custom_categories" class="md-nav__link">
+    process_custom_categories
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query_to_file" class="md-nav__link">
+    query_to_file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource_to_hdx" class="md-nav__link">
+    resource_to_hdx
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource_to_response" class="md-nav__link">
+    resource_to_response
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#types_to_tables" class="md-nav__link">
+    types_to_tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload_resources" class="md-nav__link">
+    upload_resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zip_to_s3" class="md-nav__link">
+    zip_to_s3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    Database
+  </a>
+  
+    <nav class="md-nav" aria-label="Database">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods_1" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#close_conn" class="md-nav__link">
+    close_conn
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connect" class="md-nav__link">
+    connect
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executequery" class="md-nav__link">
+    executequery
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#duckdb" class="md-nav__link">
+    DuckDB
+  </a>
+  
+    <nav class="md-nav" aria-label="DuckDB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods_2" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run_query" class="md-nav__link">
+    run_query
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hdx" class="md-nav__link">
+    HDX
+  </a>
+  
+    <nav class="md-nav" aria-label="HDX">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods_3" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_hdx" class="md-nav__link">
+    create_hdx
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_hdx" class="md-nav__link">
+    delete_hdx
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_hdx_by_id" class="md-nav__link">
+    get_hdx_by_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_hdx_list_with_filters" class="md-nav__link">
+    get_hdx_list_with_filters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patch_hdx" class="md-nav__link">
+    patch_hdx
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search_hdx_by_dataset_title" class="md-nav__link">
+    search_hdx_by_dataset_title
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_hdx" class="md-nav__link">
+    update_hdx
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hdxuploader" class="md-nav__link">
+    HDXUploader
+  </a>
+  
+    <nav class="md-nav" aria-label="HDXUploader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods_4" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_notes" class="md-nav__link">
+    add_notes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_resource" class="md-nav__link">
+    add_resource
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#init_dataset" class="md-nav__link">
+    init_dataset
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slugify" class="md-nav__link">
+    slugify
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload_dataset" class="md-nav__link">
+    upload_dataset
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polygonstats" class="md-nav__link">
+    PolygonStats
+  </a>
+  
+    <nav class="md-nav" aria-label="PolygonStats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_building_pattern_statement" class="md-nav__link">
+    get_building_pattern_statement
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_road_pattern_statement" class="md-nav__link">
+    get_road_pattern_statement
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_5" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_osm_analytics_meta_stats" class="md-nav__link">
+    get_osm_analytics_meta_stats
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_summary_stats" class="md-nav__link">
+    get_summary_stats
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rawdata" class="md-nav__link">
+    RawData
+  </a>
+  
+    <nav class="md-nav" aria-label="RawData">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#static-methods_1" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#close_con" class="md-nav__link">
+    close_con
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geojson2tiles" class="md-nav__link">
+    geojson2tiles
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_grid_id" class="md-nav__link">
+    get_grid_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ogr_export" class="md-nav__link">
+    ogr_export
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ogr_export_shp" class="md-nav__link">
+    ogr_export_shp
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query2geojson" class="md-nav__link">
+    query2geojson
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_6" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check_status" class="md-nav__link">
+    check_status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_current_data" class="md-nav__link">
+    extract_current_data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_plain_geojson" class="md-nav__link">
+    extract_plain_geojson
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_countries_list" class="md-nav__link">
+    get_countries_list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_osm_feature" class="md-nav__link">
+    get_osm_feature
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s3filetransfer" class="md-nav__link">
+    S3FileTransfer
+  </a>
+  
+    <nav class="md-nav" aria-label="S3FileTransfer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods_7" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_bucket_location" class="md-nav__link">
+    get_bucket_location
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_buckets" class="md-nav__link">
+    list_buckets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload" class="md-nav__link">
+    upload
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#users" class="md-nav__link">
+    Users
+  </a>
+  
+    <nav class="md-nav" aria-label="Users">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods_8" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_user" class="md-nav__link">
+    create_user
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_user" class="md-nav__link">
+    delete_user
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read_user" class="md-nav__link">
+    read_user
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read_users" class="md-nav__link">
+    read_users
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_user" class="md-nav__link">
+    update_user
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/hotosm/export-tool-api/edit/master/docs/api/src/app.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="module-srcapp">Module src.app</h1>
+<p>Page contains Main core logic of app</p>
+<h2 id="variables">Variables</h2>
+<div class="highlight"><pre><span></span><code><span class="n">AWS_ACCESS_KEY_ID</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">AWS_SECRET_ACCESS_KEY</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">BUCKET_NAME</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">DEFAULT_README_TEXT</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">ENABLE_CUSTOM_EXPORTS</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">ENABLE_HDX_EXPORTS</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">ENABLE_POLYGON_STATISTICS_ENDPOINTS</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">ENABLE_SOZIP</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">ENABLE_TILES</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">EXPORT_MAX_AREA_SQKM</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">EXPORT_TYPE_MAPPING</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">HDX_FILTER_CRITERIA</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">HDX_MARKDOWN</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">LOCAL_CON_POOL</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">PARALLEL_PROCESSING_CATEGORIES</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">POLYGON_STATISTICS_API_URL</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">PROCESS_SINGLE_CATEGORY_IN_POSTGRES</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">USE_DUCK_DB_FOR_CUSTOM_EXPORTS</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">USE_S3_TO_UPLOAD</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">database_instance</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">export_path</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">index_threshold</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">level</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">use_connection_pooling</span>
+</code></pre></div>
+<h2 id="functions">Functions</h2>
+<h4 id="check_for_json">check_for_json</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">check_for_json</span><span class="p">(</span>
+    <span class="n">result_str</span>
+<span class="p">)</span>
+</code></pre></div>
+Check if the Payload is a JSON document</p>
+<p>Return: bool:
+    True in case of success, False otherwise</p>
+<h4 id="convert_dict_to_conn_str">convert_dict_to_conn_str</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">convert_dict_to_conn_str</span><span class="p">(</span>
+    <span class="n">db_dict</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="dict_none_clean">dict_none_clean</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">dict_none_clean</span><span class="p">(</span>
+    <span class="n">to_clean</span>
+<span class="p">)</span>
+</code></pre></div>
+Clean DictWriter</p>
+<h4 id="generate_ogr2ogr_cmd_from_psql">generate_ogr2ogr_cmd_from_psql</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_ogr2ogr_cmd_from_psql</span><span class="p">(</span>
+    <span class="n">export_file_path</span><span class="p">,</span>
+    <span class="n">export_file_format_driver</span><span class="p">,</span>
+    <span class="n">postgres_query</span><span class="p">,</span>
+    <span class="n">layer_creation_options</span><span class="p">,</span>
+    <span class="n">query_dump_path</span>
+<span class="p">)</span>
+</code></pre></div>
+Generates ogr2ogr command for postgresql queries</p>
+<h4 id="print_psycopg2_exception">print_psycopg2_exception</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">print_psycopg2_exception</span><span class="p">(</span>
+    <span class="n">err</span>
+<span class="p">)</span>
+</code></pre></div>
+Function that handles and parses Psycopg2 exceptions</p>
+<h4 id="run_ogr2ogr_cmd">run_ogr2ogr_cmd</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run_ogr2ogr_cmd</span><span class="p">(</span>
+    <span class="n">cmd</span>
+<span class="p">)</span>
+</code></pre></div>
+Runs command and monitors the file size until the process runs</p>
+<p>Args:
+    cmd (<em>type</em>): Command to run for subprocess
+    binding_file_dir (<em>type</em>): <em>description</em></p>
+<p>Raises:
+    Exception: If process gets failed</p>
+<h2 id="classes">Classes</h2>
+<h3 id="customexport">CustomExport</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">CustomExport</span><span class="p">(</span>
+    <span class="n">params</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Constructor for the custom export class.</p>
+<p>Parameters:
+- params (DynamicCategoriesModel): An instance of DynamicCategoriesModel containing configuration settings.</p>
+<h4 id="methods">Methods</h4>
+<h4 id="clean_resources">clean_resources</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">clean_resources</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Cleans up temporary resources.</p>
+<h4 id="file_to_zip">file_to_zip</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">file_to_zip</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">working_dir</span><span class="p">,</span>
+    <span class="n">zip_path</span>
+<span class="p">)</span>
+</code></pre></div>
+Creates a ZIP file from files in a directory.</p>
+<p>Parameters:
+- working_dir (str): Path to the directory containing files to be zipped.
+- zip_path (str): Path to the resulting ZIP file.</p>
+<p>Returns:
+- Path to the created ZIP file.</p>
+<h4 id="format_where_clause_duckdb">format_where_clause_duckdb</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">format_where_clause_duckdb</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">where_clause</span>
+<span class="p">)</span>
+</code></pre></div>
+Formats the where_clause by replacing the first occurrence of the pattern.</p>
+<p>Parameters:
+- where_clause (str): SQL-like condition to filter features.</p>
+<p>Returns:
+- Formatted where_clause.</p>
+<h4 id="process_category">process_category</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">process_category</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">category</span>
+<span class="p">)</span>
+</code></pre></div>
+Processes a category by executing queries and handling exports.</p>
+<p>Parameters:
+- category (Dict[str, CategoryModel]): Dictionary representing a category.</p>
+<p>Returns:
+- List of resource dictionaries containing export information.</p>
+<h4 id="process_category_result">process_category_result</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">process_category_result</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">category_result</span>
+<span class="p">)</span>
+</code></pre></div>
+Processes the result of a category and prepares the response.</p>
+<p>Parameters:
+- category_result (CategoryResult): Instance of CategoryResult.</p>
+<p>Returns:
+- Dictionary containing processed category result.</p>
+<h4 id="process_custom_categories">process_custom_categories</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">process_custom_categories</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Processes HDX tags and executes category processing in parallel.</p>
+<p>Returns:
+- Dictionary containing the processed dataset information.</p>
+<h4 id="query_to_file">query_to_file</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">query_to_file</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">,</span>
+    <span class="n">category_name</span><span class="p">,</span>
+    <span class="n">feature_type</span><span class="p">,</span>
+    <span class="n">export_formats</span>
+<span class="p">)</span>
+</code></pre></div>
+Executes a query and exports the result to file(s).</p>
+<p>Parameters:
+- query (str): SQL query to execute.
+- category_name (str): Name of the category.
+- feature_type (str): Feature type.
+- export_formats (List[ExportTypeInfo]): List of export formats.</p>
+<p>Returns:
+- List of resource dictionaries containing export information.</p>
+<h4 id="resource_to_hdx">resource_to_hdx</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">resource_to_hdx</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">uploaded_resources</span><span class="p">,</span>
+    <span class="n">dataset_config</span><span class="p">,</span>
+    <span class="n">category</span>
+<span class="p">)</span>
+</code></pre></div>
+Converts uploaded resources to an HDX dataset and uploads to HDX.</p>
+<p>Parameters:
+- uploaded_resources (List[Dict[str, Any]]): List of resource dictionaries.
+- dataset_config (DatasetConfig): Instance of DatasetConfig.
+- category (Dict[str, CategoryModel]): Dictionary representing a category.</p>
+<p>Returns:
+- Dictionary containing the HDX upload information.</p>
+<h4 id="resource_to_response">resource_to_response</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">resource_to_response</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">uploaded_resources</span><span class="p">,</span>
+    <span class="n">category</span>
+<span class="p">)</span>
+</code></pre></div>
+Converts uploaded resources to a response format.</p>
+<p>Parameters:
+- uploaded_resources (List[Dict[str, Any]]): List of resource dictionaries.
+- category (Dict[str, CategoryModel]): Dictionary representing a category.</p>
+<p>Returns:
+- Dictionary containing the response information.</p>
+<h4 id="types_to_tables">types_to_tables</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">types_to_tables</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">type_list</span><span class="p">:</span> <span class="nb">list</span>
+<span class="p">)</span>
+</code></pre></div>
+Maps feature types to corresponding database tables.</p>
+<p>Parameters:
+- type_list (List[str]): List of feature types.</p>
+<p>Returns:
+- List of database tables associated with the given feature types.</p>
+<h4 id="upload_resources">upload_resources</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">upload_resources</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">resource_path</span>
+<span class="p">)</span>
+</code></pre></div>
+Uploads a resource file to Amazon S3.</p>
+<p>Parameters:
+- resource_path (str): Path to the resource file on the local filesystem.</p>
+<p>Returns:
+- Download URL for the uploaded resource.</p>
+<h4 id="zip_to_s3">zip_to_s3</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">zip_to_s3</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">resources</span>
+<span class="p">)</span>
+</code></pre></div>
+Zips and uploads a list of resources to Amazon S3.</p>
+<p>Parameters:
+- resources (List[Dict[str, Any]]): List of resource dictionaries.</p>
+<p>Returns:
+- List of resource dictionaries with added download URLs.</p>
+<h3 id="database">Database</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Database</span><span class="p">(</span>
+    <span class="n">db_params</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class</p>
+<h4 id="methods_1">Methods</h4>
+<h4 id="close_conn">close_conn</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">close_conn</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+function for clossing connection to avoid memory leaks</p>
+<h4 id="connect">connect</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">connect</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Database class instance method used to connect to database parameters with error printing</p>
+<h4 id="executequery">executequery</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">executequery</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">query</span>
+<span class="p">)</span>
+</code></pre></div>
+Function to execute query after connection</p>
+<h3 id="duckdb">DuckDB</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">DuckDB</span><span class="p">(</span>
+    <span class="n">db_path</span><span class="p">,</span>
+    <span class="n">temp_dir</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Constructor for the DuckDB class.</p>
+<p>Parameters:
+- db_path (str): The path to the DuckDB database file.</p>
+<h4 id="methods_2">Methods</h4>
+<h4 id="run_query">run_query</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run_query</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">,</span>
+    <span class="n">attach_pgsql</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">load_spatial</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</code></pre></div>
+Executes a query on the DuckDB database.</p>
+<p>Parameters:
+- query (str): The SQL query to execute.
+- attach_pgsql (bool): Flag to indicate whether to attach a PostgreSQL database.
+- load_spatial (bool): Flag to indicate whether to load the spatial extension.</p>
+<h3 id="hdx">HDX</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">HDX</span><span class="p">(</span>
+
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="methods_3">Methods</h4>
+<h4 id="create_hdx">create_hdx</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_hdx</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">hdx_data</span>
+<span class="p">)</span>
+</code></pre></div>
+Create a new HDX entry in the database.</p>
+<p>Args:
+    hdx_data (dict): Data for creating the HDX entry.</p>
+<p>Returns:
+    dict: Result of the HDX creation process.</p>
+<h4 id="delete_hdx">delete_hdx</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">delete_hdx</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">hdx_id</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span>
+</code></pre></div>
+Delete an existing HDX entry from the database.</p>
+<p>Args:
+    hdx_id (int): ID of the HDX entry to delete.</p>
+<p>Returns:
+    dict: Result of the HDX deletion process.</p>
+<p>Raises:
+    HTTPException: If the HDX entry is not found.</p>
+<h4 id="get_hdx_by_id">get_hdx_by_id</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_hdx_by_id</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">hdx_id</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span>
+</code></pre></div>
+Retrieve a specific HDX entry by its ID.</p>
+<p>Args:
+    hdx_id (int): ID of the HDX entry to retrieve.</p>
+<p>Returns:
+    dict: Details of the requested HDX entry.</p>
+<p>Raises:
+    HTTPException: If the HDX entry is not found.</p>
+<h4 id="get_hdx_list_with_filters">get_hdx_list_with_filters</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_hdx_list_with_filters</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">skip</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">filters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="p">)</span>
+</code></pre></div>
+Retrieve a list of HDX entries based on provided filters.</p>
+<p>Args:
+    skip (int): Number of entries to skip.
+    limit (int): Maximum number of entries to retrieve.
+    filters (dict): Filtering criteria.</p>
+<p>Returns:
+    List[dict]: List of HDX entries.</p>
+<h4 id="patch_hdx">patch_hdx</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">patch_hdx</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">hdx_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">hdx_data</span><span class="p">:</span> <span class="nb">dict</span>
+<span class="p">)</span>
+</code></pre></div>
+Partially update an existing HDX entry in the database.</p>
+<p>Args:
+    hdx_id (int): ID of the HDX entry to update.
+    hdx_data (dict): Data for partially updating the HDX entry.</p>
+<p>Returns:
+    dict: Result of the HDX update process.</p>
+<p>Raises:
+    HTTPException: If the HDX entry is not found.</p>
+<h4 id="search_hdx_by_dataset_title">search_hdx_by_dataset_title</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">search_hdx_by_dataset_title</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">dataset_title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">skip</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="p">)</span>
+</code></pre></div>
+Search for HDX entries by dataset title.</p>
+<p>Args:
+    dataset_title (str): The title of the dataset to search for.
+    skip (int): Number of entries to skip.
+    limit (int): Maximum number of entries to retrieve.</p>
+<p>Returns:
+    List[dict]: List of HDX entries matching the dataset title.</p>
+<h4 id="update_hdx">update_hdx</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">update_hdx</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">hdx_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">hdx_data</span>
+<span class="p">)</span>
+</code></pre></div>
+Update an existing HDX entry in the database.</p>
+<p>Args:
+    hdx_id (int): ID of the HDX entry to update.
+    hdx_data (dict): Data for updating the HDX entry.</p>
+<p>Returns:
+    dict: Result of the HDX update process.</p>
+<p>Raises:
+    HTTPException: If the HDX entry is not found.</p>
+<h3 id="hdxuploader">HDXUploader</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">HDXUploader</span><span class="p">(</span>
+    <span class="n">category</span><span class="p">,</span>
+    <span class="n">hdx</span><span class="p">,</span>
+    <span class="n">uuid</span><span class="p">,</span>
+    <span class="n">default_category_path</span><span class="p">,</span>
+    <span class="n">completeness_metadata</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Constructor for the HDXUploader class.</p>
+<p>Parameters:
+- category (Dict[str, CategoryModel]): Dictionary representing a category.
+- hdx (HDX): Instance of the HDX class.
+- uuid (str): Universally unique identifier.
+- default_category_path (str): Default path for the category.
+- completeness_metadata (Optional[Dict[str, Any]]): Metadata for completeness.</p>
+<h4 id="methods_4">Methods</h4>
+<h4 id="add_notes">add_notes</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_notes</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Adds notes based on category data.</p>
+<p>Returns:
+- Notes string.</p>
+<h4 id="add_resource">add_resource</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_resource</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">resource_meta</span>
+<span class="p">)</span>
+</code></pre></div>
+Adds a resource to the list of resources.</p>
+<p>Parameters:
+- resource_meta (Dict[str, Any]): Metadata for the resource.</p>
+<h4 id="init_dataset">init_dataset</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">init_dataset</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Initializes the HDX dataset.</p>
+<h4 id="slugify">slugify</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">slugify</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">name</span>
+<span class="p">)</span>
+</code></pre></div>
+Converts a string to a valid slug format.</p>
+<p>Parameters:
+- name (str): Input string.</p>
+<p>Returns:
+- Slugified string.</p>
+<h4 id="upload_dataset">upload_dataset</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">upload_dataset</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">dump_config_to_s3</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</code></pre></div>
+Uploads the dataset to HDX.</p>
+<p>Parameters:
+- dump_config_to_s3 (bool): Flag to indicate whether to dump configuration to S3.</p>
+<p>Returns:
+- Tuple containing category name and dataset information.</p>
+<h3 id="polygonstats">PolygonStats</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">PolygonStats</span><span class="p">(</span>
+    <span class="n">geojson</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">iso3</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Generates stats for polygon</p>
+<h4 id="static-methods">Static methods</h4>
+<h4 id="get_building_pattern_statement">get_building_pattern_statement</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_building_pattern_statement</span><span class="p">(</span>
+    <span class="n">osm_building_count</span><span class="p">,</span>
+    <span class="n">ai_building_count</span><span class="p">,</span>
+    <span class="n">avg_timestamp</span><span class="p">,</span>
+    <span class="n">last_edit_timestamp</span><span class="p">,</span>
+    <span class="n">osm_building_count_6_months</span>
+<span class="p">)</span>
+</code></pre></div>
+Translates building stats to a human-readable statement.</p>
+<p>Args:
+    osm_building_count (int): Count of buildings from OpenStreetMap.
+    ai_building_count (int): Count of buildings from AI estimates.
+    avg_timestamp (timestamp): Average timestamp of data.
+    last_edit_timestamp(timestamp): Last edit timestamp of an area
+    osm_building_count_6_months (int): Count of buildings updated in the last 6 months.</p>
+<p>Returns:
+    str: Human-readable building statement.</p>
+<h4 id="get_road_pattern_statement">get_road_pattern_statement</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_road_pattern_statement</span><span class="p">(</span>
+    <span class="n">osm_highway_length</span><span class="p">,</span>
+    <span class="n">ai_highway_length</span><span class="p">,</span>
+    <span class="n">avg_timestamp</span><span class="p">,</span>
+    <span class="n">last_edit_timestamp</span><span class="p">,</span>
+    <span class="n">osm_highway_length_6_months</span>
+<span class="p">)</span>
+</code></pre></div>
+Translates road stats to a human-readable statement.</p>
+<p>Args:
+    osm_highway_length (float): Length of roads from OpenStreetMap.
+    ai_highway_length (float): Length of roads from AI estimates.
+    avg_timestamp (str): Average timestamp of data.
+    osm_highway_length_6_months (float): Length of roads updated in the last 6 months.</p>
+<p>Returns:
+    str: Human-readable road statement.</p>
+<h4 id="methods_5">Methods</h4>
+<h4 id="get_osm_analytics_meta_stats">get_osm_analytics_meta_stats</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_osm_analytics_meta_stats</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Gets the raw stats translated into a JSON body using the OSM Analytics API.</p>
+<p>Returns:
+    dict: Raw statistics translated into JSON.</p>
+<h4 id="get_summary_stats">get_summary_stats</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_summary_stats</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Generates summary statistics for buildings and roads.</p>
+<p>Returns:
+    dict: Summary statistics including building and road statements.</p>
+<h3 id="rawdata">RawData</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">RawData</span><span class="p">(</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dbdict</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Class responsible for the Rawdata Extraction from available sources ,
+    Currently Works for Underpass source Current Snapshot
+Returns:
+Geojson Zip file
+Supports:
+-Any Key value pair of osm tags
+-A Polygon
+-Osm element type (Optional)</p>
+<h4 id="static-methods_1">Static methods</h4>
+<h4 id="close_con">close_con</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">close_con</span><span class="p">(</span>
+    <span class="n">con</span>
+<span class="p">)</span>
+</code></pre></div>
+Closes connection if exists</p>
+<h4 id="geojson2tiles">geojson2tiles</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">geojson2tiles</span><span class="p">(</span>
+    <span class="n">geojson_path</span><span class="p">,</span>
+    <span class="n">tile_path</span><span class="p">,</span>
+    <span class="n">tile_layer_name</span>
+<span class="p">)</span>
+</code></pre></div>
+Responsible for geojson to tiles</p>
+<h4 id="get_grid_id">get_grid_id</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_grid_id</span><span class="p">(</span>
+    <span class="n">geom</span><span class="p">,</span>
+    <span class="n">cur</span>
+<span class="p">)</span>
+</code></pre></div>
+Gets the intersecting related grid id for the geometry that is passed</p>
+<p>Args:
+    geom (<em>type</em>): <em>description</em>
+    cur (<em>type</em>): <em>description</em></p>
+<p>Returns:
+    <em>type</em>: grid id , geometry dump and the area of geometry</p>
+<h4 id="ogr_export">ogr_export</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">ogr_export</span><span class="p">(</span>
+    <span class="n">query</span><span class="p">,</span>
+    <span class="n">outputtype</span><span class="p">,</span>
+    <span class="n">working_dir</span><span class="p">,</span>
+    <span class="n">dump_temp_path</span><span class="p">,</span>
+    <span class="n">params</span>
+<span class="p">)</span>
+</code></pre></div>
+Generates ogr2ogr command based on outputtype and parameters</p>
+<p>Args:
+    query (<em>type</em>): Postgresql query to extract
+    outputtype (<em>type</em>): <em>description</em>
+    working_dir (<em>type</em>): <em>description</em>
+    dump_temp_path (<em>type</em>): temp file path for metadata gen
+    params (<em>type</em>): <em>description</em></p>
+<h4 id="ogr_export_shp">ogr_export_shp</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">ogr_export_shp</span><span class="p">(</span>
+    <span class="n">point_query</span><span class="p">,</span>
+    <span class="n">line_query</span><span class="p">,</span>
+    <span class="n">poly_query</span><span class="p">,</span>
+    <span class="n">working_dir</span><span class="p">,</span>
+    <span class="n">file_name</span>
+<span class="p">)</span>
+</code></pre></div>
+Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow</p>
+<h4 id="query2geojson">query2geojson</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">query2geojson</span><span class="p">(</span>
+    <span class="n">con</span><span class="p">,</span>
+    <span class="n">extraction_query</span><span class="p">,</span>
+    <span class="n">dump_temp_file_path</span>
+<span class="p">)</span>
+</code></pre></div>
+Function written from scratch without being dependent on any library, Provides better performance for geojson binding</p>
+<h4 id="methods_6">Methods</h4>
+<h4 id="check_status">check_status</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">check_status</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Gives status about DB update, Substracts with current time and last db update time</p>
+<h4 id="extract_current_data">extract_current_data</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">extract_current_data</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">exportname</span>
+<span class="p">)</span>
+</code></pre></div>
+Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
+Args:
+    exportname: takes filename as argument to create geojson file passed from routers</p>
+<p>Returns:
+    geom_area: area of polygon supplied
+    working_dir: dir where results are saved</p>
+<h4 id="extract_plain_geojson">extract_plain_geojson</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">extract_plain_geojson</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+Gets geojson for small area Returns plain geojson without binding</p>
+<h4 id="get_countries_list">get_countries_list</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_countries_list</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">q</span>
+<span class="p">)</span>
+</code></pre></div>
+Gets Countries list from the database</p>
+<p>Args:
+    q (<em>type</em>): list filter query string</p>
+<p>Returns:
+    featurecollection: geojson of country</p>
+<h4 id="get_osm_feature">get_osm_feature</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_osm_feature</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">osm_id</span>
+<span class="p">)</span>
+</code></pre></div>
+Returns geometry of osm_id in geojson</p>
+<p>Args:
+    osm_id (<em>type</em>): osm_id of feature</p>
+<p>Returns:
+    featurecollection: Geojson</p>
+<h3 id="s3filetransfer">S3FileTransfer</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">S3FileTransfer</span><span class="p">(</span>
+
+<span class="p">)</span>
+</code></pre></div>
+<p>Responsible for the file transfer to s3 from API maachine</p>
+<h4 id="methods_7">Methods</h4>
+<h4 id="get_bucket_location">get_bucket_location</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_bucket_location</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bucket_name</span>
+<span class="p">)</span>
+</code></pre></div>
+Provides the bucket location on aws, takes bucket_name as string -- name of repo on s3</p>
+<h4 id="list_buckets">list_buckets</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">list_buckets</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+used to list all the buckets available on s3</p>
+<h4 id="upload">upload</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">upload</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">file_path</span><span class="p">,</span>
+    <span class="n">file_name</span><span class="p">,</span>
+    <span class="n">file_suffix</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
+Parameters :file_path --- your local file path to upload ,
+    file_prefix -- prefix for the filename which is stored
+sample function call :
+    S3FileTransfer.transfer(file_path="exports",file_prefix="upload_test")</p>
+<h3 id="users">Users</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Users</span><span class="p">(</span>
+
+<span class="p">)</span>
+</code></pre></div>
+<p>Users class provides CRUD operations for interacting with the 'users' table in the database.</p>
+<p>Methods:
+- create_user(osm_id: int, role: int) -&gt; Dict[str, Any]: Inserts a new user into the database.
+- read_user(osm_id: int) -&gt; Dict[str, Any]: Retrieves user information based on the given osm_id.
+- update_user(osm_id: int, update_data: UserUpdate) -&gt; Dict[str, Any]: Updates user information based on the given osm_id.
+- delete_user(osm_id: int) -&gt; Dict[str, Any]: Deletes a user based on the given osm_id.
+- read_users(skip: int = 0, limit: int = 10) -&gt; List[Dict[str, Any]]: Retrieves a list of users with optional pagination.</p>
+<p>Usage:
+users = Users()</p>
+<h4 id="methods_8">Methods</h4>
+<h4 id="create_user">create_user</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">osm_id</span><span class="p">,</span>
+    <span class="n">role</span>
+<span class="p">)</span>
+</code></pre></div>
+Inserts a new user into the 'users' table and returns the created user's osm_id.</p>
+<p>Args:
+- osm_id (int): The OSM ID of the new user.
+- role (int): The role of the new user.</p>
+<p>Returns:
+- Dict[str, Any]: A dictionary containing the osm_id of the newly created user.</p>
+<p>Raises:
+- HTTPException: If the user creation fails.</p>
+<h4 id="delete_user">delete_user</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">delete_user</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">osm_id</span>
+<span class="p">)</span>
+</code></pre></div>
+Deletes a user based on the given osm_id.</p>
+<p>Args:
+- osm_id (int): The OSM ID of the user to delete.</p>
+<p>Returns:
+- Dict[str, Any]: A dictionary containing the deleted user information.</p>
+<p>Raises:
+- HTTPException: If the user with the given osm_id is not found.</p>
+<h4 id="read_user">read_user</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">read_user</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">osm_id</span>
+<span class="p">)</span>
+</code></pre></div>
+Retrieves user information based on the given osm_id.</p>
+<p>Args:
+- osm_id (int): The OSM ID of the user to retrieve.</p>
+<p>Returns:
+- Dict[str, Any]: A dictionary containing user information if the user is found.
+                If the user is not found, returns a default user with 'role' set to 3.</p>
+<p>Raises:
+- HTTPException: If there's an issue with the database query.</p>
+<h4 id="read_users">read_users</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">read_users</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">skip</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">limit</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+</code></pre></div>
+Retrieves a list of users with optional pagination.</p>
+<p>Args:
+- skip (int): The number of users to skip (for pagination).
+- limit (int): The maximum number of users to retrieve (for pagination).</p>
+<p>Returns:
+- List[Dict[str, Any]]: A list of dictionaries containing user information.</p>
+<h4 id="update_user">update_user</h4>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">update_user</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">osm_id</span><span class="p">,</span>
+    <span class="n">update_data</span>
+<span class="p">)</span>
+</code></pre></div>
+Updates user information based on the given osm_id.</p>
+<p>Args:
+- osm_id (int): The OSM ID of the user to update.
+- update_data (UserUpdate): The data to update for the user.</p>
+<p>Returns:
+- Dict[str, Any]: A dictionary containing the updated user information.</p>
+<p>Raises:
+- HTTPException: If the user with the given osm_id is not found.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/hotosm" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+    
+    
+  </body>
+</html>
