@@ -41,7 +41,10 @@ RUN apt-get update \
 
 COPY --from=builder /root/.local /home/appuser/.local
 COPY README.md .
-COPY config.txt.sample ./config.txt
+
+# Enable this if you are using config.txt
+# COPY config.txt ./config.txt
+
 COPY setup.py .
 COPY API/ ./API/
 COPY src/ ./src/

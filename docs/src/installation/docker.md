@@ -1,14 +1,17 @@
 ## Initial Setup
 
-- Clone the repository, and change directory to _export-tool-api_ folder on your computer.
+### Clone 
+
+- Clone the repository, and change directory to _raw-data-api_ folder on your computer.
 
 ```
-git clone https://github.com/hotosm/export-tool-api.git
-cd export-tool-api
+git clone https://github.com/hotosm/raw-data-api.git
+cd raw-data-api
 ```
 
 ## Configurations
 
+### config.txt approach
 - Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer.
 
 ```
@@ -16,9 +19,15 @@ touch config.txt #Linux
 wsl touch config.txt #Windows with WSL
 echo >> config.txt #Windows without WSL
 ```
+#### .env approach 
+
+if you prefer configurations as env variables you can put them in `.env` and pass it to dockerfile or export them 
 
 - Database configuration:
   - To use the default database(with sample data) shipped with the `Dockerfile`, you can update the `config.txt` with the configurations below. [**Recommended**]
+
+  - Make sure you uncomment ```COPY config.txt ./config.txt``` line in Dockerfile while using `config.txt`
+
   - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](./configurations.md). or export them as system env variables
 
 ```
@@ -42,11 +51,40 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
   - Follow this step to setup OSM OAuth: [Setup Oauth Block](./configurations.md#Setup-Oauth-for-Authentication).
   - Update your `config.txt` with the `[OAUTH]` block from the step above.
 
-## Create the Docker images and spin up the containers
+
+## Run Docker 
+
+You can either use full composed docker-compose directly or you can build docker containers manually . 
+
+### Spin up the containers using docker compose
 
 ```
 docker-compose up -d --build
 ```
+
+OR 
+
+### Run Docker without docker compose 
+
+- Build your image 
+```
+docker build -t rawdataapi:latest . 
+```
+- Run API 
+```
+docker run -d -p 8000:8000 --name rawdatapi rawdataapi:latest
+```
+Run container with `.env` file 
+
+```
+docker run --env-file ./.env -d -p 8000:8000 --name rawdatapi rawdataapi:latest
+```
+
+- Run Workers 
+```
+docker run -it rawdataapi:latest celery --app API.api_worker worker --loglevel=INFO --queues="raw_ondemand" -n 'default_worker'
+```
+Followi similar for flower
 
 ## Check the servers
 

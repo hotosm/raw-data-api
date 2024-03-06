@@ -1,6 +1,10 @@
 
 # Configuring the API service
 
+Raw Data API can be setup using two configuration options. You can choose based on your convienience 
+- *config.txt* : You can follow  `config.txt.sample` in dir and documentation below to set your configurations 
+- *.env* : Another option is from OS Environment variable , You can export all your env variables ( They are same as you put in config without blocks ) and pass it to API , API will pick it up automatically.
+
 ## What you need to start?
 
 - A working [Postgres](https://www.postgresql.org/) instance with [Postgis](https://postgis.net/) module enabled.
