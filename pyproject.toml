@@ -1,0 +1,62 @@
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "raw-data-api"
+version = "1.0.17"
+description = "Set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats."
+readme = "README.md"
+authors = [{ name = "Hot Tech Team", email = "sysadmin@hotosm.org" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+keywords = [
+    "OSM", "rawdataapi", 
+]
+dependencies = [
+        "pytest==7.4.3",
+        "psycopg2",
+        "boto3==1.24.38",
+        "fastapi==0.105.0",
+        "geojson==3.1.0",
+        "area==1.1.1",
+        "orjson==3.9.10",
+        "slowapi==0.1.8",
+]
+requires-python = ">=3.8"
+
+    [project.optional-dependencies]
+    build = ["build", "twine"]
+    dev   = ["black", "bumpver", "isort"]
+
+    [project.urls]
+    repository    = "https://github.com/hotosm/fAIr-utilities"
+
+[tool.bumpver]
+current_version = "1.0.51"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message  = "bump version {old_version} -> {new_version}"
+commit          = true
+tag             = true
+push            = false
+
+    [tool.bumpver.file_patterns]
+    "pyproject.toml" = [
+        'current_version = "{version}"',
+        'version = "{version}"',
+    ]
+
+[tool.isort]
+profile                   = "black"
+import_heading_stdlib     = "Standard library imports"
+import_heading_thirdparty = "Third party imports"
+import_heading_firstparty = "Reader imports"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "semver"
+version_provider = "pep621"
+update_changelog_on_bump = true
