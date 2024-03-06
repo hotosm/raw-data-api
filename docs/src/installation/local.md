@@ -90,6 +90,10 @@ Set EVENTLET_NO_GREENDNS to "yes"
   export EVENTLET_NO_GREENDNS=yes
 ```
 
+### Create your configuration file
+
+Follow instructions from [configurations.md](./configurations.md).
+
 ### Start the Server
 
 ```
