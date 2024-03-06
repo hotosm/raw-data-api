@@ -411,17 +411,9 @@ def get_oauth_credentials() -> tuple:
              secret, client ID, and redirect URL.
 
     """
-
-    client_id = os.environ.get("OSM_CLIENT_ID") or config.get("OAUTH", "OSM_CLIENT_ID")
-    client_secret = os.environ.get("OSM_CLIENT_SECRET") or config.get(
-        "OAUTH", "OSM_CLIENT_SECRET"
-    )
-    login_redirect_uri = os.environ.get("LOGIN_REDIRECT_URI") or config.get(
-        "OAUTH", "LOGIN_REDIRECT_URI", fallback="http://127.0.0.1:8000/v1/auth/callback"
-    )
-    scope = os.environ.get("OSM_PERMISSION_SCOPE") or config.get(
-        "OAUTH", "OSM_PERMISSION_SCOPE", fallback="read_prefs"
-    )
+    # This block fetches OSM OAuth2 app credentials passed as
+    # environment variables as a JSON object, from AWS Secrets Manager or
+    # Azure Key Vault.
     osm_url = os.environ.get("OSM_URL") or config.get(
         "OAUTH", "OSM_URL", fallback="https://www.openstreetmap.org"
     )
@@ -429,14 +421,25 @@ def get_oauth_credentials() -> tuple:
         "OAUTH", "APP_SECRET_KEY"
     )
 
-    # This block fetches OSM OAuth2 app credentials passed as
-    # environment variables as a JSON object, from AWS Secrets Manager or
-    # Azure Key Vault.
     try:
         oauth2_credentials = os.environ["REMOTE_OAUTH"]
-
     except KeyError:
         logger.debug("EnvVar: REMOTE_OAUTH not supplied; Falling back to other means")
+
+        client_id = os.environ.get("OSM_CLIENT_ID") or config.get(
+            "OAUTH", "OSM_CLIENT_ID"
+        )
+        client_secret = os.environ.get("OSM_CLIENT_SECRET") or config.get(
+            "OAUTH", "OSM_CLIENT_SECRET"
+        )
+        login_redirect_uri = os.environ.get("LOGIN_REDIRECT_URI") or config.get(
+            "OAUTH",
+            "LOGIN_REDIRECT_URI",
+            fallback="http://127.0.0.1:8000/v1/auth/callback",
+        )
+        scope = os.environ.get("OSM_PERMISSION_SCOPE") or config.get(
+            "OAUTH", "OSM_PERMISSION_SCOPE", fallback="read_prefs"
+        )
 
     else:
         import json
@@ -459,6 +462,5 @@ def get_oauth_credentials() -> tuple:
 
     if None in oauth_cred:
         raise ValueError("Oauth Credentials can't be loaded")
-        logging.error("Malformed OSM OAuth2 App credentials")
 
     return oauth_cred
