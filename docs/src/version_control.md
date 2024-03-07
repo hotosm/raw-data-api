@@ -55,6 +55,6 @@ This will:
 1. Update the version throughout the code ([Bumping a Version](#bumping-a-version)).
 2. Click `Draft a new release`.
 3. Click `Choose a tag`, then input the current version number and press enter (this will automatically create a matching tag for your release).
-4. Set the `Release title` to v`x.x.x`, replacing with your version number.
+4. Set the `Release title` to `x.x.x`, replacing with your version number.
 5. Add a description if possible, then release.
 
