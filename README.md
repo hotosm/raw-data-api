@@ -103,6 +103,11 @@ see [Roadmap](https://github.com/orgs/hotosm/projects/29)
 
 see [LICENSE](https://github.com/hotosm/raw-data-api/blob/develop/LICENSE)
 
+
+## Version Control
+
+For version control, We use commitizen, follow [docs](./docs/src/version_control.md) 
+
 ## Authors
 
 Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/raw-data-api/graphs/contributors)

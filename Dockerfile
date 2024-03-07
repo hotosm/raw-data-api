@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.10
+ARG PYTHON_VERSION=3.11
 
 FROM docker.io/python:${PYTHON_VERSION}-slim-bookworm as base
 
@@ -17,13 +17,17 @@ RUN apt-get update \
        build-essential libpq-dev libspatialite-dev libgdal-dev libboost-numpy-dev
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN gdal-config --version | awk -F'[.]' '{print $1"."$2}'
+
 COPY setup.py .
+COPY pyproject.toml . 
 COPY requirements.txt .
 COPY README.md .
-RUN pip install --user --no-cache-dir --upgrade pip \
+COPY LICENSE .
+RUN pip install --user --no-cache-dir --upgrade pip setuptools wheel\
     && pip install --user --no-cache-dir GDAL=="$(gdal-config --version)" \
-    && pip install --user --no-cache-dir -r requirements.txt \
-    && pip install --user --no-cache-dir -e .
+    && pip install --user --no-cache-dir -r requirements.txt
+    
+RUN pip install --user -e .
 
 FROM base as runner
 WORKDIR /home/appuser
@@ -46,6 +50,7 @@ COPY README.md .
 # COPY config.txt ./config.txt
 
 COPY setup.py .
+COPY pyproject.toml .
 COPY API/ ./API/
 COPY src/ ./src/
 # Use a separate stage to pull the tippecanoe image

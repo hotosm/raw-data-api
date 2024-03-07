@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools >= 61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "raw-data-api"
+version = "1.0.17"
+description = "Set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats."
+readme = "README.md"
+authors = [
+    { name = "Hot Tech Team", email = "sysadmin@hotosm.org" }
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+keywords = [
+    "OSM", "rawdataapi", 
+]
+
+[project.optional-dependencies]
+dev = ["black", "bumpver", "isort"]
+
+[project.urls]
+repository = "https://github.com/hotosm/raw-data-api"
+
+[tool.bumpver]
+current_version = "1.0.17" 
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+    'version = "{version}"',
+]
+
+[tool.isort]
+profile = "black"
+import_heading_stdlib = "Standard library imports"
+import_heading_thirdparty = "Third party imports"
+import_heading_firstparty = "Reader imports"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "semver"
+version_provider = "pep621"
+update_changelog_on_bump = true
+
+
+[tool.setuptools]
+packages = { find = { where = ["src","API"]} }
+
