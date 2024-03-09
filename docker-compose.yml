@@ -1,58 +1,78 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
   postgres:
-      restart: always
-      image: postgis/postgis
-      container_name: pgsql
-      environment:
-        - POSTGRES_DB=raw
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=admin
-      ports:
-        - '5434:5432'
-      volumes:
-        - ./postgres-data:/var/lib/postgresql/data
-        - ./tests/fixtures/pokhara.sql:/docker-entrypoint-initdb.d/pokhara.sql
+    restart: always
+    image: postgis/postgis
+    container_name: pgsql
+    environment:
+      - POSTGRES_DB=raw
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./tests/fixtures/pokhara.sql:/docker-entrypoint-initdb.d/pokhara.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d raw"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis
     container_name: redis
     ports:
-     - "6379:6379"
+      - "6379:6379"
 
-  app:
+  api:
     build: .
-    container_name: api
+    container_name: rawdataapi
     command: uvicorn API.main:app --reload --host 0.0.0.0 --port 8000 --no-use-colors --proxy-headers
     ports:
       - 8000:8000
     volumes:
-      - .:/app
+      - "./API:/home/appuser/API"
+      - "./src:/home/appuser/src"
+      - "./docker-compose-config.txt:/home/appuser/config.txt"
     depends_on:
-      - redis
-      - postgres
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
   worker:
     build: .
-    container_name: worker
-    command: celery --app API.api_worker worker --loglevel=INFO
+    container_name: rawdata-worker
+    command: celery --app API.api_worker worker --loglevel=INFO --queues="raw_ondemand" -n 'default_worker'
     volumes:
-      - .:/app
+      - "./API:/home/appuser/API"
+      - "./src:/home/appuser/src"
+      - "./docker-compose-config.txt:/home/appuser/config.txt"
     depends_on:
-      - app
-      - redis
-      - postgres
+      api:
+        condition: service_started
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
-
-  worker-dashboard:
+  flower:
     build: .
-    container_name: flower
-    command:  celery --broker=redis://redis:6379// --app API.api_worker flower --address=0.0.0.0 --port=5000
+    container_name: rawdata-flower
+    command: celery --broker=redis://redis:6379// --app API.api_worker flower --port=5555 --queues="raw_daemon,raw_ondemand"
     ports:
-      - 5000:5000
+      - 5555:5555
+    volumes:
+      - "./API:/home/appuser/API"
+      - "./src:/home/appuser/src"
+      - "./docker-compose-config.txt:/home/appuser/config.txt"
     depends_on:
-      - app
-      - redis
-      - worker
+      api:
+        condition: service_started
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
