@@ -108,7 +108,7 @@ If you are running Dockerfile only for the API , Have postgresql redis installed
 
 **Note:**
 
-In above exampel we have attached our working dir to containers along with config.txt for efficiency in development environment only . It is recommended to use proper docker copy as stated in dockerfile and system environement variables instead of config.txt in Production
+In above example we have attached our working dir to containers along with config.txt for efficiency in development environment only . It is recommended to use proper docker copy as stated in dockerfile and system environement variables instead of config.txt in Production
 
 ## Check the servers
 
