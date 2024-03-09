@@ -64,7 +64,7 @@ docker-compose up -d --build
 
 OR 
 
-### Run Docker without docker compose 
+### Run Docker without docker compose for development
 
 - Build your image 
 ```
@@ -72,23 +72,47 @@ docker build -t rawdataapi:latest .
 ```
 - Run API 
 ```
-docker run -d -p 8000:8000 --name rawdatapi rawdataapi:latest
-```
-Run container with `.env` file 
-
-```
-docker run --env-file ./.env -d -p 8000:8000 --name rawdatapi rawdataapi:latest
+docker run --name rawdataapi -p 8000:8000 \
+    -v "$(pwd)/API:/home/appuser/API" \
+    -v "$(pwd)/src:/home/appuser/src" \
+    -v "$(pwd)/config.txt:/home/appuser/config.txt" \
+    rawdataapi:latest \
+    uvicorn API.main:app --reload --host "0.0.0.0" --port "8000" --no-use-colors --proxy-headers
 ```
 
 - Run Workers 
 ```
-docker run -it rawdataapi:latest celery --app API.api_worker worker --loglevel=INFO --queues="raw_ondemand" -n 'default_worker'
+docker run --name rawdata-worker \
+    -v "$(pwd)/API:/home/appuser/API" \
+    -v "$(pwd)/src:/home/appuser/src" \
+    -v "$(pwd)/config.txt:/home/appuser/config.txt" \
+    rawdataapi:latest \
+    celery --app API.api_worker worker --loglevel=INFO --queues="raw_ondemand" -n 'default_worker'
 ```
-Followi similar for flower
+- Run Flower on port 5555
+```
+docker run --name rawdata-flower -p 5555:5555 \
+    -v "$(pwd)/API:/home/appuser/API" \
+    -v "$(pwd)/src:/home/appuser/src" \
+    -v "$(pwd)/config.txt:/home/appuser/config.txt" \
+    rawdataapi:latest \
+    celery --broker=redis://redis:6379// --app API.api_worker flower --port=5555 --queues="raw_daemon,raw_ondemand"
+```
+
+**Development instruction:** 
+If you are running Dockerfile only for the API , Have postgresql redis installed on your machine directly then you should change following : 
+
+- Change --broker Host address in flower command (You can use redis if it is docker compsoe container or use `redis://host.docker.internal:6379/0` if you want API container to connect to your localhsot , Follow #troubleshoot section for more)
+- Change DB Host & Celery broker url accordingly with the same logic 
+
+
+**Note:**
+
+In above exampel we have attached our working dir to containers along with config.txt for efficiency in development environment only . It is recommended to use proper docker copy as stated in dockerfile and system environement variables instead of config.txt in Production
 
 ## Check the servers
 
-By default, Uvicorn would be running on port [8000](http://127.0.0.1:8000/v1/docs), Redis on default port(i.e 6379), Celery with a worker and Flower on port [5000](http://127.0.0.1:5000/).
+By default, Uvicorn would be running on port [8000](http://127.0.0.1:8000/v1/docs), Redis on default port(i.e 6379), Celery with a worker and Flower on port [5555](http://127.0.0.1:5555/).
 
 - API Documentation
 
@@ -107,10 +131,10 @@ API docs will be displayed like this upon successfull server startup
 Vist the route below to access the Flower dashboard
 
 ```
-http://127.0.0.1:5000/
+http://127.0.0.1:5555/
 ```
 
-Flower [dashboard](http://127.0.0.1:5000/) will look like this on successfull installation with a worker online.
+Flower [dashboard](http://127.0.0.1:5555/) will look like this on successfull installation with a worker online. (Change the port accordingly to your command)
 
 ![image](https://user-images.githubusercontent.com/36752999/191813613-3859522b-ea68-4370-87b2-ebd1d8880d80.png)
 
@@ -120,7 +144,7 @@ Flower [dashboard](http://127.0.0.1:5000/) will look like this on successfull in
 
 **NOTE:** If any of the solutions provided below does not work for you, please don't hesistate to open an issue.
 
-- If you can't connect to your local postgres database from `export-tool-api`.
+- If you can't connect to your local postgres database from `raw-data-api`.
 
   Since _export-tool-api_ is running in docker containers, it means if you setup your `config.txt` file to use a local postgres database on your machine, the database port may not be accessible as `localhost` from the docker containers. To solve this, docker needs to connect to your local network. Try any of these hacks to troubleshoot the issue:
 
