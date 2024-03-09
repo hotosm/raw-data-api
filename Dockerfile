@@ -55,36 +55,8 @@ RUN pip install --user --no-cache-dir --upgrade pip setuptools wheel\
 RUN python setup.py install --user
 
 
-<<<<<<< HEAD
-RUN apt-get update \
-    && apt-get -y upgrade \
-    && apt-get --no-install-recommends -y install libpq5 gdal-bin \
-    && apt-get -y autoremove \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /root/.local /home/appuser/.local
-COPY README.md .
-
-# Enable this if you are using config.txt
-COPY config.txt ./config.txt
-
-COPY setup.py .
-COPY pyproject.toml .
-COPY API/ ./API/
-COPY src/ ./src/
-# Use a separate stage to pull the tippecanoe image
-FROM ghcr.io/hotosm/tippecanoe:main as tippecanoe-builder
-
-FROM runner as prod
-
-# Copy tippecanoe binaries from the tippecanoe stage
-COPY --from=tippecanoe-builder /usr/local/bin/tippecanoe* /usr/local/bin/
-COPY --from=tippecanoe-builder /usr/local/bin/tile-join /usr/local/bin/
-=======
 FROM with-tippecanoe as prod
 COPY --from=python-builder /root/.local /home/appuser/.local
->>>>>>> 7235f0f23d099b3b9560917bfd639a244c9def21
 
 RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appuser \
     && chown -R appuser:appuser /home/appuser
