@@ -12,7 +12,7 @@ cd raw-data-api
 ## Configurations
 
 ### config.txt approach
-- Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer.
+- Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer. (if you are using `docker-compose` , you can edit `docker-compose-config.txt`)
 
 ```
 touch config.txt #Linux
@@ -24,27 +24,10 @@ echo >> config.txt #Windows without WSL
 if you prefer configurations as env variables you can put them in `.env` and pass it to dockerfile or export them 
 
 - Database configuration:
-  - To use the default database(with sample data) shipped with the `Dockerfile`, you can update the `config.txt` with the configurations below. [**Recommended**]
-
-  - Make sure you uncomment ```COPY config.txt ./config.txt``` line in Dockerfile while using `config.txt`
+  - To use the default database(with sample data) , Run docker compsoe and  update the `docker-compose-config.txt` 
 
   - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](./configurations.md). or export them as system env variables
 
-```
-[DB]
-PGHOST=pgsql
-PGUSER=postgres
-PGPASSWORD=admin
-PGDATABASE=raw
-PGPORT=5432
-
-[API_CONFIG]
-RATE_LIMITER_STORAGE_URI=redis://redis:6379
-
-[CELERY]
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
-```
 
 - OSM Authentication:
 
