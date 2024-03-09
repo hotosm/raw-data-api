@@ -75,7 +75,9 @@ if LOG_LEVEL.lower() == "debug":
 
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-app = FastAPI(title="Raw Data API ", swagger_ui_parameters={"syntaxHighlight": False})
+app = FastAPI(title="Raw Data API ", 
+              description="The Raw Data API allows you to transform and export OpenStreetMap (OSM) data in different GIS file formats",
+              swagger_ui_parameters={"syntaxHighlight": False})
 app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)

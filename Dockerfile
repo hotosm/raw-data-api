@@ -47,7 +47,7 @@ COPY --from=builder /root/.local /home/appuser/.local
 COPY README.md .
 
 # Enable this if you are using config.txt
-# COPY config.txt ./config.txt
+COPY config.txt ./config.txt
 
 COPY setup.py .
 COPY pyproject.toml .
