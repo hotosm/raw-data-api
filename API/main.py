@@ -78,17 +78,8 @@ if LOG_LEVEL.lower() == "debug":
 app = FastAPI(title="Raw Data API ", 
             description="""The Raw Data API allows you to transform 
               and export OpenStreetMap (OSM) data in different GIS file formats""",
-            contact={
-                "name": "Humanitarian OpenStreetmap Team",
-                "url": "https://hotosm.org",
-                "email": "info@hotosm.org",
-                },
-            license_info={
-                "name": "AGPL-3.0 license",
-                "url": "https://www.gnu.org/licenses/",
-                },
             swagger_ui_parameters={"syntaxHighlight": False})
-
+            
 app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
@@ -107,6 +98,17 @@ app.openapi = {
     "info": {
         "title": "Raw Data API",
         "version": "1.0",
+        "description": """The Raw Data API allows you to transform
+        and export OpenStreetMap (OSM) data in different GIS file formats""",
+        "contact": {
+                "name": "Humanitarian OpenStreetmap Team",
+                "url": "https://hotosm.org",
+                "email": "info@hotosm.org",
+                },
+        "license_info":{
+            "name": "AGPL-3.0 license",
+            "url": "https://www.gnu.org/licenses/",
+            },
     },
     "security": [{"OAuth2PasswordBearer": []}],
 }
