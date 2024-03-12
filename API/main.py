@@ -98,17 +98,6 @@ app.openapi = {
     "info": {
         "title": "Raw Data API",
         "version": "1.0",
-        "description": """The Raw Data API allows you to transform
-        and export OpenStreetMap (OSM) data in different GIS file formats""",
-        "contact": {
-                "name": "Humanitarian OpenStreetmap Team",
-                "url": "https://hotosm.org",
-                "email": "info@hotosm.org",
-                },
-        "license_info":{
-            "name": "AGPL-3.0 license",
-            "url": "https://www.gnu.org/licenses/",
-            },
     },
     "security": [{"OAuth2PasswordBearer": []}],
 }
