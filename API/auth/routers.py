@@ -1,7 +1,6 @@
 import json
 
-from fastapi.responses import JSONResponse
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 
 from src.app import Users
@@ -23,7 +22,7 @@ responses = {
 }
 
 
-@router.get("/login/", responses={500: {"model": ErrorMessage},
+@router.get("/login", responses={500: {"model": ErrorMessage},
                                   200: {"content": {"application/json": {"example": {"loginUrl": ""}}}}})
 def login_url(request: Request):
     """Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
@@ -40,7 +39,7 @@ def login_url(request: Request):
     return login_url
 
 
-@router.get("/callback/", responses={500: {"model": ErrorMessage}})
+@router.get("/callback", responses={500: {"model": ErrorMessage}})
 def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Raw Data API
 
@@ -57,7 +56,7 @@ def callback(request: Request):
     return access_token  
 
 
-@router.get("/me/", response_model=AuthUser, responses={**responses})
+@router.get("/me", response_model=AuthUser, responses={**responses})
 def my_data(user_data: AuthUser = Depends(login_required)):
     """Read the access token and provide  user details from OSM user's API endpoint,
     also integrated with underpass .
@@ -83,7 +82,7 @@ class User(BaseModel):
  
 
 # Create user
-@router.post("/users/", response_model=dict, responses={**responses})
+@router.post("/users", response_model=dict, responses={**responses})
 async def create_user(params: User, user_data: AuthUser = Depends(admin_required)):
     """
     Creates a new user and returns the user's information.
@@ -181,7 +180,7 @@ async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)
 
 
 # Get all users
-@router.get("/users/", response_model=list, responses={**responses})
+@router.get("/users", response_model=list, responses={**responses})
 async def read_users(
     skip: int = 0, limit: int = 10, user_data: AuthUser = Depends(staff_required)
 ):
