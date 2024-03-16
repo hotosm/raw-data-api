@@ -19,9 +19,8 @@
 
 from pip._vendor import requests
 
-welcome_msg = """Welcome to the HOTOSM raw data API
+welcome_msg = """Welcome to the HOTOSM raw data API!
 Your one-stop API which is a set of high-performant APIs (Application Programming Interfaces) for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats."""
-
 import time
 
 import psycopg2
