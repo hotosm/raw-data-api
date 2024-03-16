@@ -17,16 +17,22 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+# Importing the 'requests' library from the '_vendor' module.
 from pip._vendor import requests
 
+# A welcome message for the HOTOSM raw data API
 welcome_msg = """Welcome to the HOTOSM raw data API!
 Your one-stop API which is a set of high-performant APIs (Application Programming Interfaces) for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats."""
 
+
+# Class to define console colors for better visual presentation.
 class ConsoleColors:
     BOLD = '\033[1m'
     RESET = '\033[0m'
     GREEN = '\033[92m'
 
+
+# Importing of libraries
 import time
 
 import psycopg2
