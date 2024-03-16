@@ -19,6 +19,7 @@
 
 """[Router Responsible for Raw data API ]
 """
+#Importing libraries
 import json
 
 import redis
@@ -494,6 +495,7 @@ def get_osm_current_snapshot_as_plain_geojson(
     return result
 
 
+# get countries
 @router.get("/countries/")
 @version(1)
 def get_countries(q: str = ""):
@@ -501,6 +503,7 @@ def get_countries(q: str = ""):
     return result
 
 
+#get openstreetmap id
 @router.get("/osm_id/")
 @version(1)
 def get_osm_feature(osm_id: int):
