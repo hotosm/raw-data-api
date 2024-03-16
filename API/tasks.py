@@ -1,3 +1,4 @@
+#import libraries
 import json
 from datetime import datetime
 
@@ -15,7 +16,7 @@ from .auth import AuthUser, admin_required, login_required, staff_required
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
-
+#task status
 @router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
 @version(1)
 def get_task_status(
@@ -78,6 +79,7 @@ def get_task_status(
     return JSONResponse(result)
 
 
+#task revoke
 @router.get("/revoke/{task_id}/")
 @version(1)
 def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
