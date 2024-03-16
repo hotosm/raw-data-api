@@ -155,7 +155,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+#starting the API
 @app.on_event("startup")
 async def on_startup():
     """Fires up 3 idle conenction with threaded connection pooling before starting the API
@@ -186,6 +186,7 @@ async def on_startup():
         raise e
 
 
+#shutting down the API
 @app.on_event("shutdown")
 def on_shutdown():
     """Closing all the threads connection from pooling before shuting down the api"""
