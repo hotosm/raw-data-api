@@ -10,34 +10,33 @@ cd raw-data-api
 ```
 
 ## Configurations
+### Two approaches:
 
-### config.txt approach
-- Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer. (if you are using `docker-compose` , you can edit `docker-compose-config.txt`)
+* #### config.txt approach
+  Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer. (If you are using `docker-compose`, you can edit `docker-compose-config.txt`)
 
-```
-touch config.txt #Linux
-wsl touch config.txt #Windows with WSL
-echo >> config.txt #Windows without WSL
-```
-#### .env approach 
+  ```
+  touch config.txt #Linux
+  wsl touch config.txt #Windows with WSL
+  echo >> config.txt #Windows without WSL
+  ```
+* #### .env approach 
+  If you prefer configurations as env variables you can put them in `.env` and pass it to dockerfile or export them 
 
-if you prefer configurations as env variables you can put them in `.env` and pass it to dockerfile or export them 
+### Database configuration:
+- To use the default database(with sample data), Run docker compose and update the `docker-compose-config.txt` 
 
-- Database configuration:
-  - To use the default database(with sample data) , Run docker compsoe and  update the `docker-compose-config.txt` 
-
-  - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](./configurations.md). or export them as system env variables
+- To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](./configurations.md). or export them as system env variables
 
 
-- OSM Authentication:
-
-  - Follow this step to setup OSM OAuth: [Setup Oauth Block](./configurations.md#Setup-Oauth-for-Authentication).
-  - Update your `config.txt` with the `[OAUTH]` block from the step above.
+### OSM Authentication:
+- Follow this step to setup OSM OAuth: [Setup Oauth Block](./configurations.md#Setup-Oauth-for-Authentication).
+- Update your `config.txt` with the `[OAUTH]` block from the step above.
 
 
 ## Run Docker 
 
-You can either use full composed docker-compose directly or you can build docker containers manually . 
+You can either use full composed docker-compose directly or you can build docker containers manually. 
 
 ### Spin up the containers using docker compose
 
@@ -83,15 +82,15 @@ docker run --name rawdata-flower -p 5555:5555 \
 ```
 
 **Development instruction:** 
-If you are running Dockerfile only for the API , Have postgresql redis installed on your machine directly then you should change following : 
+If you are running Dockerfile only for the API, Have postgresql redis installed on your machine directly then you should change following : 
 
-- Change --broker Host address in flower command (You can use redis if it is docker compsoe container or use `redis://host.docker.internal:6379/0` if you want API container to connect to your localhsot , Follow #troubleshoot section for more)
+- Change --broker Host address in flower command (You can use redis if it is docker compsoe container or use `redis://host.docker.internal:6379/0` if you want API container to connect to your localhost, Follow #troubleshoot section for more)
 - Change DB Host & Celery broker url accordingly with the same logic 
 
 
 **Note:**
 
-In above example we have attached our working dir to containers along with config.txt for efficiency in development environment only . It is recommended to use proper docker copy as stated in dockerfile and system environement variables instead of config.txt in Production
+In above example we have attached our working dir to containers along with config.txt for efficiency in development environment only. It is recommended to use proper docker copy as stated in dockerfile and system environement variables instead of config.txt in Production
 
 ## Check the servers
 
@@ -107,7 +106,7 @@ http://127.0.0.1:8000/v1/docs
 
 API docs will be displayed like this upon successfull server startup
 
-![image](https://user-images.githubusercontent.com/13560473/204081940-e680a0d3-dcb4-43ff-ad09-5886671ffaff.png)
+![image](https://github.com/nifedara/raw-data-api/assets/76186151/bb4c5592-2574-4884-91b6-4ed5749a4131)
 
 - Flower dashboard
 
@@ -129,12 +128,12 @@ Flower [dashboard](http://127.0.0.1:5555/) will look like this on successfull in
 
 - If you can't connect to your local postgres database from `raw-data-api`.
 
-  Since _export-tool-api_ is running in docker containers, it means if you setup your `config.txt` file to use a local postgres database on your machine, the database port may not be accessible as `localhost` from the docker containers. To solve this, docker needs to connect to your local network. Try any of these hacks to troubleshoot the issue:
+  Since _raw-data-api_ is running in docker containers, it means if you setup your `config.txt` file to use a local postgres database on your machine, the database port may not be accessible as `localhost` from the docker containers. To solve this, docker needs to connect to your local network. Try any of these hacks to troubleshoot the issue:
 
   1. Option one :
 
      - For windows/ Mac docker user
-       Replace localhost with `host.docker.internal` – This resolves to the outside host and lets you connect to your machine's localhost through container. For example if postgres is running on your machine on port `5432` , docker container can connect from `host.docker.internal:5432`
+       Replace localhost with `host.docker.internal` – This resolves to the outside host and lets you connect to your machine's localhost through container. For example if postgres is running on your machine on port `5432`, docker container can connect from `host.docker.internal:5432`
      - For linux user :
        Linux users can enable host.docker.internal via the --add-host flag for docker run. Start your containers with this flag to expose the host string:
        `docker run -d --add-host host.docker.internal:host-gateway my-container:latest`
