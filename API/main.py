@@ -78,7 +78,7 @@ if LOG_LEVEL.lower() == "debug":
 # Provides a brief overview of the API's functionality for documentation purposes.
 app = FastAPI(
    title="Raw Data API",
-   description="This API provides access to raw data.",
+   description="Raw Data API is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.",
    swagger_ui_parameters={"syntaxHighlight": False}
 )
 app.include_router(auth_router)
