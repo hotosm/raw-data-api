@@ -10,7 +10,7 @@ cd raw-data-api
 ```
 
 ## Configurations
-### Two approaches:
+Configuration can be setup with 2 approaches:
 
 * #### config.txt approach
   Create `config.txt` inside / folder. You can use any of the appropriate commands below or you use your familiar methods in your code editor/file explorer. (If you are using `docker-compose`, you can edit `docker-compose-config.txt`)
