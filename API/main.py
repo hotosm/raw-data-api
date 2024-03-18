@@ -74,7 +74,7 @@ if LOG_LEVEL.lower() == "debug":
     import os
 
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-# CHANGES ADDING DESCRIPTION
+
 # Provides a brief overview of the API's functionality for documentation purposes.
 app = FastAPI(
    title="Raw Data API",
