@@ -80,7 +80,7 @@ def get_task_status(
 
 
 #task revoke
-@router.get("/revoke/{task_id}/",responses={**common_responses})
+@router.get("/revoke/{task_id}/",responses={**common_responses, '404':{"model": ErrorMessage}})
 @version(1)
 def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
     """Revokes task , Terminates if it is executing
