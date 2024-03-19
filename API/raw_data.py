@@ -506,7 +506,7 @@ def get_countries(q: str = ""):
 
 
 #get openstreetmap id
-@router.get("/osm_id/")
+@router.get("/osm_id/", responses={'500': {"model": ErrorMessage}})
 @version(1)
 def get_osm_feature(osm_id: int):
     return RawData().get_osm_feature(osm_id)
