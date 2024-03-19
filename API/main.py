@@ -27,11 +27,12 @@ Your one-stop API which is a set of high-performant APIs (Application Programmin
 
 # Class to define console colors for better visual presentation.
 class ConsoleColors:
+    """
     BOLD = '\033[1m'
     RESET = '\033[0m'
     GREEN = '\033[92m'
 
-
+    """
 # Importing of libraries
 import time
 
