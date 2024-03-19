@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
 from src.config import CELERY_BROKER_URL, DAEMON_QUEUE_NAME, DEFAULT_QUEUE_NAME
-from src.validation.models import SnapshotTaskResponse
+from src.validation.models import SnapshotTaskResponse, ErrorMessage, common_responses
 
 from .api_worker import celery
 from .auth import AuthUser, admin_required, login_required, staff_required
@@ -17,7 +17,7 @@ from .auth import AuthUser, admin_required, login_required, staff_required
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 #task status
-@router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
+@router.get("/status/{task_id}/", response_model=SnapshotTaskResponse, responses={'500': {"model": ErrorMessage}})
 @version(1)
 def get_task_status(
     task_id,
@@ -80,7 +80,7 @@ def get_task_status(
 
 
 #task revoke
-@router.get("/revoke/{task_id}/",responses={**common_responses, '404':{"model": ErrorMessage}})
+@router.get("/revoke/{task_id}/",responses={**common_responses})
 @version(1)
 def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
     """Revokes task , Terminates if it is executing
@@ -95,7 +95,7 @@ def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
     return JSONResponse({"id": task_id})
 
 
-@router.get("/inspect/")
+@router.get("/inspect/",responses={'500':{"model": ErrorMessage}})
 @version(1)
 def inspect_workers(
     request: Request,
@@ -136,7 +136,7 @@ def inspect_workers(
     return JSONResponse(content=response_data)
 
 
-@router.get("/ping/")
+@router.get("/ping/",responses={'500':{"model": ErrorMessage}})
 @version(1)
 def ping_workers():
     """Pings available workers
@@ -147,7 +147,7 @@ def ping_workers():
     return JSONResponse(inspected_ping)
 
 
-@router.get("/purge/")
+@router.get("/purge/",responses={**common_responses})
 @version(1)
 def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
@@ -161,7 +161,7 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
 queues = [DEFAULT_QUEUE_NAME, DAEMON_QUEUE_NAME]
 
 
-@router.get("/queue/")
+@router.get("/queue/",responses={'500':{"model": ErrorMessage}})
 @version(1)
 def get_queue_info():
     queue_info = {}
@@ -178,7 +178,7 @@ def get_queue_info():
     return JSONResponse(content=queue_info)
 
 
-@router.get("/queue/details/{queue_name}/")
+@router.get("/queue/details/{queue_name}/",responses={'404':{"model": ErrorMessage}})
 @version(1)
 def get_list_details(
     queue_name: str,
