@@ -5,11 +5,13 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 from pydantic import BaseModel
 
 from src.app import Users
+from src.validation.models import ErrorMessage,common_responses,login_responses
 
 from . import AuthUser, admin_required, login_required, osm_auth, staff_required
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+@router.get("/login", responses={**login_responses})
 
 class ErrorMessage(BaseModel):
     detail: str
