@@ -83,7 +83,7 @@ class User(BaseModel):
 
 
 # Create user
-@router.post("/users/", response_model=dict)
+@router.post("/users/", response_model=dict, responses = {**responses, 404: {"model": ErrorMessage}})
 async def create_user(params: User, user_data: AuthUser = Depends(admin_required)):
     """
     Creates a new user and returns the user's information.
@@ -106,7 +106,7 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
 
 
 # Read user by osm_id
-@router.get("/users/{osm_id}", response_model=dict)
+@router.get("/users/{osm_id}", response_model=dict, responses = {**responses, 404: {"model": ErrorMessage}})
 async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
     """
     Retrieves user information based on the given osm_id.
