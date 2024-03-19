@@ -31,11 +31,20 @@ CUSTOM_HEADER = {"user-agent": "oauth_cookie_client.py"}
 
 
 class RaiseError(Exception):
+    """
+
+    """
     def __init__(self, message):
+        """
+
+        """
         self.message = message
 
 
 def report_error(message):
+    """
+    
+    """
     sys.stderr.write("{}\n".format(message))
     raise RaiseError(message)
 
@@ -65,7 +74,10 @@ def verify_me_osm(
     osm_host="https://www.openstreetmap.org/",
     consumer_url="https://osm-internal.download.geofabrik.de/get_cookie",
     format="http",
-):
+):  
+    """
+    Verify osm
+    """
     username = user
     if username is None:
         report_error("The username must not be empty.")
