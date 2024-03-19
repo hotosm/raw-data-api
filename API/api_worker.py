@@ -96,7 +96,7 @@ def zip_binding(
 
     system_ram = psutil.virtual_memory().total  # system RAM in bytes
     if (
-        inside_file_size < 0.8 * system_ram and inside_file_size < 5 * 1024**3
+        inside_file_size < 0.8 * system_ram or inside_file_size < 5 * 1024**3
     ):  # if less than 80% or less than 5 gb
         logging.debug("Using default zipfile module for zipping")
         with zipfile.ZipFile(
