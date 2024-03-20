@@ -12,6 +12,8 @@ from src.validation.models import SnapshotTaskResponse
 
 from .api_worker import celery
 from .auth import AuthUser, admin_required, login_required, staff_required
+from .auth.responses import common_error_responses, error_responses_with_examples
+
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -77,7 +79,7 @@ def get_task_status(
     return JSONResponse(result)
 
 
-@router.get("/revoke/{task_id}")
+@router.get("/revoke/{task_id}", responses={**common_error_responses, **error_responses_with_examples})
 @version(1)
 def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
     """Revokes task , Terminates if it is executing
@@ -87,6 +89,8 @@ def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
 
     Returns:
         id: id of revoked task
+    Raises:
+    - HTTPException 403: If the user is not an Staff.
     """
     celery.control.revoke(task_id=task_id, terminate=True)
     return JSONResponse({"id": task_id})
@@ -144,12 +148,16 @@ def ping_workers():
     return JSONResponse(inspected_ping)
 
 
-@router.get("/purge")
+@router.get("/purge", responses={403: {"description": "Forbidden", "content": {"application/json": {"example": {"message": "Access forbidden"}}}}})
 @version(1)
 def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
     Discards all waiting tasks from the queue
     Returns : Number of tasks discarded
+    
+    Raises:
+    - HTTPException 403: If the user is not an Admin.
+    
     """
     purged = celery.control.purge()
     return JSONResponse({"tasks_discarded": purged})
