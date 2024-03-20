@@ -1,3 +1,4 @@
+# Standard library imports
 import json
 import os
 import pathlib
@@ -7,11 +8,13 @@ import time
 from datetime import datetime as dt
 from datetime import timedelta, timezone
 
+# Third party imports
 import humanize
 import psutil
 import zipfly
 from celery import Celery
 
+# Reader imports
 from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
@@ -37,8 +40,10 @@ from src.validation.models import (
 )
 
 if ENABLE_SOZIP:
+    # Third party imports
     import sozipfile.sozipfile as zipfile
 else:
+    # Standard library imports
     import zipfile
 
 celery = Celery("Raw Data API")
@@ -96,21 +101,8 @@ def zip_binding(
 
     system_ram = psutil.virtual_memory().total  # system RAM in bytes
     if (
-        inside_file_size < 0.8 * system_ram or inside_file_size < 3 * 1024**3
-    ):  # if less than 80% or less than 5 gb
-        logging.debug("Using default zipfile module for zipping")
-        with zipfile.ZipFile(
-            upload_file_path,
-            "w",
-            compression=zipfile.ZIP_DEFLATED,
-            compresslevel=9,
-            allowZip64=True,
-        ) as zf:
-            for file_path in pathlib.Path(working_dir).iterdir():
-                if file_path.is_file():
-                    zf.write(file_path, arcname=file_path.name)
-
-    else:
+        inside_file_size > 0.8 * system_ram or inside_file_size > 3 * 1024**3
+    ):  # if file size is greater than 80% of ram or greater than 3 gb
         logging.debug(
             "Using memory optimized zip",
         )
@@ -126,6 +118,19 @@ def zip_binding(
         with open(upload_file_path, "wb") as f:
             for chunk in generator:
                 f.write(chunk)
+
+    else:
+        logging.debug("Using default zipfile module for zipping")
+        with zipfile.ZipFile(
+            upload_file_path,
+            "w",
+            compression=zipfile.ZIP_DEFLATED,
+            compresslevel=9,
+            allowZip64=True,
+        ) as zf:
+            for file_path in pathlib.Path(working_dir).iterdir():
+                if file_path.is_file():
+                    zf.write(file_path, arcname=file_path.name)
 
     logging.debug("Zip Binding Done!")
     return upload_file_path, inside_file_size
