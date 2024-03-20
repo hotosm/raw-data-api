@@ -77,11 +77,11 @@ jobs:
           pip install -r requirements.txt
           python setup.py install
 
-      - name: Launch Default Worker
+      - name: Launch ondemand Worker
         run: |
           celery --app API.api_worker worker --loglevel=INFO --queues='raw_ondemand' &
 
-      - name: Launch Special Worker
+      - name: Launch daemon Worker
         run: |
           celery --app API.api_worker worker --loglevel=INFO --queues='raw_daemon' &
 

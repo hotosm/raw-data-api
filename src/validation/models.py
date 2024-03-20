@@ -17,16 +17,19 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains validation models for application"""
+# Standard library imports
 import json
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
+# Third party imports
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from geojson_pydantic.types import BBox
 from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
 from typing_extensions import TypedDict
 
+# Reader imports
 from src.config import (
     ALLOW_BIND_ZIP_FILTER,
     ENABLE_HDX_EXPORTS,
@@ -35,6 +38,7 @@ from src.config import (
 )
 
 if ENABLE_HDX_EXPORTS:
+    # Reader imports
     from src.config import ALLOWED_HDX_TAGS, ALLOWED_HDX_UPDATE_FREQUENCIES
 
 
@@ -296,22 +300,22 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         max_length=3,
         example="NPL",
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @validator("geometry", pre=True, always=True)
@@ -583,7 +587,7 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
         default=None, description="Dataset Configurations for HDX Upload"
     )
     queue: Optional[str] = Field(
-        default="raw_daemon",
+        default="raw_ondemand",
         description="Lets you decide which queue you wanna place your task, Requires admin access",
     )
     meta: bool = Field(
@@ -608,22 +612,22 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
             }
         ],
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @validator("geometry", pre=True, always=True)

@@ -17,6 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains Main core logic of app"""
+# Standard library imports
 import concurrent.futures
 import json
 import os
@@ -32,6 +33,7 @@ from datetime import datetime, timedelta, timezone
 from json import dumps
 from json import loads as json_loads
 
+# Third party imports
 import boto3
 import humanize
 import orjson
@@ -44,6 +46,7 @@ from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
 
+# Reader imports
 from src.config import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
@@ -89,27 +92,35 @@ from src.query_builder.builder import (
 from src.validation.models import EXPORT_TYPE_MAPPING, RawDataOutputType
 
 if ENABLE_SOZIP:
+    # Third party imports
     import sozipfile.sozipfile as zipfile
 else:
+    # Standard library imports
     import zipfile
 
 # import instance for pooling
 if use_connection_pooling:
+    # Reader imports
     from src.db_session import database_instance
 else:
     database_instance = None
+# Standard library imports
 import logging as log
 
 if ENABLE_CUSTOM_EXPORTS:
     if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
+        # Third party imports
         import duckdb
 
+        # Reader imports
         from src.config import DUCK_DB_MEMORY_LIMIT, DUCK_DB_THREAD_LIMIT
 
 if ENABLE_HDX_EXPORTS:
+    # Third party imports
     from hdx.data.dataset import Dataset
     from hdx.data.resource import Resource
 
+    # Reader imports
     from src.config import HDX_MAINTAINER, HDX_OWNER_ORG, HDX_URL_PREFIX
 
 
@@ -1451,7 +1462,7 @@ class CustomExport:
             and PARALLEL_PROCESSING_CATEGORIES is True
         ):
             logging.info(
-                "Using Parallel Processing for %s Export formats", category_name.lower()
+                "Using Parallel Processing for %s Export formats with total %s workers", category_name.lower(), os.cpu_count()
             )
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=os.cpu_count()
@@ -1925,7 +1936,7 @@ class HDX:
                 hdx_data.get("iso3", None),
                 hdx_data.get("hdx_upload", True),
                 json.dumps(hdx_data.get("dataset")),
-                hdx_data.get("queue", "raw_daemon"),
+                hdx_data.get("queue", "raw_ondemand"),
                 hdx_data.get("meta", False),
                 json.dumps(hdx_data.get("categories", {})),
                 json.dumps(hdx_data.get("geometry")),
@@ -2055,7 +2066,7 @@ class HDX:
                 hdx_data.get("iso3", None),
                 hdx_data.get("hdx_upload", True),
                 json.dumps(hdx_data.get("dataset")),
-                hdx_data.get("queue", "raw_daemon"),
+                hdx_data.get("queue", "raw_ondemand"),
                 hdx_data.get("meta", False),
                 json.dumps(hdx_data.get("categories", {})),
                 json.dumps(hdx_data.get("geometry")),
