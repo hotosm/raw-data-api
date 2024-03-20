@@ -1,13 +1,16 @@
+# Standard library imports
 import json
 from datetime import datetime
 
+# Third party imports
 import redis
 from celery.result import AsyncResult
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
-from src.config import CELERY_BROKER_URL, DAEMON_QUEUE_NAME, DEFAULT_QUEUE_NAME
+# Reader imports
+from src.config import CELERY_BROKER_URL, DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAME
 from src.validation.models import SnapshotTaskResponse
 
 from .api_worker import celery
@@ -156,7 +159,7 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     return JSONResponse({"tasks_discarded": purged})
 
 
-queues = [DEFAULT_QUEUE_NAME, DAEMON_QUEUE_NAME]
+queues = [DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAME]
 
 
 @router.get("/queue/")

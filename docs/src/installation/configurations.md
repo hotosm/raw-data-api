@@ -62,8 +62,8 @@ The following are the different configuration options that are accepted.
 | `EXTRA_README_TXT` | `EXTRA_README_TXT` | `[API_CONFIG]` | `` | Append extra string to export readme.txt | OPTIONAL |
 | `ENABLE_TILES` | `ENABLE_TILES` | `[API_CONFIG]` | `false` | Enable Tile Output (Pmtiles and Mbtiles) | OPTIONAL |
 | `ENABLE_SOZIP` | `ENABLE_SOZIP` | `[API_CONFIG]` | `false` | Enables sozip compression | OPTIONAL |
-| `DEFAULT_QUEUE_NAME` | `DEFAULT_QUEUE_NAME` | `[API_CONFIG]` | `raw_ondemand` | Option to define default queue name| OPTIONAL |
-| `DAEMON_QUEUE_NAME` | `DAEMON_QUEUE_NAME` | `[API_CONFIG]` | `raw_daemon` | Option to define daemon queue name for scheduled and long exports | OPTIONAL |
+| `DEFAULT_QUEUE_NAME` | `DEFAULT_QUEUE_NAME` | `[API_CONFIG]` | `raw_daemon` | Option to define default queue name| OPTIONAL |
+| `ONDEMAND_QUEUE_NAME` | `ONDEMAND_QUEUE_NAME` | `[API_CONFIG]` | `raw_ondemand` | Option to define daemon queue name for scheduled and long exports | OPTIONAL |
 | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | `False` | Option to enable endpoints related the polygon statistics about the approx buildings,road length in passed polygon| OPTIONAL |
 | `ENABLE_CUSTOM_EXPORTS` | `ENABLE_CUSTOM_EXPORTS` | `[API_CONFIG]` | False | Enables custom exports endpoint and imports | OPTIONAL |
 | `POLYGON_STATISTICS_API_URL` | `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | `None` | API URL for the polygon statistics to fetch the metadata , Currently tested with graphql query endpoint of Kontour , Only required if it is enabled from ENABLE_POLYGON_STATISTICS_ENDPOINTS | OPTIONAL |
@@ -127,7 +127,7 @@ API Tokens have expiry date, It is `important to update API Tokens manually each
 | `EXTRA_README_TXT` | `[API_CONFIG]` | No | Yes |
 | `INDEX_THRESHOLD` | `[API_CONFIG]` | No | Yes |
 | `DEFAULT_QUEUE_NAME` | `[API_CONFIG]` | Yes | No |
-| `DAEMON_QUEUE_NAME` | `[API_CONFIG]` | Yes | No |
+| `ONDEMAND_QUEUE_NAME` | `[API_CONFIG]` | Yes | No |
 | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | Yes | Yes |
 | `POLYGON_STATISTICS_API_URL` | `[API_CONFIG]` | Yes | Yes |
 | `POLYGON_STATISTICS_API_RATE_LIMIT` | `[API_CONFIG]` | Yes | No |
