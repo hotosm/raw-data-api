@@ -1462,7 +1462,9 @@ class CustomExport:
             and PARALLEL_PROCESSING_CATEGORIES is True
         ):
             logging.info(
-                "Using Parallel Processing for %s Export formats with total %s workers", category_name.lower(), os.cpu_count()
+                "Using Parallel Processing for %s Export formats with total %s workers",
+                category_name.lower(),
+                os.cpu_count(),
             )
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=os.cpu_count()
