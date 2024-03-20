@@ -1,5 +1,5 @@
 ## What type of PR is this? 
->check all applicable
+>Check all applicable
 
 - [ ] 🍕 Feature
 - [ ] 🐛 Bug Fix
