@@ -6,11 +6,11 @@ geojson-pydantic==1.0.1
 
 geojson==3.1.0
 
-# Testing 
+## Testing 
 pytest==7.4.3
 httpx==0.26.0 
 
-# # Used for new relic monitoring
+## Used for new relic monitoring
 newrelic==7.2.4.171
 sentry-sdk==1.5.12
 
@@ -26,20 +26,21 @@ osm-login-python==1.0.2
 humanize==4.9.0
 python-slugify==8.0.1
 geomet==1.1.0
-#''' required for generating documentations '''
+
+## documentation
 # mkdocs-material==8.5.11
 # mkdocs-jupyter==0.22.0
 # neoteroi-mkdocs==0.1.2
 # pdocs==1.0.1
 
-# flower
+## flower
 flower==2.0.1
 
 ##duckdb
 duckdb==0.9.2
 
 ##hdx
-hdx-python-api==6.2.0
+hdx-python-api==6.2.2
 
 ## only needed if postgres is used as celery backend 
 SQLAlchemy==2.0.25
@@ -49,3 +50,7 @@ sozipfile==0.3.2
 ## zip memory optimization
 zipfly==6.0.5
 psutil==5.9.8 
+
+
+## logging 
+tqdm==4.66.2

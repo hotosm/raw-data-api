@@ -45,6 +45,7 @@ from geojson import FeatureCollection
 from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
+from tqdm import tqdm
 
 # Reader imports
 from src.config import (
@@ -1245,16 +1246,18 @@ class CustomExport:
             if not self.params.dataset.dataset_prefix:
                 self.params.dataset.dataset_prefix = dataset_prefix
             if not self.params.dataset.dataset_locations:
-                self.params.dataset.dataset_locations = dataset_locations
+                self.params.dataset.dataset_locations = json.loads(dataset_locations)
 
         self.uuid = str(uuid.uuid4().hex)
         self.parallel_process_state = False
-
+        self.default_export_base_name = (
+            self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix
+        )
         self.default_export_path = os.path.join(
             export_path,
             self.uuid,
             self.params.dataset.dataset_folder,
-            self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix,
+            self.default_export_base_name,
         )
         if os.path.exists(self.default_export_path):
             shutil.rmtree(self.default_export_path, ignore_errors=True)
@@ -1263,7 +1266,7 @@ class CustomExport:
         if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
             self.duck_db_db_path = os.path.join(
                 self.default_export_path,
-                f"{self.iso3 if self.iso3 else self.params.dataset.dataset_prefix}.db",
+                f"{self.default_export_base_name}.db",
             )
             self.duck_db_instance = DuckDB(self.duck_db_db_path)
 
@@ -1477,6 +1480,14 @@ class CustomExport:
                     future.result()
                     for future in concurrent.futures.as_completed(futures)
                 ]
+                resources = [
+                    future.result()
+                    for future in tqdm(
+                        concurrent.futures.as_completed(futures),
+                        total=len(futures),
+                        desc=f"{category_name.lower()}: Processing Export Formats",
+                    )
+                ]
         else:
             for exf in export_formats:
                 resource = process_export_format(exf)
@@ -1493,7 +1504,7 @@ class CustomExport:
         Returns:
         - Dictionary containing processed category result.
         """
-        if self.params.hdx_upload and ENABLE_HDX_EXPORTS:
+        if self.params.hdx_upload and ENABLE_HDX_EXPORTS :
             return self.resource_to_hdx(
                 uploaded_resources=category_result.uploaded_resources,
                 dataset_config=self.params.dataset,
@@ -1607,7 +1618,7 @@ class CustomExport:
                     resource["uploaded_to_hdx"] = True
                 else:
                     non_hdx_resources.append(resource)
-            category_name, hdx_dataset_info = uploader.upload_dataset(self.params.meta)
+            category_name, hdx_dataset_info = uploader.upload_dataset(self.params.meta and USE_S3_TO_UPLOAD)
             hdx_dataset_info["resources"].extend(non_hdx_resources)
             return {category_name: hdx_dataset_info}
 
@@ -1687,8 +1698,11 @@ class CustomExport:
                     executor.submit(self.process_category, category): category
                     for category in self.params.categories
                 }
-
-                for future in concurrent.futures.as_completed(futures):
+                for future in tqdm(
+                    concurrent.futures.as_completed(futures),
+                    total=len(futures),
+                    desc=f"{self.default_export_base_name} : Processing Categories",
+                ):
                     category = futures[future]
                     uploaded_resources = future.result()
                     category_result = CategoryResult(
