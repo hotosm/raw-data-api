@@ -1504,7 +1504,7 @@ class CustomExport:
         Returns:
         - Dictionary containing processed category result.
         """
-        if self.params.hdx_upload and ENABLE_HDX_EXPORTS :
+        if self.params.hdx_upload and ENABLE_HDX_EXPORTS:
             return self.resource_to_hdx(
                 uploaded_resources=category_result.uploaded_resources,
                 dataset_config=self.params.dataset,
@@ -1618,7 +1618,9 @@ class CustomExport:
                     resource["uploaded_to_hdx"] = True
                 else:
                     non_hdx_resources.append(resource)
-            category_name, hdx_dataset_info = uploader.upload_dataset(self.params.meta and USE_S3_TO_UPLOAD)
+            category_name, hdx_dataset_info = uploader.upload_dataset(
+                self.params.meta and USE_S3_TO_UPLOAD
+            )
             hdx_dataset_info["resources"].extend(non_hdx_resources)
             return {category_name: hdx_dataset_info}
 
