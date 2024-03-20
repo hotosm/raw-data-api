@@ -39,13 +39,16 @@ if ENABLE_HDX_EXPORTS:
 
 
 def to_camel(string: str) -> str:
+    """Convert string to Titlecase"""
     split_string = string.split("_")
 
     return "".join([split_string[0], *[w.capitalize() for w in split_string[1:]]])
 
 
 class BaseModel(PydanticModel):
+    """Defining schema in models"""
     class Config:
+        """This dictionary holds configuration attributes"""
         alias_generator = to_camel
         populate_by_name = True
         use_enum_values = True
@@ -53,6 +56,7 @@ class BaseModel(PydanticModel):
 
 
 class RawDataOutputType(Enum):
+    """Classification of group of values"""
     GEOJSON = "geojson"
     KML = "kml"
     SHAPEFILE = "shp"
@@ -67,6 +71,7 @@ class RawDataOutputType(Enum):
 
 
 class SupportedFilters(Enum):
+    """Classification of group of values"""
     TAGS = "tags"
     ATTRIBUTES = "attributes"
 
@@ -77,6 +82,7 @@ class SupportedFilters(Enum):
 
 
 class SupportedGeometryFilters(Enum):
+    """Classification of group of values"""
     POINT = "point"
     LINE = "line"
     POLYGON = "polygon"
@@ -89,16 +95,19 @@ class SupportedGeometryFilters(Enum):
 
 
 class JoinFilterType(Enum):
+    """Classification of group of values"""
     OR = "OR"
     AND = "AND"
 
 
 class SQLFilter(BaseModel):
+    """Defining schema in models"""
     join_or: Optional[Dict[str, List[str]]] = Field(default=None)
     join_and: Optional[Dict[str, List[str]]] = Field(default=None)
 
 
 class TagsFilter(BaseModel):
+    """Defining schema in models"""
     point: Optional[SQLFilter] = Field(default=None)
     line: Optional[SQLFilter] = Field(default=None)
     polygon: Optional[SQLFilter] = Field(default=None)
@@ -106,6 +115,7 @@ class TagsFilter(BaseModel):
 
 
 class AttributeFilter(BaseModel):
+    """Defining schema in models"""
     point: Optional[List[str]] = Field(default=None)
     line: Optional[List[str]] = Field(default=None)
     polygon: Optional[List[str]] = Field(default=None)
@@ -113,6 +123,7 @@ class AttributeFilter(BaseModel):
 
 
 class Filters(BaseModel):
+    """Defining schema in models"""
     tags: Optional[TagsFilter] = Field(default=None)
     attributes: Optional[AttributeFilter] = Field(default=None)
 

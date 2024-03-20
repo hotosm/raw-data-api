@@ -16,6 +16,24 @@
 # Humanitarian OpenStreetmap Team
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
+
+# Importing the 'requests' library from the '_vendor' module.
+from pip._vendor import requests
+
+# A welcome message for the HOTOSM raw data API
+welcome_msg = """Welcome to the HOTOSM raw data API!
+Your one-stop API which is a set of high-performant APIs (Application Programming Interfaces) for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats."""
+
+
+# Class to define console colors for better visual presentation.
+class ConsoleColors:
+    """
+    BOLD = '\033[1m'
+    RESET = '\033[0m'
+    GREEN = '\033[92m'
+
+    """
+# Importing of libraries
 import time
 
 import psycopg2
@@ -138,7 +156,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+#starting the API
 @app.on_event("startup")
 async def on_startup():
     """Fires up 3 idle conenction with threaded connection pooling before starting the API
@@ -169,6 +187,7 @@ async def on_startup():
         raise e
 
 
+#shutting down the API
 @app.on_event("shutdown")
 def on_shutdown():
     """Closing all the threads connection from pooling before shuting down the api"""
