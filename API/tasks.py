@@ -22,44 +22,56 @@ def get_task_status(
     task_id,
     only_args: bool = Query(
         default=False,
-        description="Fetches arguments of task",
+        description="Indicates whether to fetch only the arguments of the task.",
     ),
 ):
-    """Tracks the request from the task id provided by Raw Data API  for the request
+    """
+    Retrieve the current status and result of a task identified by its unique task ID.
 
     Args:
-
-        task_id ([type]): [Unique id provided on response from /snapshot/]
+        task_id (uuid.UUID): The unique identifier of the task. It must be a valid UUID.
+        only_args (bool, optional): Specifies whether to fetch only the arguments of the task.
+            Defaults to False.
 
     Returns:
+        dict: A dictionary containing the status and result of the task.
 
-        id: Id of the task
-        status : Possible values includes:
+    The possible status values are:
+        - PENDING: The task is waiting for execution.
+        - STARTED: The task has been started.
+        - RETRY: The task is scheduled for retry, possibly due to failure.
+        - FAILURE: The task failed or exceeded the retry limit.
+        - SUCCESS: The task executed successfully.
 
-                PENDING
+    If the task is successful, the result attribute contains the task's return value.
 
-                    The task is waiting for execution.
+    If only_args is True, only the arguments of the task are returned.
 
-                STARTED
+    Successful tasks may include additional nested JSON data representing the result.
 
-                    The task has been started.
+    Raises:
+        HTTPException(422): If the provided task_id is not a valid UUID.
 
-                RETRY
+    Examples:
+        To fetch the status and result of a task:
+            GET /tasks/status/{task_id}/
 
-                    The task is to be retried, possibly because of failure.
+        Example Response (Success):
+        {
+            "id": "2f0d9d8e-07a9-4364-b604-64e8d665b0ad",
+            "status": "SUCCESS",
+            "result": {
+                "data": { ... },
+                "message": "Task completed successfully."
+            }
+        }
 
-                FAILURE
-
-                    The task raised an exception, or has exceeded the retry limit. The result attribute then contains the exception raised by the task.
-
-                SUCCESS
-
-                    The task executed successfully. The result attribute then contains the tasks return value.
-
-        result : Result of task
-
-    Successful task will have additional nested json inside
-
+        Example Response (Pending):
+        {
+            "id": "2f0d9d8e-07a9-4364-b604-64e8d665b0ad",
+            "status": "PENDING",
+            "result": null
+        }
     """
     task_result = AsyncResult(task_id, app=celery)
     if only_args:
