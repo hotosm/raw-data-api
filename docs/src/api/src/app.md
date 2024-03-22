@@ -162,7 +162,7 @@ class RawData(
 )
 ```
 
-Class responsible for the Rawdata Extraction from available sources ,
+Class responsible for the Rawdata Extraction from available sources,
     Currently Works for Underpass source Current Snapshot
 Returns:
 Geojson Zip file
@@ -214,7 +214,7 @@ def ogr_export(
     params
 )
 ```
-Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow
+Function written to support ogr type extractions as well. In this way, we will be able to support all file formats supported by ogr. Currently, it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow
 
     
 #### ogr_export_shp
@@ -228,7 +228,7 @@ def ogr_export_shp(
     file_name
 )
 ```
-Function written to support ogr type extractions as well , In this way we will be able to support all file formats supported by Ogr , Currently it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow
+Function written to support ogr type extractions as well. In this way, we will be able to support all file formats supported by ogr. Currently, it is slow when dataset gets bigger as compared to our own conversion method but rich in feature and data types even though it is slow
 
     
 #### query2geojson
@@ -240,7 +240,7 @@ def query2geojson(
     dump_temp_file_path
 )
 ```
-Function written from scratch without being dependent on any library, Provides better performance for geojson binding
+Function written from scratch without being dependent on any library, provides better performance for geojson binding
 
     
 #### to_geojson_raw
@@ -262,7 +262,7 @@ def check_status(
     self
 )
 ```
-Gives status about DB update, Substracts with current time and last db update time
+Gives status about DB update, subtracts with current time and last db update time
 
     
 #### extract_current_data
@@ -273,7 +273,7 @@ def extract_current_data(
     exportname
 )
 ```
-Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
+Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file, Generates query, run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
 Args:
     exportname: takes filename as argument to create geojson file passed from routers
 
@@ -289,7 +289,7 @@ def extract_plain_geojson(
     self
 )
 ```
-Gets geojson for small area : Performs direct query with/without geometry
+Gets geojson for small area: Performs direct query with/without geometry
 
 ### S3FileTransfer
 
@@ -335,7 +335,7 @@ def upload(
     file_suffix='zip'
 )
 ```
-Used for transferring file to s3 after reading path from the user , It will wait for the upload to complete
+Used for transferring file to s3 after reading path from the user, It will wait for the upload to complete
 Parameters :file_path --- your local file path to upload ,
     file_prefix -- prefix for the filename which is stored
 sample function call :

@@ -24,7 +24,7 @@ echo >> config.txt #Windows without WSL
 if you prefer configurations as env variables you can put them in `.env` and pass it to dockerfile or export them 
 
 - Database configuration:
-  - To use the default database(with sample data) , Run docker compsoe and  update the `docker-compose-config.txt` 
+  - To use the default database(with sample data) , Run docker compose and  update the `docker-compose-config.txt` 
 
   - To use a local postgres (with postgis enabled) database, you can follow the instruction on how to set it up with raw data [here](./configurations.md). or export them as system env variables
 
@@ -85,13 +85,13 @@ docker run --name rawdata-flower -p 5555:5555 \
 **Development instruction:** 
 If you are running Dockerfile only for the API , Have postgresql redis installed on your machine directly then you should change following : 
 
-- Change --broker Host address in flower command (You can use redis if it is docker compsoe container or use `redis://host.docker.internal:6379/0` if you want API container to connect to your localhsot , Follow #troubleshoot section for more)
+- Change --broker Host address in flower command (You can use redis if it is docker compose container or use `redis://host.docker.internal:6379/0` if you want API container to connect to your localhost , Follow #troubleshoot section for more)
 - Change DB Host & Celery broker url accordingly with the same logic 
 
 
 **Note:**
 
-In above example we have attached our working dir to containers along with config.txt for efficiency in development environment only . It is recommended to use proper docker copy as stated in dockerfile and system environement variables instead of config.txt in Production
+In above example, we have attached our working dir to containers along with config.txt for efficiency in development environment only . It is recommended to use proper docker copy as stated in dockerfile and system environement variables instead of config.txt in Production
 
 ## Check the servers
 
@@ -111,7 +111,7 @@ API docs will be displayed like this upon successfull server startup
 
 - Flower dashboard
 
-Vist the route below to access the Flower dashboard
+Visit the route below to access the Flower dashboard
 
 ```
 http://127.0.0.1:5555/
