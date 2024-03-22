@@ -13,8 +13,8 @@ CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 [OAUTH]
-OSM_CLIENT_ID=TFzHiEQF9Mb_bDkNK4q5UmwuyiE-fWuiOvOSHe-gXIM
-OSM_CLIENT_SECRET=NcFbu-myulcTbLGJCcx66wwMtwFvJDjiX8hh14w6e1g
+OSM_CLIENT_ID=
+OSM_CLIENT_SECRET=
 OSM_URL=https://www.openstreetmap.org
 OSM_PERMISSION_SCOPE=read_prefs
 LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback/
