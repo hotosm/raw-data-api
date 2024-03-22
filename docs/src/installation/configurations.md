@@ -1,9 +1,9 @@
 
 # Configuring the API service
 
-Raw Data API can be setup using two configuration options. You can choose based on your convienience 
+Raw Data API can be setup using two configuration options. You can choose based on your convenience 
 - *config.txt* : You can follow  `config.txt.sample` in dir and documentation below to set your configurations 
-- *.env* : Another option is from OS Environment variable , You can export all your env variables ( They are same as you put in config without blocks ) and pass it to API , API will pick it up automatically.
+- *.env* : Another option is from OS Environment variable, You can export all your env variables (They are same as you put in config without blocks) and pass it to API, API will pick it up automatically.
 
 ## What you need to start?
 
@@ -47,7 +47,7 @@ The following are the different configuration options that are accepted.
 | `PGPASSWORD` | `PGPASSWORD` | `[DB]` | _none_ | PostgreSQL user/role password | REQUIRED |
 | `PGDATABASE` | `PGDATABASE` | `[DB]` | _none_ | PostgreSQL database name | REQUIRED |
 | `OSM_CLIENT_ID` | `OSM_CLIENT_ID` | `[OAUTH]` | _none_ | Client ID of OSM OAuth2 application | REQIRED |
-| `OSM_CLIENT_SECRET` | `OSM_CLIENT_SECRET` | `[OAUTH]` | _none_ | Client Secret of OSM OAuth2 application | REQIRED |
+| `OSM_CLIENT_SECRET` | `OSM_CLIENT_SECRET` | `[OAUTH]` | _none_ | Client Secret of OSM OAuth2 application | REQUIRED |
 | `OSM_PERMISSION_SCOPE` | `OSM_PERMISSION_SCOPE` | `[OAUTH]` | `read_prefs` | OSM access permission for OAuth2 application | OPTIONAL |
 | `LOGIN_REDIRECT_URI` | `LOGIN_REDIRECT_URI` | `[OAUTH]` | _none_ | Redirect URL set in the OAuth2 application | REQUIRED |
 | `APP_SECRET_KEY` | `APP_SECRET_KEY` | `[OAUTH]` | _none_ | High-entropy string generated for the application | REQUIRED |
@@ -73,7 +73,7 @@ The following are the different configuration options that are accepted.
 | `DEFAULT_HARD_TASK_LIMIT` | `DEFAULT_HARD_TASK_LIMIT` | `[API_CONFIG]` | `10800` | Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 3 Hour| OPTIONAL |
 | `USE_DUCK_DB_FOR_CUSTOM_EXPORTS` | `USE_DUCK_DB_FOR_CUSTOM_EXPORTS` | `[API_CONFIG]` | `False` | Enable this setting to use duckdb , By default duck db is disabled and postgres is used| OPTIONAL |
 | `CELERY_BROKER_URL` | `CELERY_BROKER_URL` | `[CELERY]` | `redis://localhost:6379/0` | Redis connection string for the broker | OPTIONAL |
-| `CELERY_RESULT_BACKEND` | `CELERY_RESULT_BACKEND` | `[CELERY]` | `redis://localhost:6379/0` | Redis/psotgresql connection string for the the result backend, eg : db+postgresql://username:password@localhost:5432/db_name  | OPTIONAL |
+| `CELERY_RESULT_BACKEND` | `CELERY_RESULT_BACKEND` | `[CELERY]` | `redis://localhost:6379/0` | Redis/psotgresql connection string for the result backend, eg : db+postgresql://username:password@localhost:5432/db_name  | OPTIONAL |
 | `FILE_UPLOAD_METHOD` | `FILE_UPLOAD_METHOD` | `[EXPORT_UPLOAD]` | `disk` | File upload method; Allowed values - disk, s3 | OPTIONAL |
 | `BUCKET_NAME` | `BUCKET_NAME` | `[EXPORT_UPLOAD]` | _none_ | AWS S3 Bucket name | CONDITIONAL |
 | `AWS_ACCESS_KEY_ID` | `AWS_ACCESS_KEY_ID` | `[EXPORT_UPLOAD]` | _none_ | AWS Access Key ID for S3 access | CONDITIONAL |
@@ -89,13 +89,13 @@ The following are the different configuration options that are accepted.
 | `DUCK_DB_THREAD_LIMIT` | `DUCK_DB_THREAD_LIMIT` | `[API_CONFIG]` | None | Duck DB max threads limit ,n of your cores eg : 2 | CONDITIONAL |
 | `HDX_SOFT_TASK_LIMIT` | `HDX_SOFT_TASK_LIMIT` | `[HDX]` | `18000` | Soft task time limit signal for celery workers in seconds.It will gently remind celery to finish up the task and terminate, Defaults to 5 Hour| OPTIONAL |
 | `HDX_HARD_TASK_LIMIT` | `HDX_HARD_TASK_LIMIT` | `[HDX]` | `21600` | Hard task time limit signal for celery workers in seconds. It will immediately kill the celery task.Defaults to 6 Hour| OPTIONAL |
-| `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `[HDX]` | False | Recommended for workers with low memery or CPU usage , This will process single category request like buildings only , Roads only in postgres itself and avoid extraction from duckdb| OPTIONAL |
-| `PARALLEL_PROCESSING_CATEGORIES` | `PARALLEL_PROCESSING_CATEGORIES` | `[HDX]` | True | Enable parallel processing for mulitple categories and export formats , Disable this if you have single cpu and limited RAM , Enabled by default| OPTIONAL |
+| `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `PROCESS_SINGLE_CATEGORY_IN_POSTGRES` | `[HDX]` | False | Recommended for workers with low memory or CPU usage, This will process single category request like buildings only, Roads only in postgres itself and avoid extraction from duckdb| OPTIONAL |
+| `PARALLEL_PROCESSING_CATEGORIES` | `PARALLEL_PROCESSING_CATEGORIES` | `[HDX]` | True | Enable parallel processing for multiple categories and export formats , Disable this if you have single cpu and limited RAM , Enabled by default| OPTIONAL |
 
 **Note :** HDX_API_KEY 
 
 In order to generate HDX_API_KEY , You need to be logged in to https://data.humdata.org/ .
-Follow following navigation to generate tokens : 
+Follow the following navigation to generate tokens: 
   - Your profile section > User settings > API Tokens
 
 API Tokens have expiry date, It is `important to update API Tokens manually each year` for hosted api service ! 
@@ -213,7 +213,7 @@ APP_SECRET_KEY=your generated secret key
 
 ### Configure celery and redis
 
-API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management , Currently implemented for Rawdata endpoint. 6379 is the default port . if you are running redis on same machine your broker could be `redis://localhost:6379/`. You can change the port according to your configuration for the current docker compose use following
+API uses [Celery 5](https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html) and [Redis 6](https://redis.io/download/#redis-stack-downloads) for task queue management, Currently implemented for Rawdata endpoint. 6379 is the default port . if you are running redis on same machine your broker could be `redis://localhost:6379/`. You can change the port according to your configuration for the current docker compose use following
 
 ```
 [CELERY]
