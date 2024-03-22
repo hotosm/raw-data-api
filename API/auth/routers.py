@@ -10,7 +10,7 @@ from . import AuthUser, admin_required, login_required, osm_auth, staff_required
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.get("/login/")
+@router.get("/login")
 def login_url(request: Request):
     """Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
     Click on the download url returned to get access_token.
