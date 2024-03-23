@@ -29,6 +29,7 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
 from typing_extensions import TypedDict
 
+
 # Reader imports
 from src.config import (
     ALLOW_BIND_ZIP_FILTER,
@@ -43,6 +44,7 @@ if ENABLE_HDX_EXPORTS:
 
 
 def to_camel(string: str) -> str:
+    """Convert string to lowercase string"""
     split_string = string.split("_")
 
     return "".join([split_string[0], *[w.capitalize() for w in split_string[1:]]])
