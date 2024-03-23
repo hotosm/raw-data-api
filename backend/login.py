@@ -36,6 +36,7 @@ class RaiseError(Exception):
 
 
 def report_error(message):
+    """this function "report_error" is defined to take a single parameter named "message" """
     sys.stderr.write("{}\n".format(message))
     raise RaiseError(message)
 
@@ -66,6 +67,8 @@ def verify_me_osm(
     consumer_url="https://osm-internal.download.geofabrik.de/get_cookie",
     format="http",
 ):
+    """This function is defined with parameters(authentication and url)"""
+
     username = user
     if username is None:
         report_error("The username must not be empty.")
