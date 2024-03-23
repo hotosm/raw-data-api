@@ -19,7 +19,7 @@ Prepare your osm.pbf for loading before start. You can download it from differen
      PGUSER behaves the same as the user connection parameter.
      PGPASSWORD behaves the same as the password connection parameter. Use of this environment variable is not recommended for security reasons, as some operating systems allow non-root users to see process environment variables via ps; instead consider using a password file (see Section 34.15).</font>
 
-Sample of Exporting Database Creadentials (Optional , You can directly pass it as command line arguments as well )
+Sample of Exporting Database Credentials (Optional: You can directly pass it as command line arguments as well)
 
 ```
 export PGHOST=localhost
@@ -41,7 +41,7 @@ with exported DB Param :
 
 `osm2pgsql --create -H localhost -U admin -P 5432 -d postgres -W --extra-attributes --slim --drop --output=flex --style ./raw.lua yourdownloaded.osm.pbf `
 
-> **Note:** It is tested with osm2pgsql 1.6.0 version only , If data is loaded without --slim mode you will have query ready tables nodes,ways_line,ways_poly and relations . When you use --slim mode it will store meta data to database itself . It will create three additional tables : planet_osm_nodes,planet_osm_ways, planet_osm_relations which will be used during update only , Rather than that you will be querying nodes,ways_line,ways_poly and relations table to get data !
+> **Note:** It is tested with osm2pgsql 1.6.0 version only, If data is loaded without --slim mode you will have query ready tables nodes,ways_line,ways_poly and relations. When you use --slim mode it will store meta data to database itself. It will create three additional tables : planet_osm_nodes,planet_osm_ways, planet_osm_relations which will be used during update only, rather than that you will be querying nodes, ways_line, ways_poly and relations table to get data!
 
 ## Prepare Your Tables
 
@@ -117,7 +117,7 @@ port=
 
 ## Initialize Update Script
 
-Now run init , This will create replication status table in db
+Now run init, this will create replication status table in db
 
 > Export database password or keep it inside systemd service or pass W after command -- -W
 
@@ -141,4 +141,4 @@ Read more documentation [here](https://osm2pgsql.org/doc/manual.html#advanced-to
 
 ## Configure Per Minute Replication
 
-There are multiple options to run this python script per minute , You can either setup a cronjob or setup a systemd service
+There are multiple options to run this python script per minute, you can either setup a cronjob or setup a systemd service
