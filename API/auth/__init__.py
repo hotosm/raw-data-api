@@ -57,8 +57,8 @@ def get_optional_user(access_token: str = Header(default=None)) -> AuthUser:
     if access_token:
         return get_osm_auth_user(access_token)
     else:
-        # If no token provided, return a user with limited options or guest user
-    return AuthUser(id=0, username="guest", img_url=None)
+# If no token provided, return a user with limited options or guest user
+        return AuthUser(id=0, username="guest", img_url=None)
 
 
 def admin_required(user: AuthUser = Depends(login_required)):
