@@ -15,12 +15,16 @@ class ErrorMessage(BaseModel):
     detail: str
 
 responses = {
+    200: {"model": ErrorMessage,
+          "content": {"application/json": {"example": {"detail": "OK"}}}},
     400: {"model": ErrorMessage,
           "content": {"application/json": {"example": {"detail": "Bad Request"}}}},
     403: {"model": ErrorMessage,
           "content": {"application/json": {"example": {"detail": "Forbidden"}}}},
     408: {"model": ErrorMessage,
           "content": {"application/json": {"example": {"detail": "Request Timeout"}}}},
+    422: {"model": ErrorMessage,
+          "content": {"application/json": {"example": {"detail": "Validation Error"}}}},
     500: {"model": ErrorMessage,
           "content": {"application/json": {"example": {"detail": "Internal Server Error"}}}}
 }
