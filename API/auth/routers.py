@@ -31,7 +31,7 @@ responses = {
 
 
 @router.get("/login", responses = {500: {"model": ErrorMessage},
-                                   200: {"content": {"application/json": {"example": {"login_url": "OK"}}}}})
+                                   200: {"content": {"application/json": {"example": {"login_url": "Successful Response"}}}}})
 def login_url(request: Request):
     """Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
     Click on the download url returned to get access_token.
