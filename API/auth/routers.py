@@ -16,7 +16,7 @@ class ErrorMessage(BaseModel):
 
 responses = {
     200: {"model": ErrorMessage,
-          "content": {"application/json": {"example": {"detail": "OK"}}}},
+          "content": {"application/json": {"example": {"detail": "Successful Response"}}}},
     400: {"model": ErrorMessage,
           "content": {"application/json": {"example": {"detail": "Bad Request"}}}},
     403: {"model": ErrorMessage,
