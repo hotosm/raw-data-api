@@ -24,4 +24,4 @@ Pipfile.lock
 #backend 
 backend/data
 backend/.env
-docker-compose-config.txt
+
