@@ -176,7 +176,7 @@ def get_queue_info():
     return JSONResponse(content=queue_info)
 
 
-@router.get("/queue/details/{queue_name}/")
+@router.get("/queue/details/{queue_name}/", tags=["Queue"], summary="Get details of items in a queue")
 @version(1)
 def get_list_details(
     queue_name: str,
@@ -185,15 +185,31 @@ def get_list_details(
         description="Includes arguments of task",
     ),
 ):
+    """
+    Get details of items in the specified queue.
+
+    :param queue_name: Name of the queue to retrieve details from.
+    :type queue_name: str
+    :param args: Flag to include arguments of the task (default is False).
+    :type args: bool
+    :raises HTTPException 404: If the specified queue is not found.
+    :returns: List of items in the queue with their details.
+    :rtype: List[Dict[str, Any]]
+    """
+    # Check if the specified queue exists
     if queue_name not in queues:
         raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
+
+    # Connect to Redis
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
+    # Retrieve items from the queue
     list_items = redis_client.lrange(queue_name, 0, -1)
 
     # Convert bytes to strings
     list_items = [item.decode("utf-8") for item in list_items]
 
+    # Extract details of each item
     items_details = [
         {
             "index": index,
