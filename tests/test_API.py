@@ -1,3 +1,51 @@
+"""
+FastAPI test client for the Raw Data API
+========================================
+
+This script contains test functions for the Raw Data API, which provides
+various functionalities such as status checks, login, country information,
+snapshot generation, and task management.
+
+To run the tests, simply execute this script using a Python interpreter.
+
+Note: An access token is required to run most of the tests.
+
+Prerequisites
+============
+
+- FastAPI test client
+- Access token for Raw Data API
+
+Test Functions
+=============
+
+The following test functions are available:
+
+- `test_status()`: Checks the status of the Raw Data API
+- `test_login_url()`: Checks the login URL
+- `test_login_auth_me()`: Checks the authentication status
+- `test_countries_endpoint()`: Queries country information for Nepal
+- `test_osm_id_endpoint()`: Queries OSM ID information
+- `test_snapshot()`: Generates a snapshot of a polygon
+- `test_snapshot_featurecollection()`: Generates a snapshot of a feature collection
+- `test_snapshot_feature()`: Generates a snapshot of a feature
+- `test_snapshot_feature_fgb()`: Generates a snapshot of a feature in FGB format
+- `test_snapshot_feature_fgb_wrap_geom()`: Generates a snapshot of a feature in FGB format with wrapped geometry
+- `test_snapshot_feature_shp()`: Generates a snapshot of a feature in SHP format
+- `test_snapshot_feature_gpkg()`: Generates a snapshot of a feature in GPKG format
+- `test_snapshot_feature_kml()`: Generates a snapshot of a feature in KML format
+- `test_snapshot_feature_sql()`: Generates a snapshot of a feature in SQL format
+- `test_snapshot_feature_csv()`: Generates a snapshot of a feature in CSV format
+- `test_snapshot_centroid()`: Generates a snapshot of a polygon centroid
+- `test_snapshot_filters()`: Generates a snapshot of a custom polygon with filters
+- `test_snapshot_filters_and_filter()`: Generates a snapshot of a custom polygon with filters and AND operator
+- `test_snapshot_and_filter()`: Generates a snapshot of a custom polygon with filters and AND/OR operators
+- `test_snapshot_authentication_uuid()`: Generates a snapshot with UUID authentication
+- `test_snapshot_bind_zip()`: Generates a snapshot with ZIP binding
+- `test_worker_connection()`: Checks the connection to the worker
+
+"""
+
 import os
 import time
 
@@ -39,26 +87,40 @@ def wait_for_task_completion(track_link, max_attempts=12, interval_seconds=5):
 
 
 def test_status():
+    """
+    Checks the status of the Raw Data API
+    """
     response = client.get("/v1/status/")
     assert response.status_code == 200
 
 
 ## Login
 def test_login_url():
+    """
+    Checks the login URL
+    """
     response = client.get("/v1/auth/login/")
     assert response.status_code == 200
 
 
 def test_login_auth_me():
-    headers = {"access-token": access_token}
-    response = client.get("/v1/auth/me/", headers=headers)
-    assert response.status_code == 200
-
+    """
+    Checks the authentication status
+    """
+    if access_token is None:
+        raise Exception("Access token is not available. Cannot execute tests.")
+    else:
+        headers = {"access-token": access_token}
+        response = client.get("/v1/auth/me/", headers=headers)
+        assert response.status_code == 200
 
 ## Countries
 
 
 def test_countries_endpoint():
+    """
+    Queries country information for Nepal
+    """
     response = client.get("/v1/countries/?q=nepal")
     assert response.status_code == 200
 
@@ -67,12 +129,18 @@ def test_countries_endpoint():
 
 
 def test_osm_id_endpoint():
+    """
+    Queries OSM ID information
+    """
     response = client.get("/v1/osm_id/?osm_id=421498318")
     assert response.status_code == 200
 
 
 ## Snapshot
 def test_snapshot():
+    """
+    Generates a snapshot of a polygon
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -97,6 +165,10 @@ def test_snapshot():
 
 
 def test_snapshot_featurecollection():
+    """
+    Test creating a snapshot of a specific geographic area.
+    Assert 200 status code, retrieve 'track_link' and wait for task completion.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -130,6 +202,12 @@ def test_snapshot_featurecollection():
 
 
 def test_snapshot_feature():
+    """
+    Test creating a snapshot of a geographic area.
+    Send a POST request with a Feature payload,
+    expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -158,6 +236,12 @@ def test_snapshot_feature():
 
 
 def test_snapshot_feature_fgb():
+    """
+    Test creating a snapshot of a geographic area with output type 'fgb'.
+    Send a POST request with a Feature payload,
+    expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -187,6 +271,12 @@ def test_snapshot_feature_fgb():
 
 
 def test_snapshot_feature_fgb_wrap_geom():
+    """
+    Test creating a snapshot of a geographic area with output type 'fgb'.
+    Send a POST request with a Feature payload,
+    expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -217,6 +307,12 @@ def test_snapshot_feature_fgb_wrap_geom():
 
 
 def test_snapshot_feature_shp():
+    """
+    Test creating a snapshot of a geographic area with output type 'shp'.
+    Send a POST request with a Feature payload,
+    expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -246,6 +342,12 @@ def test_snapshot_feature_shp():
 
 
 def test_snapshot_feature_gpkg():
+    """
+    Test creating a snapshot of a geographic area with output type 'gpkg'.
+    Send a POST request with a Feature payload,
+    expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -275,6 +377,12 @@ def test_snapshot_feature_gpkg():
 
 
 def test_snapshot_feature_kml():
+    """
+    Test creating a snapshot of a geographic area with output type 'kml'.
+    Send a POST request with a Feature payload,
+    expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -304,6 +412,19 @@ def test_snapshot_feature_kml():
 
 
 def test_snapshot_feature_sql():
+    """
+    Test creating an SQL formatted snapshot for a GeoJSON Feature object.
+
+    Send a POST request to the "/v1/snapshot/" endpoint,
+    including the target output format and a GeoJSON Feature
+    object in the request body.
+
+    Assert that:
+        - the status code is 200
+        - data is retrieved
+        - the track_link is assigned
+        - the task is completed
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -333,6 +454,12 @@ def test_snapshot_feature_sql():
 
 
 def test_snapshot_feature_csv():
+    """
+    Test creating a snapshot of a geographic area with output type 'sql'.
+    Send a POST request with a Feature payload,
+    expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -362,6 +489,12 @@ def test_snapshot_feature_csv():
 
 
 def test_snapshot_centroid():
+    """
+    Test creating a snapshot of a geographic area with centroid calculation.
+    Send a POST request with a Polygon payload and centroid=True,
+    expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -387,6 +520,14 @@ def test_snapshot_centroid():
 
 
 def test_snapshot_filters():
+    """
+    Test creating a snapshot with tags filter and specific attributes.
+    Send a POST request with a Polygon payload,
+    including tags for points, lines and polygons,
+    and a list of requested attributes.
+    Expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -613,6 +754,14 @@ def test_snapshot_filters():
 
 
 def test_snapshot_and_filter():
+    """
+    Test creating a snapshot with filters for geometries and specific attributes.
+    Send a POST request with a Polygon payload,
+    including a filter for geometry type and
+    specific tags and attributes.
+    Expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     response = client.post(
         "/v1/snapshot/",
         json={
@@ -664,6 +813,14 @@ def test_snapshot_and_filter():
 
 
 def test_snapshot_authentication_uuid():
+    """
+    Test creating a snapshot with a valid access token and 'uuid' as False.
+    Send a POST request with a Polygon payload
+    and headers including access token.
+    Expect a status code of 200 or 403.
+    If 200, wait for the task to complete.
+    If 403, raise an exception.
+    """
     headers = {"access-token": access_token}
     payload = {
         "geometry": {
@@ -683,13 +840,24 @@ def test_snapshot_authentication_uuid():
 
     response = client.post("/v1/snapshot/", json=payload, headers=headers)
 
-    assert response.status_code == 200
-    res = response.json()
-    track_link = res["track_link"]
-    wait_for_task_completion(track_link)
+    assert response.status_code in [200, 403], f"Unexpected status code: {response.status_code}"
+    if response.status_code == 200:
+        res = response.json()
+        track_link = res["track_link"]
+        wait_for_task_completion(track_link)
+    elif response.status_code == 403:
+        # Handle the 403 response accordingly
+        raise Exception("Access Forbidden: You may not have permission to access this resource.")
 
 
 def test_snapshot_bind_zip():
+    """
+    Test creating a snapshot with a valid access token and 'bindZip' as False.
+    Send a POST request with a Polygon payload,
+    and headers including access token and 'bindZip' parameter.
+    Expect a 200 status code, retrieve the 'track_link'
+    and wait for the task to complete.
+    """
     headers = {"access-token": access_token}
     payload = {
         "geometry": {
@@ -719,6 +887,12 @@ def test_snapshot_bind_zip():
 
 
 def test_snapshot_plain():
+    """
+    Test creating a snapshot of a Polygon geometry.
+    Send a POST request with a Polygon payload and
+    don't include any headers or authentication.
+    Expect a 200 status code indicating a successful snapshot creation.
+    """
     response = client.post(
         "/v1/snapshot/plain/",
         json={
@@ -743,6 +917,17 @@ def test_snapshot_plain():
 
 
 def test_stats_endpoint_custom_polygon():
+    """
+    Test obtaining statistics for a custom polygon with valid access
+    token.
+
+    Send a POST request to the "/v1/stats/polygon/" endpoint,
+    including "access-token" as a header and a Polygon payload.
+
+    Assert that:
+        - the status code is 200
+        - the response contains the correct indicators property
+    """
     headers = {"access-token": access_token}
     payload = {
         "geometry": {
@@ -768,8 +953,18 @@ def test_stats_endpoint_custom_polygon():
         == "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md"
     )
 
-
 def test_stats_endpoint_iso3():
+    """
+    Test obtaining statistics for an ISO 3166-1 3-letter code (npl)
+
+    Send a POST request to the "/v1/stats/polygon/" endpoint,
+    including "access-token" as a header and an ISO 3166-1 3-letter
+    country code ("npl") in the request body.
+
+    Assert that:
+        - the status code is 200
+        - the response contains the correct indicators property
+    """
     headers = {"access-token": access_token}
     payload = {"iso3": "npl"}
 
@@ -782,11 +977,23 @@ def test_stats_endpoint_iso3():
         == "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md"
     )
 
-
 # HDX
 
 
 def test_hdx_submit_normal_iso3():
+    """
+    Test submitting an HDX custom snapshot request for ISO3 code.
+
+    Send a POST request to the "/v1/custom/snapshot/" endpoint,
+    including "access-token" as a header and a custom snapshot
+    request in the request body.
+
+    Assert that:
+        - the status code is 200
+        - data is retrieved
+        - the track_link is assigned
+        - the task is completed
+    """
     headers = {"access-token": access_token}
     payload = {
         "iso3": "NPL",
@@ -814,8 +1021,21 @@ def test_hdx_submit_normal_iso3():
     track_link = res["track_link"]
     wait_for_task_completion(track_link)
 
-
 def test_hdx_submit_normal_iso3_multiple_format():
+    """
+    Test submitting an HDX custom snapshot request for ISO3 code
+    with multiple data formats.
+
+    Send a POST request to the "/v1/custom/snapshot/" endpoint,
+    including "access-token" as a header and a custom snapshot
+    request in the request body.
+
+    Assert that:
+        - the status code is 200
+        - data is retrieved
+        - the track_link is assigned
+        - the task is completed
+    """
     headers = {"access-token": access_token}
     payload = {
         "iso3": "NPL",
@@ -843,8 +1063,20 @@ def test_hdx_submit_normal_iso3_multiple_format():
     track_link = res["track_link"]
     wait_for_task_completion(track_link)
 
-
 def test_hdx_submit_normal_custom_polygon():
+    """
+    Test submitting an HDX custom snapshot request for a custom polygon.
+
+    Send a POST request to the "/v1/custom/snapshot/" endpoint,
+    including "access-token" as a header and a custom snapshot
+    request in the request body.
+
+    Assert that:
+        - the status code is 200
+        - data is retrieved
+        - the track_link is assigned
+        - the task is completed
+    """
     headers = {"access-token": access_token}
     payload = {
         "geometry": {
@@ -891,6 +1123,20 @@ def test_hdx_submit_normal_custom_polygon():
 
 
 def test_custom_submit_normal_custom_polygon_TM_project():
+    """
+    Test uploading a custom snapshot for a Tasking Manager Project
+    on a custom polygon.
+
+    Send a POST request to the "/v1/custom/snapshot/" endpoint,
+    including "access-token" as a header and a custom snapshot
+    request in the request body.
+
+    Assert that:
+        - the status code is 200
+        - data is retrieved
+        - the track_link is assigned
+        - the task is completed
+    """
     headers = {"access-token": access_token}
     payload = {
         "geometry": {
@@ -982,8 +1228,21 @@ def test_custom_submit_normal_custom_polygon_TM_project():
     track_link = res["track_link"]
     wait_for_task_completion(track_link)
 
-
 def test_hdx_submit_normal_custom_polygon_upload():
+    """
+    Test submitting an HDX custom snapshot request with custom polygon
+    and upload option enabled.
+
+    Send a POST request to the "/v1/custom/snapshot/" endpoint,
+    including "access-token" as a header and a custom snapshot
+    request in the request body.
+
+    Assert that:
+        - the status code is 200
+        - data is retrieved
+        - the track_link is assigned
+        - the task is completed
+    """
     headers = {"access-token": access_token}
     payload = {
         "geometry": {
@@ -1029,8 +1288,21 @@ def test_hdx_submit_normal_custom_polygon_upload():
     track_link = res["track_link"]
     wait_for_task_completion(track_link)
 
-
 def test_full_hdx_set_iso():
+    """
+    Test uploading a full HDX dataset for an ISO 3166-1 alpha-3 code
+    and its geodata.
+
+    Send a POST request to the "/v1/custom/snapshot/" endpoint,
+    including "access-token" as a header and a custom snapshot
+    request in the request body.
+
+    Assert that:
+        - the status code is 200
+        - data is retrieved
+        - the track_link is assigned
+        - the task is completed
+    """
     headers = {"access-token": access_token}
     payload = {
         "iso3": "NPL",
@@ -1314,10 +1586,13 @@ def test_full_hdx_set_iso():
     track_link = res["track_link"]
     wait_for_task_completion(track_link)
 
-
 # ## Tasks connection
 
 
 def test_worker_connection():
+    """
+    Tests the connection between the API and the worker.
+    This test sends a request to the API's ping endpoint. If the API is connected to the worker, it will return a 200 status code.
+    """
     response = client.get("/v1/tasks/ping/")
     assert response.status_code == 200
