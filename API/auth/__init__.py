@@ -2,15 +2,19 @@ from enum import Enum
 from typing import Union
 
 from fastapi import Depends, Header, HTTPException
+from fastapi.security import APIKeyHeader
 from osm_login_python.core import Auth
 from pydantic import BaseModel, Field
 
 from src.app import Users
 from src.config import get_oauth_credentials
 
+API_access_token = APIKeyHeader(name="access_token", description="user_authentication")
+
 
 class UserRole(Enum):
     """Assigning user roles as integer"""
+
     ADMIN = 1
     STAFF = 2
     GUEST = 3
@@ -18,6 +22,7 @@ class UserRole(Enum):
 
 class AuthUser(BaseModel):
     """Defining fields as attributes"""
+
     id: int
     username: str
     img_url: Union[str, None]
@@ -47,7 +52,7 @@ def get_osm_auth_user(access_token):
     return user
 
 
-def login_required(access_token: str = Header(...)):
+def login_required(access_token: str = Depends(API_access_token)):
     """Get user's login details"""
     return get_osm_auth_user(access_token)
 
@@ -57,7 +62,7 @@ def get_optional_user(access_token: str = Header(default=None)) -> AuthUser:
     if access_token:
         return get_osm_auth_user(access_token)
     else:
-# If no token provided, return a user with limited options or guest user
+        # If no token provided, return a user with limited options or guest user
         return AuthUser(id=0, username="guest", img_url=None)
 
 
