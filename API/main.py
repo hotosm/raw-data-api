@@ -94,7 +94,9 @@ app.openapi = {
     "info": {
         "title": "Raw Data API",
         "version": "1.0",
+        "description": "Raw Data API is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats." 
     },
+    "tags": [], 
     "security": [{"OAuth2PasswordBearer": []}],
 }
 
