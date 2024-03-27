@@ -37,7 +37,7 @@ with exported DB Param :
 
 `osm2pgsql --create --extra-attributes --slim --output=flex --style ./raw.lua yourdownloaded.osm.pbf `
 
-##### Command without replciation
+##### Command without replication
 
 `osm2pgsql --create -H localhost -U admin -P 5432 -d postgres -W --extra-attributes --slim --drop --output=flex --style ./raw.lua yourdownloaded.osm.pbf `
 
@@ -88,7 +88,7 @@ port=
   ```
 
 - **Apply Grid Update Script** :
-  There is grid_update script , Which is responsible for the Grid Column update on the tables which will be null intially when you import
+  There is grid_update script, Which is responsible for the Grid Column update on the tables which will be null intially when you import
 
   **Run Script**
 
@@ -104,7 +104,7 @@ port=
   python field_update -h
   ```
 
-  For Example to update nodes table ( nodes and ways_poly are of type int and rest of them are of type array)
+  For Example to update nodes table (nodes and ways_poly are of type int and rest of them are of type array)
 
   ```
   python field_update -target_table nodes --target_column country --target_geom geom --source_table countries --source_column id --source_geom geometry --type int
