@@ -54,6 +54,9 @@ def get_osm_auth_user(access_token):
 
 def login_required(access_token: str = Depends(API_access_token)):
     """Get user's login details"""
+    if access_token != "my_token":
+        raise HTTPException(status_code=401, detail="Invalid API Key")
+
     return get_osm_auth_user(access_token)
 
 
