@@ -1875,7 +1875,7 @@ class HDXUploader:
             try:
                 self.dataset.create_in_hdx(
                     allow_no_resources=True,
-                    hxl_update=False,
+                    # hxl_update=False,
                 )
                 dataset_info["hdx_upload"] = "SUCCESS"
             except Exception as ex:
