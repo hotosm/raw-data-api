@@ -40,7 +40,7 @@ flower==2.0.1
 duckdb==0.9.2
 
 ##hdx
-hdx-python-api==6.2.2
+hdx-python-api==6.2.6
 
 ## only needed if postgres is used as celery backend 
 SQLAlchemy==2.0.25
