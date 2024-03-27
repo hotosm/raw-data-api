@@ -551,7 +551,7 @@
             "post": {
                 "summary": "Get Current Snapshot As Plain Geojson",
                 "description": "Simple API to get osm features as geojson for small region. This is designed only for querying small data for large data follow /snapshot/\n\nParams ::\n\n    bbox: Optional List = takes xmin, ymin, xmax, ymax uses srid=4326\n    select: List = this is select query  you can pass [*] to select all attribute\n    where: List[WhereCondition] = [{'key': 'building', 'value': ['*']},{'key':'amenity','value':['school','college']}]\n    join_by: Optional[JoinFilterType] = or/ and\n    look_in: Optional[List[OsmFeatureType]] = [\"nodes\", \"ways_poly\",\"ways_line\",\"relations\"] : tables name",
-                "operationId": "get_current_snapshot_as_plain_geojson_snapshot_plain__post",
+                "operationId": "get_current_snapshot_as_plain_geojson_snapshot",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -1338,7 +1338,7 @@
                 "type": "object",
                 "properties": {
                     "downloadUrl": {
-                        "title": "Downloadurl",
+                        "title": "downloadUrl",
                         "type": "string"
                     },
                     "fileName": {
