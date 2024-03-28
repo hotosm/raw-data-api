@@ -1037,7 +1037,7 @@ class PolygonStats:
         try:
             query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
             payload = {"query": query}
-            response = requests.post(self.API_URL, json=payload, timeout=60)
+            response = requests.post(self.API_URL, json=payload, timeout=30)
             response.raise_for_status()  # Raise an HTTPError for bad responses
             return response.json()
         except Exception as e:
