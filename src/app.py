@@ -63,6 +63,7 @@ from src.config import (
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import (
+    MAX_WORKERS,
     PARALLEL_PROCESSING_CATEGORIES,
     POLYGON_STATISTICS_API_URL,
     PROCESS_SINGLE_CATEGORY_IN_POSTGRES,
@@ -1467,10 +1468,10 @@ class CustomExport:
             logging.info(
                 "Using Parallel Processing for %s Export formats with total %s workers",
                 category_name.lower(),
-                os.cpu_count(),
+                MAX_WORKERS,
             )
             with concurrent.futures.ThreadPoolExecutor(
-                max_workers=os.cpu_count()
+                max_workers=int(MAX_WORKERS)
             ) as executor:
                 futures = [
                     executor.submit(process_export_format, export_format)

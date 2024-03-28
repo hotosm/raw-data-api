@@ -126,6 +126,7 @@ API Tokens have expiry date, It is `important to update API Tokens manually each
 | `ALLOW_BIND_ZIP_FILTER` | `[API_CONFIG]` | Yes | Yes |
 | `EXTRA_README_TXT` | `[API_CONFIG]` | No | Yes |
 | `INDEX_THRESHOLD` | `[API_CONFIG]` | No | Yes |
+| `MAX_WORKERS` | `[API_CONFIG]` | No | Yes |
 | `DEFAULT_QUEUE_NAME` | `[API_CONFIG]` | Yes | No |
 | `ONDEMAND_QUEUE_NAME` | `[API_CONFIG]` | Yes | No |
 | `ENABLE_POLYGON_STATISTICS_ENDPOINTS` | `[API_CONFIG]` | Yes | Yes |

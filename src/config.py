@@ -76,6 +76,10 @@ INDEX_THRESHOLD = os.environ.get("INDEX_THRESHOLD") or int(
     config.get("API_CONFIG", "INDEX_THRESHOLD", fallback=5000)
 )
 
+MAX_WORKERS = os.environ.get("MAX_WORKERS") or config.get(
+    "API_CONFIG", "MAX_WORKERS", fallback=os.cpu_count()
+)
+
 # get log level from config
 LOG_LEVEL = os.environ.get("LOG_LEVEL") or config.get(
     "API_CONFIG", "LOG_LEVEL", fallback="debug"
