@@ -1,3 +1,24 @@
+## 1.1.0 (2024-03-28)
+
+### Feat
+
+- **version-control**: Allows rawdataapi to follow version control using commitizen
+
+### Fix
+
+- **dokcer-compose**: One command up docker compose method
+- **dockerfile**: Avoids copying tippicone for source code level changes
+
+### Refactor
+
+- **logging**: adds tqdm for better logging and upgrades hdx python lib
+- **queue-name**: changes queue name and workers to pick correct variable
+- **api-worker**: logic changes for memory optimized zip
+
+### Perf
+
+- **workers**: enables max worker variable to be set from env variable
+
 ## 1.0.17 (2024-03-06)
 
 ### Fix

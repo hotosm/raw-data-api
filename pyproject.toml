@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "raw-data-api"
-version = "1.0.17"
+version = "1.1.0"
 description = "Set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats."
 readme = "README.md"
 authors = [
