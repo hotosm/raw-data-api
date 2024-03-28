@@ -46,6 +46,7 @@ from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
 from tqdm import tqdm
+import src
 
 # Reader imports
 from src.config import (

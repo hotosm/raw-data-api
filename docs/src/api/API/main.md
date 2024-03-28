@@ -40,7 +40,7 @@ def add_process_time_header(
     call_next
 )
 ```
-Times request and knows response time and pass it to header in every request
+Time request and know response time and pass it to header in every request
 
 Args:
     request (_type_): _description_
@@ -67,7 +67,7 @@ def on_startup(
     
 )
 ```
-Fires up 3 idle conenction with threaded connection pooling before starting the API
+Fires up 3 idle connection with threaded connection pooling before starting the API
 
 Raises:
     e: if connection is rejected to database

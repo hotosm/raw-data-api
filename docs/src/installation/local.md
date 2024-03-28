@@ -58,9 +58,9 @@ uvicorn API.main:app --reload
 
 ### Queues 
 
-Currently there are two type of queue implemented : 
-- "raw_daemon" : Queue for default exports which will create each unique id for exports  , This queue is attached to 24/7 available workers 
-- "raw_ondemand" : Queue for recurring exports which will replace the previous exports if present on the system , can be enabled through uuid:false API Param . This queue will be attached to worker which will only spin up upon request. 
+Currently, there are two types of queue implemented: 
+- "raw_daemon" : Queue for default exports which will create each unique id for exports, this queue is attached to 24/7 available workers 
+- "raw_ondemand" : Queue for recurring exports which will replace the previous exports if present on the system, can be enabled through uuid:false API Param . This queue will be attached to worker which will only spin up upon request. 
 
 ### Start Celery Worker
 
@@ -84,7 +84,7 @@ pip install SQLAlchemy==2.0.25
 ```
 ### Start flower for monitoring queue [OPTIONAL]
 
-Raw Data API uses flower for monitoring the Celery distributed queue. Run this command on a different shell , if you are running redis on same machine your broker could be `redis://localhost:6379//`.
+Raw Data API uses flower for monitoring the Celery distributed queue. Run this command on a different shell, if you are running redis on same machine your broker could be `redis://localhost:6379//`.
 
 ```
 celery --broker=redis://redis:6379// --app API.api_worker flower --port=5000 --queues="raw_daemon,raw_ondemand"

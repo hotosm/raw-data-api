@@ -9,7 +9,7 @@
 
 **API Documentation** : https://api-prod.raw-data.hotosm.org/v1/redoc
 
-`Raw Data API ` is a set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
+`Raw Data API ` is a set of high-performant APIs(Application Programming Interface(s)) for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats.
 
 ## Features
 
