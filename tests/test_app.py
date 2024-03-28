@@ -22,6 +22,13 @@ from src.validation.models import RawDataCurrentParams
 
 
 def test_rawdata_current_snapshot_geometry_query():
+    """
+    Test the raw data current snapshot query on a Polygon geometry with specific
+    filters for tags and attributes, using ST_Intersects as the geometry
+    comparison method.
+
+    This test covers a specific scenario with a handcrafted query result.
+    """
     test_param = {
         "geometry": {
             "type": "Polygon",
@@ -72,6 +79,13 @@ def test_rawdata_current_snapshot_geometry_query():
 
 
 def test_rawdata_current_snapshot_normal_query():
+    """
+    Test the raw data current snapshot query on a Polygon geometry without
+    specific filters for tags and attributes, using ST_Intersects as the
+    geometry comparison method.
+
+    This test covers a basic scenario with a handcrafted query result.
+    """
     test_param = {
         "geometry": {
             "type": "Polygon",
@@ -117,6 +131,14 @@ def test_rawdata_current_snapshot_normal_query():
 
 
 def test_rawdata_current_snapshot_normal_query_ST_within():
+    """
+    Test the raw data current snapshot query on a Polygon geometry without
+    specific filters for tags and attributes, using ST_Within as the
+    geometry comparison method.
+
+    This test covers a scenario similar to the other normal query tests with
+    ST_Within instead of ST_Intersects.
+    """
     test_param = {
         "geometry": {
             "type": "Polygon",
@@ -161,6 +183,14 @@ def test_rawdata_current_snapshot_normal_query_ST_within():
 
 
 def test_attribute_filter_rawdata():
+    """
+    Test the raw data current snapshot query on a Polygon geometry with
+    specific attributes filter and tags filter with ST_Intersects and
+    ST_Union, and using a specific grid ID list.
+
+    This test covers a complex scenario with multiple conditions and
+    a specific grid ID list.
+    """
     test_param = {
         "geometry": {
             "type": "Polygon",
@@ -212,6 +242,14 @@ def test_attribute_filter_rawdata():
 
 
 def test_and_filters():
+    """
+    Test the raw data current snapshot query on a Polygon geometry with
+    complex conditions for tags filter using multiple join_and,
+    ST_Intersects and ST_Union.
+
+    This test covers a specific scenario with multiple join_and clauses
+    for joined tags.
+    """
     test_param = {
         "fileName": "Destroyed_Buildings_Turkey",
         "geometry": {

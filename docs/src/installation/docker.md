@@ -45,6 +45,27 @@ You can either use full composed docker-compose directly or you can build docker
 docker-compose up -d --build
 ```
 
+### Setting Environment Variables in Docker Container
+
+To configure the environment variables `PYTHONPATH` and `ACCESS_TOKEN` in your Docker container, follow the steps below:
+
+#### PYTHONPATH
+
+- The `PYTHONPATH` environment variable specifies the directories where Python looks for modules and packages.
+- In the context of your Docker container, setting `PYTHONPATH` to the present working directory (`pwd`) means that Python will search for modules and packages in the current directory.
+- This is particularly useful when you have custom modules or packages in your project that you want Python to recognize and import.
+
+#### ACCESS_TOKEN
+
+- `ACCESS_TOKEN` is an environment variable used for authentication purposes.
+- To obtain the `ACCESS_TOKEN`, you need to generate a login URL for authentication using an OAuth2 application registered with OpenStreetMap.
+- Click on the generated URL, which will redirect you to the OpenStreetMap authentication page.
+- After logging in and authorizing the OAuth2 application, OpenStreetMap will provide an `ACCESS_TOKEN`.
+- Set the obtained `ACCESS_TOKEN` as an environment variable in the Docker container.
+- This allows your application to use the token for making authenticated requests to OpenStreetMap APIs.
+
+In summary, configuring the `PYTHONPATH` to the present working directory enables Python to find modules and packages in your project, while obtaining the `ACCESS_TOKEN` involves generating a login URL for OAuth2 authentication with OpenStreetMap and setting the resulting token as an environment variable in the Docker container for authentication purposes.
+
 OR 
 
 ### Run Docker without docker compose for development
