@@ -4,8 +4,8 @@ from fastapi import APIRouter, Body, Request
 from fastapi_versioning import version
 
 from src.app import PolygonStats
-from src.config import LIMITER as limiter
-from src.config import POLYGON_STATISTICS_API_RATE_LIMIT
+from src.config_old import LIMITER as limiter
+from src.config_old import POLYGON_STATISTICS_API_RATE_LIMIT
 from src.validation.models import StatsRequestParams
 
 router = APIRouter(prefix="/stats", tags=["Stats"])

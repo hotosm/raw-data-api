@@ -15,9 +15,9 @@ from fastapi.responses import (
 )
 from fastapi_versioning import version
 
-from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
-from src.config import LIMITER as limiter
-from src.config import RATE_LIMIT_PER_MIN
+from src.config_old import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
+from src.config_old import LIMITER as limiter
+from src.config_old import RATE_LIMIT_PER_MIN
 
 router = APIRouter(prefix="/s3", tags=["S3"])
 

@@ -30,7 +30,7 @@ from pydantic import Field, validator
 from typing_extensions import TypedDict
 
 # Reader imports
-from src.config import (
+from src.config_old import (
     ALLOW_BIND_ZIP_FILTER,
     ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
@@ -39,7 +39,7 @@ from src.config import (
 
 if ENABLE_HDX_EXPORTS:
     # Reader imports
-    from src.config import ALLOWED_HDX_TAGS, ALLOWED_HDX_UPDATE_FREQUENCIES
+    from src.config_old import ALLOWED_HDX_TAGS, ALLOWED_HDX_UPDATE_FREQUENCIES
 
 
 def to_camel(string: str) -> str:

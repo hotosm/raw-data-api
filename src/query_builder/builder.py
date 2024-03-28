@@ -22,8 +22,8 @@ from json import dumps, loads
 
 from geomet import wkt
 
-from src.config import USE_DUCK_DB_FOR_CUSTOM_EXPORTS
-from src.config import logger as logging
+from src.config_old import USE_DUCK_DB_FOR_CUSTOM_EXPORTS
+from src.config_old import logger as logging
 from src.validation.models import SupportedFilters, SupportedGeometryFilters
 
 HDX_FILTER_CRITERIA = """

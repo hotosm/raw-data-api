@@ -26,7 +26,7 @@ from fastapi_versioning import VersionedFastAPI
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from src.config import (
+from src.config_old import (
     ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
     ENABLE_POLYGON_STATISTICS_ENDPOINTS,
@@ -39,11 +39,11 @@ from src.config import (
     USE_S3_TO_UPLOAD,
     get_db_connection_params,
 )
-from src.config import logger as logging
+from src.config_old import logger as logging
 from src.db_session import database_instance
 
 from .auth.routers import router as auth_router
-from .custom_exports import router as custom_exports_router
+from .custom_snapshot import router as custom_exports_router
 from .raw_data import router as raw_data_router
 from .tasks import router as tasks_router
 

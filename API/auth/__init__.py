@@ -6,7 +6,7 @@ from osm_login_python.core import Auth
 from pydantic import BaseModel, Field
 
 from src.app import Users
-from src.config import get_oauth_credentials
+from src.config_old import get_oauth_credentials
 
 
 class UserRole(Enum):

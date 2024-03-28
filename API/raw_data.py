@@ -31,14 +31,14 @@ from fastapi_versioning import version
 
 # Reader imports
 from src.app import RawData
-from src.config import (
+from src.config_old import (
     ALLOW_BIND_ZIP_FILTER,
     CELERY_BROKER_URL,
     DEFAULT_QUEUE_NAME,
     EXPORT_MAX_AREA_SQKM,
 )
-from src.config import LIMITER as limiter
-from src.config import RATE_LIMIT_PER_MIN as export_rate_limit
+from src.config_old import LIMITER as limiter
+from src.config_old import RATE_LIMIT_PER_MIN as export_rate_limit
 from src.validation.models import (
     RawDataCurrentParams,
     RawDataCurrentParamsBase,

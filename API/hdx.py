@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi_versioning import version
 
 from src.app import HDX
-from src.config import LIMITER as limiter
-from src.config import RATE_LIMIT_PER_MIN
+from src.config_old import LIMITER as limiter
+from src.config_old import RATE_LIMIT_PER_MIN
 
 from .auth import AuthUser, admin_required, staff_required
 

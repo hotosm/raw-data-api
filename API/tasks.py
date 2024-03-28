@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
 # Reader imports
-from src.config import CELERY_BROKER_URL, DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAME
+from src.config_old import CELERY_BROKER_URL, DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAME
 from src.validation.models import SnapshotTaskResponse
 
 from .api_worker import celery

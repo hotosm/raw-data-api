@@ -54,3 +54,7 @@ psutil==5.9.8
 
 ## logging 
 tqdm==4.66.2
+
+
+## 
+pydantic-settings==2.2.1

@@ -1,10 +1,12 @@
+# Third party imports
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
-from src.config import DEFAULT_QUEUE_NAME
-from src.config import LIMITER as limiter
-from src.config import RATE_LIMIT_PER_MIN
+# Reader imports
+from src.config_old import DEFAULT_QUEUE_NAME
+from src.config_old import LIMITER as limiter
+from src.config_old import RATE_LIMIT_PER_MIN
 from src.validation.models import DynamicCategoriesModel
 
 from .api_worker import process_custom_request

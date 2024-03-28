@@ -16,10 +16,10 @@ from celery import Celery
 
 # Reader imports
 from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
-from src.config import ALLOW_BIND_ZIP_FILTER
-from src.config import CELERY_BROKER_URL as celery_broker_uri
-from src.config import CELERY_RESULT_BACKEND as celery_backend
-from src.config import (
+from src.config_old import ALLOW_BIND_ZIP_FILTER
+from src.config_old import CELERY_BROKER_URL as celery_broker_uri
+from src.config_old import CELERY_RESULT_BACKEND as celery_backend
+from src.config_old import (
     DEFAULT_HARD_TASK_LIMIT,
     DEFAULT_README_TEXT,
     DEFAULT_SOFT_TASK_LIMIT,
@@ -28,9 +28,9 @@ from src.config import (
     HDX_HARD_TASK_LIMIT,
     HDX_SOFT_TASK_LIMIT,
 )
-from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
-from src.config import WORKER_PREFETCH_MULTIPLIER
-from src.config import logger as logging
+from src.config_old import USE_S3_TO_UPLOAD as use_s3_to_upload
+from src.config_old import WORKER_PREFETCH_MULTIPLIER
+from src.config_old import logger as logging
 from src.query_builder.builder import format_file_name_str
 from src.validation.models import (
     DatasetConfig,
