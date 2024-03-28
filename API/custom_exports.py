@@ -13,7 +13,7 @@ from .auth import AuthUser, UserRole, staff_required
 router = APIRouter(prefix="/custom", tags=["Custom Exports"])
 
 
-@router.post("/snapshot/")
+@router.post("/snapshot")
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def process_custom_requests(
