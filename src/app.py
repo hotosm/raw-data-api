@@ -998,10 +998,10 @@ class CustomExport:
             logging.info(
                 "Using Parallel Processing for %s Export formats with total %s workers",
                 category_name.lower(),
-                os.cpu_count(),
+                MAX_WORKERS,
             )
             with concurrent.futures.ThreadPoolExecutor(
-                max_workers=os.cpu_count()
+                max_workers=int(MAX_WORKERS)
             ) as executor:
                 futures = [
                     executor.submit(process_export_format, export_format)

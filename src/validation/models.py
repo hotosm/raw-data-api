@@ -23,6 +23,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 
 # Third party imports
+from area import area
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from geojson_pydantic.types import BBox
 from pydantic import BaseModel as PydanticModel
@@ -300,22 +301,22 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         max_length=3,
         example="NPL",
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @validator("geometry", pre=True, always=True)
@@ -325,6 +326,19 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
             raise ValueError("Only one of geometry or iso3 should be supplied.")
         if value is None and values.get("iso3") is None:
             raise ValueError("Either geometry or iso3 should be supplied.")
+        return value
+
+    @validator("geometry", pre=True, always=True)
+    def validate_geometry_area(cls, value):
+        """Validate that the geometry area does not exceed threshold."""
+        if value is not None:
+            geometry_json = value
+            area_m2 = area(geometry_json)
+            max_area = 10000
+            if area_m2 * 1e-6 > max_area:
+                raise ValueError(
+                    f"The area {area_m2 * 1e-6} sqkm of the geometry should not exceed {max_area} square km."
+                )
         return value
 
 
@@ -612,22 +626,22 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
             }
         ],
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @validator("geometry", pre=True, always=True)

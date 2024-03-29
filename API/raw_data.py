@@ -482,7 +482,7 @@ def get_osm_current_snapshot_as_plain_geojson(
     """
     area_m2 = area(json.loads(params.geometry.model_dump_json()))
     area_km2 = area_m2 * 1e-6
-    if area_km2 > 10:
+    if area_km2 > 5:
         raise HTTPException(
             status_code=400,
             detail=[
