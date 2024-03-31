@@ -10,8 +10,6 @@ from datetime import timedelta, timezone
 
 # Third party imports
 import humanize
-import psutil
-import zipfly
 from celery import Celery
 
 # Reader imports

@@ -573,6 +573,11 @@ class DatasetConfig(BaseModel):
         return value.strip()
 
 
+class FilterBy(Enum):
+    INTERSECT = "st_intersects"
+    WITHIN = "st_within"
+
+
 class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
     """
     Model for dynamic categories.
@@ -596,6 +601,10 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
     hdx_upload: bool = Field(
         default=False,
         description="Enable/Disable uploading dataset to hdx, False by default",
+    )
+    filter_by: Optional[FilterBy] = Field(
+        default=FilterBy.INTERSECT,
+        description="How to filter rows. Options are :  Intersects or within , Defaults to intersects",
     )
     dataset: Optional[DatasetConfig] = Field(
         default=None, description="Dataset Configurations for HDX Upload"

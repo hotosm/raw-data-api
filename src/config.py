@@ -5,239 +5,351 @@ from functools import lru_cache
 from typing import Optional
 
 # Third party imports
-from pydantic_settings import BaseSettings, Field, validator
+from dotenv import load_dotenv
+from pydantic import (
+    Field,
+    PostgresDsn,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+    root_validator,
+)
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-def get_bool_env_var(key, default=False):
-    value = os.environ.get(key, default)
-    return bool(strtobool(str(value)))
+class BaseConfig(BaseSettings):
+    """
+    Base configuration class to handle environment variables
+    and provide a common source for loading and validating settings.
+    """
 
-
-class CeleryConfig(BaseSettings):
-    broker_url: str = Field(..., env="CELERY_BROKER_URL")
-    result_backend: str = Field(..., env="CELERY_RESULT_BACKEND")
-    worker_prefetch_multiplier: int = Field(1, env="WORKER_PREFETCH_MULTIPLIER")
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_prefix = "CELERY_"
-
-
-class APIRateLimitConfig(BaseSettings):
-    rate_limit_per_min: int = Field(20, env="RATE_LIMIT_PER_MIN")
-    rate_limiter_storage_uri: str = Field(..., env="RATE_LIMITER_STORAGE_URI")
-
-
-class APIExportConfig(BaseSettings):
-    export_max_area_sqkm: int = Field(100000, env="EXPORT_MAX_AREA_SQKM")
-    index_threshold: int = Field(5000, env="INDEX_THRESHOLD")
-    export_path: str = Field("exports", env="EXPORT_PATH")
-    extra_readme_txt: str = Field("", env="EXTRA_README_TXT")
-    allow_bind_zip_filter: bool = Field(False, env="ALLOW_BIND_ZIP_FILTER")
-    enable_sozip: bool = Field(False, env="ENABLE_SOZIP")
-    enable_tiles: bool = Field(False, env="ENABLE_TILES")
-    use_connection_pooling: bool = Field(False, env="USE_CONNECTION_POOLING")
-
-
-class APIQueueConfig(BaseSettings):
-    default_queue_name: str = Field("raw_daemon", env="DEFAULT_QUEUE_NAME")
-    ondemand_queue_name: str = Field("raw_ondemand", env="ONDEMAND_QUEUE_NAME")
-
-
-class APIPolygonStatisticsConfig(BaseSettings):
-    enable_polygon_statistics_endpoints: bool = Field(
-        False, env="ENABLE_POLYGON_STATISTICS_ENDPOINTS"
+    model_config = SettingsConfigDict(
+        case_sensitive=True, env_file=".env", extra="allow", env_file_encoding="utf-8"
     )
-    polygon_statistics_api_url: Optional[str] = Field(
-        None, env="POLYGON_STATISTICS_API_URL"
-    )
-    polygon_statistics_api_rate_limit: int = Field(
-        5, env="POLYGON_STATISTICS_API_RATE_LIMIT"
-    )
-
-
-class APITaskLimitConfig(BaseSettings):
-    default_soft_task_limit: int = Field(2 * 60 * 60, env="DEFAULT_SOFT_TASK_LIMIT")
-    default_hard_task_limit: int = Field(3 * 60 * 60, env="DEFAULT_HARD_TASK_LIMIT")
-
-
-class APIDuckDBConfig(BaseSettings):
-    use_duck_db_for_custom_exports: bool = Field(
-        False, env="USE_DUCK_DB_FOR_CUSTOM_EXPORTS"
-    )
-    duck_db_memory_limit: Optional[str] = Field(None, env="DUCK_DB_MEMORY_LIMIT")
-    duck_db_thread_limit: Optional[str] = Field(None, env="DUCK_DB_THREAD_LIMIT")
-
-
-class APICustomExportsConfig(BaseSettings):
-    enable_custom_exports: bool = Field(False, env="ENABLE_CUSTOM_EXPORTS")
-
-
-class APIConfig(BaseSettings):
-    log_level: str = Field("debug", env="LOG_LEVEL")
-    rate_limit: APIRateLimitConfig
-    export: APIExportConfig
-    queue: APIQueueConfig
-    polygon_statistics: APIPolygonStatisticsConfig
-    task_limit: APITaskLimitConfig
-    duckdb: APIDuckDBConfig
-    custom_exports: APICustomExportsConfig
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_prefix = "API_"
-
-
-class HDXConfig(BaseSettings):
-    enable_hdx_exports: bool = Field(False, env="ENABLE_HDX_EXPORTS")
-    hdx_soft_task_limit: int = Field(5 * 60 * 60, env="HDX_SOFT_TASK_LIMIT")
-    hdx_hard_task_limit: int = Field(6 * 60 * 60, env="HDX_HARD_TASK_LIMIT")
-    process_single_category_in_postgres: bool = Field(
-        False, env="PROCESS_SINGLE_CATEGORY_IN_POSTGRES"
-    )
-    parallel_processing_categories: bool = Field(
-        True, env="PARALLEL_PROCESSING_CATEGORIES"
-    )
-    hdx_site: Optional[str] = Field(None, env="HDX_SITE")
-    hdx_api_key: Optional[str] = Field(None, env="HDX_API_KEY")
-    hdx_owner_org: str = Field(
-        "225b9f7d-e7cb-4156-96a6-44c9c58d31e3", env="HDX_OWNER_ORG"
-    )
-    hdx_maintainer: Optional[str] = Field(None, env="HDX_MAINTAINER")
-    allowed_hdx_tags: Optional[list[str]] = Field(None, env="ALLOWED_HDX_TAGS")
-    allowed_hdx_update_frequencies: Optional[list[str]] = Field(
-        None, env="ALLOWED_HDX_UPDATE_FREQUENCIES"
-    )
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_prefix = "HDX_"
-
-
-class DatabaseConfig(BaseSettings):
-    host: str
-    port: str = Field("5432", env="PGPORT")
-    dbname: str
-    user: str
-    password: str
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_prefix = "PG_"
 
     @classmethod
-    @lru_cache()
-    def from_env(cls):
-        try:
-            db_credentials = os.environ["REMOTE_DB"]
-            # Standard library imports
-            import json
+    def _load_env_(cls, info: ValidationInfo):
+        """
+        Load environment variables from the system or .env file.
+        """
+        # Load environment variables from the .env file if it exists
+        load_dotenv(override=True)
 
-            connection_params = json.loads(db_credentials)
-            connection_params["user"] = connection_params.pop("username")
-            connection_params.pop("dbinstanceidentifier", None)
-            connection_params.pop("engine", None)
-            return cls(**connection_params)
-        except KeyError:
-            return cls()
-
-
-class OAuthConfig(BaseSettings):
-    osm_url: str = Field("https://www.openstreetmap.org", env="OSM_URL")
-    app_secret_key: str
-    client_id: Optional[str] = Field(None, env="OSM_CLIENT_ID")
-    client_secret: Optional[str] = Field(None, env="OSM_CLIENT_SECRET")
-    login_redirect_uri: str = Field(
-        "http://127.0.0.1:8000/v1/auth/callback", env="LOGIN_REDIRECT_URI"
-    )
-    scope: str = Field("read_prefs", env="OSM_PERMISSION_SCOPE")
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_prefix = "OAUTH_"
+        # Load environment variables from the system
+        for key, value in os.environ.items():
+            os.environ[key] = value
 
     @classmethod
-    @lru_cache()
-    def from_env(cls):
-        try:
-            oauth2_credentials = os.environ["REMOTE_OAUTH"]
-            # Standard library imports
-            import json
+    @root_validator(pre=True)
+    def _load_environment_variables_(cls, values):
+        """
+        Load environment variables before validation.
+        """
+        cls._load_env_(ValidationInfo(values))
+        return values
 
-            oauth2_credentials_json = json.loads(oauth2_credentials)
-            return cls(
-                **{
-                    k.lower(): v
-                    for k, v in oauth2_credentials_json.items()
-                    if k.lower() != "osm_url"
+    @classmethod
+    def _parse_env_value_(cls, value: str, info: ValidationInfo):
+        """
+        Parse environment variable value based on the field type.
+
+        Args:
+            value (str): The value to parse.
+            info (ValidationInfo): The validation information for the field.
+
+        Returns:
+            The parsed value.
+        """
+        mode = info.mode
+        if mode == "bool":
+            return bool(strtobool(value))
+        elif mode == "list":
+            return [item.strip() for item in value.split(",")]
+        else:
+            return info.type_(value)
+
+
+class CeleryConfig(BaseConfig):
+    CELERY_BROKER_URL: str = Field(...)
+    CELERY_RESULT_BACKEND: str = Field(...)
+    WORKER_PREFETCH_MULTIPLIER: int = Field(1)
+
+
+class CORSConfig(BaseConfig):
+    ALLOWED_ORIGINS: Optional[str] = Field(None)
+    ALLOW_CORS_CREDENTIALS: bool = Field(True)
+    ALLOWED_CORS_METHODS: Optional[str] = Field(None)
+    ALLOWED_CORS_HEADERS: Optional[str] = Field(None)
+
+    @field_validator("ALLOWED_ORIGINS", mode="after")
+    def parse_allowed_origins(cls, info: ValidationInfo):
+        value = info.data.get("ALLOWED_ORIGINS")
+        if value is None:
+            return ["*"]
+        return [origin.strip() for origin in value.split(",")]
+
+    @field_validator("ALLOWED_CORS_METHODS", mode="after")
+    def parse_allowed_methods(cls, info: ValidationInfo):
+        value = info.data.get("ALLOWED_CORS_METHODS")
+        if value is None:
+            return ["*"]
+        return [method.strip() for method in value.split(",")]
+
+    @field_validator("ALLOWED_CORS_HEADERS", mode="after")
+    def parse_allowed_headers(cls, info: ValidationInfo):
+        value = info.data.get("ALLOWED_CORS_HEADERS")
+        if value is None:
+            return ["*"]
+        return [header.strip() for header in value.split(",")]
+
+
+class APIRateLimitConfig(BaseConfig):
+    RATE_LIMIT_PER_MIN: int = Field(default=20)
+    RATE_LIMITER_STORAGE_URI: str = Field(...)
+
+
+class APIExportConfig(BaseConfig):
+    EXPORT_MAX_AREA_SQKM: int = Field(100000)
+    INDEX_THRESHOLD: int = Field(5000)
+    EXPORT_PATH: str = Field("exports")
+    EXTRA_README_TXT: str = Field("")
+    ALLOW_NON_ZIPPED_EXPORTS: bool = Field(False)
+    ENABLE_SOZIP: bool = Field(False)
+    ENABLE_TILES: bool = Field(False)
+
+
+class APIQueueConfig(BaseConfig):
+    DEFAULT_QUEUE_NAME: str = Field("raw_daemon")
+    ONDEMAND_QUEUE_NAME: str = Field("raw_ondemand")
+
+
+class APIPolygonStatisticsConfig(BaseConfig):
+    ENABLE_POLYGON_STATISTICS_ENDPOINTS: bool = Field(False)
+    POLYGON_STATISTICS_API_URL: Optional[str] = Field(None)
+
+
+class APITaskLimitConfig(BaseConfig):
+    DEFAULT_SOFT_TASK_LIMIT: int = Field(2 * 60 * 60)
+    DEFAULT_HARD_TASK_LIMIT: int = Field(3 * 60 * 60)
+    ONDEMAND_SOFT_TASK_LIMIT: int = Field(5 * 60 * 60)
+    ONDEMAND_HARD_TASK_LIMIT: int = Field(6 * 60 * 60)
+
+
+class APIDuckDBConfig(BaseConfig):
+    USE_DUCK_DB_FOR_CUSTOM_EXPORTS: bool = Field(False)
+    DUCK_DB_MEMORY_LIMIT: Optional[str] = Field(None)
+    DUCK_DB_THREAD_LIMIT: Optional[str] = Field(None)
+
+
+class APICustomExportsConfig(BaseConfig):
+    ENABLE_CUSTOM_EXPORTS: bool = Field(False)
+    PROCESS_SINGLE_CATEGORY_IN_POSTGRES: bool = Field(False)
+    PROCESS_CATEGORIES_IN_PARALLEL: bool = Field(True)
+
+
+class APIConfig(BaseConfig):
+    LOG_LEVEL: str = Field("debug")
+    rate_limit: APIRateLimitConfig | None = None
+    export: APIExportConfig | None = None
+    cors: CORSConfig | None = None
+    queue: APIQueueConfig | None = None
+    polygon_statistics: APIPolygonStatisticsConfig | None = None
+    task_limit: APITaskLimitConfig | None = None
+    duckdb: APIDuckDBConfig | None = None
+    custom_exports: APICustomExportsConfig | None = None
+
+
+class HDXConfig(BaseConfig):
+    ENABLE_HDX_EXPORTS: bool = False
+    HDX_SITE: Optional[str] = Field(None)
+    HDX_API_KEY: Optional[str] = Field(None)
+    HDX_OWNER_ORG: Optional[str] = Field(None)
+    HDX_MAINTAINER: Optional[str] = Field(None)
+    ALLOWED_HDX_TAGS: Optional[list[str]] = Field(None)
+    ALLOWED_HDX_UPDATE_FREQUENCIES: Optional[list[str]] = Field(None)
+
+    @field_validator("ENABLE_HDX_EXPORTS", mode="after")
+    def check_hdx_configs(cls, values, info: ValidationInfo):
+        if info.data.get("ENABLE_HDX_EXPORTS"):
+            required_fields = [
+                "HDX_SITE",
+                "HDX_API_KEY",
+                "HDX_OWNER_ORG",
+                "HDX_MAINTAINER",
+            ]
+            missing_fields = [
+                field for field in required_fields if not field in info.data
+            ]
+            if missing_fields:
+                raise ValueError(
+                    f"The following fields are required when ENABLE_HDX_EXPORTS is True: {', '.join(missing_fields)}"
+                )
+        return values
+
+
+class DatabaseConfig(BaseConfig):
+    PGHOST: Optional[str] = None
+    PGPORT: Optional[str] = None
+    PGDATABASE: Optional[str] = None
+    PGUSER: Optional[str] = None
+    PGPASSWORD: Optional[str] = None
+    REMOTE_DB: Optional[dict] = None
+    POSTGRES_DSN: Optional[PostgresDsn] = None
+
+    @property
+    def connection_string(self) -> str:
+        """Constructs and returns the PostgreSQL connection string."""
+        if self.POSTGRES_DSN:
+            return self.POSTGRES_DSN
+        return f"postgresql://{self.PGUSER}:{self.PGPASSWORD}@{self.PGHOST}:{self.PGPORT}/{self.PGDATABASE}"
+
+    @staticmethod
+    def update_from_remote_db(values):
+        """Update the values from the REMOTE_DB dict."""
+        if values.get("REMOTE_DB"):
+            remote_db = values["REMOTE_DB"]
+            remote_db.pop("dbinstanceidentifier")
+            remote_db.pop("engine")
+            values["PGUSER"] = remote_db.pop("username", None)
+            values.update(
+                {
+                    k.upper(): v
+                    for k, v in remote_db.items()
+                    if k.upper().startswith("PG")
                 }
             )
-        except KeyError:
-            return cls()
+        return values
+
+    @root_validator(pre=True)
+    def validate_database_config(cls, values):
+        """
+        Validate that at least one of the required fields is present and
+        there is no duplication of fields.
+        """
+        required_fields = [
+            "POSTGRES_DSN",
+            "REMOTE_DB",
+            ("PGHOST", "PGDATABASE", "PGPORT", "PGUSER", "PGPASSWORD"),
+        ]
+        present_fields = []
+        for field in required_fields:
+            if isinstance(field, str):
+                if values.get(field) is not None:
+                    present_fields.append(field)
+            else:
+                if all(values.get(f) is not None for f in field):
+                    present_fields.append(field)
+
+        if not present_fields:
+            raise ValueError("At least one of the required fields must be present.")
+        elif len(present_fields) > 1:
+            raise ValueError("Only one of the required fields can be present.")
+
+        if values.get("REMOTE_DB"):
+            values = cls.update_from_remote_db(values)
+
+        return values
 
 
-class ExportUploadConfig(BaseSettings):
-    file_upload_method: str = Field("disk", env="FILE_UPLOAD_METHOD")
-    bucket_name: Optional[str] = Field(None, env="BUCKET_NAME")
-    aws_access_key_id: Optional[str] = Field(None, env="AWS_ACCESS_KEY_ID")
-    aws_secret_access_key: Optional[str] = Field(None, env="AWS_SECRET_ACCESS_KEY")
+class OAuthConfig(BaseConfig):
+    OSM_URL: str = Field("https://www.openstreetmap.org")
+    OSM_CLIENT_ID: Optional[str]
+    OSM_CLIENT_SECRET: Optional[str]
+    APP_SECRET_KEY: str
+    LOGIN_REDIRECT_URI: str = Field("http://127.0.0.1:8000/v1/auth/callback")
+    OSM_PERMISSION_SCOPE: str = Field("read_prefs")
+    REMOTE_OAUTH: Optional[dict] = None
 
-    @validator("file_upload_method")
-    def validate_file_upload_method(self, cls, v):
-        if v.lower() not in ["s3", "disk"]:
-            raise ValueError(
-                "Value not supported for file_upload_method, switching to default disk method"
+    @staticmethod
+    def update_from_remote_oauth(values):
+        if values.get("REMOTE_OAUTH"):
+            oauth = values["REMOTE_OAUTH"]
+
+            values.update(
+                {k.upper(): v for k, v in oauth.items() if k.upper() != "OSM_URL"}
             )
+        return values
+
+    @root_validator(pre=True)
+    def validate_oauth_config(cls, values):
+        """
+        Validate that at least one of the required fields is present and
+        there is no duplication of fields.
+        """
+        required_fields = [
+            "REMOTE_OAUTH",
+            (
+                "OSM_CLIENT_ID",
+                "OSM_CLIENT_SECRET",
+                "LOGIN_REDIRECT_URI",
+                "OSM_PERMISSION_SCOPE",
+            ),
+        ]
+        present_fields = []
+        for field in required_fields:
+            if isinstance(field, str):
+                if values.get(field) is not None:
+                    present_fields.append(field)
+            else:
+                if all(values.get(f) is not None for f in field):
+                    present_fields.append(field)
+
+        if not present_fields:
+            raise ValueError("At least one of the required fields must be present.")
+        elif len(present_fields) > 1:
+            raise ValueError("Only one of the required fields can be present.")
+
+        if values.get("REMOTE_OAUTH"):
+            values = cls.update_from_remote_oauth(values)
+
+        return values
+
+
+class ExportUploadConfig(BaseConfig):
+    FILE_UPLOAD_METHOD: str = Field("disk")
+    BUCKET_NAME: Optional[str] = Field(None)
+    AWS_ACCESS_KEY_ID: Optional[str] = Field(None)
+    AWS_SECRET_ACCESS_KEY: Optional[str] = Field(None)
+
+    @field_validator("FILE_UPLOAD_METHOD", mode="before")
+    def validate_file_upload_method(cls, v):
+        if v.lower() not in ["s3", "disk"]:
+            raise ValueError("Value not supported for file_upload_method")
         return v
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_prefix = "EXPORT_UPLOAD_"
 
-
-class SentryConfig(BaseSettings):
-    sentry_dsn: Optional[str] = Field(None, env="SENTRY_DSN")
-    sentry_rate: Optional[str] = Field(None, env="SENTRY_RATE")
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_prefix = "SENTRY_"
+class SentryConfig(BaseConfig):
+    SENTRY_DSN: Optional[str] = Field(None)
+    SENTRY_RATE: Optional[str] = Field(None)
 
 
 @lru_cache()
-def get_settings():
-    celery_config = CeleryConfig()
-    api_config = APIConfig()
-    hdx_config = HDXConfig()
-    db_config = DatabaseConfig.from_env()
-    oauth_config = OAuthConfig.from_env()
-    export_upload_config = ExportUploadConfig()
-    sentry_config = SentryConfig()
+def get_settings(ask_for=None):
+    """
+    Retrieve configuration settings, optionally limited to specific configurations.
 
-    return (
-        celery_config,
-        api_config,
-        hdx_config,
-        db_config,
-        oauth_config,
-        export_upload_config,
-        sentry_config,
-    )
+    This function caches the settings to avoid repeatedly loading them from the environment.
+    If 'ask_for' is provided, only the requested configurations are returned.
 
+    Args:
+        ask_for (list, optional): A list of configuration names to retrieve. If None, all configurations are returned.
 
-# Initialize rate limiter
-# LIMITER = Limiter(key_func=get_remote_address, storage_uri=api_config.rate_limit.rate_limiter_storage_uri)
+    Returns:
+        tuple: A tuple containing instances of the requested configuration classes.
+    """
+    all_configs = {
+        "celery": CeleryConfig(),
+        "api": APIConfig(),
+        "hdx": HDXConfig(),
+        "db": DatabaseConfig(),
+        "oauth": OAuthConfig(),
+        "export_upload": ExportUploadConfig(),
+        "sentry": SentryConfig(),
+    }
+    print(all_configs)
 
-# Configure logging
-# if api_config.log_level.lower() == "debug":
-#     level = logging.DEBUG
-# elif api_config.log_level.lower() == "info":
-#     level = logging.INFO
-# elif api_config.log_level.lower() == "
+    if ask_for is None:
+        #  return all
+        return tuple(all_configs.values())
+    else:
+        return tuple(all_configs[name] for name in ask_for if name in all_configs)

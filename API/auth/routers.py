@@ -1,9 +1,9 @@
-import json
-
+# Third party imports
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 
-from src.app import Users
+# Reader imports
+from src.users import Users
 
 from . import AuthUser, admin_required, login_required, osm_auth, staff_required
 
@@ -82,8 +82,9 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
     Raises:
     - HTTPException: If the user creation fails.
     """
-    auth = Users()
-    return auth.create_user(params.osm_id, params.role)
+    users_manager = Users()
+    created_user = await users_manager.create_user(params.osm_id, params.role)
+    return created_user
 
 
 # Read user by osm_id
@@ -107,7 +108,7 @@ async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
     """
     auth = Users()
 
-    return auth.read_user(osm_id)
+    return await auth.read_user(osm_id)
 
 
 # Update user by osm_id
@@ -132,7 +133,7 @@ async def update_user(
     - HTTPException: If the user with the given osm_id is not found.
     """
     auth = Users()
-    return auth.update_user(osm_id, update_data)
+    return await auth.update_user(osm_id, update_data)
 
 
 # Delete user by osm_id
@@ -151,7 +152,7 @@ async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)
     - HTTPException: If the user with the given osm_id is not found.
     """
     auth = Users()
-    return auth.delete_user(osm_id)
+    return await auth.delete_user(osm_id)
 
 
 # Get all users
@@ -170,4 +171,4 @@ async def read_users(
     - List[Dict[str, Any]]: A list of dictionaries containing user information.
     """
     auth = Users()
-    return auth.read_users(skip, limit)
+    return await auth.read_users(skip, limit)

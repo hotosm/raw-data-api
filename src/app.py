@@ -34,16 +34,11 @@ from json import dumps
 from json import loads as json_loads
 
 # Third party imports
-import boto3
 import humanize
 import orjson
-import psycopg2.extras
-import requests
 from area import area
 from fastapi import HTTPException
 from geojson import FeatureCollection
-from psycopg2 import OperationalError, connect, sql
-from psycopg2.extras import DictCursor
 from slugify import slugify
 from tqdm import tqdm
 
@@ -127,24 +122,6 @@ global LOCAL_CON_POOL
 LOCAL_CON_POOL = database_instance
 
 
-def print_psycopg2_exception(err):
-    """
-    Function that handles and parses Psycopg2 exceptions
-    """
-    """details_exception"""
-    err_type, err_obj, traceback = sys.exc_info()
-    line_num = traceback.tb_lineno
-    # the connect() error
-    print("\npsycopg2 ERROR:", err, "on line number:", line_num)
-    print("psycopg2 traceback:", traceback, "-- type:", err_type)
-    # psycopg2 extensions.Diagnostics object attribute
-    print("\nextensions.Diagnostics:", err.diag)
-    # pgcode and pgerror exceptions
-    print("pgerror:", err.pgerror)
-    print("pgcode:", err.pgcode, "\n")
-    raise err
-
-
 def convert_dict_to_conn_str(db_dict):
     conn_str = " ".join([f"{key}={value}" for key, value in db_dict.items()])
     return conn_str
@@ -222,77 +199,6 @@ def run_ogr2ogr_cmd(cmd):
     except subprocess.CalledProcessError as ex:
         logging.error(ex.output)
         raise ex
-
-
-class Database:
-    """Database class is used to connect with your database , run query  and get result from it . It has all tests and validation inside class"""
-
-    def __init__(self, db_params):
-        """Database class constructor"""
-
-        self.db_params = db_params
-
-    def connect(self):
-        """Database class instance method used to connect to database parameters with error printing"""
-
-        try:
-            self.conn = connect(**self.db_params)
-            self.cur = self.conn.cursor(cursor_factory=DictCursor)
-            # logging.debug("Database connection has been Successful...")
-            return self.conn, self.cur
-        except OperationalError as err:
-            """pass exception to function"""
-
-            print_psycopg2_exception(err)
-            # set the connection to 'None' in case of error
-            self.conn = None
-
-    def executequery(self, query):
-        """Function to execute query after connection"""
-        # Check if the connection was successful
-        try:
-            if self.conn is not None:
-                self.cursor = self.cur
-                if query is not None:
-                    # catch exception for invalid SQL statement
-
-                    try:
-                        logging.debug("Query sent to Database")
-                        self.cursor.execute(query)
-                        try:
-                            result = self.cursor.fetchall()
-                            logging.debug("Result fetched from Database")
-                            return result
-                        except Exception as ex:
-                            logging.error(ex)
-                            return self.cursor.statusmessage
-                    except Exception as err:
-                        print_psycopg2_exception(err)
-                else:
-                    raise ValueError("Query is Null")
-
-                    # rollback the previous transaction before starting another
-                    self.conn.rollback()
-                # closing  cursor object to avoid memory leaks
-                # cursor.close()
-                # self.conn.close()
-            else:
-                print("Database is not connected")
-        except Exception as err:
-            print("Oops ! You forget to have connection first")
-            raise err
-
-    def close_conn(self):
-        """function for clossing connection to avoid memory leaks"""
-
-        # Check if the connection was successful
-        try:
-            if self.conn is not None:
-                if self.cur is not None:
-                    self.cur.close()
-                    self.conn.close()
-        except Exception as err:
-            raise err
 
 
 class RawData:

@@ -1,8 +1,9 @@
 # Third party imports
+from fastapi import HTTPException
 from pydantic import BaseModel
 
-# Reader imports
-from postgres import AsyncPostgres
+from .config import get_settings
+from .postgres import AsyncPostgres
 
 
 class UserUpdate(BaseModel):
@@ -29,8 +30,8 @@ class Users:
         """
         Initializes an instance of the Users class, connecting to the database.
         """
-        dbdict = get_db_connection_params()
-        self.db = AsyncPostgres(dbdict)
+        (db_config,) = get_settings(ask_for=["db"])
+        self.db = AsyncPostgres(db_config.connection_string)
         self.db.establish_pool()
 
     async def create_user(self, osm_id, role):

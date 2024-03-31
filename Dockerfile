@@ -1,76 +1,31 @@
-ARG PYTHON_VERSION=3.11
+ARG GDAL_VERSION=3.8.4
+FROM ghcr.io/osgeo/gdal:ubuntu-small-${GDAL_VERSION} as build
 
-FROM docker.io/python:${PYTHON_VERSION}-slim-bookworm as base
-
-ARG MAINTAINER=sysadmin@hotosm.org
-ENV DEBIAN_FRONTEND=noninteractive
-
-FROM base as runner
-
-WORKDIR /home/appuser
-ENV PIP_NO_CACHE_DIR=1
-ENV PYTHONUNBUFFERED=1
-ENV PATH="/home/appuser/.local/bin:$PATH"
-ENV PYTHON_LIB="/home/appuser/.local/lib/python$PYTHON_VERSION/site-packages"
-
-# Install runtime dependencies
-RUN apt-get update \
-    && apt-get -y upgrade \
-    && apt-get --no-install-recommends -y install libpq5 gdal-bin \
-    && apt-get -y autoremove \
-    && apt-get clean \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-dev \
+    gcc \
+    make \
+    libpq-dev \
+    && python3 -m pip install --no-cache-dir --upgrade pip \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /home/appuser
 
-FROM ghcr.io/hotosm/tippecanoe:main as tippecanoe-builder
+COPY requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-FROM runner as with-tippecanoe
-COPY --from=tippecanoe-builder /usr/local/bin/tippecanoe* /usr/local/bin/
-COPY --from=tippecanoe-builder /usr/local/bin/tile-join /usr/local/bin/
+FROM ghcr.io/osgeo/gdal:ubuntu-small-${GDAL_VERSION} as final
 
-# Builder stage , python dependencies and project setup
-FROM base as python-builder
+WORKDIR /home/appuser
 
-ENV PIP_NO_CACHE_DIR=1
-ENV PYTHONUNBUFFERED=1
-ENV DEBIAN_FRONTEND=noninteractive
+COPY --from=build /usr/local /usr/local
 
-RUN apt-get update \
-    && apt-get -y upgrade \
-    && apt-get --no-install-recommends -y install \
-       build-essential libpq-dev libspatialite-dev libgdal-dev libboost-numpy-dev
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN gdal-config --version | awk -F'[.]' '{print $1"."$2}'
+RUN rm -rf /var/lib/apt/lists/*
 
-COPY setup.py .
-COPY pyproject.toml . 
-COPY requirements.txt .
-COPY README.md .
-COPY LICENSE .
-
-RUN pip install --user --no-cache-dir --upgrade pip setuptools wheel\
-    && pip install --user --no-cache-dir GDAL=="$(gdal-config --version)" \
-    && pip install --user --no-cache-dir -r requirements.txt
-    
-RUN python setup.py install --user
-
-
-FROM with-tippecanoe as prod
-COPY --from=python-builder /root/.local /home/appuser/.local
-
-RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appuser \
-    && chown -R appuser:appuser /home/appuser
-
+RUN useradd --create-home --shell /bin/bash appuser
 USER appuser
 
-# API and source code, changes here don't invalidate previous layers , You can overwrite this block with -v
-
-# Copy config.txt if you have your configuration setup in config
-# COPY config.txt .
-COPY README.md .
-COPY setup.py .
-COPY pyproject.toml .
-COPY API/ ./API/
-COPY src/ ./src/
+COPY --chown=appuser:appuser . .
 
 CMD ["uvicorn", "API.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000", "--no-use-colors", "--proxy-headers"]

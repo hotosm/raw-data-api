@@ -6,7 +6,6 @@ from datetime import datetime
 # Third party imports
 import humanize
 import requests
-from geojson import dumps
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 

@@ -1,12 +1,17 @@
+# Standard library imports
 from enum import Enum
 from typing import Union
 
+# Third party imports
 from fastapi import Depends, Header, HTTPException
 from osm_login_python.core import Auth
 from pydantic import BaseModel, Field
 
-from src.app import Users
-from src.config_old import get_oauth_credentials
+# Reader imports
+from src.config import get_settings
+from src.users import Users
+
+print(get_settings())
 
 
 class UserRole(Enum):
@@ -22,23 +27,23 @@ class AuthUser(BaseModel):
     role: UserRole = Field(default=UserRole.GUEST.value)
 
 
-osm_auth = Auth(*get_oauth_credentials())
+osm_auth = Auth(*oauth_creds)
 
 
-def get_user_from_db(osm_id: int):
+async def get_user_from_db(osm_id: int):
     auth = Users()
-    user = auth.read_user(osm_id)
+    user = await auth.read_user(osm_id)
     return user
 
 
-def get_osm_auth_user(access_token):
+async def get_osm_auth_user(access_token):
     try:
         user = AuthUser(**osm_auth.deserialize_access_token(access_token))
     except Exception as ex:
         raise HTTPException(
             status_code=403, detail=[{"msg": "OSM Authentication failed"}]
         )
-    db_user = get_user_from_db(user.id)
+    db_user = await get_user_from_db(user.id)
     user.role = db_user["role"]
     return user
 
@@ -55,15 +60,15 @@ def get_optional_user(access_token: str = Header(default=None)) -> AuthUser:
         return AuthUser(id=0, username="guest", img_url=None)
 
 
-def admin_required(user: AuthUser = Depends(login_required)):
-    db_user = get_user_from_db(user.id)
+async def admin_required(user: AuthUser = Depends(login_required)):
+    db_user = await get_user_from_db(user.id)
     if not db_user["role"] is UserRole.ADMIN.value:
         raise HTTPException(status_code=403, detail="User is not an admin")
     return user
 
 
-def staff_required(user: AuthUser = Depends(login_required)):
-    db_user = get_user_from_db(user.id)
+async def staff_required(user: AuthUser = Depends(login_required)):
+    db_user = await get_user_from_db(user.id)
 
     # admin is staff too
     if not (
