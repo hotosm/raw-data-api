@@ -24,10 +24,12 @@ class AuthUser(BaseModel):
 
 osm_auth = Auth(*get_oauth_credentials())
 
-
 def get_user_from_db(osm_id: int):
     auth = Users()
     user = auth.read_user(osm_id)
+    # Add changes that when the User is not found in the Database 404 Error is raised
+    if not user:
+        raise HTTPException(status_code=404, detail="User not Found in the Database")
     return user
 
 

@@ -92,6 +92,38 @@ py.test -v -s
 py.test -k test function name
 ```
 
+### Running Tests in Docker Container
+
+To run tests in Docker locally, follow these steps:
+
+1. **Update .dockerignore File:**
+   - Open the `.dockerignore` file in your project.
+   - Comment out the line that excludes the `tests` directory. This allows Docker to include the test files in the container.
+
+2. **Modify Dockerfile:**
+   - Navigate to your Dockerfile.
+   - Add the following line to copy the tests directory into the Docker container:
+     ```
+     COPY tests/ ./tests/
+     ```
+
+3. **Spin up the Containers:**
+   - Use Docker Compose to manage the containers.
+   - Run the following command to build and start the containers in detached mode:
+     ```
+     docker-compose up -d --build
+     ```
+4. **Run a Bash Shell Inside the Container:**
+
+  - To access a Bash shell inside a Docker container, use the following command:
+
+```docker exec -it CONTAINER_NAME /bin/bash```
+Then Run the above commands to run tests
+
+By following these steps, you'll be able to run your tests inside a Docker container locally. Make sure to check the test results to ensure everything is working as expected.
+
+**Note:** Make sure you have exported the `PYTHONPATH` and `ACCESS_TOKEN` environment variables in your terminal before running the tests. For detailed instructions on installation using Docker, refer to the [Docker Installation Guide: Setting Environment Variables in Docker Container](https://github.com/hotosm/raw-data-api/blob/develop/docs/src/installation/docker.md).
+
 ## Contribution & Development
 
 Learn about current priorities and work going through Roadmap  & see here  [CONTRIBUTING](./docs/src/contributing.md)

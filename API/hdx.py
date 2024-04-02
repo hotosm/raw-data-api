@@ -70,7 +70,7 @@ async def read_hdx_list(
     return hdx_list
 
 
-@router.get("/search/", response_model=List[dict])
+@router.get("/search", response_model=List[dict])
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def search_hdx(
