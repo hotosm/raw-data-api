@@ -48,9 +48,15 @@ resource "aws_ecs_cluster" "main" {
     value = "enabled"
   }
 
-  tags = {
-    Name = lookup(var.project_meta, "name")
-  }
+  tags = merge(
+    {
+      Name = lookup(var.project_meta, "name")
+    },
+    var.default_tags,
+    {
+      environment = var.deployment_environment
+    }
+  )
 }
 
 locals {
@@ -164,7 +170,7 @@ module "ecs-api" {
     }
   }
 
-  default_tags = var.default_tags
+  default_tags = merge(var.default_tags, {environment = var.deployment_environment})
   efs_settings = var.efs_settings
 }
 
@@ -236,7 +242,7 @@ module "ecs-worker-daemon" {
     }
   }
 
-  default_tags = var.default_tags
+  default_tags = merge(var.default_tags, {environment = var.deployment_environment})
   efs_settings = var.efs_settings
 }
 
@@ -298,7 +304,7 @@ module "ecs-worker-ondemand" {
     }
   }
 
-  default_tags = var.default_tags
+  default_tags = merge(var.default_tags, {environment = var.deployment_environment})
   efs_settings = var.efs_settings
 }
 
@@ -363,7 +369,7 @@ module "ecs-flower" {
     }
   }
 
-  default_tags = var.default_tags
+  default_tags = merge(var.default_tags, {environment = var.deployment_environment})
   efs_settings = var.efs_settings
 }
 
@@ -388,9 +394,14 @@ resource "aws_security_group" "redis" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = {
+  tags = merge(
+  {
     Name = "Access to elasticache Redis"
-  }
+  },
+  var.default_tags,
+  {
+    environment = var.deployment_environment
+  })
 }
 
 resource "aws_elasticache_subnet_group" "private" {
@@ -427,9 +438,13 @@ resource "aws_instance" "jump" {
     volume_size = 50
   }
 
-  tags = {
+  tags = merge({
     Name = "raw-data-jump"
-  }
+  },
+  var.default_tags,
+  {
+    environment = var.deployment_environment
+  })
 
   lifecycle {
     ignore_changes = [
@@ -466,9 +481,13 @@ resource "aws_instance" "backend" {
     http_tokens = "required"
   }
 
-  tags = {
+  tags = merge({
     Name = "raw-data-backend"
-  }
+  },
+  var.default_tags,
+  {
+    environment = var.deployment_environment
+  })
 
   lifecycle {
     ignore_changes = [
