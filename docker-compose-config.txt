@@ -18,4 +18,4 @@ OSM_CLIENT_SECRET=
 OSM_URL=https://www.openstreetmap.org
 OSM_PERMISSION_SCOPE=read_prefs
 LOGIN_REDIRECT_URI=http://127.0.0.1:8000/v1/auth/callback
-APP_SECRET_KEY=replace_this_with_your_trusted_secret_key
+APP_SECRET_KEY=

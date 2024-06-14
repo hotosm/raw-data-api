@@ -292,6 +292,11 @@ class StatusResponse(BaseModel):
     class Config:
         json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
 
+class LoginResponse(BaseModel):
+    login_url: str = Field(alias="login_url")
+    
+class CallbackResponse(BaseModel):
+    access_token: str = Field(alias="access_token")
 
 class StatsRequestParams(BaseModel, GeometryValidatorMixin):
     iso3: Optional[str] = Field(
