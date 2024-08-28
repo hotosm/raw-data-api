@@ -159,7 +159,8 @@ def download_file(download_dir, source_path):
     target_path = os.path.join(download_dir, filename)
     if not os.path.exists(target_path):
         print(f"\nStarting download for: {target_path}")
-        if os.environ["OSM_USERNAME"] and os.environ["OSM_PASSWORD"]:
+        if "OSM_USERNAME" in os.environ and os.environ["OSM_USERNAME"] and \
+            "OSM_PASSWORD" in os.environ and os.environ["OSM_PASSWORD"]:
             cookies = verify_me_osm(
                 os.environ["OSM_USERNAME"], os.environ["OSM_PASSWORD"]
             )
