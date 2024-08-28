@@ -5,18 +5,21 @@ import json
 from area import area
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi_versioning import version
+from .auth import AuthUser, UserRole, get_optional_user
 
 # Reader imports
 from src.app import PolygonStats
 from src.config import LIMITER as limiter
 from src.config import POLYGON_STATISTICS_API_RATE_LIMIT
-from src.validation.models import StatsRequestParams
+from src.validation.models import StatsRequestParams, stats_response
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
-from .auth import AuthUser, UserRole, get_optional_user
 
 
-@router.post("/polygon/")
+@router.post(
+    "/polygon",
+    responses={**stats_response},
+)
 @limiter.limit(f"{POLYGON_STATISTICS_API_RATE_LIMIT}/minute")
 @version(1)
 async def get_polygon_stats(

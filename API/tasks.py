@@ -5,24 +5,28 @@ from datetime import datetime
 # Third party imports
 import redis
 from celery.result import AsyncResult
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Path
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
 # Reader imports
 from src.config import CELERY_BROKER_URL, DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAME
-from src.validation.models import SnapshotTaskResponse
+from src.validation.models import SnapshotTaskResponse, ErrorMessage, common_responses
 
 from .api_worker import celery
-from .auth import AuthUser, admin_required, login_required, staff_required
+from .auth import AuthUser, admin_required, staff_required
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
-@router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
+@router.get(
+    "/status/{task_id}",
+    response_model=SnapshotTaskResponse,
+    responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}},
+)
 @version(1)
 def get_task_status(
-    task_id,
+    task_id=Path(description="Unique id provided on response from */snapshot/*"),
     only_args: bool = Query(
         default=False,
         description="Fetches arguments of task",
@@ -82,10 +86,26 @@ def get_task_status(
     return JSONResponse(result)
 
 
-@router.get("/revoke/{task_id}/")
+@router.get(
+    "/revoke/{task_id}",
+    responses={
+        **common_responses,
+        "404": {"model": ErrorMessage},
+        "200": {
+            "content": {
+                "application/json": {
+                    "example": {"id": "aa539af6-83d4-4aa3-879e-abf14fffa03f"}
+                }
+            }
+        },
+    },
+)
 @version(1)
-def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
-    """Revokes task , Terminates if it is executing
+def revoke_task(
+    task_id=Path(description="Unique id provided on response from */snapshot*"),
+    user: AuthUser = Depends(staff_required),
+):
+    """Revokes task, Terminates if it is executing
 
     Args:
         task_id (_type_): task id of raw data task
@@ -97,7 +117,19 @@ def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
     return JSONResponse({"id": task_id})
 
 
-@router.get("/inspect/")
+@router.get(
+    "/inspect",
+    responses={
+        "500": {"model": ErrorMessage},
+        "200": {
+            "content": {
+                "application/json": {
+                    "example": {"active": [{"celery@default_worker": {}}]}
+                }
+            }
+        },
+    },
+)
 @version(1)
 def inspect_workers(
     request: Request,
@@ -138,7 +170,19 @@ def inspect_workers(
     return JSONResponse(content=response_data)
 
 
-@router.get("/ping/")
+@router.get(
+    "/ping",
+    responses={
+        "500": {"model": ErrorMessage},
+        "200": {
+            "content": {
+                "application/json": {
+                    "example": {"celery@default_worker": {"ok": "pong"}}
+                }
+            }
+        },
+    },
+)
 @version(1)
 def ping_workers():
     """Pings available workers
@@ -149,12 +193,22 @@ def ping_workers():
     return JSONResponse(inspected_ping)
 
 
-@router.get("/purge/")
+@router.get(
+    "/purge",
+    responses={
+        **common_responses,
+        "200": {"content": {"application/json": {"example": {"tasks_discarded": 0}}}},
+    },
+)
 @version(1)
 def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
     Discards all waiting tasks from the queue
+
     Returns : Number of tasks discarded
+
+    Raises:
+    - HTTPException 403: If purge fails due to insufficient permission.
     """
     purged = celery.control.purge()
     return JSONResponse({"tasks_discarded": purged})
@@ -163,9 +217,22 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
 queues = [DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAME]
 
 
-@router.get("/queue/")
+@router.get(
+    "/queue",
+    responses={
+        "500": {"model": ErrorMessage},
+        "200": {
+            "content": {"application/json": {"example": {"raw_daemon": {"length": 0}}}}
+        },
+    },
+)
 @version(1)
 def get_queue_info():
+    """
+    Get all the queues
+
+    Returns : The queues names and their lengths
+    """
     queue_info = {}
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
@@ -180,17 +247,31 @@ def get_queue_info():
     return JSONResponse(content=queue_info)
 
 
-@router.get("/queue/details/{queue_name}/")
+@router.get(
+    "/queue/details/{queue_name}",
+    responses={**common_responses, "404": {"model": ErrorMessage}},
+)
 @version(1)
 def get_list_details(
-    queue_name: str,
+    queue_name=Path(description="Name of queue to retrieve"),
     args: bool = Query(
         default=False,
         description="Includes arguments of task",
     ),
 ):
+    """
+    Retrieves queue information based on the given queue name
+
+    Args:
+    - queue_name (str): The name of the queue to retrieve.
+
+    Returns : The queue details
+    """
+
     if queue_name not in queues:
-        raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
+        raise HTTPException(
+            status_code=404, detail=[{"msg": f"Queue '{queue_name}' not found"}]
+        )
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
     list_items = redis_client.lrange(queue_name, 0, -1)

@@ -1,11 +1,10 @@
 import json
 from urllib.parse import quote
 
-import boto3
 import humanize
 from boto3.session import Session
 from botocore.exceptions import NoCredentialsError
-from fastapi import APIRouter, Header, HTTPException, Path, Query, Request
+from fastapi import APIRouter, HTTPException, Path, Query, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import (
     JSONResponse,
@@ -18,6 +17,7 @@ from fastapi_versioning import version
 from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
+from src.validation.models import ErrorMessage
 
 router = APIRouter(prefix="/s3", tags=["S3"])
 
@@ -32,12 +32,14 @@ s3 = session.client(
 paginator = s3.get_paginator("list_objects_v2")
 
 
-@router.get("/files/")
+@router.get(
+    "/files", responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}}
+)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def list_s3_files(
     request: Request,
-    folder: str = Query(default="/HDX"),
+    folder: str = Query("/HDX", description="Folder in S3"),
     prettify: bool = Query(
         default=False, description="Display size & date in human-readable format"
     ),
@@ -80,7 +82,9 @@ async def list_s3_files(
         return StreamingResponse(content=generate(), media_type="application/json")
 
     except NoCredentialsError:
-        raise HTTPException(status_code=500, detail="AWS credentials not available")
+        raise HTTPException(
+            status_code=500, detail=[{"msg": "AWS credentials not available"}]
+        )
 
 
 async def check_object_existence(bucket_name, file_path):
@@ -88,10 +92,12 @@ async def check_object_existence(bucket_name, file_path):
     try:
         s3.head_object(Bucket=bucket_name, Key=file_path)
     except NoCredentialsError:
-        raise HTTPException(status_code=500, detail="AWS credentials not available")
-    except Exception as e:
         raise HTTPException(
-            status_code=404, detail=f"File or folder not found: {file_path}"
+            status_code=500, detail=[{"msg": "AWS credentials not available"}]
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=404, detail=[{"msg": f"File or folder not found: {file_path}"}]
         )
 
 
@@ -103,11 +109,14 @@ async def read_meta_json(bucket_name, file_path):
         return content
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error reading meta.json: {str(e)}"
+            status_code=500, detail=[{"msg": f"Error reading meta.json: {str(e)}"}]
         )
 
 
-@router.head("/get/{file_path:path}")
+@router.head(
+    "/get/{file_path:path}",
+    responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}},
+)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def head_s3_file(
@@ -131,10 +140,15 @@ async def head_s3_file(
         if e.response["Error"]["Code"] == "404":
             return Response(status_code=404)
         else:
-            raise HTTPException(status_code=500, detail=f"AWS Error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=[{"msg": f"AWS Error: {str(e)}"}]
+            )
 
 
-@router.get("/get/{file_path:path}")
+@router.get(
+    "/get/{file_path:path}",
+    responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}},
+)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def get_s3_file(

@@ -17,6 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains validation models for application"""
+
 # Standard library imports
 from enum import Enum
 from typing import Dict, List, Optional, Union
@@ -229,14 +230,12 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
             """Checks if cloud optimized output format or geoJSON is selected along with bind to zip file"""
             if value is False:
                 if values.get("output_type") not in (
-                    (
-                        [
-                            RawDataOutputType.GEOJSON.value,
-                            RawDataOutputType.FLATGEOBUF.value,
-                            RawDataOutputType.GEOPARQUET.value,
-                        ]
-                        + ([RawDataOutputType.PMTILES.value] if ENABLE_TILES else [])
-                    )
+                    [
+                        RawDataOutputType.GEOJSON.value,
+                        RawDataOutputType.FLATGEOBUF.value,
+                        RawDataOutputType.GEOPARQUET.value,
+                    ]
+                    + ([RawDataOutputType.PMTILES.value] if ENABLE_TILES else [])
                 ):
                     raise ValueError(
                         "Only Cloud Optimized format and GeoJSON is supported for streaming"
@@ -303,22 +302,22 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         max_length=3,
         example="NPL",
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @validator("geometry", pre=True, always=True)
@@ -624,22 +623,22 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         max_length=3,
         example="USA",
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @validator("geometry", pre=True, always=True)
@@ -682,3 +681,64 @@ class CustomRequestsYaml(CategoriesBase):
             ],
         },
     )
+
+
+class ErrorDetail(BaseModel):
+    msg: str
+
+
+class ErrorMessage(BaseModel):
+    detail: List[ErrorDetail]
+
+
+common_responses = {
+    401: {
+        "model": ErrorMessage,
+        "content": {
+            "application/json": {
+                "example": {"detail": [{"msg": "User is not an admin"}]}
+            }
+        },
+    },
+    403: {
+        "model": ErrorMessage,
+        "content": {
+            "application/json": {
+                "example": {"detail": [{"msg": "OSM Authentication failed"}]}
+            }
+        },
+    },
+    500: {"model": ErrorMessage},
+}
+
+stats_response = {
+    "200": {
+        "content": {
+            "application/json": {
+                "example": {
+                    "summary": {"buildings": "", "roads": ""},
+                    "raw": {
+                        "population": 0,
+                        "populatedAreaKm2": 0,
+                        "averageEditTime": 0,
+                        "lastEditTime": 0,
+                        "osmUsersCount": 0,
+                        "osmBuildingCompletenessPercentage": 0,
+                        "osmRoadsCompletenessPercentage": 0,
+                        "osmBuildingsCount": 0,
+                        "osmHighwayLengthKm": 0,
+                        "aiBuildingsCountEstimation": 0,
+                        "aiRoadCountEstimationKm": 0,
+                        "buildingCount6Months": 0,
+                        "highwayLength6MonthsKm": 0,
+                    },
+                    "meta": {
+                        "indicators": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md",
+                        "metrics": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md",
+                    },
+                }
+            }
+        }
+    },
+    "500": {"model": ErrorMessage},
+}

@@ -32,7 +32,17 @@ from slowapi.util import get_remote_address
 
 def get_bool_env_var(key, default=False):
     value = os.environ.get(key, default)
-    return bool(strtobool(str(value)))
+    try:
+        return bool(strtobool(str(value)))
+    except Exception:
+        logging.warn(f"{value} for {key} is not valid")
+        return False
+
+
+def parse_list(value, delimiter=","):
+    if isinstance(value, str):
+        return value.split(delimiter)
+    return value or []
 
 
 CONFIG_FILE_PATH = "config.txt"
@@ -340,10 +350,6 @@ if ENABLE_HDX_EXPORTS:
     # Third party imports
     from hdx.data.dataset import Dataset
     from hdx.data.vocabulary import Vocabulary
-
-    parse_list = lambda value, delimiter=",": (
-        value.split(delimiter) if isinstance(value, str) else value or []
-    )
 
     ALLOWED_HDX_TAGS = parse_list(
         os.environ.get("ALLOWED_HDX_TAGS")
