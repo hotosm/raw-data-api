@@ -715,7 +715,7 @@ def test_snapshot_and_filter_with_usermetadata():
                 },
             },
         },
-        headers=headers
+        headers=headers,
     )
     assert response.status_code == 200
     res = response.json()
