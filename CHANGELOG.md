@@ -1,3 +1,10 @@
+## 1.5.2 (2024-08-30)
+
+### Fix
+
+- **sytaxbuilder**: fixes syntax on builder append for metadatauser
+- **builderbug**: fixes bug on includeuserstats
+
 ## 1.5.1 (2024-08-20)
 
 ### Fix
