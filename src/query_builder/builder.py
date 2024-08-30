@@ -137,7 +137,7 @@ def create_column_filter(
         if include_osm_type:
             filter_col.append("tableoid::regclass AS osm_type")
         if include_user_metadata:
-            filter_col.append(["uid", f""" "user" """, "timestamp"])
+            filter_col.extend(["uid", f""" "user" """, "timestamp"])
         if create_schema:
             schema = {}
             schema["osm_id"] = "int64"
