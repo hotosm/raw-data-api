@@ -127,6 +127,7 @@ def create_column_filter(
     output_type="geojson",
     use_centroid=False,
     include_osm_type=True,
+    include_user_metadata=False,
 ):
     """generates column filter , which will be used to filter column in output will be used on select query - Rawdata extraction"""
 
@@ -135,11 +136,17 @@ def create_column_filter(
         filter_col.append("osm_id")
         if include_osm_type:
             filter_col.append("tableoid::regclass AS osm_type")
-
+        if include_user_metadata:
+            filter_col.append(["uid", f""" "user" """, "timestamp"])
         if create_schema:
             schema = {}
             schema["osm_id"] = "int64"
             schema["type"] = "str"
+            if include_user_metadata:
+                schema["uid"] = "int64"
+                schema["user"] = "str"
+                schema["timestamp"] = "str"
+
         if "*" in columns:
             filter_col.append("tags")
             if create_schema:
@@ -167,6 +174,8 @@ def create_column_filter(
             return select_condition, schema
         return select_condition
     else:
+        if include_user_metadata:
+            return f"""osm_id, tableoid::regclass AS osm_type, tags,changeset, uid, "user", timestamp,{'ST_Centroid(geom) as geom' if use_centroid else 'geom'}"""
         return f"osm_id, tableoid::regclass AS osm_type, tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if use_centroid else 'geom'}"  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
 
@@ -234,10 +243,14 @@ def generate_tag_filter_query(filter, join_by=" OR ", plain_query_filter=False):
 
 
 def extract_geometry_type_query(
-    params, ogr_export=False, g_id=None, c_id=None, country_export=False
+    params,
+    ogr_export=False,
+    g_id=None,
+    c_id=None,
+    country_export=False,
 ):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
-
+    include_user_metadata = params.include_user_metadata
     geom_filter = create_geom_filter(
         params.geometry,
         "ST_within" if params.use_st_within is True else "ST_intersects",
@@ -296,6 +309,7 @@ def extract_geometry_type_query(
             output_type=params.output_type,
             columns=master_attribute_filter,
             create_schema=True,
+            include_user_metadata=include_user_metadata,
         )
     if master_tag_filter:
         attribute_filter = generate_tag_filter_query(master_tag_filter)
@@ -310,6 +324,7 @@ def extract_geometry_type_query(
                     output_type=params.output_type,
                     columns=point_attribute_filter,
                     create_schema=True,
+                    include_user_metadata=include_user_metadata,
                 )
             where_clause_for_nodes = generate_where_clause_indexes_case(
                 geom_filter, g_id, c_id, country_export, "nodes"
@@ -337,6 +352,7 @@ def extract_geometry_type_query(
                     output_type=params.output_type,
                     columns=line_attribute_filter,
                     create_schema=True,
+                    include_user_metadata=include_user_metadata,
                 )
             where_clause_for_line = generate_where_clause_indexes_case(
                 geom_filter, g_id, c_id, country_export, "ways_line"
@@ -377,6 +393,7 @@ def extract_geometry_type_query(
                     output_type=params.output_type,
                     columns=poly_attribute_filter,
                     create_schema=True,
+                    include_user_metadata=include_user_metadata,
                 )
 
             where_clause_for_poly = generate_where_clause_indexes_case(
@@ -505,7 +522,7 @@ def raw_currentdata_extraction_query(
     country_export=False,
 ):
     """Default function to support current snapshot extraction with all of the feature that export_tool_api has"""
-
+    include_user_metadata = params.include_user_metadata
     geom_lookup_by = "ST_within" if params.use_st_within is True else "ST_intersects"
     geom_filter = create_geom_filter(params.geometry, geom_lookup_by)
 
@@ -590,6 +607,7 @@ def raw_currentdata_extraction_query(
                     use_centroid=params.centroid,
                     output_type=params.output_type,
                     columns=master_attribute_filter,
+                    include_user_metadata=include_user_metadata,
                 )
                 # if master attribute is supplied it will be applied to other geom type as well even though value is supplied they will be ignored
                 point_select_condition = select_condition
@@ -602,6 +620,7 @@ def raw_currentdata_extraction_query(
                         use_centroid=params.centroid,
                         output_type=params.output_type,
                         columns=point_attribute_filter,
+                        include_user_metadata=include_user_metadata,
                     )
             if line_attribute_filter:
                 if len(line_attribute_filter) > 0:
@@ -609,6 +628,7 @@ def raw_currentdata_extraction_query(
                         use_centroid=params.centroid,
                         output_type=params.output_type,
                         columns=line_attribute_filter,
+                        include_user_metadata=include_user_metadata,
                     )
             if poly_attribute_filter:
                 if len(poly_attribute_filter) > 0:
@@ -616,6 +636,7 @@ def raw_currentdata_extraction_query(
                         use_centroid=params.centroid,
                         output_type=params.output_type,
                         columns=poly_attribute_filter,
+                        include_user_metadata=include_user_metadata,
                     )
 
     if tags:
