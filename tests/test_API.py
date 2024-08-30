@@ -668,6 +668,61 @@ def test_snapshot_and_filter():
     wait_for_task_completion(track_link)
 
 
+def test_snapshot_and_filter_with_usermetadata():
+    headers = {"access-token": access_token}
+
+    response = client.post(
+        "/v1/snapshot/",
+        json={
+            "fileName": "Destroyed_Buildings_Turkey",
+            "includeUserMetadata": True,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [36.70588085657477, 37.1979648807274],
+                        [36.70588085657477, 37.1651408422983],
+                        [36.759267544807194, 37.1651408422983],
+                        [36.759267544807194, 37.1979648807274],
+                        [36.70588085657477, 37.1979648807274],
+                    ]
+                ],
+            },
+            "outputType": "geojson",
+            "geometryType": ["polygon"],
+            "filters": {
+                "tags": {
+                    "point": {},
+                    "line": {},
+                    "polygon": {
+                        "join_or": {},
+                        "join_and": {
+                            "destroyed:building": ["yes"],
+                            "damage:date": ["2023-02-06"],
+                        },
+                    },
+                },
+                "attributes": {
+                    "point": [],
+                    "line": [],
+                    "polygon": [
+                        "building",
+                        "destroyed:building",
+                        "damage:date",
+                        "name",
+                        "source",
+                    ],
+                },
+            },
+        },
+        headers=headers
+    )
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
 def test_snapshot_authentication_uuid():
     headers = {"access-token": access_token}
     payload = {
