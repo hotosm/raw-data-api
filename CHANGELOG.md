@@ -1,3 +1,9 @@
+## 1.5.3 (2024-09-10)
+
+### Perf
+
+- **mvt**: enhances compatibiltiy of mvt tiles
+
 ## 1.5.2 (2024-08-30)
 
 ### Fix
