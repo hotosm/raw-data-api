@@ -30,6 +30,22 @@
   | Pmtiles        | :heavy_check_mark: |
   | Geoparquet     | :heavy_check_mark: |
 
+
+## Product Roadmap
+
+| Status | Feature |
+|:--:| :-- |
+|✅| Yaml support for rawdatapi request |
+|✅| Support for country exports |
+|✅| Vector tiles support |
+|✅| Tasking Manager exports support |
+|✅| Export completeness information integration |
+|⚙️| Metadata of exports such as no of features / total length etc |
+|⚙️| p-code support for exports |
+|⚙️| yaml request connection with export tool |
+| | Improvements in data exports using h3 index research |
+| | Raw Data Backend Upgrade |
+
 ## Installation
 
 Raw Data API consists of two elements:
