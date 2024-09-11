@@ -43,6 +43,7 @@
 |⚙️| Metadata of exports such as no of features / total length etc |
 |⚙️| p-code support for exports |
 |⚙️| yaml request connection with export tool |
+|⚙️| Migration to generic cron jobs from hdx jobs |
 | | Improvements in data exports using h3 index research |
 | | Raw Data Backend Upgrade |
 
