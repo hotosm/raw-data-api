@@ -1,3 +1,9 @@
+## 1.5.4 (2024-09-12)
+
+### Fix
+
+- **appcustom**: custom exports set srs
+
 ## 1.5.3 (2024-09-10)
 
 ### Perf
