@@ -1462,7 +1462,6 @@ class CustomExport:
                 else ""
             )
             if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
-
                 format_option = export_format.format_option
 
                 driver_and_layer_options = ""
