@@ -1462,7 +1462,7 @@ class CustomExport:
                 else ""
             )
             if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
-                executable_query = f"""COPY ({query.strip()}) TO '{export_file_path}' WITH (FORMAT {export_format.format_option}{f", DRIVER '{export_format.driver_name}'{f', LAYER_CREATION_OPTIONS {layer_creation_options_str}' if layer_creation_options_str else ''}" if export_format.format_option == 'GDAL' else ''})"""
+                executable_query = f"""COPY ({query.strip()}) TO '{export_file_path}' WITH (FORMAT {export_format.format_option}{f", DRIVER '{export_format.driver_name}'{f', SRS 4326, LAYER_CREATION_OPTIONS {layer_creation_options_str}' if layer_creation_options_str else ''}" if export_format.format_option == 'GDAL' else ''})"""
                 self.duck_db_instance.run_query(
                     executable_query.strip(), load_spatial=True
                 )
