@@ -292,7 +292,7 @@ if ENABLE_HDX_EXPORTS:
         hdx_credentials = os.environ["REMOTE_HDX"]
 
     except KeyError:
-        logger.debug("EnvVar: REMOTE_HDX not supplied; Falling back to other means")
+        # logger.debug("EnvVar: REMOTE_HDX not supplied; Falling back to other means")
         HDX_SITE = os.environ.get("HDX_SITE") or config.get(
             "HDX", "HDX_SITE", fallback="demo"
         )

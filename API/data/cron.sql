@@ -1,4 +1,4 @@
-CREATE TABLE if not exists public.hdx (
+CREATE TABLE if not exists public.cron (
     id SERIAL PRIMARY KEY,
     iso3 VARCHAR(3) NULL,
     cid INT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE if not exists public.hdx (
     categories JSONB NULL,
     geometry public.geometry(MultiPolygon, 4326) NULL
 );
-CREATE INDEX if not exists hdx_dataset_idx ON public.hdx (dataset);
+CREATE INDEX if not exists cron_dataset_idx ON public.cron (dataset);
 
 INSERT INTO public.hdx (iso3,cid,hdx_upload,dataset,queue,meta,categories,geometry) VALUES
 	 ('AFG',168,true,'{"dataset_title": "Afghanistan", "dataset_folder": "ISO3", "update_frequency": "monthly", "dataset_prefix": "hotosm_afg", "dataset_locations": ["afg"]}','raw_ondemand',false,NULL,NULL),

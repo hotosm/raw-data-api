@@ -61,7 +61,7 @@ if ENABLE_METRICS_APIS:
     from .download_metrics import router as metrics_router
 
 if ENABLE_HDX_EXPORTS:
-    from .hdx import router as hdx_router
+    from .cron import router as cron_router
 
 if SENTRY_DSN:
     # Third party imports
@@ -96,7 +96,7 @@ if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
 if ENABLE_METRICS_APIS:
     app.include_router(metrics_router)
 if ENABLE_HDX_EXPORTS:
-    app.include_router(hdx_router)
+    app.include_router(cron_router)
 
 if USE_S3_TO_UPLOAD:
     app.include_router(s3_router)
