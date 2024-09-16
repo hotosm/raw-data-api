@@ -378,7 +378,7 @@ def get_db_connection_params() -> dict:
         db_credentials = os.environ["REMOTE_DB"]
 
     except KeyError:
-        logger.debug("EnvVar: REMOTE_DB not supplied; Falling back to other means")
+        # logger.debug("EnvVar: REMOTE_DB not supplied; Falling back to other means")
 
         connection_params = dict(
             host=os.environ.get("PGHOST") or config.get("DB", "PGHOST"),
@@ -439,7 +439,7 @@ def get_oauth_credentials() -> tuple:
     try:
         oauth2_credentials = os.environ["REMOTE_OAUTH"]
     except KeyError:
-        logger.debug("EnvVar: REMOTE_OAUTH not supplied; Falling back to other means")
+        # logger.debug("EnvVar: REMOTE_OAUTH not supplied; Falling back to other means")
 
         client_id = os.environ.get("OSM_CLIENT_ID") or config.get(
             "OAUTH", "OSM_CLIENT_ID"

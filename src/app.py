@@ -1265,7 +1265,7 @@ class CustomExport:
             cur.execute(query)
             result = cur.fetchall()
             if not result:
-                raise HTTPException(status_code=404, detail="Invalid iso3 code")
+                raise HTTPException(status_code=404, detail="iso3 code not found in db")
             result = result[0]
             (
                 self.cid,
@@ -1685,7 +1685,7 @@ class CustomExport:
 
     def process_custom_categories(self):
         """
-        Processes HDX tags and executes category processing in parallel.
+        Processes Custom tags and executes category processing in parallel.
 
         Returns:
         - Dictionary containing the processed dataset information.
