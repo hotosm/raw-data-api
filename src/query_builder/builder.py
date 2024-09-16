@@ -35,7 +35,6 @@ This theme includes all OpenStreetMap features in this area matching ( Learn wha
 {criteria}
 """
 HDX_MARKDOWN = """
-OpenStreetMap exports for use in GIS applications.
 {filter_str}
 Features may have these attributes:
 
@@ -887,7 +886,7 @@ def get_country_from_iso(iso3):
     query = f"""SELECT
                     b.cid::int as fid, b.dataset->>'dataset_title' as dataset_title, b.dataset->>'dataset_prefix' as dataset_prefix,  b.dataset->>'dataset_locations' as locations
                 FROM
-                    hdx b
+                    cron b
                 WHERE
                     LOWER(iso3) = '{iso3}'
                 """
