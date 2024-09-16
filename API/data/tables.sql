@@ -14,7 +14,7 @@ CREATE table if not exists public.users (
 	CONSTRAINT valid_role CHECK ((role = ANY (ARRAY[1, 2, 3])))
 );
 
-CREATE TABLE if not exists public.hdx (
+CREATE TABLE if not exists public.cron (
     id SERIAL PRIMARY KEY,
     iso3 VARCHAR(3) NULL,
     cid INT NULL,
@@ -25,5 +25,5 @@ CREATE TABLE if not exists public.hdx (
     categories JSONB NULL,
     geometry public.geometry(MultiPolygon, 4326) NULL
 );
-CREATE INDEX if not exists hdx_dataset_idx ON public.hdx (dataset);
-CREATE UNIQUE INDEX if not exists unique_dataset_prefix_idx ON public.hdx ((dataset->>'dataset_prefix'));
+CREATE INDEX if not exists cron_dataset_idx ON public.cron (dataset);
+CREATE UNIQUE INDEX if not exists unique_dataset_prefix_idx ON public.cron ((dataset->>'dataset_prefix'));

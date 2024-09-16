@@ -1265,7 +1265,7 @@ class CustomExport:
             cur.execute(query)
             result = cur.fetchall()
             if not result:
-                raise HTTPException(status_code=404, detail="Invalid iso3 code")
+                raise HTTPException(status_code=404, detail="iso3 code not found in db")
             result = result[0]
             (
                 self.cid,
@@ -1667,11 +1667,11 @@ class CustomExport:
                     resource["uploaded_to_hdx"] = True
                 else:
                     non_hdx_resources.append(resource)
-            category_name, hdx_dataset_info = uploader.upload_dataset(
+            category_name, cron_dataset_info = uploader.upload_dataset(
                 self.params.meta and USE_S3_TO_UPLOAD
             )
-            hdx_dataset_info["resources"].extend(non_hdx_resources)
-            return {category_name: hdx_dataset_info}
+            cron_dataset_info["resources"].extend(non_hdx_resources)
+            return {category_name: cron_dataset_info}
 
     def clean_resources(self):
         """
@@ -1685,7 +1685,7 @@ class CustomExport:
 
     def process_custom_categories(self):
         """
-        Processes HDX tags and executes category processing in parallel.
+        Processes Custom tags and executes category processing in parallel.
 
         Returns:
         - Dictionary containing the processed dataset information.
@@ -1972,28 +1972,28 @@ class HDXUploader:
             self.dataset.add_tag(tag)
 
 
-class HDX:
+class Cron:
     def __init__(self) -> None:
         """
-        Initializes an instance of the HDX class, connecting to the database.
+        Initializes an instance of the Cron class, connecting to the database.
         """
         dbdict = get_db_connection_params()
         self.d_b = Database(dbdict)
         self.con, self.cur = self.d_b.connect()
 
-    def create_hdx(self, hdx_data):
+    def create_cron(self, cron_data):
         """
-        Create a new HDX entry in the database.
+        Create a new Cron entry in the database.
 
         Args:
-            hdx_data (dict): Data for creating the HDX entry.
+            cron_data (dict): Data for creating the Cron entry.
 
         Returns:
-            dict: Result of the HDX creation process.
+            dict: Result of the cron creation process.
         """
         insert_query = sql.SQL(
             """
-            INSERT INTO public.hdx (iso3, hdx_upload, dataset, queue, meta, categories, geometry)
+            INSERT INTO public.cron (iso3, hdx_upload, dataset, queue, meta, categories, geometry)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING *
         """
@@ -2001,13 +2001,13 @@ class HDX:
         self.cur.execute(
             insert_query,
             (
-                hdx_data.get("iso3", None),
-                hdx_data.get("hdx_upload", True),
-                json.dumps(hdx_data.get("dataset")),
-                hdx_data.get("queue", "raw_ondemand"),
-                hdx_data.get("meta", False),
-                json.dumps(hdx_data.get("categories", {})),
-                json.dumps(hdx_data.get("geometry")),
+                cron_data.get("iso3", None),
+                cron_data.get("hdx_upload", True),
+                json.dumps(cron_data.get("dataset")),
+                cron_data.get("queue", "raw_ondemand"),
+                cron_data.get("meta", False),
+                json.dumps(cron_data.get("categories", {})),
+                json.dumps(cron_data.get("geometry")),
             ),
         )
         self.con.commit()
@@ -2017,11 +2017,11 @@ class HDX:
             return {"create": True}
         raise HTTPException(status_code=500, detail="Insert failed")
 
-    def get_hdx_list_with_filters(
+    def get_cron_list_with_filters(
         self, skip: int = 0, limit: int = 10, filters: dict = {}
     ):
         """
-        Retrieve a list of HDX entries based on provided filters.
+        Retrieve a list of Cron entries based on provided filters.
 
         Args:
             skip (int): Number of entries to skip.
@@ -2029,7 +2029,7 @@ class HDX:
             filters (dict): Filtering criteria.
 
         Returns:
-            List[dict]: List of HDX entries.
+            List[dict]: List of Cron entries.
         """
         filter_conditions = []
         filter_values = []
@@ -2042,7 +2042,7 @@ class HDX:
 
         select_query = sql.SQL(
             f"""
-            SELECT ST_AsGeoJSON(c.*) FROM public.hdx c
+            SELECT ST_AsGeoJSON(c.*) FROM public.cron c
             {"WHERE " + where_clause if where_clause else ""}
             OFFSET %s LIMIT %s
         """
@@ -2054,11 +2054,11 @@ class HDX:
         self.d_b.close_conn()
         return [orjson.loads(item[0]) for item in result]
 
-    def search_hdx_by_dataset_title(
+    def search_cron_by_dataset_title(
         self, dataset_title: str, skip: int = 0, limit: int = 10
     ):
         """
-        Search for HDX entries by dataset title.
+        Search for Cron entries by dataset title.
 
         Args:
             dataset_title (str): The title of the dataset to search for.
@@ -2066,11 +2066,11 @@ class HDX:
             limit (int): Maximum number of entries to retrieve.
 
         Returns:
-            List[dict]: List of HDX entries matching the dataset title.
+            List[dict]: List of Cron entries matching the dataset title.
         """
         search_query = sql.SQL(
             """
-            SELECT ST_AsGeoJSON(c.*) FROM public.hdx c
+            SELECT ST_AsGeoJSON(c.*) FROM public.cron c
             WHERE c.dataset->>'dataset_title' ILIKE %s
             OFFSET %s LIMIT %s
             """
@@ -2080,49 +2080,49 @@ class HDX:
         self.d_b.close_conn()
         return [orjson.loads(item[0]) for item in result]
 
-    def get_hdx_by_id(self, hdx_id: int):
+    def get_cron_by_id(self, cron_id: int):
         """
-        Retrieve a specific HDX entry by its ID.
+        Retrieve a specific Cron entry by its ID.
 
         Args:
-            hdx_id (int): ID of the HDX entry to retrieve.
+            cron_id (int): ID of the Cron entry to retrieve.
 
         Returns:
-            dict: Details of the requested HDX entry.
+            dict: Details of the requested Cron entry.
 
         Raises:
-            HTTPException: If the HDX entry is not found.
+            HTTPException: If the Cron entry is not found.
         """
         select_query = sql.SQL(
             """
-            SELECT ST_AsGeoJSON(c.*) FROM public.hdx c
+            SELECT ST_AsGeoJSON(c.*) FROM public.cron c
             WHERE id = %s
         """
         )
-        self.cur.execute(select_query, (hdx_id,))
+        self.cur.execute(select_query, (cron_id,))
         result = self.cur.fetchone()
         self.d_b.close_conn()
         if result:
             return orjson.loads(result[0])
         raise HTTPException(status_code=404, detail="Item not found")
 
-    def update_hdx(self, hdx_id: int, hdx_data):
+    def update_cron(self, cron_id: int, cron_data):
         """
-        Update an existing HDX entry in the database.
+        Update an existing Cron entry in the database.
 
         Args:
-            hdx_id (int): ID of the HDX entry to update.
-            hdx_data (dict): Data for updating the HDX entry.
+            cron_id (int): ID of the Cron entry to update.
+            cron_data (dict): Data for updating the Cron entry.
 
         Returns:
-            dict: Result of the HDX update process.
+            dict: Result of the Cron update process.
 
         Raises:
-            HTTPException: If the HDX entry is not found.
+            HTTPException: If the Cron entry is not found.
         """
         update_query = sql.SQL(
             """
-            UPDATE public.hdx
+            UPDATE public.cron
             SET iso3 = %s, hdx_upload = %s, dataset = %s, queue = %s, meta = %s, categories = %s, geometry = %s
             WHERE id = %s
             RETURNING *
@@ -2131,14 +2131,14 @@ class HDX:
         self.cur.execute(
             update_query,
             (
-                hdx_data.get("iso3", None),
-                hdx_data.get("hdx_upload", True),
-                json.dumps(hdx_data.get("dataset")),
-                hdx_data.get("queue", "raw_ondemand"),
-                hdx_data.get("meta", False),
-                json.dumps(hdx_data.get("categories", {})),
-                json.dumps(hdx_data.get("geometry")),
-                hdx_id,
+                cron_data.get("iso3", None),
+                cron_data.get("hdx_upload", True),
+                json.dumps(cron_data.get("dataset")),
+                cron_data.get("queue", "raw_ondemand"),
+                cron_data.get("meta", False),
+                json.dumps(cron_data.get("categories", {})),
+                json.dumps(cron_data.get("geometry")),
+                cron_id,
             ),
         )
         self.con.commit()
@@ -2148,36 +2148,36 @@ class HDX:
             return {"update": True}
         raise HTTPException(status_code=404, detail="Item not found")
 
-    def patch_hdx(self, hdx_id: int, hdx_data: dict):
+    def patch_cron(self, cron_id: int, cron_data: dict):
         """
-        Partially update an existing HDX entry in the database.
+        Partially update an existing Cron entry in the database.
 
         Args:
-            hdx_id (int): ID of the HDX entry to update.
-            hdx_data (dict): Data for partially updating the HDX entry.
+            cron_id (int): ID of the Cron entry to update.
+            cron_data (dict): Data for partially updating the Cron entry.
 
         Returns:
-            dict: Result of the HDX update process.
+            dict: Result of the Cron update process.
 
         Raises:
-            HTTPException: If the HDX entry is not found.
+            HTTPException: If the Cron entry is not found.
         """
-        if not hdx_data:
+        if not cron_data:
             raise ValueError("No data provided for update")
 
         set_clauses = []
         params = []
-        for field, value in hdx_data.items():
+        for field, value in cron_data.items():
             set_clauses.append(sql.SQL("{} = %s").format(sql.Identifier(field)))
             if isinstance(value, dict):
                 params.append(json.dumps(value))
             else:
                 params.append(value)
 
-        query = sql.SQL("UPDATE public.hdx SET {} WHERE id = %s RETURNING *").format(
+        query = sql.SQL("UPDATE public.cron SET {} WHERE id = %s RETURNING *").format(
             sql.SQL(", ").join(set_clauses)
         )
-        params.append(hdx_id)
+        params.append(cron_id)
 
         self.cur.execute(query, tuple(params))
         self.con.commit()
@@ -2188,33 +2188,33 @@ class HDX:
             return {"update": True}
         raise HTTPException(status_code=404, detail="Item not found")
 
-    def delete_hdx(self, hdx_id: int):
+    def delete_cron(self, cron_id: int):
         """
-        Delete an existing HDX entry from the database.
+        Delete an existing Cron entry from the database.
 
         Args:
-            hdx_id (int): ID of the HDX entry to delete.
+            cron_id (int): ID of the Cron entry to delete.
 
         Returns:
-            dict: Result of the HDX deletion process.
+            dict: Result of the Cron deletion process.
 
         Raises:
-            HTTPException: If the HDX entry is not found.
+            HTTPException: If the Cron entry is not found.
         """
         delete_query = sql.SQL(
             """
-            DELETE FROM public.hdx
+            DELETE FROM public.cron
             WHERE id = %s
             RETURNING *
         """
         )
-        self.cur.execute(delete_query, (hdx_id,))
+        self.cur.execute(delete_query, (cron_id,))
         self.con.commit()
         result = self.cur.fetchone()
         self.d_b.close_conn()
         if result:
             return dict(result[0])
-        raise HTTPException(status_code=404, detail="HDX item not found")
+        raise HTTPException(status_code=404, detail="Cron item not found")
 
 
 class DownloadMetrics:
