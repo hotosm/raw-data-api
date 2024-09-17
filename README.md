@@ -40,6 +40,7 @@
 |✅| Vector tiles support |
 |✅| Tasking Manager exports support |
 |✅| Export completeness information integration |
+|✅| Independent exports link to be shared accross various stakeholders using hdx |
 |⚙️| Metadata of exports such as no of features / total length etc |
 |⚙️| p-code support for exports |
 |⚙️| yaml request connection with export tool |
