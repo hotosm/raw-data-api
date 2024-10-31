@@ -47,6 +47,7 @@ from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
 from tqdm import tqdm
+from geojson_stats.stats import Stats
 
 # Reader imports
 from src.config import (
@@ -640,7 +641,7 @@ class RawData:
         os.remove(query_path)
 
     @staticmethod
-    def query2geojson(con, extraction_query, dump_temp_file_path):
+    def query2geojson(con, extraction_query, dump_temp_file_path, plugin_fn = None):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
@@ -660,10 +661,12 @@ class RawData:
                 for row in cursor:
                     if first:
                         first = False
-                        f.write(row[0])
                     else:
                         f.write(",")
-                        f.write(row[0])
+                    if plugin_fn:
+                        f.write(plugin_fn(row[0]))
+                    else:
+                        f.write((row[0]))
                 cursor.close()  # closing connection to avoid memory issues
                 # close the writing geojson with last part
             f.write(post_geojson)
@@ -711,7 +714,7 @@ class RawData:
             country_export,
         )
 
-    def extract_current_data(self, exportname):
+    def extract_current_data(self, exportname, plugin_fn = None):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
         Args:
             exportname: takes filename as argument to create geojson file passed from routers
@@ -777,6 +780,7 @@ class RawData:
                         country_export=country_export,
                     ),
                     dump_temp_file_path,
+                    plugin_fn
                 )  # uses own conversion class
             if output_type == RawDataOutputType.SHAPEFILE.value:
                 (
@@ -2255,3 +2259,48 @@ class DownloadMetrics:
         result = self.cur.fetchall()
         self.d_b.close_conn()
         return [dict(item) for item in result]
+
+class GeoJSONStats(Stats):
+    """Used for collecting stats while processing GeoJSON files line by line"""
+
+    def __init__(self, filters, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.config.clean = True
+        self.config.properties_prop = "properties.tags"
+
+        if filters and filters.tags:
+            config_area = ["building"]
+            config_length = ["highway", "waterway"]
+
+            for tag in config_area:
+                if self.check_filter(filters.tags, tag):
+                    self.config.keys.append(tag)
+                    self.config.value_keys.append(tag)
+                    self.config.area = True
+            for tag in config_length:
+                if self.check_filter(filters.tags, tag):
+                    self.config.keys.append(tag)
+                    self.config.value_keys.append(tag)
+                    self.config.length = True
+
+    def check_filter(self, tags, tag):
+        if tags.all_geometry:
+            if tags.all_geometry.join_or and tag in tags.all_geometry.join_or:
+                return True
+            if tags.all_geometry.join_and and tag in tags.all_geometry.join_and:
+                return True
+        if tags.polygon:
+            if tags.polygon.join_or and tag in tags.polygon.join_or:
+                return True
+            if tags.polygon.join_and and tag in tags.polygon.join_and:
+                return True
+        if tags.line:
+            if tags.line.join_or and tag in tags.line.join_or:
+                return True
+            if tags.line.join_and and tag in tags.line.join_and:
+                return True
+
+    def raw_data_line_stats(self, line: str):
+        self.process_file_line(line)
+        return line

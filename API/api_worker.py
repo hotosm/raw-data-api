@@ -15,7 +15,7 @@ import zipfly
 from celery import Celery
 
 # Reader imports
-from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
+from src.app import CustomExport, PolygonStats, GeoJSONStats, RawData, S3FileTransfer
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
@@ -75,7 +75,7 @@ def create_readme_content(default_readme, polygon_stats):
 
 
 def zip_binding(
-    working_dir, exportname_parts, geom_dump, polygon_stats, default_readme
+    working_dir, exportname_parts, geom_dump, polygon_stats, geojson_stats, default_readme
 ):
     logging.debug("Zip Binding Started!")
     upload_file_path = os.path.join(
@@ -87,6 +87,9 @@ def zip_binding(
             default_readme=default_readme, polygon_stats=polygon_stats
         ),
     }
+
+    if geojson_stats:
+        additional_files["stats.json"] = geojson_stats
 
     for name, content in additional_files.items():
         temp_path = os.path.join(working_dir, name)
@@ -165,7 +168,6 @@ class BaseclassTask(celery.Task):
         if os.path.exists(clean_dir):
             shutil.rmtree(clean_dir)
 
-
 @celery.task(
     bind=True,
     name="process_raw_data",
@@ -209,11 +211,22 @@ def process_raw_data(self, params, user=None):
             file_parts,
         )
 
-        geom_area, geom_dump, working_dir = RawData(
-            params, str(self.request.id)
-        ).extract_current_data(file_parts)
-        inside_file_size = 0
         polygon_stats = None
+        geojson_stats = None
+
+        if "include_stats" in params.dict():
+            if params.include_stats:
+                geoJSONStats = GeoJSONStats(params.filters)
+                geom_area, geom_dump, working_dir = RawData(
+                    params, str(self.request.id)
+                ).extract_current_data(file_parts, geoJSONStats.raw_data_line_stats)
+                geojson_stats = geoJSONStats.json()
+            else:
+                geom_area, geom_dump, working_dir = RawData(
+                    params, str(self.request.id)
+                ).extract_current_data(file_parts)
+
+        inside_file_size = 0
         if "include_stats" in params.dict():
             if params.include_stats:
                 feature = {
@@ -222,12 +235,14 @@ def process_raw_data(self, params, user=None):
                     "properties": {},
                 }
                 polygon_stats = PolygonStats(feature).get_summary_stats()
+
         if bind_zip:
             upload_file_path, inside_file_size = zip_binding(
                 working_dir=working_dir,
                 exportname_parts=exportname_parts,
                 geom_dump=geom_dump,
                 polygon_stats=polygon_stats,
+                geojson_stats=geojson_stats,
                 default_readme=DEFAULT_README_TEXT,
             )
 
