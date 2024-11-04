@@ -2306,10 +2306,9 @@ class GeoJSONStats(Stats):
             if tags.line.join_and and tag in tags.line.join_and:
                 return True
 
-    """
-    Process a GeoJSON line (for getting stats) and return that line
-    """
-
     def raw_data_line_stats(self, line: str):
+        """
+        Process a GeoJSON line (for getting stats) and return that line
+        """
         self.process_file_line(line)
         return line
