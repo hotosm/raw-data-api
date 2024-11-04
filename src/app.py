@@ -2285,6 +2285,10 @@ class GeoJSONStats(Stats):
                     self.config.length = True
 
     def check_filter(self, tags, tag):
+        """
+        Check if a tag is present in tag filters
+        """
+
         if tags.all_geometry:
             if tags.all_geometry.join_or and tag in tags.all_geometry.join_or:
                 return True
