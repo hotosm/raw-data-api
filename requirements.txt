@@ -56,5 +56,5 @@ psutil==5.9.8
 tqdm==4.66.2
 
 # stats for geojson data
-geojson-stats @ git+https://github.com/emi420/geojson-stats@v0.0.1-alpha
+geojson-stats==0.1.0
 
