@@ -75,7 +75,12 @@ def create_readme_content(default_readme, polygon_stats):
 
 
 def zip_binding(
-    working_dir, exportname_parts, geom_dump, polygon_stats, geojson_stats, default_readme
+    working_dir,
+    exportname_parts,
+    geom_dump,
+    polygon_stats,
+    geojson_stats,
+    default_readme,
 ):
     logging.debug("Zip Binding Started!")
     upload_file_path = os.path.join(
@@ -167,6 +172,7 @@ class BaseclassTask(celery.Task):
         clean_dir = os.path.join(EXPORT_PATH, task_id)
         if os.path.exists(clean_dir):
             shutil.rmtree(clean_dir)
+
 
 @celery.task(
     bind=True,

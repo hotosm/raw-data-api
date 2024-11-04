@@ -641,7 +641,7 @@ class RawData:
         os.remove(query_path)
 
     @staticmethod
-    def query2geojson(con, extraction_query, dump_temp_file_path, plugin_fn = None):
+    def query2geojson(con, extraction_query, dump_temp_file_path, plugin_fn=None):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
@@ -714,7 +714,7 @@ class RawData:
             country_export,
         )
 
-    def extract_current_data(self, exportname, plugin_fn = None):
+    def extract_current_data(self, exportname, plugin_fn=None):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
         Args:
             exportname: takes filename as argument to create geojson file passed from routers
@@ -780,7 +780,7 @@ class RawData:
                         country_export=country_export,
                     ),
                     dump_temp_file_path,
-                    plugin_fn
+                    plugin_fn,
                 )  # uses own conversion class
             if output_type == RawDataOutputType.SHAPEFILE.value:
                 (
@@ -2260,6 +2260,7 @@ class DownloadMetrics:
         self.d_b.close_conn()
         return [dict(item) for item in result]
 
+
 class GeoJSONStats(Stats):
     """Used for collecting stats while processing GeoJSON files line by line"""
 
@@ -2304,6 +2305,10 @@ class GeoJSONStats(Stats):
                 return True
             if tags.line.join_and and tag in tags.line.join_and:
                 return True
+
+    """
+    Process a GeoJSON line (for getting stats) and return that line
+    """
 
     def raw_data_line_stats(self, line: str):
         self.process_file_line(line)
