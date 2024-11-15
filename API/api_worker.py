@@ -15,7 +15,8 @@ import zipfly
 from celery import Celery
 
 # Reader imports
-from src.app import CustomExport, PolygonStats, GeoJSONStats, RawData, S3FileTransfer
+from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
+from src.post_processing.processor import PostProcessor
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
@@ -39,6 +40,7 @@ from src.validation.models import (
     RawDataCurrentParams,
     RawDataOutputType,
 )
+from src.post_processing.processor import PostProcessor
 
 if ENABLE_SOZIP:
     # Third party imports
@@ -218,19 +220,46 @@ def process_raw_data(self, params, user=None):
         )
 
         polygon_stats = None
-        geojson_stats = None
+        geojson_stats_html = None
 
-        if "include_stats" in params.dict():
+        if "include_stats" or "include_translit" in params.dict():
+            post_processor = PostProcessor({
+                "include_stats": params.include_stats,
+                "include_translit": params.include_translit
+            })
+
             if params.include_stats:
-                geoJSONStats = GeoJSONStats(params.filters)
-                geom_area, geom_dump, working_dir = RawData(
-                    params, str(self.request.id)
-                ).extract_current_data(file_parts, geoJSONStats.raw_data_line_stats)
-                geojson_stats = geoJSONStats.json()
-            else:
-                geom_area, geom_dump, working_dir = RawData(
-                    params, str(self.request.id)
-                ).extract_current_data(file_parts)
+                post_processor.filters = params.filters
+
+            post_processor.init()
+            
+            geom_area, geom_dump, working_dir = RawData(
+                params, str(self.request.id)
+            ).extract_current_data(file_parts, post_processor.post_process_line)
+
+            if params.include_stats:
+                geojson_stats_json = json.dumps(post_processor.geoJSONStats.dict())
+
+                # Create a HTML summary of stats
+                if params.include_stats_html:
+                    tpl = "stats"
+                    if 'waterway' in post_processor.geoJSONStats.config.keys:
+                        tpl = "stats_waterway"
+                    if 'highway' in post_processor.geoJSONStats.config.keys:
+                        tpl = "stats_highway"
+                    if 'building' in post_processor.geoJSONStats.config.keys:
+                        tpl = "stats_building"
+                    project_root = pathlib.Path(__file__).resolve().parent
+                    tpl_path = os.path.join(project_root, "../src/post_processing/{tpl}_tpl.html".format(tpl=tpl))
+                    geojson_stats_html = post_processor.geoJSONStats.html(tpl_path).build()
+                    upload_html_path = os.path.join(working_dir, os.pardir, f"{exportname_parts[-1]}.html")
+                    with open(upload_html_path, "w") as f:
+                        f.write(geojson_stats_html)
+
+        else:
+            geom_area, geom_dump, working_dir = RawData(
+                params, str(self.request.id)
+            ).extract_current_data(file_parts)
 
         inside_file_size = 0
         if "include_stats" in params.dict():
@@ -248,7 +277,7 @@ def process_raw_data(self, params, user=None):
                 exportname_parts=exportname_parts,
                 geom_dump=geom_dump,
                 polygon_stats=polygon_stats,
-                geojson_stats=geojson_stats,
+                geojson_stats=geojson_stats_json,
                 default_readme=DEFAULT_README_TEXT,
             )
 
@@ -261,6 +290,7 @@ def process_raw_data(self, params, user=None):
                     upload_file_path = file_path
                     inside_file_size += os.path.getsize(file_path)
                     break  # only take one file inside dir , if contains many it should be inside zip
+        
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
@@ -274,7 +304,6 @@ def process_raw_data(self, params, user=None):
                     pattern = r"(hotosm_project_)(\d+)"
                     match = re.match(pattern, exportname)
                     if match:
-                        prefix = match.group(1)
                         project_number = match.group(2)
                         if project_number:
                             upload_name = f"TM/{project_number}/{exportname}"

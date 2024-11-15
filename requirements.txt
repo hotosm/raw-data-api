@@ -56,5 +56,8 @@ psutil==5.9.8
 tqdm==4.66.2
 
 # stats for geojson data
-geojson-stats==0.1.0
+geojson-stats==0.2.2
+
+# transliterations
+transliterate==1.10.2
 

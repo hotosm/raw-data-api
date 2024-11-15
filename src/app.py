@@ -47,7 +47,6 @@ from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
 from tqdm import tqdm
-from geojson_stats.stats import Stats
 
 # Reader imports
 from src.config import (
@@ -2261,54 +2260,3 @@ class DownloadMetrics:
         return [dict(item) for item in result]
 
 
-class GeoJSONStats(Stats):
-    """Used for collecting stats while processing GeoJSON files line by line"""
-
-    def __init__(self, filters, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.config.clean = True
-        self.config.properties_prop = "properties.tags"
-
-        if filters and filters.tags:
-            config_area = ["building"]
-            config_length = ["highway", "waterway"]
-
-            for tag in config_area:
-                if self.check_filter(filters.tags, tag):
-                    self.config.keys.append(tag)
-                    self.config.value_keys.append(tag)
-                    self.config.area = True
-            for tag in config_length:
-                if self.check_filter(filters.tags, tag):
-                    self.config.keys.append(tag)
-                    self.config.value_keys.append(tag)
-                    self.config.length = True
-
-    def check_filter(self, tags, tag):
-        """
-        Check if a tag is present in tag filters
-        """
-
-        if tags.all_geometry:
-            if tags.all_geometry.join_or and tag in tags.all_geometry.join_or:
-                return True
-            if tags.all_geometry.join_and and tag in tags.all_geometry.join_and:
-                return True
-        if tags.polygon:
-            if tags.polygon.join_or and tag in tags.polygon.join_or:
-                return True
-            if tags.polygon.join_and and tag in tags.polygon.join_and:
-                return True
-        if tags.line:
-            if tags.line.join_or and tag in tags.line.join_or:
-                return True
-            if tags.line.join_and and tag in tags.line.join_and:
-                return True
-
-    def raw_data_line_stats(self, line: str):
-        """
-        Process a GeoJSON line (for getting stats) and return that line
-        """
-        self.process_file_line(line)
-        return line

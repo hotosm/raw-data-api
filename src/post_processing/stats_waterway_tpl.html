@@ -1,0 +1,165 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/hot.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>HOT Export Stats</title>
+    <style type="text/css">
+
+        :root,
+        :host,
+        .hot-theme-light {
+            --hot-color-red-700: #C53639;
+            --hot-color-gray-950: #2C3038;
+            --hot-font-sans: Archivo, -apple-system, Roboto, Helvetica, Arial, sans-serif,
+  'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+            --hot-font-size-2x-large: 2.25rem; /* 36px */
+            --hot-font-size-medium: 1rem; /* 16px */
+            --hot-font-size-small: 0.875rem; /* 14px */
+            --hot-border-radius-medium: 0.25rem; /* 4px */
+            --hot-color-neutral-0: #fff;
+            --hot-color-gray-200: #C4C3C5;
+            --hot-color-gray-50: #F3F3F3;
+            --hot-spacing-medium: 1rem;
+            --hot-spacing-x-small: 0.5rem; /* 8px */
+            --hot-color-gray-100: #E1E0E1;
+        }
+        body {
+            font-family: var(--hot-font-sans);
+            background: var(--hot-color-gray-50);
+        }
+        table, caption, tbody, tfoot, thead, tr, th, td {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            outline: 0;
+            font-size: 100%;
+            vertical-align: baseline;
+            background: transparent;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+        }
+        .box {
+            border-radius: var(--hot-border-radius-medium);
+            color: var(--hot-color-gray-950);
+            padding: var(--hot-spacing-medium);
+            margin-left: var(--hot-spacing-medium);
+            margin-right: var(--hot-spacing-medium);
+            margin-bottom: var(--hot-spacing-medium);
+            text-align: center;
+            flex: auto;
+            background: var(--hot-color-neutral-0);
+            box-shadow: 3px 3px 3px var(--hot-color-gray-200);
+            border: 1px solid var(--hot-color-gray-100); 
+        }
+        .box h3 {
+            color: var(--hot-color-red-700);
+            font-size: var(--hot-font-size-2x-large);
+        }
+        .box h4 {
+            font-size: var(--hot-font-size-medium);
+        }
+        .box p {
+            font-size: var(--hot-font-size-small);
+        }
+        .box.featured {
+            background: var(--hot-color-red-700);
+            color: var(--hot-color-neutral-0);
+            border-color: var(--hot-color-red-700); ;
+        }
+        .box.featured h3 {
+            color: var(--hot-color-neutral-0);
+        }
+        .box.table {
+            padding: 0;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table thead th {
+            background: var(--hot-color-gray-50)
+        }
+        .table th,
+        .table td {
+            padding: var(--hot-spacing-x-small);
+            border-bottom: 1px solid var(--hot-color-gray-200);
+        }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+        <div class="container">
+            <div class="box featured">
+                <h3>${key_waterway_length}</h3>
+                <h4>Km of waterways</h4>
+            </div>
+            <div class="box">
+                <h3>${count}</h3>
+                <h4>Number of Features</h4>
+                <p>Elements identified as distinct</p>
+            </div>
+            <div class="box">
+                <h3>${languages_count}</h3>
+                <h4>Languages Available</h4>
+                <p>Including local language and english</p>
+            </div>
+        </div>
+        <div class="container">
+            <table class="table box">
+                <thead>
+                    <tr>
+                        <th>Hot Key Counts</th>
+                        <th>Count</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Total features</td>
+                        <td>${count}</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr>
+                        <td>${key_0}</td>
+                        <td>${key_0_count}</td>
+                        <td>${key_0_percent}%</td>
+                    </tr>
+                    <tr>
+                        <td>${key_1}</td>
+                        <td>${key_1_count}</td>
+                        <td>${key_1_percent}%</td>
+                    </tr>
+                    <tr>
+                        <td>${key_2}</td>
+                        <td>${key_2_count}</td>
+                        <td>${key_2_percent}%</td>
+                    </tr>
+                    <tr>
+                        <td>${key_3}</td>
+                        <td>${key_3_count}</td>
+                        <td>${key_3_percent}%</td>
+                    </tr>
+                    <tr>
+                        <td>${key_4}</td>
+                        <td>${key_4_count}</td>
+                        <td>${key_4_percent}%</td>
+                    </tr>
+                    <tr>
+                        <td>${key_5}</td>
+                        <td>${key_5_count}</td>
+                        <td>${key_5_percent}%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </body>
+</html>

@@ -167,6 +167,14 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
             default=False,
             description="Includes detailed stats about the polygon passed such as buildings count , road count along with summary about data completeness in the area",
         )
+        include_stats_html: Optional[bool] = Field(
+            default=False,
+            description="Includes detailed stats about the polygon passed such as buildings count , road count along with summary about data completeness in the area",
+        )
+    include_translit: Optional[bool] = Field(
+        default=False,
+        description="Includes transliterations",
+    )
     filters: Optional[Filters] = Field(
         default=None,
         example={
