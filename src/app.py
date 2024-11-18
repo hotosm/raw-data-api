@@ -2258,5 +2258,3 @@ class DownloadMetrics:
         result = self.cur.fetchall()
         self.d_b.close_conn()
         return [dict(item) for item in result]
-
-

@@ -224,16 +224,18 @@ def process_raw_data(self, params, user=None):
         geojson_stats_html = None
         download_html_url = None
         if "include_stats" or "include_translit" in params.dict():
-            post_processor = PostProcessor({
-                "include_stats": params.include_stats,
-                "include_translit": params.include_translit
-            })
+            post_processor = PostProcessor(
+                {
+                    "include_stats": params.include_stats,
+                    "include_translit": params.include_translit,
+                }
+            )
 
             if params.include_stats:
                 post_processor.filters = params.filters
 
             post_processor.init()
-            
+
             geom_area, geom_dump, working_dir = RawData(
                 params, str(self.request.id)
             ).extract_current_data(file_parts, post_processor.post_process_line)
@@ -244,16 +246,23 @@ def process_raw_data(self, params, user=None):
                 # Create a HTML summary of stats
                 if params.include_stats_html:
                     tpl = "stats"
-                    if 'waterway' in post_processor.geoJSONStats.config.keys:
+                    if "waterway" in post_processor.geoJSONStats.config.keys:
                         tpl = "stats_waterway"
-                    elif 'highway' in post_processor.geoJSONStats.config.keys:
+                    elif "highway" in post_processor.geoJSONStats.config.keys:
                         tpl = "stats_highway"
-                    elif 'building' in post_processor.geoJSONStats.config.keys:
+                    elif "building" in post_processor.geoJSONStats.config.keys:
                         tpl = "stats_building"
                     project_root = pathlib.Path(__file__).resolve().parent
-                    tpl_path = os.path.join(project_root, "../src/post_processing/{tpl}_tpl.html".format(tpl=tpl))
-                    geojson_stats_html = post_processor.geoJSONStats.html(tpl_path).build()
-                    upload_html_path = os.path.join(working_dir, os.pardir, f"{exportname_parts[-1]}.html")
+                    tpl_path = os.path.join(
+                        project_root,
+                        "../src/post_processing/{tpl}_tpl.html".format(tpl=tpl),
+                    )
+                    geojson_stats_html = post_processor.geoJSONStats.html(
+                        tpl_path
+                    ).build()
+                    upload_html_path = os.path.join(
+                        working_dir, os.pardir, f"{exportname_parts[-1]}.html"
+                    )
                     with open(upload_html_path, "w") as f:
                         f.write(geojson_stats_html)
 
@@ -291,7 +300,7 @@ def process_raw_data(self, params, user=None):
                     upload_file_path = file_path
                     inside_file_size += os.path.getsize(file_path)
                     break  # only take one file inside dir , if contains many it should be inside zip
-        
+
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()

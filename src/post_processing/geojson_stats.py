@@ -4,6 +4,7 @@ from geojson_stats.html import Html
 CONFIG_AREA = ["building"]
 CONFIG_LENGTH = ["highway", "waterway"]
 
+
 class GeoJSONStats(Stats):
     """Used for collecting stats while processing GeoJSON files line by line"""
 

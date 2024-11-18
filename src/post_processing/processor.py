@@ -1,9 +1,9 @@
-
 import json
 from .transliterator import Transliterator
 from .geojson_stats import GeoJSONStats
 
-class PostProcessor():
+
+class PostProcessor:
     """Used for posst-process data while processing GeoJSON files line by line"""
 
     options = {}
@@ -21,10 +21,10 @@ class PostProcessor():
         line_object = json.loads(line)
 
         for fn in self.functions:
-           fn(line_object)
+            fn(line_object)
 
         return json.dumps(line_object)
-    
+
     def init(self):
         """
         Initialize post-processor
