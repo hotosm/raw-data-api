@@ -222,6 +222,7 @@ def process_raw_data(self, params, user=None):
         # Post-proccessing: Generate GeoJSON/HTML stats and transliterations
         polygon_stats = None
         geojson_stats_html = None
+        geojson_stats_json = None
         download_html_url = None
         if "include_stats" or "include_translit" in params.dict():
             post_processor = PostProcessor(
