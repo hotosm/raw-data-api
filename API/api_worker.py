@@ -219,9 +219,10 @@ def process_raw_data(self, params, user=None):
             file_parts,
         )
 
+        # Post-proccessing: Generate GeoJSON/HTML stats and transliterations
         polygon_stats = None
         geojson_stats_html = None
-
+        download_html_url = None
         if "include_stats" or "include_translit" in params.dict():
             post_processor = PostProcessor({
                 "include_stats": params.include_stats,
@@ -245,9 +246,9 @@ def process_raw_data(self, params, user=None):
                     tpl = "stats"
                     if 'waterway' in post_processor.geoJSONStats.config.keys:
                         tpl = "stats_waterway"
-                    if 'highway' in post_processor.geoJSONStats.config.keys:
+                    elif 'highway' in post_processor.geoJSONStats.config.keys:
                         tpl = "stats_highway"
-                    if 'building' in post_processor.geoJSONStats.config.keys:
+                    elif 'building' in post_processor.geoJSONStats.config.keys:
                         tpl = "stats_building"
                     project_root = pathlib.Path(__file__).resolve().parent
                     tpl_path = os.path.join(project_root, "../src/post_processing/{tpl}_tpl.html".format(tpl=tpl))
@@ -322,6 +323,15 @@ def process_raw_data(self, params, user=None):
                 upload_name,
                 file_suffix="zip" if bind_zip else params.output_type.lower(),
             )
+
+            # If there's an HTML file, upload it too
+            if geojson_stats_html:
+                download_html_url = file_transfer_obj.upload(
+                    upload_html_path,
+                    upload_name,
+                    file_suffix="html",
+                )
+
         else:
             # give the static file download url back to user served from fastapi static export path
             download_url = str(upload_file_path)
@@ -347,6 +357,9 @@ def process_raw_data(self, params, user=None):
         }
         if polygon_stats:
             final_response["stats"] = polygon_stats
+        if download_html_url:
+            final_response["download_html_url"] = download_html_url
+
         return final_response
 
     except Exception as ex:
