@@ -56,4 +56,7 @@ class GeoJSONStats(Stats):
         self.get_object_stats(json_object)
 
     def html(self, tpl):
+        """
+        Returns stats Html object, generated from stats data using a template
+        """
         return Html(tpl, self)
