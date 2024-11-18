@@ -15,7 +15,6 @@ class GeoJSONStats(Stats):
         self.config.properties_prop = "properties.tags"
 
         if filters and filters.tags:
-
             for tag in CONFIG_AREA:
                 if self.check_filter(filters.tags, tag):
                     self.config.keys.append(tag)
