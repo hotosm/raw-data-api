@@ -47,6 +47,7 @@ from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
 from tqdm import tqdm
+from .post_processing.processor import PostProcessor
 
 # Reader imports
 from src.config import (
@@ -1491,7 +1492,27 @@ class CustomExport:
                     layer_creation_options=layer_creation_options_str,
                     query_dump_path=export_format_path,
                 )
+
                 run_ogr2ogr_cmd(ogr2ogr_cmd)
+
+            # Post-processing GeoJSON files
+            # Adds: stats, HTML stats summary and transliterations
+            if export_format.driver_name == "GeoJSON" and (
+                self.params.include_stats or self.params.include_translit
+            ):
+                post_processor = PostProcessor(
+                    {
+                        "include_stats": self.params.include_stats,
+                        "include_translit": self.params.include_translit,
+                        "include_stats_html": self.params.include_stats_html,
+                    }
+                )
+                post_processor.init()
+                post_processor.custom(
+                    categories=self.params.categories,
+                    export_format_path=export_format_path,
+                    export_filename=export_filename,
+                )
 
             zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
             zip_path = self.file_to_zip(export_format_path, zip_file_path)

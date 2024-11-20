@@ -334,6 +334,7 @@ if ENABLE_HDX_EXPORTS:
         logging.error(
             "Error creating HDX configuration: %s, Disabling the hdx exports feature", e
         )
+
         ENABLE_HDX_EXPORTS = False
 
 if ENABLE_HDX_EXPORTS:

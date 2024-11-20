@@ -618,6 +618,9 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
 
     Fields:
     - iso3 (Optional[str]): ISO3 Country Code.
+    - include_stats (bool): Include a JSON file with stats. Available for GeoJSON exports only.
+    - include_stats_html (bool): Include a HTML file with a stats summary. Available for GeoJSON exports only.
+    - include_translit (bool): Add transliterations. Available for GeoJSON exports only.
     - dataset (Optional[DatasetConfig]): Dataset Configurations for HDX Upload.
     - meta (bool): Dumps Meta db in parquet format & HDX config JSON to S3.
     - hdx_upload (bool): Enable/Disable uploading the dataset to HDX.
@@ -631,6 +634,18 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         min_length=3,
         max_length=3,
         example="USA",
+    )
+    include_stats: Optional[bool] = Field(
+        default=False,
+        description="Include a JSON file with stats. Available for GeoJSON exports only.",
+    )
+    include_stats_html: Optional[bool] = Field(
+        default=False,
+        description="Include a HTML file with a stats summary. Available for GeoJSON exports only.",
+    )
+    include_translit: Optional[bool] = Field(
+        default=False,
+        description="Add transliterations. Available for GeoJSON exports only.",
     )
     geometry: Optional[
         Union[Polygon, MultiPolygon, Feature, FeatureCollection]

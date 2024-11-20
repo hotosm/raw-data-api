@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from API.main import app
 
 client = TestClient(app)
+client.base_url = "http://127.0.0.1:8000"
 
 access_token = os.environ.get("ACCESS_TOKEN")
 
@@ -740,33 +741,6 @@ def test_snapshot_authentication_uuid():
         },
         "uuid": False,
     }
-
-    response = client.post("/v1/snapshot/", json=payload, headers=headers)
-
-    assert response.status_code == 200
-    res = response.json()
-    track_link = res["track_link"]
-    wait_for_task_completion(track_link)
-
-
-def test_snapshot_bind_zip():
-    headers = {"access-token": access_token}
-    payload = {
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
-        "bindZip": False,
-    }
-
     response = client.post("/v1/snapshot/", json=payload, headers=headers)
 
     assert response.status_code == 200
@@ -931,6 +905,38 @@ def test_hdx_submit_normal_iso3():
     payload = {
         "iso3": "NPL",
         "hdx_upload": False,
+        "categories": [
+            {
+                "Roads": {
+                    "hdx": {
+                        "tags": ["roads", "transportation", "geodata"],
+                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                    },
+                    "types": ["lines"],
+                    "select": ["name", "highway"],
+                    "where": "tags['highway'] IS NOT NULL",
+                    "formats": ["geojson"],
+                }
+            }
+        ],
+    }
+
+    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
+def test_hdx_submit_normal_iso3_with_stats():
+    headers = {"access-token": access_token}
+    payload = {
+        "iso3": "NPL",
+        "hdx_upload": False,
+        "include_stats": True,
+        "include_translit": True,
+        "include_stats_html": True,
         "categories": [
             {
                 "Roads": {

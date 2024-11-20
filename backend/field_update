@@ -114,7 +114,6 @@ class Database:
                     try:
                         self.cursor.execute(query)
                         self.conn.commit()
-                        # print(query)
                         try:
                             result = self.cursor.fetchall()
 
