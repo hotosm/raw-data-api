@@ -1512,6 +1512,7 @@ class CustomExport:
                     categories=self.params.categories,
                     export_format_path=export_format_path,
                     export_filename=export_filename,
+                    file_export_path=file_export_path,
                 )
 
             zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
