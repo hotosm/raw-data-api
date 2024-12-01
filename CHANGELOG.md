@@ -1,3 +1,13 @@
+## 1.5.5 (2024-12-01)
+
+### Fix
+
+- **hdx-iso-submit**: fixes bug on iso submit for custom exports
+
+### Refactor
+
+- **hdx-cron**: refactors hdx table to cron table
+
 ## 1.5.4 (2024-09-12)
 
 ### Fix
