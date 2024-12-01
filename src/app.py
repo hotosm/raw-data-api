@@ -47,6 +47,7 @@ from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
 from tqdm import tqdm
+from .post_processing.processor import PostProcessor
 
 # Reader imports
 from src.config import (
@@ -640,7 +641,7 @@ class RawData:
         os.remove(query_path)
 
     @staticmethod
-    def query2geojson(con, extraction_query, dump_temp_file_path):
+    def query2geojson(con, extraction_query, dump_temp_file_path, plugin_fn=None):
         """Function written from scratch without being dependent on any library, Provides better performance for geojson binding"""
         # creating geojson file
         pre_geojson = """{"type": "FeatureCollection","features": ["""
@@ -660,10 +661,12 @@ class RawData:
                 for row in cursor:
                     if first:
                         first = False
-                        f.write(row[0])
                     else:
                         f.write(",")
-                        f.write(row[0])
+                    if plugin_fn:
+                        f.write(plugin_fn(row[0]))
+                    else:
+                        f.write((row[0]))
                 cursor.close()  # closing connection to avoid memory issues
                 # close the writing geojson with last part
             f.write(post_geojson)
@@ -711,7 +714,7 @@ class RawData:
             country_export,
         )
 
-    def extract_current_data(self, exportname):
+    def extract_current_data(self, exportname, plugin_fn=None):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
         Args:
             exportname: takes filename as argument to create geojson file passed from routers
@@ -777,6 +780,7 @@ class RawData:
                         country_export=country_export,
                     ),
                     dump_temp_file_path,
+                    plugin_fn,
                 )  # uses own conversion class
             if output_type == RawDataOutputType.SHAPEFILE.value:
                 (
@@ -1488,7 +1492,28 @@ class CustomExport:
                     layer_creation_options=layer_creation_options_str,
                     query_dump_path=export_format_path,
                 )
+
                 run_ogr2ogr_cmd(ogr2ogr_cmd)
+
+            # Post-processing GeoJSON files
+            # Adds: stats, HTML stats summary and transliterations
+            if export_format.driver_name == "GeoJSON" and (
+                self.params.include_stats or self.params.include_translit
+            ):
+                post_processor = PostProcessor(
+                    {
+                        "include_stats": self.params.include_stats,
+                        "include_translit": self.params.include_translit,
+                        "include_stats_html": self.params.include_stats_html,
+                    }
+                )
+                post_processor.init()
+                post_processor.custom(
+                    categories=self.params.categories,
+                    export_format_path=export_format_path,
+                    export_filename=export_filename,
+                    file_export_path=file_export_path,
+                )
 
             zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
             zip_path = self.file_to_zip(export_format_path, zip_file_path)
