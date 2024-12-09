@@ -16,7 +16,6 @@ from celery import Celery
 
 # Reader imports
 from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
-from src.post_processing.processor import PostProcessor
 from src.config import ALLOW_BIND_ZIP_FILTER
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
@@ -40,7 +39,6 @@ from src.validation.models import (
     RawDataCurrentParams,
     RawDataOutputType,
 )
-from src.post_processing.processor import PostProcessor
 
 if ENABLE_SOZIP:
     # Third party imports
@@ -77,12 +75,7 @@ def create_readme_content(default_readme, polygon_stats):
 
 
 def zip_binding(
-    working_dir,
-    exportname_parts,
-    geom_dump,
-    polygon_stats,
-    geojson_stats,
-    default_readme,
+    working_dir, exportname_parts, geom_dump, polygon_stats, default_readme
 ):
     logging.debug("Zip Binding Started!")
     upload_file_path = os.path.join(
@@ -94,9 +87,6 @@ def zip_binding(
             default_readme=default_readme, polygon_stats=polygon_stats
         ),
     }
-
-    if geojson_stats:
-        additional_files["stats.json"] = geojson_stats
 
     for name, content in additional_files.items():
         temp_path = os.path.join(working_dir, name)
@@ -219,60 +209,11 @@ def process_raw_data(self, params, user=None):
             file_parts,
         )
 
-        # Post-proccessing: Generate GeoJSON/HTML stats and transliterations
-        polygon_stats = None
-        geojson_stats_html = None
-        geojson_stats_json = None
-        download_html_url = None
-        if "include_stats" or "include_translit" in params.dict():
-            post_processor = PostProcessor(
-                {
-                    "include_stats": params.include_stats,
-                    "include_translit": params.include_translit,
-                }
-            )
-
-            if params.include_stats:
-                post_processor.filters = params.filters
-
-            post_processor.init()
-
-            geom_area, geom_dump, working_dir = RawData(
-                params, str(self.request.id)
-            ).extract_current_data(file_parts, post_processor.post_process_line)
-
-            if params.include_stats:
-                geojson_stats_json = json.dumps(post_processor.geoJSONStats.dict())
-
-                # Create a HTML summary of stats
-                if params.include_stats_html:
-                    tpl = "stats"
-                    if "waterway" in post_processor.geoJSONStats.config.keys:
-                        tpl = "stats_waterway"
-                    elif "highway" in post_processor.geoJSONStats.config.keys:
-                        tpl = "stats_highway"
-                    elif "building" in post_processor.geoJSONStats.config.keys:
-                        tpl = "stats_building"
-                    project_root = pathlib.Path(__file__).resolve().parent
-                    tpl_path = os.path.join(
-                        project_root,
-                        "../src/post_processing/{tpl}_tpl.html".format(tpl=tpl),
-                    )
-                    geojson_stats_html = post_processor.geoJSONStats.html(
-                        tpl_path
-                    ).build()
-                    upload_html_path = os.path.join(
-                        working_dir, os.pardir, f"{exportname_parts[-1]}.html"
-                    )
-                    with open(upload_html_path, "w") as f:
-                        f.write(geojson_stats_html)
-
-        else:
-            geom_area, geom_dump, working_dir = RawData(
-                params, str(self.request.id)
-            ).extract_current_data(file_parts)
-
+        geom_area, geom_dump, working_dir = RawData(
+            params, str(self.request.id)
+        ).extract_current_data(file_parts)
         inside_file_size = 0
+        polygon_stats = None
         if "include_stats" in params.dict():
             if params.include_stats:
                 feature = {
@@ -281,14 +222,12 @@ def process_raw_data(self, params, user=None):
                     "properties": {},
                 }
                 polygon_stats = PolygonStats(feature).get_summary_stats()
-
         if bind_zip:
             upload_file_path, inside_file_size = zip_binding(
                 working_dir=working_dir,
                 exportname_parts=exportname_parts,
                 geom_dump=geom_dump,
                 polygon_stats=polygon_stats,
-                geojson_stats=geojson_stats_json,
                 default_readme=DEFAULT_README_TEXT,
             )
 
@@ -301,7 +240,6 @@ def process_raw_data(self, params, user=None):
                     upload_file_path = file_path
                     inside_file_size += os.path.getsize(file_path)
                     break  # only take one file inside dir , if contains many it should be inside zip
-
         # check if download url will be generated from s3 or not from config
         if use_s3_to_upload:
             file_transfer_obj = S3FileTransfer()
@@ -315,6 +253,7 @@ def process_raw_data(self, params, user=None):
                     pattern = r"(hotosm_project_)(\d+)"
                     match = re.match(pattern, exportname)
                     if match:
+                        prefix = match.group(1)
                         project_number = match.group(2)
                         if project_number:
                             upload_name = f"TM/{project_number}/{exportname}"
@@ -333,15 +272,6 @@ def process_raw_data(self, params, user=None):
                 upload_name,
                 file_suffix="zip" if bind_zip else params.output_type.lower(),
             )
-
-            # If there's an HTML file, upload it too
-            if geojson_stats_html:
-                download_html_url = file_transfer_obj.upload(
-                    upload_html_path,
-                    upload_name,
-                    file_suffix="html",
-                )
-
         else:
             # give the static file download url back to user served from fastapi static export path
             download_url = str(upload_file_path)
@@ -367,9 +297,6 @@ def process_raw_data(self, params, user=None):
         }
         if polygon_stats:
             final_response["stats"] = polygon_stats
-        if download_html_url:
-            final_response["download_html_url"] = download_html_url
-
         return final_response
 
     except Exception as ex:

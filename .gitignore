@@ -24,5 +24,3 @@ Pipfile.lock
 #backend 
 backend/data
 backend/.env
-
-.DS_Store
