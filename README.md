@@ -128,6 +128,6 @@ For version control, We use commitizen, follow [docs](./docs/src/version_control
 
 ## Authors
 
-Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/raw-data-api/graphs/contributors)
+Created by [HOTOSM](https://hotosm.org) and [Friends](https://github.com/hotosm/raw-data-api/graphs/contributors).
 
 
