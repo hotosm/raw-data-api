@@ -1,3 +1,9 @@
+## 1.5.6 (2024-12-09)
+
+### Fix
+
+- **revert**: reverted changes of post processing for now
+
 ## 1.5.5 (2024-12-01)
 
 ### Fix
