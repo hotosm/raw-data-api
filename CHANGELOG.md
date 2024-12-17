@@ -1,3 +1,9 @@
+## 1.5.8 (2024-12-17)
+
+### Fix
+
+- **hotfixreferrers**: added hot fix to added referrers
+
 ## 1.5.7 (2024-12-17)
 
 ### Fix
