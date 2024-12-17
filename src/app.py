@@ -2241,7 +2241,8 @@ class DownloadMetrics:
                     SUM((folders->'{folder}'->>'interactions_count')::numeric) as total_interactions_count,
                     SUM((folders->'{folder}'->>'upload_size')::numeric) as total_upload_size,
                     SUM((folders->'{folder}'->>'download_size')::numeric) as total_download_size,
-                    JSONB_AGG((folders->'{folder}'->>'locations')::json) as total_locations
+                    JSONB_AGG((folders->'{folder}'->>'locations')::json) as total_locations,
+                    JSONB_AGG((summary->>'referrers')::json) as total_referrers
                 FROM
                     metrics
                 WHERE
@@ -2262,7 +2263,8 @@ class DownloadMetrics:
                     SUM((summary->>'interactions_count')::numeric) as total_interactions_count,
                     SUM((summary->>'upload_size')::numeric) as total_upload_size,
                     SUM((summary->>'download_size')::numeric) as total_download_size,
-                    JSONB_AGG((summary->>'locations')::json) as total_locations
+                    JSONB_AGG((summary->>'locations')::json) as total_locations,
+                    JSONB_AGG((summary->>'referrers')::json) as total_referrers
                 FROM
                     metrics
                 WHERE
@@ -2280,6 +2282,9 @@ class DownloadMetrics:
         for item in result:
             item["total_locations"] = dict(
                 sum((Counter(loc) for loc in item["total_locations"]), Counter())
+            )
+            item["total_referrers"] = dict(
+                sum((Counter(loc) for loc in item["total_referrers"]), Counter())
             )
             result_lists.append(dict(item))
 
