@@ -29,7 +29,7 @@ import subprocess
 import sys
 import time
 import uuid
-from collections import namedtuple
+from collections import Counter, namedtuple
 from datetime import datetime, timedelta, timezone
 from json import dumps
 from json import loads as json_loads
@@ -2226,32 +2226,61 @@ class DownloadMetrics:
         self.d_b = Database(dbdict)
         self.con, self.cur = self.d_b.connect()
 
-    def get_summary_stats(self, start_date, end_date, group_by):
+    def get_summary_stats(self, start_date, end_date, group_by, folder=None):
         """
-        Get summary metrics for raw-data-api downlaods
+        Get summary metrics for raw-data-api downloads
         """
-
-        select_query = f"""
-            SELECT
-                date_trunc('{group_by}', date) as kwdate,
-                SUM((summary->>'downloads_count')::numeric) as total_downloads_count,
-                SUM((summary->>'uploads_count')::numeric) as total_uploads_count,
-                SUM((summary->>'unique_users')::numeric) as total_unique_users,
-                SUM((summary->>'unique_downloads')::numeric) as total_unique_downloads,
-                SUM((summary->>'interactions_count')::numeric) as total_interactions_count,
-                SUM((summary->>'upload_size')::numeric) as total_upload_size,
-                SUM((summary->>'download_size')::numeric) as total_download_size
-            FROM
-                metrics
-            WHERE
-                date BETWEEN '{start_date}' AND '{end_date}'
-            GROUP BY
-                kwdate
-            ORDER BY
-                kwdate
-        """
+        if folder:
+            select_query = f"""
+                SELECT
+                    date_trunc('{group_by}', date) as kwdate,
+                    SUM((folders->'{folder}'->>'downloads_count')::numeric) as total_downloads_count,
+                    SUM((folders->'{folder}'->>'uploads_count')::numeric) as total_uploads_count,
+                    SUM((folders->'{folder}'->>'unique_users')::numeric) as total_unique_users,
+                    SUM((folders->'{folder}'->>'unique_downloads')::numeric) as total_unique_downloads,
+                    SUM((folders->'{folder}'->>'interactions_count')::numeric) as total_interactions_count,
+                    SUM((folders->'{folder}'->>'upload_size')::numeric) as total_upload_size,
+                    SUM((folders->'{folder}'->>'download_size')::numeric) as total_download_size,
+                    JSONB_AGG((folders->'{folder}'->>'locations')::json) as total_locations
+                FROM
+                    metrics
+                WHERE
+                    date BETWEEN '{start_date}' AND '{end_date}'
+                GROUP BY
+                    kwdate
+                ORDER BY
+                    kwdate
+            """
+        else:
+            select_query = f"""
+                SELECT
+                    date_trunc('{group_by}', date) as kwdate,
+                    SUM((summary->>'downloads_count')::numeric) as total_downloads_count,
+                    SUM((summary->>'uploads_count')::numeric) as total_uploads_count,
+                    SUM((summary->>'unique_users')::numeric) as total_unique_users,
+                    SUM((summary->>'unique_downloads')::numeric) as total_unique_downloads,
+                    SUM((summary->>'interactions_count')::numeric) as total_interactions_count,
+                    SUM((summary->>'upload_size')::numeric) as total_upload_size,
+                    SUM((summary->>'download_size')::numeric) as total_download_size,
+                    JSONB_AGG((summary->>'locations')::json) as total_locations
+                FROM
+                    metrics
+                WHERE
+                    date BETWEEN '{start_date}' AND '{end_date}'
+                GROUP BY
+                    kwdate
+                ORDER BY
+                    kwdate
+            """
 
         self.cur.execute(select_query)
         result = self.cur.fetchall()
         self.d_b.close_conn()
-        return [dict(item) for item in result]
+        result_lists = []
+        for item in result:
+            item["total_locations"] = dict(
+                sum((Counter(loc) for loc in item["total_locations"]), Counter())
+            )
+            result_lists.append(dict(item))
+
+        return result_lists
