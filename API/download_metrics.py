@@ -1,5 +1,6 @@
 # Standard library imports
 from datetime import datetime
+from typing import Optional
 
 # Third party imports
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -33,6 +34,11 @@ def get_stats(
         description="Group by: day, month, or quarter",
         regex=r"^(day|month|quarter|year)$",
     ),
+    folder: Optional[str] = Query(
+        None,
+        description="Folder to filter metrics by",
+        example="TM",
+    ),
     _: bool = Depends(staff_required),
 ):
     """
@@ -59,4 +65,4 @@ def get_stats(
         )
 
     metrics = DownloadMetrics()
-    return metrics.get_summary_stats(start_date, end_date, group_by)
+    return metrics.get_summary_stats(start_date, end_date, group_by, folder)
