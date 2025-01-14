@@ -185,6 +185,12 @@ ALLOW_BIND_ZIP_FILTER = get_bool_env_var(
     config.getboolean("API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=False),
 )
 
+SETUP_INITIAL_TABLES = get_bool_env_var(
+    "SETUP_INITIAL_TABLES",
+    config.getboolean("API_CONFIG", "SETUP_INITIAL_TABLES", fallback=False),
+)
+
+
 ENABLE_SOZIP = get_bool_env_var(
     "ENABLE_SOZIP",
     config.getboolean("API_CONFIG", "ENABLE_SOZIP", fallback=False),

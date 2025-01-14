@@ -64,6 +64,7 @@ from src.config import (
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import (
+    LOG_LEVEL,
     MAX_WORKERS,
     PARALLEL_PROCESSING_CATEGORIES,
     POLYGON_STATISTICS_API_URL,
@@ -1929,7 +1930,8 @@ class HDXUploader:
                 dataset_info["hdx_upload"] = "SUCCESS"
             except Exception as ex:
                 logging.error(ex)
-                # raise ex
+                if LOG_LEVEL == "DEBUG":
+                    raise ex
                 dataset_info["hdx_upload"] = "FAILED"
 
             dataset_info["name"] = self.dataset["name"]
