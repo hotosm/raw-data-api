@@ -39,6 +39,7 @@ from src.config import (
     LOG_LEVEL,
     SENTRY_DSN,
     SENTRY_RATE,
+    SETUP_INITIAL_TABLES,
     USE_CONNECTION_POOLING,
     USE_S3_TO_UPLOAD,
     get_db_connection_params,
@@ -158,20 +159,21 @@ async def on_startup():
         e: if connection is rejected to database
     """
     try:
-        sql_file_path = os.path.join(
-            os.path.realpath(os.path.dirname(__file__)), "data/tables.sql"
-        )
-        with open(sql_file_path, "r", encoding="UTF-8") as sql_file:
-            create_tables_sql = sql_file.read()
-        conn = psycopg2.connect(**get_db_connection_params())
-        cursor = conn.cursor()
-        # Execute SQL statements
-        cursor.execute(create_tables_sql)
-        conn.commit()
+        if SETUP_INITIAL_TABLES:
+            sql_file_path = os.path.join(
+                os.path.realpath(os.path.dirname(__file__)), "data/tables.sql"
+            )
+            with open(sql_file_path, "r", encoding="UTF-8") as sql_file:
+                create_tables_sql = sql_file.read()
+            conn = psycopg2.connect(**get_db_connection_params())
+            cursor = conn.cursor()
+            # Execute SQL statements
+            cursor.execute(create_tables_sql)
+            conn.commit()
 
-        # Close the cursor and connection
-        cursor.close()
-        conn.close()
+            # Close the cursor and connection
+            cursor.close()
+            conn.close()
 
         if USE_CONNECTION_POOLING:
             database_instance.connect()
