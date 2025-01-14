@@ -1,3 +1,9 @@
+## 1.5.9 (2025-01-14)
+
+### Fix
+
+- **readonly**: added necessary steps to implement readonly access
+
 ## 1.5.8 (2024-12-17)
 
 ### Fix
