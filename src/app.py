@@ -33,6 +33,7 @@ from collections import Counter, namedtuple
 from datetime import datetime, timedelta, timezone
 from json import dumps
 from json import loads as json_loads
+from .post_processing.processor import PostProcessor
 
 # Third party imports
 import boto3
@@ -947,7 +948,10 @@ class S3FileTransfer:
         start_time = time.time()
 
         try:
-            self.s_3.upload_file(str(file_path), BUCKET_NAME, str(file_name))
+            if file_path[-5:] == ".html":
+                self.s_3.upload_file(str(file_path), BUCKET_NAME, str(file_name), ExtraArgs={'ContentType': 'text/html'})
+            else:
+                self.s_3.upload_file(str(file_path), BUCKET_NAME, str(file_name))
         except Exception as ex:
             logging.error(ex)
             raise ex
@@ -1385,6 +1389,12 @@ class CustomExport:
             temp_zip_path = resource["url"]
             resource["url"] = self.upload_resources(resource_path=temp_zip_path)
             os.remove(temp_zip_path)
+
+            if resource.get("stats_html"):
+                temp_stats_html_path = resource["stats_html"]
+                resource["stats_html"] = self.upload_resources(resource_path=temp_stats_html_path)
+                os.remove(temp_stats_html_path)
+
         return resources
 
     def file_to_zip(self, working_dir, zip_path):
@@ -1491,6 +1501,26 @@ class CustomExport:
                 )
                 run_ogr2ogr_cmd(ogr2ogr_cmd)
 
+            # Post-processing GeoJSON files
+            # Adds: stats, HTML stats summary and transliterations
+            if export_format.driver_name == "GeoJSON" and (
+                self.params.include_stats or self.params.include_translit
+            ):
+                post_processor = PostProcessor(
+                    {
+                        "include_stats": self.params.include_stats,
+                        "include_translit": self.params.include_translit,
+                        "include_stats_html": self.params.include_stats_html,
+                    }
+                )
+                post_processor.init()
+                post_processor.custom(
+                    category_name=category_name,
+                    export_format_path=export_format_path,
+                    export_filename=export_filename,
+                    file_export_path=file_export_path,
+                )
+
             zip_file_path = os.path.join(file_export_path, f"{export_filename}.zip")
             zip_path = self.file_to_zip(export_format_path, zip_file_path)
 
@@ -1500,6 +1530,9 @@ class CustomExport:
             resource["format"] = export_format.suffix
             resource["description"] = export_format.driver_name
             resource["size"] = os.path.getsize(zip_path)
+            if self.params.include_stats_html and export_format.driver_name == "GeoJSON":
+                resource["stats_html"] = f"{file_export_path}/stats-summary.html"
+
             # resource["last_modified"] = datetime.now().isoformat()
             logging.info(
                 "Done %s:%s in %s",
@@ -1894,6 +1927,10 @@ class HDXUploader:
             resource_obj = Resource(resource_meta)
             resource_obj.mark_data_updated()
             self.dataset.add_update_resource(resource_obj)
+
+            # Add customviz if available
+            if resource_meta.get("stats_html"):
+                self.dataset.update({"customviz": [{"url": resource_meta["stats_html"]}]})
 
     def upload_dataset(self, dump_config_to_s3=False):
         """

@@ -175,6 +175,14 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
         },
         description="Filter for point,line,polygon/ all geometry for both select and where clause, All geometry filter means : It will apply the same filter to all the geometry type",
     )
+    include_stats_html: Optional[bool] = Field(
+        default=False,
+        description="Includes detailed stats about the polygon passed such as buildings count , road count along with summary about data completeness in the area",
+    )
+    include_translit: Optional[bool] = Field(
+        default=False,
+        description="Includes transliterations",
+    )    
     geometry: Union[
         Polygon,
         MultiPolygon,
@@ -540,7 +548,11 @@ class DatasetConfig(BaseModel):
         description="Default base folder for the exports",
         example="ISO3",
     )
-
+    customviz: Optional[List[dict[str, str]]] | None = Field(
+        default=[],
+        description="List of objects for custom visualization",
+        example="[{'url': 'https://something.org/datasetviz.html'}]",
+    )
     @validator("update_frequency")
     def validate_frequency(cls, value):
         """Validates frequency
@@ -610,6 +622,9 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
 
     Fields:
     - iso3 (Optional[str]): ISO3 Country Code.
+    - include_stats (bool): Include a JSON file with stats. Available for GeoJSON exports only.
+    - include_stats_html (bool): Include a HTML file with a stats summary. Available for GeoJSON exports only.
+    - include_translit (bool): Add transliterations. Available for GeoJSON exports only.
     - dataset (Optional[DatasetConfig]): Dataset Configurations for HDX Upload.
     - meta (bool): Dumps Meta db in parquet format & HDX config JSON to S3.
     - hdx_upload (bool): Enable/Disable uploading the dataset to HDX.
@@ -623,6 +638,18 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         min_length=3,
         max_length=3,
         example="USA",
+    )
+    include_stats: Optional[bool] = Field(
+        default=False,
+        description="Include a JSON file with stats. Available for GeoJSON exports only.",
+    )
+    include_stats_html: Optional[bool] = Field(
+        default=False,
+        description="Include a HTML file with a stats summary. Available for GeoJSON exports only.",
+    )
+    include_translit: Optional[bool] = Field(
+        default=False,
+        description="Add transliterations. Available for GeoJSON exports only.",
     )
     geometry: Optional[
         Union[Polygon, MultiPolygon, Feature, FeatureCollection]
