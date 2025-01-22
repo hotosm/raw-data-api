@@ -27,7 +27,9 @@ class PostProcessor:
 
         return json.dumps(line_object)
 
-    def custom(self, category_name, export_format_path, export_filename, file_export_path):
+    def custom(
+        self, category_name, export_format_path, export_filename, file_export_path
+    ):
         """
         Post-process custom exports
         """
@@ -52,9 +54,7 @@ class PostProcessor:
                 self.geoJSONStats.config.keys.append(category_tag)
                 self.geoJSONStats.config.value_keys.append(category_tag)
 
-            path_input = os.path.join(
-                export_format_path, f"{export_filename}.geojson"
-            )
+            path_input = os.path.join(export_format_path, f"{export_filename}.geojson")
             path_output = os.path.join(
                 export_format_path, f"{export_filename}-post.geojson"
             )
@@ -103,9 +103,7 @@ class PostProcessor:
                     "{tpl}_tpl.html".format(tpl=tpl),
                 )
                 geojson_stats_html = self.geoJSONStats.html(tpl_path).build()
-                upload_html_path = os.path.join(
-                    file_export_path, "stats-summary.html"
-                )
+                upload_html_path = os.path.join(file_export_path, "stats-summary.html")
                 with open(upload_html_path, "w") as f:
                     f.write(geojson_stats_html)
 

@@ -949,7 +949,12 @@ class S3FileTransfer:
 
         try:
             if file_path[-5:] == ".html":
-                self.s_3.upload_file(str(file_path), BUCKET_NAME, str(file_name), ExtraArgs={'ContentType': 'text/html'})
+                self.s_3.upload_file(
+                    str(file_path),
+                    BUCKET_NAME,
+                    str(file_name),
+                    ExtraArgs={"ContentType": "text/html"},
+                )
             else:
                 self.s_3.upload_file(str(file_path), BUCKET_NAME, str(file_name))
         except Exception as ex:
@@ -1392,7 +1397,9 @@ class CustomExport:
 
             if resource.get("stats_html"):
                 temp_stats_html_path = resource["stats_html"]
-                resource["stats_html"] = self.upload_resources(resource_path=temp_stats_html_path)
+                resource["stats_html"] = self.upload_resources(
+                    resource_path=temp_stats_html_path
+                )
                 os.remove(temp_stats_html_path)
 
         return resources
@@ -1530,7 +1537,10 @@ class CustomExport:
             resource["format"] = export_format.suffix
             resource["description"] = export_format.driver_name
             resource["size"] = os.path.getsize(zip_path)
-            if self.params.include_stats_html and export_format.driver_name == "GeoJSON":
+            if (
+                self.params.include_stats_html
+                and export_format.driver_name == "GeoJSON"
+            ):
                 resource["stats_html"] = f"{file_export_path}/stats-summary.html"
 
             # resource["last_modified"] = datetime.now().isoformat()
@@ -1930,7 +1940,9 @@ class HDXUploader:
 
             # Add customviz if available
             if resource_meta.get("stats_html"):
-                self.dataset.update({"customviz": [{"url": resource_meta["stats_html"]}]})
+                self.dataset.update(
+                    {"customviz": [{"url": resource_meta["stats_html"]}]}
+                )
 
     def upload_dataset(self, dump_config_to_s3=False):
         """

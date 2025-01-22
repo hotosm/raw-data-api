@@ -182,7 +182,7 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
     include_translit: Optional[bool] = Field(
         default=False,
         description="Includes transliterations",
-    )    
+    )
     geometry: Union[
         Polygon,
         MultiPolygon,
@@ -553,6 +553,7 @@ class DatasetConfig(BaseModel):
         description="List of objects for custom visualization",
         example="[{'url': 'https://something.org/datasetviz.html'}]",
     )
+
     @validator("update_frequency")
     def validate_frequency(cls, value):
         """Validates frequency
