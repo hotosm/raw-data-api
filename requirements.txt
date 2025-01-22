@@ -28,6 +28,8 @@ python-slugify==8.0.1
 geomet==1.1.0
 PyYAML==6.0.1
 geojson-stats==0.2.5
+transliterate==1.10.2
+
 ## documentation
 # mkdocs-material==8.5.11
 # mkdocs-jupyter==0.22.0
