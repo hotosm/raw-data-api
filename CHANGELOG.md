@@ -1,3 +1,9 @@
+## 1.5.10 (2025-01-28)
+
+### Fix
+
+- **stats-endpoint-visualization**: visualization hdx fixes
+
 ## 1.5.9 (2025-01-14)
 
 ### Fix
