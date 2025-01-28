@@ -33,7 +33,6 @@ from collections import Counter, namedtuple
 from datetime import datetime, timedelta, timezone
 from json import dumps
 from json import loads as json_loads
-from .post_processing.processor import PostProcessor
 
 # Third party imports
 import boto3
@@ -96,6 +95,8 @@ from src.query_builder.builder import (
     raw_currentdata_extraction_query,
 )
 from src.validation.models import EXPORT_TYPE_MAPPING, RawDataOutputType
+
+from .post_processing.processor import PostProcessor
 
 if ENABLE_SOZIP:
     # Third party imports
@@ -1070,7 +1071,7 @@ class PolygonStats:
             try:
                 query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
                 payload = {"query": query}
-                response = requests.post(self.API_URL, json=payload, timeout=20)
+                response = requests.post(self.API_URL, json=payload, timeout=45)
                 response.raise_for_status()
                 return response.json()
             except Exception as e:
