@@ -1,3 +1,9 @@
+## 1.5.11 (2025-01-28)
+
+### Fix
+
+- **timeout**: increased timeout for the stats api
+
 ## 1.5.10 (2025-01-28)
 
 ### Fix
