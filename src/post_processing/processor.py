@@ -36,6 +36,9 @@ class PostProcessor:
         return json.dumps(line_object)
 
     def get_categories_config(self, category_name):
+        """
+        Get configuration for categories
+        """
         config = CATEGORIES_CONFIG.get(category_name)
         return config if config else CATEGORIES_CONFIG["default"]
 
