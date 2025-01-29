@@ -5,22 +5,13 @@ import os
 import pathlib
 
 CATEGORIES_CONFIG = {
-    "roads": {
-        "tag": "highway", "length": True, "area": False
-    },
-    "buildings": {
-        "tag": "building", "length": False, "area": True
-    },
-    "waterways": {
-        "tag": "waterway", "length": True, "area": False
-    },
-    "railways": {
-        "tag": "railway", "length": True, "area": False
-    },
-    "default": {
-        "tag": None, "length": False, "area": False
-    },
+    "roads": {"tag": "highway", "length": True, "area": False},
+    "buildings": {"tag": "building", "length": False, "area": True},
+    "waterways": {"tag": "waterway", "length": True, "area": False},
+    "railways": {"tag": "railway", "length": True, "area": False},
+    "default": {"tag": None, "length": False, "area": False},
 }
+
 
 class PostProcessor:
     """Used for post-process GeoJSON files"""
@@ -62,7 +53,6 @@ class PostProcessor:
         self.geoJSONStats.config.area = category_config["area"]
 
         if self.options["include_stats"]:
-
             path_input = os.path.join(export_format_path, f"{export_filename}.geojson")
             path_output = os.path.join(
                 export_format_path, f"{export_filename}-post.geojson"
@@ -111,7 +101,9 @@ class PostProcessor:
                     project_root,
                     "{tpl}_tpl.html".format(tpl=tpl),
                 )
-                geojson_stats_html = self.geoJSONStats.html(tpl_path, {"title": f"{export_filename}.geojson"}).build()
+                geojson_stats_html = self.geoJSONStats.html(
+                    tpl_path, {"title": f"{export_filename}.geojson"}
+                ).build()
                 upload_html_path = os.path.join(file_export_path, "stats-summary.html")
                 with open(upload_html_path, "w") as f:
                     f.write(geojson_stats_html)

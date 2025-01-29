@@ -1,6 +1,7 @@
 from geojson_stats.stats import Stats
 from geojson_stats.html import Html
 
+
 class GeoJSONStats(Stats):
     """Used for collecting stats while processing GeoJSON files"""
 

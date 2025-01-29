@@ -1945,12 +1945,20 @@ class HDXUploader:
             if resource_meta.get("stats_html"):
                 dataset_customviz = self.dataset.get("customviz")
                 if not dataset_customviz:
-                    dataset_customviz = [{"name": resource_meta["name"], "url": resource_meta["stats_html"]}]
+                    dataset_customviz = [
+                        {
+                            "name": resource_meta["name"],
+                            "url": resource_meta["stats_html"],
+                        }
+                    ]
                 else:
-                    dataset_customviz.append({"name": resource_meta["name"], "url": resource_meta["stats_html"]})
-                self.dataset.update(
-                    {"customviz": dataset_customviz}
-                )
+                    dataset_customviz.append(
+                        {
+                            "name": resource_meta["name"],
+                            "url": resource_meta["stats_html"],
+                        }
+                    )
+                self.dataset.update({"customviz": dataset_customviz})
 
     def upload_dataset(self, dump_config_to_s3=False):
         """
