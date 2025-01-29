@@ -43,7 +43,7 @@ class PostProcessor:
             fn(line_object)
 
         return json.dumps(line_object)
-    
+
     def get_categories_config(self, category_name):
         config = CATEGORIES_CONFIG.get(category_name)
         return config if config else CATEGORIES_CONFIG["default"]
@@ -62,9 +62,6 @@ class PostProcessor:
         self.geoJSONStats.config.area = category_config["area"]
 
         if self.options["include_stats"]:
-            if category_tag:
-                self.geoJSONStats.config.keys.append(category_tag)
-                self.geoJSONStats.config.value_keys.append(category_tag)
 
             path_input = os.path.join(export_format_path, f"{export_filename}.geojson")
             path_output = os.path.join(
