@@ -4,9 +4,26 @@ from .geojson_stats import GeoJSONStats
 import os
 import pathlib
 
+CATEGORIES_CONFIG = {
+    "roads": {
+        "tag": "highway", "length": True, "area": False
+    },
+    "buildings": {
+        "tag": "building", "length": False, "area": True
+    },
+    "waterways": {
+        "tag": "waterway", "length": True, "area": False
+    },
+    "railways": {
+        "tag": "railway", "length": True, "area": False
+    },
+    "default": {
+        "tag": None, "length": False, "area": False
+    },
+}
 
 class PostProcessor:
-    """Used for posst-process data while processing GeoJSON files line by line"""
+    """Used for post-process GeoJSON files"""
 
     options = {}
     filters = {}
@@ -26,6 +43,10 @@ class PostProcessor:
             fn(line_object)
 
         return json.dumps(line_object)
+    
+    def get_categories_config(self, category_name):
+        config = CATEGORIES_CONFIG.get(category_name)
+        return config if config else CATEGORIES_CONFIG["default"]
 
     def custom(
         self, category_name, export_format_path, export_filename, file_export_path
@@ -35,19 +56,10 @@ class PostProcessor:
         """
         self.geoJSONStats.config.properties_prop = "properties"
 
-        category_tag = ""
-        if category_name == "roads":
-            category_tag = "highway"
-            self.geoJSONStats.config.length = True
-        elif category_name == "buildings":
-            category_tag = "building"
-            self.geoJSONStats.config.area = True
-        elif category_name == "waterways":
-            category_tag = "waterway"
-            self.geoJSONStats.config.length = True
-        elif category_name == "railways":
-            category_tag = "railway"
-            self.geoJSONStats.config.length = True
+        category_config = self.get_categories_config(category_name)
+        category_tag = category_config["tag"]
+        self.geoJSONStats.config.length = category_config["length"]
+        self.geoJSONStats.config.area = category_config["area"]
 
         if self.options["include_stats"]:
             if category_tag:
@@ -102,7 +114,7 @@ class PostProcessor:
                     project_root,
                     "{tpl}_tpl.html".format(tpl=tpl),
                 )
-                geojson_stats_html = self.geoJSONStats.html(tpl_path).build()
+                geojson_stats_html = self.geoJSONStats.html(tpl_path, {"title": f"{export_filename}.geojson"}).build()
                 upload_html_path = os.path.join(file_export_path, "stats-summary.html")
                 with open(upload_html_path, "w") as f:
                     f.write(geojson_stats_html)
