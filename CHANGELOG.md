@@ -1,3 +1,10 @@
+## 1.5.12 (2025-01-29)
+
+### Refactor
+
+- Remove unused stats collection, fix stats templates
+- Multiple custom visualizations for custom/HDX exports
+
 ## 1.5.11 (2025-01-28)
 
 ### Fix

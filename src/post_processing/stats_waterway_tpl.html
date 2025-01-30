@@ -3,31 +3,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/hot.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>HOT Export Stats</title>
     <style type="text/css">
-
         :root,
         :host,
         .hot-theme-light {
-            --hot-color-red-700: #C53639;
-            --hot-color-gray-950: #2C3038;
             --hot-font-sans: Archivo, -apple-system, Roboto, Helvetica, Arial, sans-serif,
   'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
             --hot-font-size-2x-large: 2.25rem; /* 36px */
             --hot-font-size-medium: 1rem; /* 16px */
             --hot-font-size-small: 0.875rem; /* 14px */
+            --hot-font-weight-normal: 400;
             --hot-border-radius-medium: 0.25rem; /* 4px */
             --hot-color-neutral-0: #fff;
-            --hot-color-gray-200: #C4C3C5;
+            --hot-color-red-700: #C53639;
             --hot-color-gray-50: #F3F3F3;
+            --hot-color-gray-200: #C4C3C5;
+            --hot-color-gray-100: #E1E0E1;
+            --hot-color-gray-400: #9A969B;
+            --hot-color-gray-950: #2C3038;
             --hot-spacing-medium: 1rem;
             --hot-spacing-x-small: 0.5rem; /* 8px */
-            --hot-color-gray-100: #E1E0E1;
         }
         body {
             font-family: var(--hot-font-sans);
@@ -41,6 +41,11 @@
             font-size: 100%;
             vertical-align: baseline;
             background: transparent;
+        }
+        h2 {
+            margin-left: var(--hot-spacing-medium);
+            color: var(--hot-color-gray-400);
+            font-weight: var(--hot-font-weight-normal);
         }
         .container {
             display: flex;
@@ -96,6 +101,7 @@
   </head>
   <body>
     <div id="root">
+        <h2>${title}</h2>
         <div class="container">
             <div class="box featured">
                 <h3>${key_waterway_length}</h3>

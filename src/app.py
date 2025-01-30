@@ -1299,6 +1299,7 @@ class CustomExport:
         self.default_export_base_name = (
             self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix
         )
+
         self.default_export_path = os.path.join(
             export_path,
             self.uuid,
@@ -1307,6 +1308,7 @@ class CustomExport:
         )
         if os.path.exists(self.default_export_path):
             shutil.rmtree(self.default_export_path, ignore_errors=True)
+
         os.makedirs(self.default_export_path)
 
         if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
@@ -1941,9 +1943,22 @@ class HDXUploader:
 
             # Add customviz if available
             if resource_meta.get("stats_html"):
-                self.dataset.update(
-                    {"customviz": [{"url": resource_meta["stats_html"]}]}
-                )
+                dataset_customviz = self.dataset.get("customviz")
+                if not dataset_customviz:
+                    dataset_customviz = [
+                        {
+                            "name": resource_meta["name"],
+                            "url": resource_meta["stats_html"],
+                        }
+                    ]
+                else:
+                    dataset_customviz.append(
+                        {
+                            "name": resource_meta["name"],
+                            "url": resource_meta["stats_html"],
+                        }
+                    )
+                self.dataset.update({"customviz": dataset_customviz})
 
     def upload_dataset(self, dump_config_to_s3=False):
         """
