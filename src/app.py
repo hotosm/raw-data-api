@@ -949,7 +949,7 @@ class S3FileTransfer:
         start_time = time.time()
 
         try:
-            if file_path[-5:] == ".html":
+            if type(file_path) == str and file_path[-5:] == ".html":
                 self.s_3.upload_file(
                     str(file_path),
                     BUCKET_NAME,
