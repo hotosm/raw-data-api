@@ -1,3 +1,9 @@
+## 1.5.13 (2025-02-03)
+
+### Fix
+
+- **S3FileTransfer.upload**: fix upload when file_path is not a string
+
 ## 1.5.12 (2025-01-29)
 
 ### Refactor
