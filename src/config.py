@@ -55,6 +55,10 @@ CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or config.get(
 CELERY_BROKER_HEARTBEAT = os.environ.get("CELERY_BROKER_HEARTBEAT") or config.get(
     "CELERY", "CELERY_BROKER_HEARTBEAT", fallback=120
 )
+CELERY_WORKER_LOST_WAIT = os.environ.get("CELERY_WORKER_LOST_WAIT") or config.get(
+    "CELERY", "CELERY_WORKER_LOST_WAIT ", fallback=10
+)
+
 WORKER_PREFETCH_MULTIPLIER = int(
     os.environ.get("WORKER_PREFETCH_MULTIPLIER")
     or config.get("CELERY", "WORKER_PREFETCH_MULTIPLIER", fallback=1)

@@ -20,6 +20,7 @@ from src.config import ALLOW_BIND_ZIP_FILTER, CELERY_BROKER_HEARTBEAT
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
 from src.config import (
+    CELERY_WORKER_LOST_WAIT,
     DEFAULT_HARD_TASK_LIMIT,
     DEFAULT_README_TEXT,
     DEFAULT_SOFT_TASK_LIMIT,
@@ -51,6 +52,7 @@ celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
 celery.conf.result_backend = celery_backend
 celery.conf.broker_heartbeat = CELERY_BROKER_HEARTBEAT
+celery.conf.worker_lost_wait = CELERY_WORKER_LOST_WAIT
 # celery.conf.task_serializer = "pickle"
 # celery.conf.result_serializer = "json"
 # celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
