@@ -1063,6 +1063,7 @@ class PolygonStats:
         MAX_RETRIES = 2  # Maximum number of retries
         INITIAL_DELAY = 1  # Initial delay in seconds
         MAX_DELAY = 8
+        API_TIMEOUT = 10
 
         retries = 0
         delay = INITIAL_DELAY
@@ -1071,7 +1072,9 @@ class PolygonStats:
             try:
                 query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
                 payload = {"query": query}
-                response = requests.post(self.API_URL, json=payload, timeout=45)
+                response = requests.post(
+                    self.API_URL, json=payload, timeout=API_TIMEOUT
+                )
                 response.raise_for_status()
                 return response.json()
             except Exception as e:
