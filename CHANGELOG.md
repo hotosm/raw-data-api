@@ -1,3 +1,10 @@
+## 1.5.15 (2025-02-11)
+
+### Fix
+
+- **worker**: added worker lost wait in worker
+- **worker**: fixes bug on the heartbeat
+
 ## 1.5.14 (2025-02-10)
 
 ### Fix
