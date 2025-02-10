@@ -16,7 +16,7 @@ from celery import Celery
 
 # Reader imports
 from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
-from src.config import ALLOW_BIND_ZIP_FILTER
+from src.config import ALLOW_BIND_ZIP_FILTER, CELERY_BROKER_HEARTBEAT
 from src.config import CELERY_BROKER_URL as celery_broker_uri
 from src.config import CELERY_RESULT_BACKEND as celery_backend
 from src.config import (
@@ -50,6 +50,7 @@ else:
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
 celery.conf.result_backend = celery_backend
+celery.conf.broker_heartbeat = CELERY_BROKER_HEARTBEAT
 # celery.conf.task_serializer = "pickle"
 # celery.conf.result_serializer = "json"
 # celery.conf.accept_content = ["application/json", "application/x-python-serialize"]

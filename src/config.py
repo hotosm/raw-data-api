@@ -52,6 +52,9 @@ CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or config.get(
     "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
 )
 
+CELERY_BROKER_HEARTBEAT = os.environ.get("CELERY_BROKER_HEARTBEAT") or config.get(
+    "CELERY", "CELERY_BROKER_HEARTBEAT", fallback=120
+)
 WORKER_PREFETCH_MULTIPLIER = int(
     os.environ.get("WORKER_PREFETCH_MULTIPLIER")
     or config.get("CELERY", "WORKER_PREFETCH_MULTIPLIER", fallback=1)
