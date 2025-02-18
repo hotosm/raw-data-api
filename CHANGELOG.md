@@ -1,3 +1,10 @@
+## 1.5.16 (2025-02-18)
+
+### Fix
+
+- **workers**: avoid requeue of task if not acks
+- **worker**: set task_acks_late to False in api_worker.py
+
 ## 1.5.15 (2025-02-11)
 
 ### Fix
