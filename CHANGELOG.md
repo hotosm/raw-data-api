@@ -1,3 +1,9 @@
+## 1.5.17 (2025-02-18)
+
+### Fix
+
+- **taskreject**: avoid worker acks
+
 ## 1.5.16 (2025-02-18)
 
 ### Fix
