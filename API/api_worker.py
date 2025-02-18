@@ -58,7 +58,7 @@ celery.conf.worker_lost_wait = CELERY_WORKER_LOST_WAIT
 # celery.conf.accept_content = ["application/json", "application/x-python-serialize"]
 celery.conf.task_track_started = True
 celery.conf.update(result_extended=True)
-# celery.conf.task_reject_on_worker_lost = True
+celery.conf.task_reject_on_worker_lost = False
 celery.conf.task_acks_late = False  # to avoid task duplication
 
 if WORKER_PREFETCH_MULTIPLIER:
