@@ -1526,8 +1526,7 @@ class CustomExport:
                         "include_stats_html": self.params.include_stats_html,
                     }
                 )
-                post_processor.init()
-                post_processor.custom(
+                post_processor.stats(
                     category_name=category_name,
                     export_format_path=export_format_path,
                     export_filename=export_filename,
