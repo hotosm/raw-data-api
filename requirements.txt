@@ -27,7 +27,7 @@ humanize==4.9.0
 python-slugify==8.0.1
 geomet==1.1.0
 PyYAML==6.0.1
-geojson-stats==0.2.6
+geojson-stats==0.2.7
 transliterate==1.10.2
 
 ## documentation
