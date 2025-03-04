@@ -1,3 +1,9 @@
+## 1.5.18 (2025-03-04)
+
+### Fix
+
+- **post_processing**: Fixes wrong stats and add more detailed HTML stats for custom exports. Disable transliterations for now
+
 ## 1.5.17 (2025-02-18)
 
 ### Fix
