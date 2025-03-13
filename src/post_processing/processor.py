@@ -47,7 +47,11 @@ class PostProcessor:
             path_input = os.path.join(export_format_path, f"{export_filename}.geojson")
             stats = Stats(config)
             stats.process_file_stream(path_input)
+
+            # Remove redundant stats
             del stats.results.key["osm_id"]
+            del stats.results.key["osm_type"]
+
             stats_json = stats.json()
 
             # Save raw stats
