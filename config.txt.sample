@@ -68,5 +68,5 @@ FILE_UPLOAD_METHOD=disk
 # The error sample rate is a number between 0 and 1 representing a
 # percentage. 0.25 is 25% and 0.66 is 66%. 1 is 100%
 [SENTRY]
-SENTRY_DSN=https://763960aef8313b9df05e58432e37110d@o12345.ingest.sentry.io/0987654
+SENTRY_DSN=https://xyz@o12345.ingest.sentry.io/0987654
 SENTRY_RATE=0.25
