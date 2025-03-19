@@ -1,3 +1,9 @@
+## 1.5.19 (2025-03-19)
+
+### Fix
+
+- **oldexports**: cleans up old exports based on the env variable
+
 ## 1.5.18 (2025-03-04)
 
 ### Fix
