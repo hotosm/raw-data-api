@@ -49,8 +49,10 @@ class PostProcessor:
             stats.process_file_stream(path_input)
 
             # Remove redundant stats
-            del stats.results.key["osm_id"]
-            del stats.results.key["osm_type"]
+            if "osm_id" in stats.results.key:
+                del stats.results.key["osm_id"]
+            if "osm_type" in stats.results.key:
+                del stats.results.key["osm_type"]
 
             stats_json = stats.json()
 
