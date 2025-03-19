@@ -219,7 +219,9 @@ ENABLE_OLD_EXPORTS_CLEANUP = get_bool_env_var(
     config.getboolean("API_CONFIG", "ENABLE_OLD_EXPORTS_CLEANUP", fallback=False),
 )
 
-OLD_EXPORTS_CLEANUP_DAYS = os.environ.get("OLD_EXPORTS_CLEANUP_DAYS") or config.get("API_CONFIG", "OLD_EXPORTS_CLEANUP_DAYS", fallback=4)
+OLD_EXPORTS_CLEANUP_DAYS = os.environ.get("OLD_EXPORTS_CLEANUP_DAYS") or config.get(
+    "API_CONFIG", "OLD_EXPORTS_CLEANUP_DAYS", fallback=4
+)
 
 # Queue
 
