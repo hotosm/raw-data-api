@@ -1175,6 +1175,8 @@ def test_full_hdx_set_iso():
     payload = {
         "iso3": "NPL",
         "hdx_upload": False,
+        "include_stats": True,
+        "include_stats_html": True,
         "categories": [
             {
                 "Buildings": {
