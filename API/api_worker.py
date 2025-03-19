@@ -48,6 +48,20 @@ else:
     # Standard library imports
     import zipfile
 
+# Sentry initialization
+# Reader imports
+from src.config import SENTRY_DSN, SENTRY_RATE
+
+if SENTRY_DSN:
+    # Third party imports
+    import sentry_sdk
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        traces_sample_rate=SENTRY_RATE,
+    )
+
+
+
 celery = Celery("Raw Data API")
 celery.conf.broker_url = celery_broker_uri
 celery.conf.result_backend = celery_backend
