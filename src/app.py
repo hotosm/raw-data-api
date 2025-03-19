@@ -94,6 +94,7 @@ from src.query_builder.builder import (
     postgres2duckdb_query,
     raw_currentdata_extraction_query,
 )
+from src.utils import create_working_dir
 from src.validation.models import EXPORT_TYPE_MAPPING, RawDataOutputType
 
 from .post_processing.processor import PostProcessor
@@ -736,7 +737,7 @@ class RawData:
         working_dir = os.path.join(self.base_export_working_dir, exportname)
         if not os.path.exists(working_dir):
             # Create a exports directory because it does not exist
-            os.makedirs(working_dir)
+            create_working_dir(working_dir)
         # create file path with respect to of output type
 
         dump_temp_file_path = os.path.join(
