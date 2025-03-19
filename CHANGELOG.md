@@ -1,3 +1,10 @@
+## 1.5.21 (2025-03-19)
+
+### Fix
+
+- **sentry**: fixes sentry issue in api workers
+- **post_processing**: Update geojson-stats package
+
 ## 1.5.20 (2025-03-19)
 
 ### Fix
