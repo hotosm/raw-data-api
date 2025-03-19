@@ -1,3 +1,11 @@
+## 1.5.20 (2025-03-19)
+
+### Fix
+
+- **post_processing**: Update geojson-stats package for fix missing check for dict prop
+- **config**: update SENTRY_DSN to use a placeholder value
+- **post_processing**: Fix missing check for property in dict
+
 ## 1.5.19 (2025-03-19)
 
 ### Fix
