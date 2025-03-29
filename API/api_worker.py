@@ -55,11 +55,11 @@ from src.config import SENTRY_DSN, SENTRY_RATE
 if SENTRY_DSN:
     # Third party imports
     import sentry_sdk
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         traces_sample_rate=SENTRY_RATE,
     )
-
 
 
 celery = Celery("Raw Data API")
