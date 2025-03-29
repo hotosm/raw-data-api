@@ -1803,7 +1803,6 @@ class CustomExport:
                     total=len(futures),
                     desc=f"{self.default_export_base_name} : Processing Categories",
                 ):
-
                     uploaded_resources = future.result()
                     dataset_results.append(uploaded_resources)
 
