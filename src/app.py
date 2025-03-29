@@ -1657,7 +1657,11 @@ class CustomExport:
                 timedelta(seconds=(time.time() - category_start_time))
             ),
         )
-        return all_uploaded_resources
+        return self.process_category_result(
+            namedtuple("CategoryResult", ["category", "uploaded_resources"])(
+                category=category, uploaded_resources=all_uploaded_resources
+            )
+        )
 
     def resource_to_response(self, uploaded_resources, category):
         """
@@ -1783,11 +1787,6 @@ class CustomExport:
                     humanize.naturaldelta(timedelta(seconds=(time.time() - start))),
                 )
 
-        CategoryResult = namedtuple(
-            "CategoryResult", ["category", "uploaded_resources"]
-        )
-
-        tag_process_results = []
         dataset_results = []
         if len(self.params.categories) > 1 and PARALLEL_PROCESSING_CATEGORIES is True:
             self.parallel_process_state = True
@@ -1804,29 +1803,14 @@ class CustomExport:
                     total=len(futures),
                     desc=f"{self.default_export_base_name} : Processing Categories",
                 ):
-                    category = futures[future]
-                    uploaded_resources = future.result()
-                    category_result = CategoryResult(
-                        category=category, uploaded_resources=uploaded_resources
-                    )
-                    tag_process_results.append(category_result)
-        else:
-            resources = self.process_category(self.params.categories[0])
-            category_result = CategoryResult(
-                category=self.params.categories[0], uploaded_resources=resources
-            )
-            tag_process_results.append(category_result)
-        logging.info("Export generation is done, Moving forward to process result")
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = {
-                executor.submit(self.process_category_result, result): result
-                for result in tag_process_results
-            }
 
-            for future in concurrent.futures.as_completed(futures):
-                result = futures[future]
-                result_data = future.result()
-                dataset_results.append(result_data)
+                    uploaded_resources = future.result()
+                    dataset_results.append(uploaded_resources)
+
+        else:
+            uploaded_resources = self.process_category(self.params.categories[0])
+            dataset_results.append(uploaded_resources)
+        logging.info("Export generation is done")
 
         result = {"datasets": dataset_results}
         if self.params.meta:
