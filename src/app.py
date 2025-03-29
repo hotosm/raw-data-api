@@ -1981,10 +1981,8 @@ class HDXUploader:
                 dataset_info["hdx_upload"] = "SUCCESS"
             except Exception as ex:
                 logging.error(ex)
-                print(self.dataset)
                 if LOG_LEVEL == "DEBUG":
                     raise ex
-                raise ex
                 dataset_info["hdx_upload"] = "FAILED"
 
             dataset_info["name"] = self.dataset["name"]
