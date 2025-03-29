@@ -1174,7 +1174,14 @@ def test_full_hdx_set_iso():
     headers = {"access-token": access_token}
     payload = {
         "iso3": "NPL",
-        "hdx_upload": False,
+        "hdx_upload": True,
+        "dataset": {
+            "subnational": True,
+            "dataset_title": "Pokhara",
+            "dataset_folder": "Test",
+            "dataset_prefix": "hotosm_pkr",
+            "dataset_locations": ["npl"],
+        },
         "include_stats": True,
         "include_stats_html": True,
         "categories": [
