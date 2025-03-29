@@ -1176,7 +1176,7 @@ def test_full_hdx_set_iso():
         "iso3": "NPL",
         "hdx_upload": True,
         "dataset": {
-            "subnational": True,
+            "subnational": False,
             "dataset_title": "Nepal Test",
             "dataset_folder": "NepalTest",
             "dataset_prefix": "hotosm_npl_test",
