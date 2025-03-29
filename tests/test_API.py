@@ -1177,9 +1177,9 @@ def test_full_hdx_set_iso():
         "hdx_upload": True,
         "dataset": {
             "subnational": True,
-            "dataset_title": "Pokhara",
-            "dataset_folder": "Test",
-            "dataset_prefix": "hotosm_pkr",
+            "dataset_title": "Nepal Test",
+            "dataset_folder": "NepalTest",
+            "dataset_prefix": "hotosm_npl_test",
             "dataset_locations": ["npl"],
         },
         "include_stats": True,
