@@ -1,3 +1,9 @@
+## 1.5.22 (2025-03-29)
+
+### Fix
+
+- **hdx**: adds single category upload after processing is done
+
 ## 1.5.21 (2025-03-19)
 
 ### Fix
