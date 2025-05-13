@@ -17,6 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains Main core logic of app"""
+
 # Standard library imports
 import concurrent.futures
 import json
@@ -638,7 +639,7 @@ class RawData:
         else:
             begin = "ogr2ogr -overwrite -f"
 
-        cmd = f"{begin} {format_option['format']} {dump_temp_path} PG:\"host={db_items.get('host')} port={db_items.get('port')} user={db_items.get('user')} dbname={db_items.get('dbname')} password={db_items.get('password')}\" -sql @{query_path} -lco ENCODING=UTF-8 -progress {format_option['extra']} {file_name_option}"
+        cmd = f'{begin} {format_option["format"]} {dump_temp_path} PG:"host={db_items.get("host")} port={db_items.get("port")} user={db_items.get("user")} dbname={db_items.get("dbname")} password={db_items.get("password")}" -sql @{query_path} -lco ENCODING=UTF-8 -progress {format_option["extra"]} {file_name_option}'
         run_ogr2ogr_cmd(cmd)
 
         os.remove(query_path)
@@ -1020,10 +1021,10 @@ class PolygonStats:
         """
         building_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_building_count)} buildings in this region. "
         if ai_building_count > 0:
-            building_statement += f"Based on AI-mapped estimates, this is approximately {round((osm_building_count/ai_building_count)*100)}% of the total buildings."
+            building_statement += f"Based on AI-mapped estimates, this is approximately {round((osm_building_count / ai_building_count) * 100)}% of the total buildings."
         building_statement += f"The average age of data for this region is {humanize.naturaltime(avg_timestamp).replace('ago', '')}( Last edited {humanize.naturaltime(last_edit_timestamp)} ) "
         if osm_building_count > 0:
-            building_statement += f"and {round((osm_building_count_6_months/osm_building_count)*100)}% buildings were added or updated in the last 6 months."
+            building_statement += f"and {round((osm_building_count_6_months / osm_building_count) * 100)}% buildings were added or updated in the last 6 months."
         return building_statement
 
     @staticmethod
@@ -1048,10 +1049,10 @@ class PolygonStats:
         """
         road_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_highway_length)} km of roads in this region. "
         if ai_highway_length > 1:
-            road_statement += f"Based on AI-mapped estimates, this is approximately {round(osm_highway_length/ai_highway_length*100)} % of the total road length in the dataset region. "
+            road_statement += f"Based on AI-mapped estimates, this is approximately {round(osm_highway_length / ai_highway_length * 100)} % of the total road length in the dataset region. "
         road_statement += f"The average age of data for the region is {humanize.naturaltime(avg_timestamp).replace('ago', '')} ( Last edited {humanize.naturaltime(last_edit_timestamp)} ) "
         if osm_highway_length > 1:
-            road_statement += f"and {round((osm_highway_length_6_months/osm_highway_length)*100)}% of roads were added or updated in the last 6 months."
+            road_statement += f"and {round((osm_highway_length_6_months / osm_highway_length) * 100)}% of roads were added or updated in the last 6 months."
         return road_statement
 
     def get_osm_analytics_meta_stats(self):
@@ -1227,7 +1228,7 @@ class DuckDB:
         if temp_dir is None:
             duck_db_temp = os.path.join(export_path, "duckdb_temp")
             os.makedirs(duck_db_temp, exist_ok=True)
-        con.sql(f"""SET temp_directory = '{os.path.join(duck_db_temp,'temp.tmp')}'""")
+        con.sql(f"""SET temp_directory = '{os.path.join(duck_db_temp, "temp.tmp")}'""")
 
         if DUCK_DB_MEMORY_LIMIT:
             con.sql(f"""SET memory_limit = '{DUCK_DB_MEMORY_LIMIT}'""")
@@ -1750,6 +1751,13 @@ class CustomExport:
         self.params.categories = [
             category for category in self.params.categories if category
         ]
+        # Sort categories: Process "building" or "buildings" last
+        self.params.categories = sorted(
+            self.params.categories,
+            key=lambda category: list(category.keys())[0].lower()
+            in {"building", "buildings"},
+        )
+
         if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
             table_type = [
                 cat_type
@@ -1907,7 +1915,7 @@ class HDXUploader:
                         ),
                     ).get_summary_stats()
             if self.data_completeness_stats:
-                self.category_data.hdx.notes += f'{self.data_completeness_stats["summary"][self.category_name.lower()]}\n'
+                self.category_data.hdx.notes += f"{self.data_completeness_stats['summary'][self.category_name.lower()]}\n"
                 self.category_data.hdx.notes += "Read about what this summary means : [indicators](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md) , [metrics](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md)\n"
 
         return self.category_data.hdx.notes + HDX_MARKDOWN.format(
@@ -2011,7 +2019,7 @@ class HDXUploader:
                 "methodology": "Other",
                 "methodology_other": "Volunteered geographic information",
                 "license_id": "hdx-odc-odbl",
-                "updated_by_script": f'Hotosm OSM Exports ({datetime.now().strftime("%Y-%m-%dT%H:%M:%S")})',
+                "updated_by_script": f"Hotosm OSM Exports ({datetime.now().strftime('%Y-%m-%dT%H:%M:%S')})",
                 "caveats": self.category_data.hdx.caveats,
                 "private": self.hdx.private,
                 "notes": self.add_notes(),
