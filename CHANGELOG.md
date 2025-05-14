@@ -1,3 +1,11 @@
+## 1.5.24 (2025-05-14)
+
+### Fix
+
+- **permission**: adds staff permission to the endpoints !
+- **metrics**: fix summary and adds metdata endpoint
+- **building**: fixes issue of building being processed early
+
 ## 1.5.23 (2025-03-29)
 
 ### Fix
