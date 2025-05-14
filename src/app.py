@@ -2288,6 +2288,8 @@ class DownloadMetrics:
         include_locations: bool = False,
         include_referrers: bool = False,
     ):
+        """
+        Get summary statistics for downloads and uploads."""
         # normalize folders to list
         folder_list = []
         if folders:
@@ -2391,6 +2393,7 @@ class DownloadMetrics:
         limit: int = 100,
         offset: int = 0,
     ):
+        """Get metadata download counts per file key."""
         prefixes = (
             [key_prefixes]
             if isinstance(key_prefixes, str)
