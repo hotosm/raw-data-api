@@ -58,6 +58,7 @@ def get_stats(
         False,
         description="Include referrer breakdown (disabled by default, adds performance cost)",
     ),
+    _: bool = Depends(staff_required),
 ) -> List[SummaryItem]:
     """
     Retrieve aggregated download and upload summary statistics.
@@ -123,6 +124,7 @@ def get_meta_downloads(
         ge=0,
         description="Number of rows to skip (enforced in SQL OFFSET)",
     ),
+    _: bool = Depends(staff_required),
 ) -> List[MetaDownloadItem]:
     """
     Retrieve paginated metadata download counts per file key.
