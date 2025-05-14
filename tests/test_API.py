@@ -15,7 +15,7 @@ access_token = os.environ.get("ACCESS_TOKEN")
 ## Status
 
 
-def wait_for_task_completion(track_link, max_attempts=12, interval_seconds=5):
+def wait_for_task_completion(track_link, max_attempts=12, interval_seconds=8):
     """
     Waits for a task to complete, polling the task status at specified intervals.
 
