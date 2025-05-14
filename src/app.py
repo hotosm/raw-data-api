@@ -39,7 +39,6 @@ from json import loads as json_loads
 import boto3
 import humanize
 import orjson
-import psycopg2.extras
 import requests
 from area import area
 from fastapi import HTTPException
@@ -61,23 +60,19 @@ from src.config import (
     ENABLE_SOZIP,
     ENABLE_TILES,
     EXPORT_MAX_AREA_SQKM,
-)
-from src.config import EXPORT_PATH as export_path
-from src.config import INDEX_THRESHOLD as index_threshold
-from src.config import (
     LOG_LEVEL,
     MAX_WORKERS,
     PARALLEL_PROCESSING_CATEGORIES,
     POLYGON_STATISTICS_API_URL,
     PROCESS_SINGLE_CATEGORY_IN_POSTGRES,
-)
-from src.config import USE_CONNECTION_POOLING as use_connection_pooling
-from src.config import (
     USE_DUCK_DB_FOR_CUSTOM_EXPORTS,
     USE_S3_TO_UPLOAD,
     get_db_connection_params,
     level,
 )
+from src.config import EXPORT_PATH as export_path
+from src.config import INDEX_THRESHOLD as index_threshold
+from src.config import USE_CONNECTION_POOLING as use_connection_pooling
 from src.config import logger as logging
 from src.query_builder.builder import (
     HDX_FILTER_CRITERIA,
@@ -2280,73 +2275,156 @@ class Cron:
 
 class DownloadMetrics:
     def __init__(self) -> None:
-        """
-        Initializes an instance of the DownloadMetrics class, connecting to the database.
-        """
         dbdict = get_db_connection_params()
         self.d_b = Database(dbdict)
         self.con, self.cur = self.d_b.connect()
 
-    def get_summary_stats(self, start_date, end_date, group_by, folder=None):
-        """
-        Get summary metrics for raw-data-api downloads
-        """
-        if folder:
-            select_query = f"""
-                SELECT
-                    date_trunc('{group_by}', date) as kwdate,
-                    SUM((folders->'{folder}'->>'downloads_count')::numeric) as total_downloads_count,
-                    SUM((folders->'{folder}'->>'uploads_count')::numeric) as total_uploads_count,
-                    SUM((folders->'{folder}'->>'unique_users')::numeric) as total_unique_users,
-                    SUM((folders->'{folder}'->>'unique_downloads')::numeric) as total_unique_downloads,
-                    SUM((folders->'{folder}'->>'interactions_count')::numeric) as total_interactions_count,
-                    SUM((folders->'{folder}'->>'upload_size')::numeric) as total_upload_size,
-                    SUM((folders->'{folder}'->>'download_size')::numeric) as total_download_size,
-                    JSONB_AGG((folders->'{folder}'->>'locations')::json) as total_locations,
-                    JSONB_AGG((summary->>'referrers')::json) as total_referrers
-                FROM
-                    metrics
-                WHERE
-                    date BETWEEN '{start_date}' AND '{end_date}'
-                GROUP BY
-                    kwdate
-                ORDER BY
-                    kwdate
-            """
+    def get_summary_stats(
+        self,
+        start_date: str,
+        end_date: str,
+        group_by: str,
+        folders=None,
+        include_locations: bool = False,
+        include_referrers: bool = False,
+    ):
+        # normalize folders to list
+        folder_list = []
+        if folders:
+            folder_list = [folders] if isinstance(folders, str) else list(folders)
+
+        # build SELECT columns
+        cols = [
+            f"date_trunc('{group_by}', date) AS kwdate",
+            "SUM((summary->>'downloads_count')::numeric) AS total_downloads_count",
+            "SUM((summary->>'uploads_count')::numeric) AS total_uploads_count",
+            "SUM((summary->>'unique_users')::numeric) AS total_unique_users",
+            "SUM((summary->>'unique_downloads')::numeric) AS total_unique_downloads",
+            "SUM((summary->>'interactions_count')::numeric) AS total_interactions_count",
+            "SUM((summary->>'upload_size')::numeric) AS total_upload_size",
+            "SUM((summary->>'download_size')::numeric) AS total_download_size",
+        ]
+        if include_locations:
+            cols.append("JSONB_AGG((summary->>'locations')::json) AS total_locations")
+        if include_referrers:
+            cols.append("JSONB_AGG((summary->>'referrers')::json) AS total_referrers")
+
+        select_cols = ",\n                ".join(cols)
+
+        # build FROM/JOIN and WHERE
+        if folder_list:
+            folders_sql = ",".join(f"'{fld}'" for fld in folder_list)
+            # lateral join on folders JSON
+            from_clause = (
+                "metrics CROSS JOIN LATERAL jsonb_each(folders) AS f(key,value)"
+            )
+            # override base metrics cols to use f.value not summary
+            cols = [
+                f"date_trunc('{group_by}', date) AS kwdate",
+                "SUM((f.value->>'downloads_count')::numeric) AS total_downloads_count",
+                "SUM((f.value->>'uploads_count')::numeric) AS total_uploads_count",
+                "SUM((f.value->>'unique_users')::numeric) AS total_unique_users",
+                "SUM((f.value->>'unique_downloads')::numeric) AS total_unique_downloads",
+                "SUM((f.value->>'interactions_count')::numeric) AS total_interactions_count",
+                "SUM((f.value->>'upload_size')::numeric) AS total_upload_size",
+                "SUM((f.value->>'download_size')::numeric) AS total_download_size",
+            ]
+            if include_locations:
+                cols.append(
+                    "JSONB_AGG((f.value->>'locations')::json) AS total_locations"
+                )
+            if include_referrers:
+                cols.append(
+                    "JSONB_AGG((summary->>'referrers')::json) AS total_referrers"
+                )
+            select_cols = ",\n                ".join(cols)
+            where_clause = f"date BETWEEN '{start_date}' AND '{end_date}' AND f.key IN ({folders_sql})"
         else:
-            select_query = f"""
-                SELECT
-                    date_trunc('{group_by}', date) as kwdate,
-                    SUM((summary->>'downloads_count')::numeric) as total_downloads_count,
-                    SUM((summary->>'uploads_count')::numeric) as total_uploads_count,
-                    SUM((summary->>'unique_users')::numeric) as total_unique_users,
-                    SUM((summary->>'unique_downloads')::numeric) as total_unique_downloads,
-                    SUM((summary->>'interactions_count')::numeric) as total_interactions_count,
-                    SUM((summary->>'upload_size')::numeric) as total_upload_size,
-                    SUM((summary->>'download_size')::numeric) as total_download_size,
-                    JSONB_AGG((summary->>'locations')::json) as total_locations,
-                    JSONB_AGG((summary->>'referrers')::json) as total_referrers
-                FROM
-                    metrics
-                WHERE
-                    date BETWEEN '{start_date}' AND '{end_date}'
-                GROUP BY
-                    kwdate
-                ORDER BY
-                    kwdate
-            """
+            from_clause = "metrics"
+            where_clause = f"date BETWEEN '{start_date}' AND '{end_date}'"
+
+        # assemble query
+        select_query = f"""
+            SELECT
+                {select_cols}
+            FROM
+                {from_clause}
+            WHERE
+                {where_clause}
+            GROUP BY
+                kwdate
+            ORDER BY
+                kwdate
+        """
+
+        self.cur.execute(select_query)
+        rows = self.cur.fetchall()
+        self.d_b.close_conn()
+
+        results = []
+        for item in rows:
+            rec = dict(item)
+            # ensure kwdate is a string
+            if hasattr(item["kwdate"], "isoformat"):
+                rec["kwdate"] = item["kwdate"].date().isoformat()
+            if include_locations:
+                rec["total_locations"] = dict(
+                    sum((Counter(loc) for loc in item["total_locations"]), Counter())
+                )
+            else:
+                rec["total_locations"] = {}
+            if include_referrers:
+                rec["total_referrers"] = dict(
+                    sum((Counter(ref) for ref in item["total_referrers"]), Counter())
+                )
+            else:
+                rec["total_referrers"] = {}
+            results.append(rec)
+        return results
+
+    def get_meta_downloads(
+        self,
+        start_date: str,
+        end_date: str,
+        group_by: str,
+        key_prefixes=None,
+        limit: int = 100,
+        offset: int = 0,
+    ):
+        prefixes = (
+            [key_prefixes]
+            if isinstance(key_prefixes, str)
+            else list(key_prefixes or [])
+        )
+        filter_clause = ""
+        if prefixes:
+            patterns = ",".join(f"'{pref.strip()}%'" for pref in prefixes)
+            filter_clause = f"AND t.key ILIKE ANY(ARRAY[{patterns}]::text[])"
+
+        select_query = f"""
+            SELECT
+                date_trunc('{group_by}', date) AS kwdate,
+                jsonb_object_agg(t.key, (t.value::text)::int) AS downloads_by_file
+            FROM
+                metrics,
+                jsonb_each_text(meta_downloads) AS t(key,value)
+            WHERE
+                date BETWEEN '{start_date}' AND '{end_date}'
+                {filter_clause}
+            GROUP BY
+                kwdate
+            ORDER BY
+                kwdate
+            LIMIT {limit} OFFSET {offset}
+        """
 
         self.cur.execute(select_query)
         result = self.cur.fetchall()
         self.d_b.close_conn()
-        result_lists = []
+        items = []
         for item in result:
-            item["total_locations"] = dict(
-                sum((Counter(loc) for loc in item["total_locations"]), Counter())
-            )
-            item["total_referrers"] = dict(
-                sum((Counter(loc) for loc in item["total_referrers"]), Counter())
-            )
-            result_lists.append(dict(item))
-
-        return result_lists
+            rec = dict(item)
+            if hasattr(item["kwdate"], "isoformat"):
+                rec["kwdate"] = item["kwdate"].date().isoformat()
+            items.append(rec)
+        return items

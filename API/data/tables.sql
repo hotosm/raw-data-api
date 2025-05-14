@@ -27,3 +27,12 @@ CREATE TABLE if not exists public.cron (
 );
 CREATE INDEX if not exists cron_dataset_idx ON public.cron (dataset);
 CREATE UNIQUE INDEX if not exists unique_dataset_prefix_idx ON public.cron ((dataset->>'dataset_prefix'));
+
+CREATE TABLE public.metrics (
+	"date" date NOT NULL,
+	summary jsonb NULL,
+	folders jsonb NULL,
+	meta_downloads jsonb NULL,
+	CONSTRAINT metrics_pkey PRIMARY KEY (date)
+);
+CREATE INDEX metrics_meta_downloads_idx ON public.metrics (meta_downloads);
