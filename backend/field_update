@@ -25,6 +25,7 @@ Returns:
     [result]: [geom column Populated]
 """
 
+# Standard library imports
 import argparse
 import datetime
 import logging
@@ -34,6 +35,7 @@ import time
 from configparser import ConfigParser
 from enum import Enum
 
+# Third party imports
 from dateutil.relativedelta import relativedelta
 from psycopg2 import *
 from psycopg2.extras import *
@@ -187,14 +189,14 @@ class Raw:
                 FROM 
                     {target_table}
                 WHERE 
-                    timestamp BETWEEN '{start}'::timestamp AND '{end}'::timestamp
+                    country @> array[0] and timestamp BETWEEN '{start}'::timestamp AND '{end}'::timestamp
             ),
             t2 AS (
                 SELECT 
                     t1.osm_id,
                     CASE 
-                        WHEN COUNT(cg.{source_column}) = 0 THEN ARRAY[0]::integer[]
-                        ELSE array_agg(COALESCE(cg.{source_column}, 0))
+                        WHEN COUNT(cg.{source_column}) = 0 THEN ARRAY[1000]::integer[]
+                        ELSE array_agg(COALESCE(cg.{source_column}, 1000))
                     END AS aa_fids
                 FROM 
                     t1
