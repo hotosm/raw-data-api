@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Standard library imports
 # Humanitarian OpenStreetmap Team
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
@@ -27,6 +28,7 @@ from multiprocessing import Pool
 from os.path import exists
 from urllib.parse import urlparse
 
+# Third party imports
 import requests
 import wget
 from login import verify_me_osm
@@ -159,8 +161,12 @@ def download_file(download_dir, source_path):
     target_path = os.path.join(download_dir, filename)
     if not os.path.exists(target_path):
         print(f"\nStarting download for: {target_path}")
-        if "OSM_USERNAME" in os.environ and os.environ["OSM_USERNAME"] and \
-            "OSM_PASSWORD" in os.environ and os.environ["OSM_PASSWORD"]:
+        if (
+            "OSM_USERNAME" in os.environ
+            and os.environ["OSM_USERNAME"]
+            and "OSM_PASSWORD" in os.environ
+            and os.environ["OSM_PASSWORD"]
+        ):
             cookies = verify_me_osm(
                 os.environ["OSM_USERNAME"], os.environ["OSM_PASSWORD"]
             )
@@ -292,20 +298,12 @@ if __name__ == "__main__":
                 field_update_cmd = [
                     "python",
                     os.path.join(working_dir, "field_update"),
-                    "-target_table",
+                    "-table",
                     table,
-                    "--target_column",
-                    "country",
-                    "--target_geom",
-                    "geom",
-                    "--source_table",
-                    "countries",
-                    "--source_column",
-                    "cid",
-                    "--source_geom",
-                    "geometry",
-                    "--type",
-                    "array",
+                    "--h3",
+                    "h3",
+                    "--res",
+                    "6",
                     "--f",
                     args.fq,
                 ]

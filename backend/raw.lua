@@ -38,7 +38,6 @@ tables.nodes = osm2pgsql.define_table{
         { column = 'timestamp', sql_type = 'timestamp' },
         { column = 'tags', type = 'jsonb' },
         { column = 'geom', type = 'point', projection = srid },
-        { column = 'country', sql_type= 'int[]', create_only = true },
     }
 
 }
@@ -55,7 +54,6 @@ tables.ways_line = osm2pgsql.define_table{
         { column = 'timestamp', sql_type = 'timestamp' },
         { column = 'tags', type = 'jsonb' },
         { column = 'geom', type = 'linestring', projection = srid },
-        { column = 'country', sql_type= 'int[]', create_only = true },
     }
 
 }
@@ -73,7 +71,6 @@ tables.ways_poly = osm2pgsql.define_table{
     -- This will store tags as jsonb type  
         { column = 'tags', type = 'jsonb' },
         { column = 'geom', type = 'polygon', projection = srid },
-        { column = 'country', sql_type= 'int[]', create_only = true },
     }
 
 }
@@ -91,7 +88,6 @@ tables.rels = osm2pgsql.define_table{
         { column = 'timestamp', sql_type = 'timestamp' },
         { column = 'tags', type = 'jsonb' },
         { column = 'geom', type = 'geometry', projection = srid },
-        { column = 'country', sql_type= 'int[]', create_only = true },
     }
 }
 
@@ -109,14 +105,14 @@ function osm2pgsql.process_node(object)
         return
     end
 
-    tables.nodes:add_row({
+    tables.nodes:insert({
         uid = object.uid,
         user = object.user,
         version = object.version,
         changeset = object.changeset,
         timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
         tags = object.tags,
-        geom = { create = 'point' }
+        geom = object:as_point()
     })
 end
 
@@ -126,7 +122,7 @@ function osm2pgsql.process_way(object)
     end
  
     if object.is_closed and #object.nodes>3 then
-        tables.ways_poly:add_row({
+        tables.ways_poly:insert({
             uid = object.uid,
             user = object.user,
             version = object.version,
@@ -134,10 +130,10 @@ function osm2pgsql.process_way(object)
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
             nodes=object.nodes,
             tags = object.tags,
-            geom = { create = 'area' }
+            geom = object:as_polygon()
         })
     else
-        tables.ways_line:add_row({
+        tables.ways_line:insert({
             uid = object.uid,
             user = object.user,
             version = object.version,
@@ -145,7 +141,7 @@ function osm2pgsql.process_way(object)
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
             nodes=object.nodes,
             tags = object.tags,
-            geom = { create = 'line' }
+            geom = object:as_linestring()
         })
     end
 end
@@ -155,7 +151,7 @@ function osm2pgsql.process_relation(object)
         return
     end
     if object.tags.type == 'multipolygon' or object.tags.type == 'boundary' then
-        tables.rels:add_row({
+        tables.rels:insert({
             uid = object.uid,
             user = object.user,
             version = object.version,
@@ -163,10 +159,10 @@ function osm2pgsql.process_relation(object)
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
             members=object.members,
             tags = object.tags,
-            geom = { create = 'area' }
+            geom = object:as_multipolygon()
         })
     else
-        tables.rels:add_row({
+        tables.rels:insert({
             uid = object.uid,
             user = object.user,
             version = object.version,
@@ -174,7 +170,7 @@ function osm2pgsql.process_relation(object)
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
             members=object.members,
             tags = object.tags,
-            geom= { create = 'line' }
+            geom= object:as_multilinestring()
         })
     end
 end
