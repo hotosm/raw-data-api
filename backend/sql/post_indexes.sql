@@ -100,3 +100,5 @@ INSERT INTO country_h3_flat (h3_index, country_id)
 SELECT h3_index, cid FROM h3_indexes;
 
 
+CREATE INDEX idx_h3_index ON country_h3_flat (h3_index);
+CREATE INDEX idx_country_id ON country_h3_flat (country_id);
