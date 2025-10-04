@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "raw-data-api"
 version = "1.5.24"
@@ -59,6 +63,20 @@ update_changelog_on_bump = true
 version_files = [
     "pyproject.toml:version",]
 
+[project.scripts]
+raw-backend = "src.backend.importer:main"
+raw-field-update = "src.backend.field_updater:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/backend/sql" = "src/backend/sql"
+"src/backend/lua" = "src/backend/lua"
+"src/backend/sample_data" = "src/backend/sample_data"
+"src/backend/countries" = "src/backend/countries"
+"src/backend/replication" = "src/backend/replication"
+
 [dependency-groups]
 ops = [
     "newrelic>=11.0.0",
@@ -67,4 +85,10 @@ ops = [
 tests = [
     "httpx>=0.28.1",
     "pytest>=8.4.2",
+]
+backend = [
+    "python-dateutil>=2.9.0",
+    "requests>=2.32.0",
+    "wget>=3.2",
+    "osmium>=3.7.0",
 ]
