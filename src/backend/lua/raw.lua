@@ -32,6 +32,7 @@ tables.nodes = osm2pgsql.define_table{
     ids = {type='node',id_column = 'osm_id' },
     columns = {
         { column = 'uid', type = 'int' },
+        { column = 'user', type = 'text' },
         { column = 'version', type = 'int' },
         { column = 'changeset', type = 'int' },
         { column = 'timestamp', sql_type = 'timestamp' },
@@ -47,6 +48,7 @@ tables.ways_line = osm2pgsql.define_table{
     ids = {type='way',id_column = 'osm_id' },
     columns = {
         { column = 'uid', type = 'int' },
+        { column = 'user', type = 'text' },
         { column = 'version', type = 'int' },
         { column = 'changeset', type = 'int' },
         { column = 'timestamp', sql_type = 'timestamp' },
@@ -62,6 +64,7 @@ tables.ways_poly = osm2pgsql.define_table{
     ids = {type='way',id_column = 'osm_id' },
     columns = {
         { column = 'uid', type = 'int' },
+        { column = 'user', type = 'text' },
         { column = 'version', type = 'int' },
         { column = 'changeset', type = 'int' },
         { column = 'timestamp', sql_type = 'timestamp' },
@@ -79,6 +82,7 @@ tables.rels = osm2pgsql.define_table{
     ids = {type='relation', id_column = 'osm_id' },
     columns = {
         { column = 'uid', type = 'int' },
+        { column = 'user', type = 'text' },
         { column = 'version', type = 'int' },
         { column = 'changeset', type = 'int' },
         { column = 'timestamp', sql_type = 'timestamp' },
@@ -101,6 +105,7 @@ function osm2pgsql.process_node(object)
 
     tables.nodes:insert({
         uid = object.uid,
+        user = object.user,
         version = object.version,
         changeset = object.changeset,
         timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
@@ -117,6 +122,7 @@ function osm2pgsql.process_way(object)
     if object.is_closed and #object.nodes>3 then
         tables.ways_poly:insert({
             uid = object.uid,
+            user = object.user,
             version = object.version,
             changeset = object.changeset,
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
@@ -126,6 +132,7 @@ function osm2pgsql.process_way(object)
     else
         tables.ways_line:insert({
             uid = object.uid,
+            user = object.user,
             version = object.version,
             changeset = object.changeset,
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
@@ -142,6 +149,7 @@ function osm2pgsql.process_relation(object)
     if object.tags.type == 'multipolygon' or object.tags.type == 'boundary' then
         tables.rels:insert({
             uid = object.uid,
+            user = object.user,
             version = object.version,
             changeset = object.changeset,
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
@@ -151,6 +159,7 @@ function osm2pgsql.process_relation(object)
     else
         tables.rels:insert({
             uid = object.uid,
+            user = object.user,
             version = object.version,
             changeset = object.changeset,
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),

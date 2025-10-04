@@ -82,7 +82,7 @@ uv run raw-backend --insert --cache 1000
 Update H3 spatial index for features.
 
 ```bash
-raw-field-update \
+uv run raw-field-update \
   -table ways_poly \
   --h3 h3 \
   --res 6 \
