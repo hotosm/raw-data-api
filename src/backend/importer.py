@@ -31,7 +31,8 @@ def parse_arguments():
 
     parser.add_argument("--include_ref", default=False, action="store_true", help="Include ref in output tables")
     parser.add_argument("--fq", type=str, choices=["d", "w", "m", "h"], default="d", help="H3 field update frequency")
-    parser.add_argument("--replication", default=False, action="store_true", help="Prepare tables for replication and runs replication")
+    parser.add_argument("--no-replication", dest="replication", action="store_false", help="Disable replication (replication is ON by default)")
+    parser.set_defaults(replication=True)
     parser.add_argument("--flat_nodes", type=str, help="Flat-nodes option for osm2pgsql")
     parser.add_argument("--cache", type=str, help="Cache size for osm2pgsql")
     parser.add_argument("--boundary", type=str, help="Boundary geojson for replication filtering")
@@ -185,6 +186,7 @@ def main():
             "--extra-attributes",
             "--output=flex",
             "--style", lua_path,
+            "--prefix", "raw_osm",
         ]
 
         if not args.replication:
@@ -227,8 +229,8 @@ def main():
         run_parallel_commands(update_cmds)
 
     if args.insert:
-        run_command(["psql", "-a", "-f", get_resource_path("sql/users.sql")])
-        print("Users table created")
+        run_command(["psql", "-a", "-f", get_resource_path("sql/userroles.sql")])
+        print("User roles table created")
 
     if args.insert or args.post_index:
         run_command(["psql", "-a", "-f", get_resource_path("sql/post_indexes.sql")])

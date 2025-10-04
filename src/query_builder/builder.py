@@ -757,7 +757,7 @@ def raw_currentdata_extraction_query(
 
 
 def check_last_updated_rawdata():
-    query = """select importdate as last_updated from planet_osm_replication_status"""
+    query = """select importdate as last_updated from raw_osm_replication_status"""
     return query
 
 

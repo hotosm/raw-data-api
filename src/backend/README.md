@@ -51,7 +51,7 @@ uv run raw-backend --source file.osm.pbf --insert --cache 1000
 - `--source`: Path to OSM PBF file(s) or URL to download
 - `--insert`: Run initial data import
 - `--update`: Update fields only
-- `--replication`: Enable replication
+- `--no-replication`: Disable replication (replication is ON by default)
 - `--cache`: Cache size for osm2pgsql (MB)
 - `--flat_nodes`: Path for flat nodes file
 - `--post_index`: Run post-indexing only
@@ -59,6 +59,8 @@ uv run raw-backend --source file.osm.pbf --insert --cache 1000
 - `--boundary`: Boundary geojson for replication filtering
 - `--skip_h3update`: Skip H3 spatial index update
 - Extra args at end are forwarded to osm2pgsql
+
+**Note:** Replication is enabled by default. To disable it, use `--no-replication`.
 
 **Pass extra osm2pgsql arguments:**
 
@@ -117,7 +119,7 @@ After import, you'll have:
 - `ways_poly` - Polygon features
 - `relations` - Relation features
 - `countries` - Country boundaries for filtering
-- `users` - OSM user information
+- `userroles` - User role assignments (admin/staff/guest)
 
 **Indexes:**
 
@@ -130,8 +132,16 @@ After import, you'll have:
 - `osm_id` - OpenStreetMap ID
 - `tags` - JSONB key-value pairs
 - `geom` - PostGIS geometry
-- `h3` - H3 spatial index
-- `uid`, `user`, `version`, `changeset`, `timestamp` - OSM metadata
+- `h3` - H3 spatial index (resolution 6)
+- `uid`, `version`, `changeset`, `timestamp` - OSM metadata
+
+**Internal Tables (created by osm2pgsql with `raw_osm` prefix):**
+
+- `raw_osm_nodes` - Raw node cache
+- `raw_osm_ways` - Raw way cache
+- `raw_osm_rels` - Raw relation cache
+- `raw_osm_users` - User information (managed by osm2pgsql)
+- `raw_osm_replication_status` - Replication state tracking
 
 ## Module Structure
 
