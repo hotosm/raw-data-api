@@ -119,7 +119,7 @@ After import, you'll have:
 - `ways_poly` - Polygon features
 - `relations` - Relation features
 - `countries` - Country boundaries for filtering
-- `userroles` - User role assignments (admin/staff/guest)
+- `user_roles` - User role assignments (admin/staff/guest)
 
 **Indexes:**
 

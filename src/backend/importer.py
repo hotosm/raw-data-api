@@ -229,7 +229,7 @@ def main():
         run_parallel_commands(update_cmds)
 
     if args.insert:
-        run_command(["psql", "-a", "-f", get_resource_path("sql/userroles.sql")])
+        run_command(["psql", "-a", "-f", get_resource_path("sql/user_roles.sql")])
         print("User roles table created")
 
     if args.insert or args.post_index:
