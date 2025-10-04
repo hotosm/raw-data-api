@@ -42,17 +42,11 @@ import pytz
 missing_modules = []
 
 try:
-    # Third party imports
     import psycopg2 as psycopg
 except ImportError:
-    try:
-        # Third party imports
-        import psycopg
-    except ImportError:
-        missing_modules.append("psycopg2")
+    missing_modules.append("psycopg2")
 
 try:
-    # Third party imports
     from osmium import WriteHandler
     from osmium.replication.server import ReplicationServer
     from osmium.replication.utils import get_replication_header
@@ -492,7 +486,7 @@ def update(conn, args):
             )
             if not args.skip_h3update:
                 start_time = time.time()
-                LOG.debug("Starting Country update")
+                LOG.debug("Starting H3 spatial index update")
                 update_h3(
                     conn,
                     "nodes",

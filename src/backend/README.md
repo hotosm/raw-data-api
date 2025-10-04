@@ -55,14 +55,16 @@ uv run raw-backend --source file.osm.pbf --insert --cache 1000
 - `--cache`: Cache size for osm2pgsql (MB)
 - `--flat_nodes`: Path for flat nodes file
 - `--post_index`: Run post-indexing only
-- `--fq`: Field update frequency (h/d/w/m, default: d)
+- `--fq`: H3 update frequency (h/d/w/m, default: d)
+- `--boundary`: Boundary geojson for replication filtering
+- `--skip_h3update`: Skip H3 spatial index update
 - Extra args at end are forwarded to osm2pgsql
 
 **Pass extra osm2pgsql arguments:**
 
 ```bash
 uv run raw-backend --source file.osm.pbf --insert --cache 2000 \
-  --number-processes 4 --tablespace-index fastspace
+  --number-processes 4
 ```
 
 **Download sample data:**

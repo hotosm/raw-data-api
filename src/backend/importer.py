@@ -30,15 +30,14 @@ def parse_arguments():
         parser.add_argument(arg, type=str, help=help_text, default=default, required=(not default))
 
     parser.add_argument("--include_ref", default=False, action="store_true", help="Include ref in output tables")
-    parser.add_argument("--fq", type=str, choices=["d", "w", "m", "h"], default="d", help="Field update frequency")
+    parser.add_argument("--fq", type=str, choices=["d", "w", "m", "h"], default="d", help="H3 field update frequency")
     parser.add_argument("--replication", default=False, action="store_true", help="Prepare tables for replication and runs replication")
     parser.add_argument("--flat_nodes", type=str, help="Flat-nodes option for osm2pgsql")
     parser.add_argument("--cache", type=str, help="Cache size for osm2pgsql")
-    parser.add_argument("--country", nargs="+", type=int, help="Country ID for filtering replication data")
-    parser.add_argument("--boundary", nargs="+", type=str, help="Boundary geojson for replication filtering")
-    parser.add_argument("--skip_cupdate", action="store_true", help="Skip country update during replication")
+    parser.add_argument("--boundary", type=str, help="Boundary geojson for replication filtering")
+    parser.add_argument("--skip_h3update", action="store_true", help="Skip H3 spatial index update")
     parser.add_argument("--insert", action="store_true", help="Run osm2pgsql to insert data")
-    parser.add_argument("--update", action="store_true", help="Run update on table fields for country info")
+    parser.add_argument("--update", action="store_true", help="Run H3 spatial index update on tables")
     parser.add_argument("--download_dir", type=str, help="Directory to download source file")
     parser.add_argument("--post_index", default=False, action="store_true", help="Run post index only")
     parser.add_argument("extra_params", nargs="*", metavar="param", help="Extra params to pass to osm2pgsql")
@@ -209,11 +208,11 @@ def main():
         run_command(["psql", "-a", "-f", get_resource_path("sql/countries.sql")])
 
         if args.replication:
-            run_command(["python", get_resource_path("replication"), "init"])
+            run_command([sys.executable, get_resource_path("replication"), "init"])
 
     update_cmds = []
     if args.update or args.insert:
-        if not args.skip_cupdate:
+        if not args.skip_h3update:
             for table in ["nodes", "ways_poly", "ways_line", "relations"]:
                 cmd = [
                     "raw-field-update",
@@ -239,9 +238,9 @@ def main():
     if args.replication:
         print("Starting replication")
         replication_cmd = [
-            "python", get_resource_path("replication"),
+            sys.executable, get_resource_path("replication"),
             "update",
-            "-s", "raw.lua",
+            "-s", lua_path,
             "--max-diff-size", "10",
             "--once",
         ]
@@ -249,14 +248,11 @@ def main():
         if args.flat_nodes:
             replication_cmd.extend(["--flat_nodes", args.flat_nodes])
 
-        if args.country:
-            replication_cmd.extend(["--country"] + [str(x) for x in args.country])
-
         if args.boundary:
-            replication_cmd.extend(["--boundary"] + args.boundary)
+            replication_cmd.extend(["--boundary", args.boundary])
 
-        if args.skip_cupdate:
-            replication_cmd.append("--skip_cupdate")
+        if args.skip_h3update:
+            replication_cmd.append("--skip_h3update")
 
         run_command(replication_cmd)
 

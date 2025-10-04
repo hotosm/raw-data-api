@@ -982,6 +982,41 @@ wheels = [
 ]
 
 [[package]]
+name = "osmium"
+version = "4.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a4/86/aedf05acd14ee96f08a245c04bd0d5f8b4ff601f239bdb64ca1ac46d5825/osmium-4.1.1.tar.gz", hash = "sha256:6bcf7c5944138b0d9043925f9df99858f90616165311df15ba5d3b8beb16bf02", size = 525438, upload-time = "2025-08-31T09:22:52.665Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/dc/670fa3cd28bc38133111665b5e0e21cb5325fdaccb6401baf0f422de2e7b/osmium-4.1.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:b19c9c0fd16000a5042e772ddeb31011bc4dc947ed715d155a3002ee7f62fe32", size = 1210286, upload-time = "2025-08-31T09:21:12.049Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/df/dd5b0e61e580bfa01f0d4a70fc696b7d3701b025417fa69f939edf73e4a8/osmium-4.1.1-cp313-cp313-macosx_11_0_x86_64.whl", hash = "sha256:a89efe6a768c4347153e68f9ecbb5f9d6f86ecd439247230e753791bb3703501", size = 1390422, upload-time = "2025-08-31T09:21:15.04Z" },
+    { url = "https://files.pythonhosted.org/packages/c5/ce/a9c91a9a31a4d0bbd17148c6ee312817c8cf31a65861890c2adfcc89bdbc/osmium-4.1.1-cp313-cp313-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:99ff3cfe3afb6dd0b0f17943a4b3bb664f35ed592806897e989618117141310c", size = 1540677, upload-time = "2025-08-31T09:21:17.986Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/30/90780764338668110cd4b07afb468d4ea8a2f0a5012918c3875590d9a9b9/osmium-4.1.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1d7e404a6bc87784f7e0fe6b1a9b832453283f6b58068bac186d92442d5ceb0e", size = 1678394, upload-time = "2025-08-31T09:21:20.568Z" },
+    { url = "https://files.pythonhosted.org/packages/33/36/4de532e35806bb8cdb385f7e125bcb46943dd68889c04ea3a300e958832e/osmium-4.1.1-cp313-cp313-win_amd64.whl", hash = "sha256:5c24dc9aa009c3ba864a413e7f79f433f16a46a5859ec29218afaa72557765c9", size = 1715163, upload-time = "2025-08-31T09:21:41.231Z" },
+    { url = "https://files.pythonhosted.org/packages/70/9f/e74a5687f8a2b6a8d31fd055e6f2d16cfac9fae8d6780946fa00bf209353/osmium-4.1.1-cp313-cp313-win_arm64.whl", hash = "sha256:cf6f778c6ef16050577bf2fb82f017a3fc4c430f462c492757f3924a77bc8534", size = 1798502, upload-time = "2025-08-31T09:21:44.218Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/10/03760a72c4199af4f42cd7cd060c375a6835608357a43a44047ddc8b3d69/osmium-4.1.1-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:7abe220175d2c82784c5f7c4b489c6c09362974100cf3d9b03b4001279b4826d", size = 1270400, upload-time = "2025-08-31T09:21:23.381Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/4b/3dcf6ea738e00bfb496ef7907f88f15b9c8a4bd4c3d00e23d2fd718644c3/osmium-4.1.1-cp313-cp313t-macosx_11_0_x86_64.whl", hash = "sha256:203c20e0118fb495a169fde69ab1f5e4ab0e5b12faf4618b44c5e5a86e4f0469", size = 1451632, upload-time = "2025-08-31T09:21:26.079Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/73/74511f9d04817c801776e456df34abd53c2d35ef0ea7327938d08bec32a1/osmium-4.1.1-cp313-cp313t-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:1ea09bcbd0cc7de8eb1bc8d6edd1f12a1f872f58e925cbf79ceefa86d487c3c7", size = 1560796, upload-time = "2025-08-31T09:21:28.774Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/82/5760ef547a7fa635977b70f181df4bbff131f0e328e73372afe83c19f136/osmium-4.1.1-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3d7b7ab45d25aca14f28830bfe2b737bb345fd33826ee7c95c736a4beaeb06f4", size = 1703709, upload-time = "2025-08-31T09:21:31.882Z" },
+    { url = "https://files.pythonhosted.org/packages/44/97/0b085d1dc3cfbbbf345397e054c95bf237e4a858db1a74637f9826405a50/osmium-4.1.1-cp313-cp313t-win_amd64.whl", hash = "sha256:f3340039ab16e2b000c081999a3a967a5c15448ef6bb477f50e044561f223baa", size = 1798857, upload-time = "2025-08-31T09:21:35.051Z" },
+    { url = "https://files.pythonhosted.org/packages/54/0c/0ef75b3983675ca78ecfcf68ff64a5b83b359ff247c62c455740380b2d76/osmium-4.1.1-cp313-cp313t-win_arm64.whl", hash = "sha256:2b609dcc60edbd680d3acac5bf5f79f45d0b3693afb8a916420e7340c6f36cc5", size = 1849141, upload-time = "2025-08-31T09:21:38.264Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/2d/de62273cce4feacf9560370bb9978a027cfd1b4b0fde6d327dd0adf34a56/osmium-4.1.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:a1dee454c6cf44d135574260778440e8efb23761b73d9a2288eabe9cdea35619", size = 1213408, upload-time = "2025-08-31T09:21:46.615Z" },
+    { url = "https://files.pythonhosted.org/packages/15/39/552f774a118cfce9b0cc8bd7aa7dd176b293cfdc8a429db4af4b3e0347cb/osmium-4.1.1-cp314-cp314-macosx_11_0_x86_64.whl", hash = "sha256:3233c879b54a47bc4f6e3a4e33ff8e5ba7f2f00e756207e0bb93389b6245c4d8", size = 1391214, upload-time = "2025-08-31T09:21:49.413Z" },
+    { url = "https://files.pythonhosted.org/packages/72/12/ab49bde94352d4ebda7814c4e722b7d4c633c90ff156e8acf2ba2e5990be/osmium-4.1.1-cp314-cp314-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:18b7cd0bc6aa2a1d75e0b9b1b9319f75c8b1c06d6963cc23f08759c1bd28cd66", size = 1545092, upload-time = "2025-08-31T09:21:52.194Z" },
+    { url = "https://files.pythonhosted.org/packages/6d/b6/1d5b8adcc5dc36c1be488b1df50b91c232dcc493ad623552d03660062f72/osmium-4.1.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d157ba5a174150adcea5819324bc4358ca5b396c389309d1825169b8c3d7e441", size = 1680282, upload-time = "2025-08-31T09:21:54.845Z" },
+    { url = "https://files.pythonhosted.org/packages/23/4b/7991e10d9bae1dbfdaf0b8bd03f9650d43d0f36b14070717be71d93d396c/osmium-4.1.1-cp314-cp314-win_amd64.whl", hash = "sha256:bdbf0d626d3c0c2a9a9f4f39b5aeff816a3ddc33849675dc504abdd8f00ba853", size = 1717197, upload-time = "2025-08-31T09:22:15.432Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/23/9e1551f1bc59120567cabec5e793113db211adbf5e94b6861ce70721f9de/osmium-4.1.1-cp314-cp314-win_arm64.whl", hash = "sha256:ec437ac891131735b6377ee30543efc226cc9bd4d655e9e9f9bdfe65babecb6f", size = 1802437, upload-time = "2025-08-31T09:22:18.642Z" },
+    { url = "https://files.pythonhosted.org/packages/51/a9/2e829bc099403ad3dd8e87109eec26e850b14b0ebb7bb9c7ab11c3d23c3b/osmium-4.1.1-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:8355da4ee31132be415f416706184607c8d0765e164190cd833462c079bff3a0", size = 1270470, upload-time = "2025-08-31T09:21:57.492Z" },
+    { url = "https://files.pythonhosted.org/packages/35/0d/d0728cff940cb3c397adc17613db32cbb88245b31261e2cdfe528a30815e/osmium-4.1.1-cp314-cp314t-macosx_11_0_x86_64.whl", hash = "sha256:8d3384cbff2a47e500a8fe151c4a66d7ea9b6f511272c4da2f80142d2df0679a", size = 1451662, upload-time = "2025-08-31T09:22:00.487Z" },
+    { url = "https://files.pythonhosted.org/packages/44/d3/b1663269d306384505e0066d555e82c0db06d4fd51f3c2d03d55dea35644/osmium-4.1.1-cp314-cp314t-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:89a468637b587afe7acfc00a7d8ebc526c9abc504290a7b485db24d52538a961", size = 1560812, upload-time = "2025-08-31T09:22:03.597Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/12/c50874e34002ed4b61fec5407c56e2816569fee4c1dfb58f23db45528b37/osmium-4.1.1-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:606592941f97ce7678dee3dfdeec919b217741025fd93794aad3a9dbb3722031", size = 1703746, upload-time = "2025-08-31T09:22:06.746Z" },
+    { url = "https://files.pythonhosted.org/packages/6c/2a/addee9186050679c5f12feeb256f916f629ff19e0b52f0b41e32ed428ed7/osmium-4.1.1-cp314-cp314t-win_amd64.whl", hash = "sha256:b535877abbaf1d73093c67c9502c5070ff3e9baf813c12d0d715984cbb382d17", size = 1799053, upload-time = "2025-08-31T09:22:09.644Z" },
+    { url = "https://files.pythonhosted.org/packages/20/b7/f674b8486cd54c19d1a0fe9f7507e2c3295c6571d03d8035f410ede489a6/osmium-4.1.1-cp314-cp314t-win_arm64.whl", hash = "sha256:acf290ee77bcd559c6cb56f6573ae389d4081f33e7e34ea3acf6c0b27286bd38", size = 1849549, upload-time = "2025-08-31T09:22:12.489Z" },
+]
+
+[[package]]
 name = "packaging"
 version = "25.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1064,6 +1099,25 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/62/51/2007ea29e605957a17ac6357115d0c1a1b60c8c984951c19419b3474cdfd/psycopg2-2.9.10.tar.gz", hash = "sha256:12ec0b40b0273f95296233e8750441339298e6a572f7039da5b260e3c8b60e11", size = 385672, upload-time = "2024-10-16T11:24:54.832Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ae/49/a6cfc94a9c483b1fa401fbcb23aca7892f60c7269c5ffa2ac408364f80dc/psycopg2-2.9.10-cp313-cp313-win_amd64.whl", hash = "sha256:91fd603a2155da8d0cfcdbf8ab24a2d54bca72795b90d2a3ed2b6da8d979dee2", size = 2569060, upload-time = "2025-01-04T20:09:15.28Z" },
+]
+
+[[package]]
+name = "psycopg2-binary"
+version = "2.9.10"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cb/0e/bdc8274dc0585090b4e3432267d7be4dfbfd8971c0fa59167c711105a6bf/psycopg2-binary-2.9.10.tar.gz", hash = "sha256:4b3df0e6990aa98acda57d983942eff13d824135fe2250e6522edaa782a06de2", size = 385764, upload-time = "2024-10-16T11:24:58.126Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3e/30/d41d3ba765609c0763505d565c4d12d8f3c79793f0d0f044ff5a28bf395b/psycopg2_binary-2.9.10-cp313-cp313-macosx_12_0_x86_64.whl", hash = "sha256:26540d4a9a4e2b096f1ff9cce51253d0504dca5a85872c7f7be23be5a53eb18d", size = 3044699, upload-time = "2024-10-16T11:21:42.841Z" },
+    { url = "https://files.pythonhosted.org/packages/35/44/257ddadec7ef04536ba71af6bc6a75ec05c5343004a7ec93006bee66c0bc/psycopg2_binary-2.9.10-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:e217ce4d37667df0bc1c397fdcd8de5e81018ef305aed9415c3b093faaeb10fb", size = 3275245, upload-time = "2024-10-16T11:21:51.989Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/11/48ea1cd11de67f9efd7262085588790a95d9dfcd9b8a687d46caf7305c1a/psycopg2_binary-2.9.10-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:245159e7ab20a71d989da00f280ca57da7641fa2cdcf71749c193cea540a74f7", size = 2851631, upload-time = "2024-10-16T11:21:57.584Z" },
+    { url = "https://files.pythonhosted.org/packages/62/e0/62ce5ee650e6c86719d621a761fe4bc846ab9eff8c1f12b1ed5741bf1c9b/psycopg2_binary-2.9.10-cp313-cp313-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:3c4ded1a24b20021ebe677b7b08ad10bf09aac197d6943bfe6fec70ac4e4690d", size = 3082140, upload-time = "2024-10-16T11:22:02.005Z" },
+    { url = "https://files.pythonhosted.org/packages/27/ce/63f946c098611f7be234c0dd7cb1ad68b0b5744d34f68062bb3c5aa510c8/psycopg2_binary-2.9.10-cp313-cp313-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:3abb691ff9e57d4a93355f60d4f4c1dd2d68326c968e7db17ea96df3c023ef73", size = 3264762, upload-time = "2024-10-16T11:22:06.412Z" },
+    { url = "https://files.pythonhosted.org/packages/43/25/c603cd81402e69edf7daa59b1602bd41eb9859e2824b8c0855d748366ac9/psycopg2_binary-2.9.10-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8608c078134f0b3cbd9f89b34bd60a943b23fd33cc5f065e8d5f840061bd0673", size = 3020967, upload-time = "2024-10-16T11:22:11.583Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/d6/8708d8c6fca531057fa170cdde8df870e8b6a9b136e82b361c65e42b841e/psycopg2_binary-2.9.10-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:230eeae2d71594103cd5b93fd29d1ace6420d0b86f4778739cb1a5a32f607d1f", size = 2872326, upload-time = "2024-10-16T11:22:16.406Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/ac/5b1ea50fc08a9df82de7e1771537557f07c2632231bbab652c7e22597908/psycopg2_binary-2.9.10-cp313-cp313-musllinux_1_2_i686.whl", hash = "sha256:bb89f0a835bcfc1d42ccd5f41f04870c1b936d8507c6df12b7737febc40f0909", size = 2822712, upload-time = "2024-10-16T11:22:21.366Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/fc/504d4503b2abc4570fac3ca56eb8fed5e437bf9c9ef13f36b6621db8ef00/psycopg2_binary-2.9.10-cp313-cp313-musllinux_1_2_ppc64le.whl", hash = "sha256:f0c2d907a1e102526dd2986df638343388b94c33860ff3bbe1384130828714b1", size = 2920155, upload-time = "2024-10-16T11:22:25.684Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/d1/323581e9273ad2c0dbd1902f3fb50c441da86e894b6e25a73c3fda32c57e/psycopg2_binary-2.9.10-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:f8157bed2f51db683f31306aa497311b560f2265998122abe1dce6428bd86567", size = 2959356, upload-time = "2024-10-16T11:22:30.562Z" },
+    { url = "https://files.pythonhosted.org/packages/08/50/d13ea0a054189ae1bc21af1d85b6f8bb9bbc5572991055d70ad9006fe2d6/psycopg2_binary-2.9.10-cp313-cp313-win_amd64.whl", hash = "sha256:27422aa5f11fbcd9b18da48373eb67081243662f9b46e6fd07c3eb46e4535142", size = 2569224, upload-time = "2025-01-04T20:09:19.234Z" },
 ]
 
 [[package]]
@@ -1224,6 +1278,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pytz"
+version = "2025.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f8/bf/abbd3cdfb8fbc7fb3d4d38d320f2441b1e7cbe29be4f23797b4a2b5d8aac/pytz-2025.2.tar.gz", hash = "sha256:360b9e3dbb49a209c21ad61809c7fb453643e048b38924c765813546746e81c3", size = 320884, upload-time = "2025-03-25T02:25:00.538Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/c4/34e93fe5f5429d7570ec1fa436f1986fb1f00c3e0f43a589fe2bbcd22c3f/pytz-2025.2-py2.py3-none-any.whl", hash = "sha256:5ddf76296dd8c44c26eb8f4b6f35488f3ccbf6fbbd7adee0b7262d43f0ec2f00", size = 509225, upload-time = "2025-03-25T02:24:58.468Z" },
+]
+
+[[package]]
 name = "pyyaml"
 version = "6.0.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1311,7 +1374,10 @@ dependencies = [
 
 [package.dev-dependencies]
 backend = [
+    { name = "osmium" },
+    { name = "psycopg2-binary" },
     { name = "python-dateutil" },
+    { name = "pytz" },
     { name = "requests" },
 ]
 ops = [
@@ -1353,7 +1419,10 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 backend = [
+    { name = "osmium", specifier = ">=4.0.2" },
+    { name = "psycopg2-binary", specifier = ">=2.9.10" },
     { name = "python-dateutil", specifier = ">=2.9.0" },
+    { name = "pytz", specifier = ">=2024.1" },
     { name = "requests", specifier = ">=2.32.0" },
 ]
 ops = [
