@@ -11,9 +11,6 @@ from os.path import exists
 from urllib.parse import urlparse
 
 import requests
-import wget
-
-from src.backend.login import verify_me_osm as verify_osm_user
 
 
 def parse_arguments():
@@ -81,26 +78,15 @@ def download_file(download_dir, source_path):
     if os.path.exists(target_path):
         return target_path
 
-    print(f"\nDownloading: {target_path}")
+    print(f"\nDownloading: {source_path}")
+    response = requests.get(source_path, stream=True)
+    response.raise_for_status()
     
-    if os.getenv("OSM_USERNAME") and os.getenv("OSM_PASSWORD"):
-        cookies = verify_osm_user(os.getenv("OSM_USERNAME"), os.getenv("OSM_PASSWORD"))
-        if cookies:
-            print("Authenticated")
-            cookies_fmt = {}
-            parts = cookies.split("=")
-            cookies_fmt[parts[0]] = f'{parts[1]}=="'
-            session = requests.Session()
-            session.cookies.update(cookies_fmt)
-            response = session.get(source_path, stream=True)
-
-            if response.status_code == 200:
-                with open(target_path, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
-    else:
-        wget.download(source_path, target_path)
-
+    with open(target_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+    
+    print(f"Downloaded to: {target_path}")
     return target_path
 
 
