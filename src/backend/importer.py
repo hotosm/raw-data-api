@@ -95,6 +95,54 @@ def get_resource_path(relative_path):
     return os.path.join(base_dir, relative_path)
 
 
+def run_psql_query(query, dbname="postgres", host=None, port=None, user=None):
+    cmd = ["psql", "-h", host, "-p", port, "-U", user, "-d", dbname, "-tAc", query]
+    try:
+        result = subprocess.check_output(cmd, env=os.environ, stderr=subprocess.DEVNULL)
+        return result.decode().strip()
+    except subprocess.CalledProcessError:
+        return None
+
+
+def create_database(dbname, host, port, user):
+    cmd = ["psql", "-h", host, "-p", port, "-U", user, "-d", "postgres", "-c", f"CREATE DATABASE {dbname};"]
+    subprocess.check_output(cmd, env=os.environ, stderr=subprocess.STDOUT)
+
+
+def enable_extension(extension, dbname, host, port, user, cascade=False):
+    cascade_sql = " CASCADE" if cascade else ""
+    cmd = ["psql", "-h", host, "-p", port, "-U", user, "-d", dbname, "-c", 
+           f"CREATE EXTENSION IF NOT EXISTS {extension}{cascade_sql};"]
+    subprocess.check_output(cmd, env=os.environ, stderr=subprocess.STDOUT)
+
+
+def setup_database_prerequisites(dbname, host, port, user):
+    if run_psql_query(f"SELECT 1 FROM pg_database WHERE datname='{dbname}'", "postgres", host, port, user) != "1":
+        print(f"Creating database: {dbname}")
+        try:
+            create_database(dbname, host, port, user)
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to create database: {e.output.decode()}")
+            sys.exit(1)
+    
+    required_extensions = [("postgis", False), ("h3", False), ("h3_postgis", True)]
+    missing = [ext for ext, _ in required_extensions if 
+               run_psql_query(f"SELECT 1 FROM pg_available_extensions WHERE name='{ext}'", "postgres", host, port, user) != "1"]
+    
+    if missing:
+        print(f"Missing extensions: {', '.join(missing)}")
+        print("Install with: sudo apt install postgresql-16-postgis-3 postgresql-16-h3")
+        sys.exit(1)
+    
+    for ext, cascade in required_extensions:
+        if run_psql_query(f"SELECT 1 FROM pg_extension WHERE extname='{ext}'", dbname, host, port, user) != "1":
+            try:
+                enable_extension(ext, dbname, host, port, user, cascade)
+            except subprocess.CalledProcessError as e:
+                print(f"Failed to enable extension {ext}: {e.output.decode()}")
+                sys.exit(1)
+
+
 def main():
     args = parse_arguments()
 
@@ -129,6 +177,8 @@ def main():
         source_path = target_paths[0]
 
     if args.insert:
+        setup_database_prerequisites(args.database, args.host, args.port, args.user)
+        
         osm2pgsql_cmd = [
             "osm2pgsql",
             "--create",

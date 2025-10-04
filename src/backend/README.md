@@ -43,7 +43,7 @@ export PGUSER=postgres
 export PGPASSWORD=postgres
 export PGDATABASE=raw
 
-raw-backend --source file.osm.pbf --insert --cache 1000
+uv run raw-backend --source file.osm.pbf --insert --cache 1000
 ```
 
 **Options:**
@@ -61,7 +61,7 @@ raw-backend --source file.osm.pbf --insert --cache 1000
 **Pass extra osm2pgsql arguments:**
 
 ```bash
-raw-backend --source file.osm.pbf --insert --cache 2000 \
+uv run raw-backend --source file.osm.pbf --insert --cache 2000 \
   --number-processes 4 --tablespace-index fastspace
 ```
 
@@ -70,7 +70,7 @@ raw-backend --source file.osm.pbf --insert --cache 2000 \
 Sample data (Pokhara, Nepal) is included at `src/backend/sample_data/pokhara_all.osm.pbf`. To test:
 
 ```bash
-raw-backend --insert --cache 1000
+uv run raw-backend --insert --cache 1000
 ```
 
 ### raw-field-update
