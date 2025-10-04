@@ -21,6 +21,7 @@ uv sync --group backend
 Import OSM data using osm2pgsql.
 
 **Basic usage:**
+
 ```bash
 raw-backend \
   --source path/to/file.osm.pbf \
@@ -34,6 +35,7 @@ raw-backend \
 ```
 
 **With environment variables:**
+
 ```bash
 export PGHOST=localhost
 export PGPORT=5432
@@ -45,6 +47,7 @@ raw-backend --source file.osm.pbf --insert --cache 1000
 ```
 
 **Options:**
+
 - `--source`: Path to OSM PBF file(s) or URL to download
 - `--insert`: Run initial data import
 - `--update`: Update fields only
@@ -56,6 +59,7 @@ raw-backend --source file.osm.pbf --insert --cache 1000
 - Extra args at end are forwarded to osm2pgsql
 
 **Pass extra osm2pgsql arguments:**
+
 ```bash
 raw-backend --source file.osm.pbf --insert --cache 2000 \
   --number-processes 4 --tablespace-index fastspace
@@ -82,6 +86,7 @@ raw-field-update \
 ```
 
 **Options:**
+
 - `-table`: Target table (nodes, ways_poly, ways_line, relations)
 - `--h3`: H3 column name (default: h3)
 - `--res`: H3 resolution (default: 6)
@@ -104,19 +109,22 @@ CREATE EXTENSION IF NOT EXISTS h3_postgis CASCADE;
 After import, you'll have:
 
 **Tables:**
+
 - `nodes` - Point features with geometry and tags
 - `ways_line` - LineString features
-- `ways_poly` - Polygon features  
+- `ways_poly` - Polygon features
 - `relations` - Relation features
 - `countries` - Country boundaries for filtering
 - `users` - OSM user information
 
 **Indexes:**
+
 - Spatial (GIST) indexes on geometry columns
 - H3 spatial indexes at resolution 6
 - Primary keys on osm_id
 
 **Columns:**
+
 - `osm_id` - OpenStreetMap ID
 - `tags` - JSONB key-value pairs
 - `geom` - PostGIS geometry
@@ -136,11 +144,13 @@ src/backend/
 └── sample_data/         # Test dataset (Pokhara)
 ```
 
-## Getting OSM Data
+## Getting OSM Data to initialize
 
 Download from:
+
 - [Geofabrik](https://download.geofabrik.de/) - Regional extracts
 - [Planet OSM](https://planet.osm.org/) - Full planet file
 - [BBBike](https://extract.bbbike.org/) - Custom extracts
-
-Or use the included sample data for testing.
+- [OSM Export Tool](https://export.hotosm.org/) - Custom extracts
+- [Slice OSM](https://slice.openstreetmap.us/) - Custom extracts
+  Or use the included sample data for testing.
