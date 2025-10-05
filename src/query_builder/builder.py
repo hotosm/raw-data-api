@@ -58,19 +58,6 @@ def get_grid_id_query(geometry_dump):
     return base_query
 
 
-def get_country_id_query(geom_dump):
-    base_query = f"""select
-                        b.cid::int as fid
-                    from
-                        countries b
-                    where
-                        ST_Intersects(ST_GEOMFROMGEOJSON('{geom_dump}') ,
-                        b.geometry)
-                    order by ST_Area(ST_Intersection(b.geometry,ST_MakeValid(ST_GEOMFROMGEOJSON('{geom_dump}')))) desc
-
-                    """
-    return base_query
-
 
 def check_exisiting_country(geom):
     query = f"""select
@@ -244,9 +231,6 @@ def generate_tag_filter_query(filter, join_by=" OR ", plain_query_filter=False):
 def extract_geometry_type_query(
     params,
     ogr_export=False,
-    g_id=None,
-    c_id=None,
-    country_export=False,
 ):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
     include_user_metadata = params.include_user_metadata
@@ -325,9 +309,7 @@ def extract_geometry_type_query(
                     create_schema=True,
                     include_user_metadata=include_user_metadata,
                 )
-            where_clause_for_nodes = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "nodes"
-            )
+            where_clause_for_nodes = generate_where_clause(geom_filter)
 
             query_point = f"""select
                         {select_condition}
@@ -353,9 +335,7 @@ def extract_geometry_type_query(
                     create_schema=True,
                     include_user_metadata=include_user_metadata,
                 )
-            where_clause_for_line = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "ways_line"
-            )
+            where_clause_for_line = generate_where_clause(geom_filter)
 
             query_ways_line = f"""select
                 {select_condition}
@@ -363,9 +343,7 @@ def extract_geometry_type_query(
                     ways_line
                 where
                     {where_clause_for_line}"""
-            where_clause_for_rel = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "relations"
-            )
+            where_clause_for_rel = generate_where_clause(geom_filter)
 
             query_relations_line = f"""select
                 {select_condition}
@@ -395,9 +373,7 @@ def extract_geometry_type_query(
                     include_user_metadata=include_user_metadata,
                 )
 
-            where_clause_for_poly = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "ways_poly"
-            )
+            where_clause_for_poly = generate_where_clause(geom_filter)
 
             query_ways_poly = f"""select
                 {select_condition}
@@ -405,9 +381,7 @@ def extract_geometry_type_query(
                     ways_poly
                 where
                     {where_clause_for_poly}"""
-            where_clause_for_relations = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "relations"
-            )
+            where_clause_for_relations = generate_where_clause(geom_filter)
 
             query_relations_poly = f"""select
                 {select_condition}
@@ -479,46 +453,14 @@ def extract_attributes_tags(filters):
     )
 
 
-def generate_where_clause_indexes_case(
-    geom_filter, g_id, c_id, country_export, table_name="ways_poly"
-):
-    where_clause = geom_filter
-    if g_id:
-        if (
-            table_name == "ways_poly"
-        ):  # currently grid index is only available for ways_poly
-            column_name = "grid"
-            grid_filter_base = [f"""{column_name} = {ind[0]}""" for ind in g_id]
-            grid_filter = " OR ".join(grid_filter_base)
-            where_clause = f"({grid_filter}) and ({geom_filter})"
-    if c_id:
-        c_id = ",".join(str(num) for num in c_id)
-        # if table_name == "ways_poly" or table_name == "nodes":
-        #     where_clause += f" and (country IN ({c_id}))"
-        # else:
-        where_clause += f" and (country @> ARRAY[{c_id}])"
-    if (
-        country_export
-    ):  # ignore the geometry take geom from the db itself by using precalculated field
-        if c_id:
-            # if table_name == "ways_poly" or table_name == "nodes":
-            #     where_clause = f"country IN ({c_id})"
-            # else:
-            where_clause = f"country @> ARRAY[{c_id}]"
-    return where_clause
+def generate_where_clause(geom_filter):
+    return geom_filter
 
-
-def get_country_geojson(c_id):
-    query = f"SELECT ST_AsGeoJSON(geometry) as geom from countries where id={c_id}"
-    return query
 
 
 def raw_currentdata_extraction_query(
     params,
-    g_id=None,
-    c_id=None,
     ogr_export=False,
-    country_export=False,
 ):
     """Default function to support current snapshot extraction with all of the feature that export_tool_api has"""
     include_user_metadata = params.include_user_metadata
@@ -662,9 +604,7 @@ def raw_currentdata_extraction_query(
     if SupportedGeometryFilters.ALLGEOM.value in params.geometry_type:
         params.geometry_type = ["point", "line", "polygon"]
     if SupportedGeometryFilters.POINT.value in params.geometry_type:
-        where_clause_for_nodes = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, country_export, "nodes"
-        )
+        where_clause_for_nodes = generate_where_clause(geom_filter)
 
         query_point = f"""select
                     {point_select_condition}
@@ -677,9 +617,7 @@ def raw_currentdata_extraction_query(
         base_query.append(query_point)
 
     if SupportedGeometryFilters.LINE.value in params.geometry_type:
-        where_clause_for_line = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, country_export, "ways_line"
-        )
+        where_clause_for_line = generate_where_clause(geom_filter)
 
         query_ways_line = f"""select
             {line_select_condition}
@@ -696,9 +634,7 @@ def raw_currentdata_extraction_query(
                 use_geomtype_in_relation = False
 
         if use_geomtype_in_relation:
-            where_clause_for_rel = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "relations"
-            )
+            where_clause_for_rel = generate_where_clause(geom_filter)
 
             query_relations_line = f"""select
                 {line_select_condition}
@@ -712,9 +648,7 @@ def raw_currentdata_extraction_query(
             base_query.append(query_relations_line)
 
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
-        where_clause_for_poly = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, country_export, "ways_poly"
-        )
+        where_clause_for_poly = generate_where_clause(geom_filter)
 
         query_ways_poly = f"""select
             {poly_select_condition}
@@ -725,9 +659,7 @@ def raw_currentdata_extraction_query(
         if poly_tag:
             query_ways_poly += f""" and ({poly_tag})"""
         base_query.append(query_ways_poly)
-        where_clause_for_relations = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, country_export, "relations"
-        )
+        where_clause_for_relations = generate_where_clause(geom_filter)
         query_relations_poly = f"""select
             {poly_select_condition}
             from
@@ -906,7 +838,6 @@ def convert_tags_pattern_to_postgres(query_string):
 def postgres2duckdb_query(
     base_table_name,
     table,
-    cid=None,
     geometry=None,
     single_category_where=None,
     enable_users_detail=False,
@@ -932,11 +863,7 @@ def postgres2duckdb_query(
         select_query = """osm_id, osm_type, uid, "user", version, changeset, timestamp, tags, ST_AsBinary(geom) as geom"""
         create_select_duck_db = """osm_id, osm_type, uid, "user", version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geom) as GEOMETRY) AS geom"""
 
-    row_filter_condition = (
-        f"""(country @> ARRAY [{cid}])"""
-        if cid
-        else f"""ST_Intersects(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326))),4326)))"""
-    )
+    row_filter_condition = f"""ST_Intersects(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326))),4326)))"""
 
     postgres_query = f"""select {select_query} from (select * , tableoid::regclass as osm_type from {table} where {row_filter_condition}) as sub_query"""
     if single_category_where:
@@ -1020,7 +947,6 @@ def extract_features_custom_exports(
                 from_q=table,
                 where_q=where_query,
                 geom=geometry,
-                cid=cid,
             )
         base_query.append(query)
     return " UNION ALL ".join(base_query)

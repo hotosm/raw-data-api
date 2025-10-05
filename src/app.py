@@ -56,14 +56,12 @@ from src.config import (
     DEFAULT_README_TEXT,
     ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
-    ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ENABLE_SOZIP,
     ENABLE_TILES,
     EXPORT_MAX_AREA_SQKM,
     LOG_LEVEL,
     MAX_WORKERS,
     PARALLEL_PROCESSING_CATEGORIES,
-    POLYGON_STATISTICS_API_URL,
     PROCESS_SINGLE_CATEGORY_IN_POSTGRES,
     USE_DUCK_DB_FOR_CUSTOM_EXPORTS,
     USE_S3_TO_UPLOAD,
@@ -76,15 +74,9 @@ from src.config import logger as logging
 from src.query_builder.builder import (
     HDX_FILTER_CRITERIA,
     HDX_MARKDOWN,
-    check_exisiting_country,
     check_last_updated_rawdata,
     extract_features_custom_exports,
     extract_geometry_type_query,
-    generate_polygon_stats_graphql_query,
-    get_countries_query,
-    get_country_cid,
-    get_country_from_iso,
-    get_country_geom_from_iso,
     get_osm_feature_query,
     postgres2duckdb_query,
     raw_currentdata_extraction_query,
@@ -644,46 +636,18 @@ class RawData:
         logging.debug("Server side Query Result  Post Processing Done")
 
     @staticmethod
-    def get_grid_id(geom, cur):
-        """Gets the intersecting related grid id for the geometry that is passed
+    def get_geometry_info(geom):
+        """Gets geometry information for the geometry that is passed
 
         Args:
-            geom (_type_): _description_
-            cur (_type_): _description_
+            geom: Geometry object
 
         Returns:
-            _type_: grid id , geometry dump and the area of geometry
+            tuple: geometry dump and the area of geometry in sqkm
         """
         geometry_dump = dumps(dict(geom))
-        # generating geometry area in sqkm
         geom_area = area(json_loads(geom.json())) * 1e-6
-        country_export = False
-        g_id = None
-        countries = []
-        cur.execute(check_exisiting_country(geometry_dump))
-        backend_match = cur.fetchall()
-        if backend_match:
-            countries = backend_match[0]
-            country_export = True
-            logging.info(f"Using Country Export Mode with id : {countries[0]}")
-        # else:
-        #     if int(geom_area) > int(index_threshold):
-        #         # this will be applied only when polygon gets bigger we will be slicing index size to search
-        #         country_query = get_country_id_query(geometry_dump)
-        #         cur.execute(country_query)
-        #         result_country = cur.fetchall()
-        #         countries = [int(f[0]) for f in result_country]
-        #         logging.debug(f"Intersected Countries : {countries}")
-        #         cur.close()
-        return (
-            g_id,
-            geometry_dump,
-            geom_area,
-            (
-                countries if len(countries) > 0 and len(countries) <= 3 else None
-            ),  # don't go through countires if they are more than 3
-            country_export,
-        )
+        return (geometry_dump, geom_area)
 
     def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
@@ -694,14 +658,7 @@ class RawData:
             geom_area: area of polygon supplied
             working_dir: dir where results are saved
         """
-        # first check either geometry needs grid or not for querying
-        (
-            grid_id,
-            geometry_dump,
-            geom_area,
-            country,
-            country_export,
-        ) = RawData.get_grid_id(self.params.geometry, self.cur)
+        geometry_dump, geom_area = RawData.get_geometry_info(self.params.geometry)
         output_type = self.params.output_type
         # Check whether the export path exists or not
         working_dir = os.path.join(self.base_export_working_dir, exportname)
@@ -730,13 +687,10 @@ class RawData:
                     RawData.ogr_export(
                         query=raw_currentdata_extraction_query(
                             self.params,
-                            grid_id,
-                            country,
                             ogr_export=True,
-                            country_export=country_export,
                         ),
                         outputtype=output_type,
-                        dump_temp_path=dump_temp_file_path,
+                        dump_temp_file_path=dump_temp_file_path,
                         working_dir=working_dir,
                         params=self.params,
                     )
@@ -744,14 +698,9 @@ class RawData:
             if output_type == RawDataOutputType.GEOJSON.value:
                 RawData.query2geojson(
                     self.con,
-                    raw_currentdata_extraction_query(
-                        self.params,
-                        g_id=grid_id,
-                        c_id=country,
-                        country_export=country_export,
-                    ),
+                    raw_currentdata_extraction_query(self.params),
                     dump_temp_file_path,
-                )  # uses own conversion class
+                )
             if output_type == RawDataOutputType.SHAPEFILE.value:
                 (
                     point_query,
@@ -763,9 +712,6 @@ class RawData:
                 ) = extract_geometry_type_query(
                     self.params,
                     ogr_export=True,
-                    g_id=grid_id,
-                    c_id=country,
-                    country_export=country_export,
                 )
                 RawData.ogr_export_shp(
                     point_query=point_query,
@@ -780,16 +726,13 @@ class RawData:
                 RawData.ogr_export(
                     query=raw_currentdata_extraction_query(
                         self.params,
-                        grid_id,
-                        country,
                         ogr_export=True,
-                        country_export=country_export,
                     ),
                     outputtype=output_type,
-                    dump_temp_path=dump_temp_file_path,
+                    dump_temp_file_path=dump_temp_file_path,
                     working_dir=working_dir,
                     params=self.params,
-                )  # uses ogr export to export
+                )
             return geom_area, geometry_dump, working_dir
         except Exception as ex:
             logging.error(ex)
@@ -807,41 +750,6 @@ class RawData:
         # closing connection before leaving class
         RawData.close_con(self.con)
         return str(behind_time[0][0])
-
-    def get_countries_list(self, q):
-        """Gets Countries list from the database
-
-        Args:
-            q (_type_): list filter query string
-
-        Returns:
-            featurecollection: geojson of country
-        """
-        query = get_countries_query(q)
-        self.cur.execute(query)
-        get_fetched = self.cur.fetchall()
-        features = []
-        for row in get_fetched:
-            features.append(orjson.loads(row[0]))
-        self.cur.close()
-        return FeatureCollection(features=features)
-
-    def get_country(self, q):
-        """Gets specific country from the database
-
-        Args:
-            cid (_type_): country cid
-
-        Returns:
-            featurecollection: geojson of country
-        """
-        query = get_country_cid(q)
-        self.cur.execute(query)
-        get_fetched = self.cur.fetchall()
-        self.cur.close()
-        if len(get_fetched) < 1:
-            return "Not found"
-        return orjson.loads(get_fetched[0][0])
 
     def get_osm_feature(self, osm_id):
         """Returns geometry of osm_id in geojson
@@ -939,242 +847,6 @@ class S3FileTransfer:
         return object_url
 
 
-class PolygonStats:
-    """Generates stats for polygon"""
-
-    def __init__(self, geojson=None, iso3=None):
-        """
-        Initialize PolygonStats with the provided GeoJSON.
-
-        Args:
-            geojson (dict): GeoJSON representation of the polygon.
-        """
-        self.API_URL = POLYGON_STATISTICS_API_URL
-        if geojson is None and iso3 is None:
-            raise HTTPException(
-                status_code=404, detail="Either geojson or iso3 should be passed"
-            )
-
-        if iso3:
-            dbdict = get_db_connection_params()
-            d_b = Database(dbdict)
-            con, cur = d_b.connect()
-            cur.execute(get_country_geom_from_iso(iso3))
-            result = cur.fetchone()
-            if result is None:
-                raise HTTPException(status_code=404, detail="Invalid iso3 code")
-            self.INPUT_GEOM = result[0]
-        else:
-            self.INPUT_GEOM = dumps(geojson)
-
-    @staticmethod
-    def get_building_pattern_statement(
-        osm_building_count,
-        ai_building_count,
-        avg_timestamp,
-        last_edit_timestamp,
-        osm_building_count_6_months,
-    ):
-        """
-        Translates building stats to a human-readable statement.
-
-        Args:
-            osm_building_count (int): Count of buildings from OpenStreetMap.
-            ai_building_count (int): Count of buildings from AI estimates.
-            avg_timestamp (timestamp): Average timestamp of data.
-            last_edit_timestamp(timestamp): Last edit timestamp of an area
-            osm_building_count_6_months (int): Count of buildings updated in the last 6 months.
-
-        Returns:
-            str: Human-readable building statement.
-        """
-        building_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_building_count)} buildings in this region. "
-        if ai_building_count > 0:
-            building_statement += f"Based on AI-mapped estimates, this is approximately {round((osm_building_count / ai_building_count) * 100)}% of the total buildings."
-        building_statement += f"The average age of data for this region is {humanize.naturaltime(avg_timestamp).replace('ago', '')}( Last edited {humanize.naturaltime(last_edit_timestamp)} ) "
-        if osm_building_count > 0:
-            building_statement += f"and {round((osm_building_count_6_months / osm_building_count) * 100)}% buildings were added or updated in the last 6 months."
-        return building_statement
-
-    @staticmethod
-    def get_road_pattern_statement(
-        osm_highway_length,
-        ai_highway_length,
-        avg_timestamp,
-        last_edit_timestamp,
-        osm_highway_length_6_months,
-    ):
-        """
-        Translates road stats to a human-readable statement.
-
-        Args:
-            osm_highway_length (float): Length of roads from OpenStreetMap.
-            ai_highway_length (float): Length of roads from AI estimates.
-            avg_timestamp (str): Average timestamp of data.
-            osm_highway_length_6_months (float): Length of roads updated in the last 6 months.
-
-        Returns:
-            str: Human-readable road statement.
-        """
-        road_statement = f"OpenStreetMap contains roughly {humanize.intword(osm_highway_length)} km of roads in this region. "
-        if ai_highway_length > 1:
-            road_statement += f"Based on AI-mapped estimates, this is approximately {round(osm_highway_length / ai_highway_length * 100)} % of the total road length in the dataset region. "
-        road_statement += f"The average age of data for the region is {humanize.naturaltime(avg_timestamp).replace('ago', '')} ( Last edited {humanize.naturaltime(last_edit_timestamp)} ) "
-        if osm_highway_length > 1:
-            road_statement += f"and {round((osm_highway_length_6_months / osm_highway_length) * 100)}% of roads were added or updated in the last 6 months."
-        return road_statement
-
-    def get_osm_analytics_meta_stats(self):
-        """
-        Gets the raw stats translated into a JSON body using the OSM Analytics API.
-
-        Returns:
-            dict: Raw statistics translated into JSON.
-        """
-        MAX_RETRIES = 2  # Maximum number of retries
-        INITIAL_DELAY = 1  # Initial delay in seconds
-        MAX_DELAY = 8
-        API_TIMEOUT = 10
-
-        retries = 0
-        delay = INITIAL_DELAY
-
-        while retries < MAX_RETRIES:
-            try:
-                query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
-                payload = {"query": query}
-                response = requests.post(
-                    self.API_URL, json=payload, timeout=API_TIMEOUT
-                )
-                response.raise_for_status()
-                return response.json()
-            except Exception as e:
-                print(f"Request failed: {e}")
-                retries += 1
-                delay = min(delay * 0.5, MAX_DELAY)  # Exponential backoff
-                jitter = random.uniform(0, 1)  #  jitter to avoid simultaneous retries
-                sleep_time = delay * (1 + jitter)
-                print(f"Retrying in {sleep_time} seconds...")
-                time.sleep(sleep_time)
-
-        # If all retries failed, return None
-        print("Maximum retries exceeded. Unable to fetch data.")
-        return None
-
-    def get_summary_stats(self):
-        """
-        Generates summary statistics for buildings and roads.
-
-        Returns:
-            dict: Summary statistics including building and road statements.
-        """
-        combined_data = {}
-        analytics_data = self.get_osm_analytics_meta_stats()
-        if (
-            analytics_data is None
-            or "data" not in analytics_data
-            or "polygonStatistic" not in analytics_data["data"]
-            or "analytics" not in analytics_data["data"]["polygonStatistic"]
-            or "functions"
-            not in analytics_data["data"]["polygonStatistic"]["analytics"]
-            or analytics_data["data"]["polygonStatistic"]["analytics"]["functions"]
-            is None
-        ):
-            logging.error(analytics_data)
-            return None
-        for function in analytics_data["data"]["polygonStatistic"]["analytics"][
-            "functions"
-        ]:
-            function_id = function.get("id")
-            result = function.get("result")
-            combined_data[function_id] = result if result is not None else 0
-        combined_data["osm_buildings_freshness_percentage"] = (
-            100 - combined_data["antiqueOsmBuildingsPercentage"]
-        )
-        combined_data["osm_building_completeness_percentage"] = (
-            100
-            if combined_data["osmBuildingsCount"] == 0
-            and combined_data["aiBuildingsCountEstimation"] == 0
-            else (
-                combined_data["osmBuildingsCount"]
-                / combined_data["aiBuildingsCountEstimation"]
-            )
-            * 100
-        )
-
-        combined_data["osm_roads_freshness_percentage"] = (
-            100 - combined_data["antiqueOsmRoadsPercentage"]
-        )
-
-        combined_data["osm_roads_completeness_percentage"] = (
-            100
-            if combined_data["highway_length"] == 0
-            and combined_data["aiRoadCountEstimation"] == 0
-            else (
-                combined_data["highway_length"] / combined_data["aiRoadCountEstimation"]
-            )
-            * 100
-        )
-
-        combined_data["averageEditTime"] = datetime.fromtimestamp(
-            combined_data["averageEditTime"]
-        )
-        combined_data["lastEditTime"] = datetime.fromtimestamp(
-            combined_data["lastEditTime"]
-        )
-
-        building_summary = self.get_building_pattern_statement(
-            combined_data["osmBuildingsCount"],
-            combined_data["aiBuildingsCountEstimation"],
-            combined_data["averageEditTime"],
-            combined_data["lastEditTime"],
-            combined_data["building_count_6_months"],
-        )
-
-        road_summary = self.get_road_pattern_statement(
-            combined_data["highway_length"],
-            combined_data["aiRoadCountEstimation"],
-            combined_data["averageEditTime"],
-            combined_data["lastEditTime"],
-            combined_data["highway_length_6_months"],
-        )
-
-        return_stats = {
-            "summary": {"buildings": building_summary, "roads": road_summary},
-            "raw": {
-                "population": combined_data["population"],
-                "populatedAreaKm2": combined_data["populatedAreaKm2"],
-                "averageEditTime": combined_data["averageEditTime"].strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                ),
-                "lastEditTime": combined_data["lastEditTime"].strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                ),
-                "osmUsersCount": combined_data["osmUsersCount"],
-                "osmBuildingCompletenessPercentage": combined_data[
-                    "osm_building_completeness_percentage"
-                ],
-                "osmRoadsCompletenessPercentage": combined_data[
-                    "osm_roads_completeness_percentage"
-                ],
-                "osmBuildingsCount": combined_data["osmBuildingsCount"],
-                "osmHighwayLengthKm": combined_data["highway_length"],
-                "aiBuildingsCountEstimation": combined_data[
-                    "aiBuildingsCountEstimation"
-                ],
-                "aiRoadCountEstimationKm": combined_data["aiRoadCountEstimation"],
-                "buildingCount6Months": combined_data["building_count_6_months"],
-                "highwayLength6MonthsKm": combined_data["highway_length_6_months"],
-            },
-            "meta": {
-                "indicators": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md",
-                "metrics": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md",
-            },
-        }
-
-        return return_stats
-
-
 class DuckDB:
     """
     Constructor for the DuckDB class.
@@ -1242,29 +914,6 @@ class CustomExport:
         if self.iso3:
             self.iso3 = self.iso3.lower()
         self.cid = None
-        if self.iso3:
-            dbdict = get_db_connection_params()
-            d_b = Database(dbdict)
-            con, cur = d_b.connect()
-            query = get_country_from_iso(self.iso3)
-            cur.execute(query)
-            result = cur.fetchall()
-            if not result:
-                raise HTTPException(status_code=404, detail="iso3 code not found in db")
-            result = result[0]
-            (
-                self.cid,
-                dataset_title,
-                dataset_prefix,
-                dataset_locations,
-            ) = result
-
-            if not self.params.dataset.dataset_title:
-                self.params.dataset.dataset_title = dataset_title
-            if not self.params.dataset.dataset_prefix:
-                self.params.dataset.dataset_prefix = dataset_prefix
-            if not self.params.dataset.dataset_locations:
-                self.params.dataset.dataset_locations = json.loads(dataset_locations)
         self.uuid = uid
         if self.uuid is None:
             self.uuid = str(uuid.uuid4().hex)
@@ -1872,21 +1521,6 @@ class HDXUploader:
             )
         columns = "\n".join(columns)
         filter_str = HDX_FILTER_CRITERIA.format(criteria=self.category_data.where)
-        if self.category_name.lower() in ["roads", "buildings"]:
-            if self.data_completeness_stats is None:
-                if self.completeness_metadata:
-                    self.data_completeness_stats = PolygonStats(
-                        iso3=self.completeness_metadata["iso3"],
-                        geojson=(
-                            self.completeness_metadata["geometry"]
-                            if self.completeness_metadata["geometry"]
-                            else None
-                        ),
-                    ).get_summary_stats()
-            if self.data_completeness_stats:
-                self.category_data.hdx.notes += f"{self.data_completeness_stats['summary'][self.category_name.lower()]}\n"
-                self.category_data.hdx.notes += "Read about what this summary means : [indicators](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md) , [metrics](https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md)\n"
-
         return self.category_data.hdx.notes + HDX_MARKDOWN.format(
             columns=columns, filter_str=filter_str
         )

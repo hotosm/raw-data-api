@@ -3,8 +3,7 @@
 # Copyright (C) 2021 Humanitarian OpenStreetmap Team
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
+# it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -220,20 +219,6 @@ ONDEMAND_QUEUE_NAME = os.environ.get("ONDEMAND_QUEUE_NAME") or config.get(
 )
 
 # Polygon statistics which will deliver the stats of approx buildings/ roads in the area
-
-ENABLE_POLYGON_STATISTICS_ENDPOINTS = get_bool_env_var(
-    "ENABLE_POLYGON_STATISTICS_ENDPOINTS",
-    config.getboolean(
-        "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
-    ),
-)
-POLYGON_STATISTICS_API_URL = os.environ.get("POLYGON_STATISTICS_API_URL") or config.get(
-    "API_CONFIG", "POLYGON_STATISTICS_API_URL", fallback=None
-)
-
-POLYGON_STATISTICS_API_RATE_LIMIT = os.environ.get(
-    "POLYGON_STATISTICS_API_RATE_LIMIT"
-) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_RATE_LIMIT", fallback=5)
 
 # task limit
 

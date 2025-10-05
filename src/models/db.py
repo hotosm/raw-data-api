@@ -33,7 +33,6 @@ class CronJob(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     
-    iso3 = Column(String(3), nullable=True)
     hdx_upload = Column(Boolean, default=False, nullable=False)
     dataset = Column(JSONB, nullable=True)
     queue = Column(String, default='raw_ondemand', nullable=False)

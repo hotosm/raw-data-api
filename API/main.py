@@ -32,7 +32,6 @@ from src.config import (
     ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
     ENABLE_METRICS_APIS,
-    ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     EXPORT_PATH,
     LIMITER,
     LOG_LEVEL,
@@ -49,9 +48,6 @@ from .tasks import router as tasks_router
 
 if USE_S3_TO_UPLOAD:
     from .s3 import router as s3_router
-
-if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
-    from .stats import router as stats_router
 
 if ENABLE_METRICS_APIS:
     from .download_metrics import router as metrics_router
@@ -87,8 +83,6 @@ app.include_router(tasks_router)
 
 if ENABLE_CUSTOM_EXPORTS:
     app.include_router(custom_exports_router)
-if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
-    app.include_router(stats_router)
 if ENABLE_METRICS_APIS:
     app.include_router(metrics_router)
 if ENABLE_HDX_EXPORTS:
