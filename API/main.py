@@ -20,7 +20,6 @@
 import time
 
 # Third party imports
-import psycopg2
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -39,13 +38,9 @@ from src.config import (
     LOG_LEVEL,
     SENTRY_DSN,
     SENTRY_RATE,
-    SETUP_INITIAL_TABLES,
-    USE_CONNECTION_POOLING,
     USE_S3_TO_UPLOAD,
-    get_db_connection_params,
 )
 from src.config import logger as logging
-from src.db_session import database_instance
 
 from .auth.routers import router as auth_router
 from .custom_exports import router as custom_exports_router
@@ -126,15 +121,6 @@ origins = ["*"]
 
 @app.middleware("http")
 async def add_process_time_header(request, call_next):
-    """Times request and knows response time and pass it to header in every request
-
-    Args:
-        request (_type_): _description_
-        call_next (_type_): _description_
-
-    Returns:
-        header with process time
-    """
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
@@ -149,42 +135,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-async def on_startup():
-    """Fires up 3 idle conenction with threaded connection pooling before starting the API
-
-    Raises:
-        e: if connection is rejected to database
-    """
-    try:
-        # if SETUP_INITIAL_TABLES:
-        #     sql_file_path = os.path.join(
-        #         os.path.realpath(os.path.dirname(__file__)), "data/tables.sql"
-        #     )
-        #     with open(sql_file_path, "r", encoding="UTF-8") as sql_file:
-        #         create_tables_sql = sql_file.read()
-        #     conn = psycopg2.connect(**get_db_connection_params())
-        #     cursor = conn.cursor()
-        #     # Execute SQL statements
-        #     cursor.execute(create_tables_sql)
-        #     conn.commit()
-
-        #     # Close the cursor and connection
-        #     cursor.close()
-        #     conn.close()
-
-        if USE_CONNECTION_POOLING:
-            database_instance.connect()
-    except Exception as e:
-        logging.error(e)
-        raise e
-
-
-@app.on_event("shutdown")
-def on_shutdown():
-    """Closing all the threads connection from pooling before shuting down the api"""
-    if USE_CONNECTION_POOLING:
-        logging.debug("Shutting down connection pool")
-        database_instance.close_all_connection_pool()

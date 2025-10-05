@@ -20,7 +20,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from .db_connection import Database
 from .config import get_db_connection_params
 
 db_params = get_db_connection_params()
@@ -35,8 +34,6 @@ engine = create_engine(
 )
 
 SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-
-database_instance = Database()
 
 
 def get_db():

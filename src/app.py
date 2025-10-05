@@ -72,7 +72,6 @@ from src.config import (
 )
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
-from src.config import USE_CONNECTION_POOLING as use_connection_pooling
 from src.config import logger as logging
 from src.query_builder.builder import (
     HDX_FILTER_CRITERIA,
@@ -102,12 +101,6 @@ else:
     # Standard library imports
     import zipfile
 
-# import instance for pooling
-if use_connection_pooling:
-    # Reader imports
-    from src.db_session import database_instance
-else:
-    database_instance = None
 # Standard library imports
 import logging as log
 
@@ -126,12 +119,6 @@ if ENABLE_HDX_EXPORTS:
 
     # Reader imports
     from src.config import HDX_MAINTAINER, HDX_OWNER_ORG, HDX_URL_PREFIX
-
-
-global LOCAL_CON_POOL
-
-# getting the pool instance which was fireup when API is started
-LOCAL_CON_POOL = database_instance
 
 
 def print_psycopg2_exception(err):
@@ -452,29 +439,16 @@ class RawData:
     def __init__(self, parameters=None, request_uid="raw-data-api", dbdict=None):
         if parameters:
             self.params = parameters
-        # only use connection pooling if it is configured in config file
-        if use_connection_pooling:
-            # if database credentials directly from class is not passed grab from pool
-            pool_conn = LOCAL_CON_POOL.get_conn_from_pool()
-            self.con, self.cur = pool_conn, pool_conn.cursor(cursor_factory=DictCursor)
-        else:
-            # else use our default db class
-            if not dbdict:
-                dbdict = get_db_connection_params()
-            self.d_b = Database(dict(dbdict))
-            self.con, self.cur = self.d_b.connect()
-
+        if not dbdict:
+            dbdict = get_db_connection_params()
+        self.d_b = Database(dict(dbdict))
+        self.con, self.cur = self.d_b.connect()
         self.base_export_working_dir = os.path.join(export_path, request_uid)
 
     @staticmethod
     def close_con(con):
-        """Closes connection if exists"""
         if con:
-            if use_connection_pooling:
-                # release connection from pool
-                database_instance.release_conn_from_pool(con)
-            else:
-                con.close()
+            con.close()
 
     @staticmethod
     def ogr_export_shp(point_query, line_query, poly_query, working_dir, file_name):
