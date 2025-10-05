@@ -18,12 +18,15 @@ keywords = [
     "OSM", "rawdataapi", 
 ]
 dependencies = [
+    "alembic==1.13.1",
     "area>=1.1.1",
     "boto3>=1.40.42",
     "celery>=5.5.3",
+    "croniter==5.0.1",
     "duckdb>=1.4.0",
     "fastapi>=0.118.0",
     "fastapi-versioning>=0.10.0",
+    "geoalchemy2==0.15.2",
     "geojson>=3.2.0",
     "geojson-pydantic>=2.0.0",
     "geojson-stats>=0.2.9",

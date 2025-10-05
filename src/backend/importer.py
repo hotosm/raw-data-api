@@ -207,7 +207,6 @@ def main():
         run_command(osm2pgsql_cmd)
 
         run_command(["psql", "-a", "-f", get_resource_path("sql/pre_indexes.sql")])
-        run_command(["psql", "-a", "-f", get_resource_path("sql/countries.sql")])
 
         if args.replication:
             run_command([sys.executable, get_resource_path("replication"), "init"])
@@ -228,11 +227,8 @@ def main():
     if len(update_cmds) > 1:
         run_parallel_commands(update_cmds)
 
-    if args.insert:
-        run_command(["psql", "-a", "-f", get_resource_path("sql/user_roles.sql")])
-        print("User roles table created")
-
     if args.insert or args.post_index:
+        # Add spatial indexes to OSM tables
         run_command(["psql", "-a", "-f", get_resource_path("sql/post_indexes.sql")])
         elapsed = datetime.timedelta(seconds=(time.time() - start_time))
         print(f"\nProcess finished. Total time: {elapsed}")
