@@ -909,19 +909,14 @@ class CustomExport:
 
     def __init__(self, params, uid=None):
         self.params = params
-        self.iso3 = self.params.iso3
         self.HDX_SUPPORTED_FORMATS = ["geojson", "gpkg", "kml", "shp"]
-        if self.iso3:
-            self.iso3 = self.iso3.lower()
         self.cid = None
         self.uuid = uid
         if self.uuid is None:
             self.uuid = str(uuid.uuid4().hex)
 
         self.parallel_process_state = False
-        self.default_export_base_name = (
-            self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix
-        )
+        self.default_export_base_name = self.params.dataset.dataset_prefix
 
         self.default_export_path = os.path.join(
             export_path,
@@ -1249,7 +1244,7 @@ class CustomExport:
         all_uploaded_resources = []
         for feature_type in category_data.types:
             extract_query = extract_features_custom_exports(
-                self.iso3 if self.iso3 else self.params.dataset.dataset_prefix,
+                self.params.dataset.dataset_prefix,
                 category_data.select,
                 feature_type,
                 (
@@ -1317,18 +1312,12 @@ class CustomExport:
                 default_category_path=self.default_export_path,
                 uuid=self.uuid,
                 completeness_metadata={
-                    "iso3": self.iso3,
-                    "geometry": (
-                        {
-                            "type": "Feature",
-                            "geometry": json.loads(
-                                self.params.geometry.model_dump_json()
-                            ),
-                            "properties": {},
-                        }
-                        if self.params.geometry
-                        else None
-                    ),
+                    "dataset_prefix": self.params.dataset.dataset_prefix,
+                    "geometry": {
+                        "type": "Feature",
+                        "geometry": json.loads(self.params.geometry.model_dump_json()),
+                        "properties": {},
+                    },
                 },
             )
             logging.info("Initiating HDX Upload")
@@ -1392,9 +1381,7 @@ class CustomExport:
                 where_0_category = list(self.params.categories[0].values())[0].where
 
             table_names = self.types_to_tables(list(set(table_type)))
-            base_table_name = (
-                self.iso3 if self.iso3 else self.params.dataset.dataset_prefix
-            )
+            base_table_name = self.params.dataset.dataset_prefix
             for table in table_names:
                 create_table = postgres2duckdb_query(
                     base_table_name=base_table_name,
@@ -1634,251 +1621,6 @@ class HDXUploader:
             self.dataset.add_other_location(location)
         for tag in self.category_data.hdx.tags:
             self.dataset.add_tag(tag)
-
-
-class Cron:
-    def __init__(self) -> None:
-        """
-        Initializes an instance of the Cron class, connecting to the database.
-        """
-        dbdict = get_db_connection_params()
-        self.d_b = Database(dbdict)
-        self.con, self.cur = self.d_b.connect()
-
-    def create_cron(self, cron_data):
-        """
-        Create a new Cron entry in the database.
-
-        Args:
-            cron_data (dict): Data for creating the Cron entry.
-
-        Returns:
-            dict: Result of the cron creation process.
-        """
-        insert_query = sql.SQL(
-            """
-            INSERT INTO public.cron (iso3, hdx_upload, dataset, queue, meta, categories, geometry)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            RETURNING *
-        """
-        )
-        self.cur.execute(
-            insert_query,
-            (
-                cron_data.get("iso3", None),
-                cron_data.get("hdx_upload", True),
-                json.dumps(cron_data.get("dataset")),
-                cron_data.get("queue", "raw_ondemand"),
-                cron_data.get("meta", False),
-                json.dumps(cron_data.get("categories", {})),
-                json.dumps(cron_data.get("geometry")),
-            ),
-        )
-        self.con.commit()
-        self.d_b.close_conn()
-        result = self.cur.fetchone()
-        if result:
-            return {"create": True}
-        raise HTTPException(status_code=500, detail="Insert failed")
-
-    def get_cron_list_with_filters(
-        self, skip: int = 0, limit: int = 10, filters: dict = {}
-    ):
-        """
-        Retrieve a list of Cron entries based on provided filters.
-
-        Args:
-            skip (int): Number of entries to skip.
-            limit (int): Maximum number of entries to retrieve.
-            filters (dict): Filtering criteria.
-
-        Returns:
-            List[dict]: List of Cron entries.
-        """
-        filter_conditions = []
-        filter_values = []
-
-        for key, value in filters.items():
-            filter_conditions.append(key)
-            filter_values.append(value)
-
-        where_clause = " AND ".join(filter_conditions)
-
-        select_query = sql.SQL(
-            f"""
-            SELECT ST_AsGeoJSON(c.*) FROM public.cron c
-            {"WHERE " + where_clause if where_clause else ""}
-            OFFSET %s LIMIT %s
-        """
-        )
-
-        self.cur.execute(select_query, tuple(filter_values) + (skip, limit))
-
-        result = self.cur.fetchall()
-        self.d_b.close_conn()
-        return [orjson.loads(item[0]) for item in result]
-
-    def search_cron_by_dataset_title(
-        self, dataset_title: str, skip: int = 0, limit: int = 10
-    ):
-        """
-        Search for Cron entries by dataset title.
-
-        Args:
-            dataset_title (str): The title of the dataset to search for.
-            skip (int): Number of entries to skip.
-            limit (int): Maximum number of entries to retrieve.
-
-        Returns:
-            List[dict]: List of Cron entries matching the dataset title.
-        """
-        search_query = sql.SQL(
-            """
-            SELECT ST_AsGeoJSON(c.*) FROM public.cron c
-            WHERE c.dataset->>'dataset_title' ILIKE %s
-            OFFSET %s LIMIT %s
-            """
-        )
-        self.cur.execute(search_query, ("%" + dataset_title + "%", skip, limit))
-        result = self.cur.fetchall()
-        self.d_b.close_conn()
-        return [orjson.loads(item[0]) for item in result]
-
-    def get_cron_by_id(self, cron_id: int):
-        """
-        Retrieve a specific Cron entry by its ID.
-
-        Args:
-            cron_id (int): ID of the Cron entry to retrieve.
-
-        Returns:
-            dict: Details of the requested Cron entry.
-
-        Raises:
-            HTTPException: If the Cron entry is not found.
-        """
-        select_query = sql.SQL(
-            """
-            SELECT ST_AsGeoJSON(c.*) FROM public.cron c
-            WHERE id = %s
-        """
-        )
-        self.cur.execute(select_query, (cron_id,))
-        result = self.cur.fetchone()
-        self.d_b.close_conn()
-        if result:
-            return orjson.loads(result[0])
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    def update_cron(self, cron_id: int, cron_data):
-        """
-        Update an existing Cron entry in the database.
-
-        Args:
-            cron_id (int): ID of the Cron entry to update.
-            cron_data (dict): Data for updating the Cron entry.
-
-        Returns:
-            dict: Result of the Cron update process.
-
-        Raises:
-            HTTPException: If the Cron entry is not found.
-        """
-        update_query = sql.SQL(
-            """
-            UPDATE public.cron
-            SET iso3 = %s, hdx_upload = %s, dataset = %s, queue = %s, meta = %s, categories = %s, geometry = %s
-            WHERE id = %s
-            RETURNING *
-        """
-        )
-        self.cur.execute(
-            update_query,
-            (
-                cron_data.get("iso3", None),
-                cron_data.get("hdx_upload", True),
-                json.dumps(cron_data.get("dataset")),
-                cron_data.get("queue", "raw_ondemand"),
-                cron_data.get("meta", False),
-                json.dumps(cron_data.get("categories", {})),
-                json.dumps(cron_data.get("geometry")),
-                cron_id,
-            ),
-        )
-        self.con.commit()
-        result = self.cur.fetchone()
-        self.d_b.close_conn()
-        if result:
-            return {"update": True}
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    def patch_cron(self, cron_id: int, cron_data: dict):
-        """
-        Partially update an existing Cron entry in the database.
-
-        Args:
-            cron_id (int): ID of the Cron entry to update.
-            cron_data (dict): Data for partially updating the Cron entry.
-
-        Returns:
-            dict: Result of the Cron update process.
-
-        Raises:
-            HTTPException: If the Cron entry is not found.
-        """
-        if not cron_data:
-            raise ValueError("No data provided for update")
-
-        set_clauses = []
-        params = []
-        for field, value in cron_data.items():
-            set_clauses.append(sql.SQL("{} = %s").format(sql.Identifier(field)))
-            if isinstance(value, dict):
-                params.append(json.dumps(value))
-            else:
-                params.append(value)
-
-        query = sql.SQL("UPDATE public.cron SET {} WHERE id = %s RETURNING *").format(
-            sql.SQL(", ").join(set_clauses)
-        )
-        params.append(cron_id)
-
-        self.cur.execute(query, tuple(params))
-        self.con.commit()
-        result = self.cur.fetchone()
-        self.d_b.close_conn()
-
-        if result:
-            return {"update": True}
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    def delete_cron(self, cron_id: int):
-        """
-        Delete an existing Cron entry from the database.
-
-        Args:
-            cron_id (int): ID of the Cron entry to delete.
-
-        Returns:
-            dict: Result of the Cron deletion process.
-
-        Raises:
-            HTTPException: If the Cron entry is not found.
-        """
-        delete_query = sql.SQL(
-            """
-            DELETE FROM public.cron
-            WHERE id = %s
-            RETURNING *
-        """
-        )
-        self.cur.execute(delete_query, (cron_id,))
-        self.con.commit()
-        result = self.cur.fetchone()
-        self.d_b.close_conn()
-        if result:
-            return dict(result[0])
-        raise HTTPException(status_code=404, detail="Cron item not found")
 
 
 class DownloadMetrics:

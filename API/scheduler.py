@@ -34,7 +34,6 @@ def check_scheduled_jobs(self: Task):
                         geometry = mapping(geom_shape)
                     
                     categories_data = {
-                        "iso3": job.iso3,
                         "hdx_upload": job.hdx_upload,
                         "dataset": job.dataset,
                         "categories": job.categories,

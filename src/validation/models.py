@@ -304,17 +304,8 @@ class StatusResponse(BaseModel):
 
 
 class StatsRequestParams(BaseModel, GeometryValidatorMixin):
-    iso3: Optional[str] = Field(
-        default=None,
-        description="ISO3 Country Code.",
-        min_length=3,
-        max_length=3,
-        example="NPL",
-    )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
+    geometry: Union[Polygon, MultiPolygon, Feature, FeatureCollection] = Field(
+        description="Geometry for the area of interest",
         example={
             "type": "Polygon",
             "coordinates": [
@@ -328,15 +319,6 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
             ],
         },
     )
-
-    @validator("geometry", pre=True, always=True)
-    def set_geometry_or_iso3(cls, value, values):
-        """Either geometry or iso3 should be supplied."""
-        if value is not None and values.get("iso3") is not None:
-            raise ValueError("Only one of geometry or iso3 should be supplied.")
-        if value is None and values.get("iso3") is None:
-            raise ValueError("Either geometry or iso3 should be supplied.")
-        return value
 
 
 ### HDX BLock
@@ -509,8 +491,8 @@ class DatasetConfig(BaseModel):
     - subnational (bool): Make it true if the dataset doesn't cover the nation/country.
     - update_frequency (str): Update frequency to be added on uploads.
     - dataset_title (str): Dataset title that appears at the top of the page.
-    - dataset_prefix (str): Dataset prefix to be appended before the category name. Ignored if iso3 is supplied.
-    - dataset_locations (List[str]): Valid dataset locations iso3.
+    - dataset_prefix (str): Dataset prefix used for export naming (required).
+    - dataset_locations (List[str]): Valid dataset locations.
     """
 
     private: bool = Field(
@@ -535,18 +517,18 @@ class DatasetConfig(BaseModel):
     )
     dataset_prefix: str = Field(
         default=None,
-        description="Dataset prefix to be appended before category name, Will be ignored if iso3 is supplied",
-        example="hotosm_npl",
+        description="Dataset prefix used for export naming (required)",
+        example="hotosm_project_1",
     )
     dataset_locations: List[str] | None = Field(
         default=None,
-        description="Valid dataset locations iso3",
-        example="['npl']",
+        description="Valid dataset locations",
+        example="['world']",
     )
     dataset_folder: str = Field(
-        default="ISO3",
+        default="exports",
         description="Default base folder for the exports",
-        example="ISO3",
+        example="exports",
     )
     customviz: Optional[List[dict[str, str]]] | None = Field(
         default=[],
@@ -580,7 +562,7 @@ class CategoriesBase(BaseModel):
         default=False,
         description="Enable/Disable uploading dataset to hdx, False by default",
     )
-    dataset: Optional[DatasetConfig] = Field(
+    dataset: DatasetConfig = Field(
         default=None,
         description="Dataset Configurations for HDX Upload",
         example={
@@ -622,24 +604,16 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
     Model for dynamic categories.
 
     Fields:
-    - iso3 (Optional[str]): ISO3 Country Code.
     - include_stats (bool): Include a JSON file with stats. Available for GeoJSON exports only.
     - include_stats_html (bool): Include a HTML file with a stats summary. Available for GeoJSON exports only.
     - include_translit (bool): Add transliterations. Available for GeoJSON exports only.
-    - dataset (Optional[DatasetConfig]): Dataset Configurations for HDX Upload.
+    - dataset (DatasetConfig): Dataset Configurations (required for naming exports).
     - meta (bool): Dumps Meta db in parquet format & HDX config JSON to S3.
     - hdx_upload (bool): Enable/Disable uploading the dataset to HDX.
     - categories (List[Dict[str, CategoryModel]]): List of dynamic categories.
-    - geometry (Optional[Union[Polygon, MultiPolygon]]): Custom polygon geometry.
+    - geometry (Union[Polygon, MultiPolygon]): Geometry for the area of interest (required).
     """
 
-    iso3: Optional[str] = Field(
-        default=None,
-        description="ISO3 Country Code",
-        min_length=3,
-        max_length=3,
-        example="USA",
-    )
     include_stats: Optional[bool] = Field(
         default=False,
         description="Include a JSON file with stats. Available for GeoJSON exports only.",
@@ -652,10 +626,8 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         default=False,
         description="Add transliterations. Available for GeoJSON exports only.",
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
+    geometry: Union[Polygon, MultiPolygon, Feature, FeatureCollection] = Field(
+        description="Geometry for the area of interest (required)",
         example={
             "type": "Polygon",
             "coordinates": [
@@ -671,12 +643,8 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
     )
 
     @validator("geometry", pre=True, always=True)
-    def set_geometry_or_iso3(cls, value, values):
-        """Either geometry or iso3 should be supplied."""
-        if value is not None and values.get("iso3") is not None:
-            raise ValueError("Only one of geometry or iso3 should be supplied.")
-        if value is None and values.get("iso3") is None:
-            raise ValueError("Either geometry or iso3 should be supplied.")
+    def validate_geometry_and_dataset(cls, value, values):
+        """Validate geometry is provided and dataset config exists if hdx_upload is enabled."""
         if value is not None:
             dataset = values.get("dataset")
             if values.get("hdx_upload"):

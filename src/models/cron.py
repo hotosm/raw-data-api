@@ -20,7 +20,6 @@ def create_cron(cron_data: Dict[str, Any], db: Session = Depends(get_db)) -> Dic
         geometry = from_shape(geom_shape, srid=4326)
     
     cron_job = CronJob(
-        iso3=cron_data.get("iso3"),
         hdx_upload=cron_data.get("hdx_upload", False),
         dataset=cron_data.get("dataset"),
         queue=cron_data.get("queue", "raw_ondemand"),
@@ -97,7 +96,6 @@ def update_cron(
         geom_shape = shape(cron_data["geometry"])
         cron.geometry = from_shape(geom_shape, srid=4326)
     
-    cron.iso3 = cron_data.get("iso3")
     cron.hdx_upload = cron_data.get("hdx_upload", False)
     cron.dataset = cron_data.get("dataset")
     cron.queue = cron_data.get("queue", "raw_ondemand")
@@ -173,7 +171,6 @@ def _serialize_cron(cron: CronJob) -> Dict[str, Any]:
     
     data = {
         "id": cron.id,
-        "iso3": cron.iso3,
         "hdx_upload": cron.hdx_upload,
         "dataset": cron.dataset,
         "queue": cron.queue,

@@ -805,26 +805,6 @@ def generate_polygon_stats_graphql_query(geojson_feature):
     return query
 
 
-def get_country_from_iso(iso3):
-    """
-    Generate a SQL query to retrieve country information based on ISO3 code.
-
-    Args:
-    - iso3 (str): ISO3 Country Code.
-
-    Returns:
-    str: SQL query to fetch country information.
-    """
-    query = f"""SELECT
-                    b.cid::int as fid, b.dataset->>'dataset_title' as dataset_title, b.dataset->>'dataset_prefix' as dataset_prefix,  b.dataset->>'dataset_locations' as locations
-                FROM
-                    cron b
-                WHERE
-                    LOWER(iso3) = '{iso3}'
-                """
-    return query
-
-
 def convert_tags_pattern_to_postgres(query_string):
     pattern = r"tags\['(.*?)'\]"
 
@@ -951,22 +931,3 @@ def extract_features_custom_exports(
         base_query.append(query)
     return " UNION ALL ".join(base_query)
 
-
-def get_country_geom_from_iso(iso3):
-    """
-    Generate a SQL query to retrieve country geometry based on ISO3 code.
-
-    Args:
-    - iso3 (str): ISO3 Country Code.
-
-    Returns:
-    str: SQL query to fetch country geometry.
-    """
-    query = f"""SELECT
-                    ST_AsGeoJSON(geometry) as geom
-                FROM
-                    countries b
-                WHERE
-                    LOWER(iso3) = '{iso3}'
-                """
-    return query
