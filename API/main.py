@@ -20,6 +20,7 @@
 import time
 
 # Third party imports
+import newrelic.agent
 import psycopg2
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -124,6 +125,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 origins = ["*"]
 
 
+newrelic.agent.initialize("newrelic.ini")
+
+
 @app.middleware("http")
 async def add_process_time_header(request, call_next):
     """Times request and knows response time and pass it to header in every request
@@ -149,6 +153,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_new_relic_transaction(request, call_next):
+    transaction = newrelic.agent.current_transaction()
+    if transaction:
+        transaction.name = f"{request.method} {request.url.path}"
+    response = await call_next(request)
+    return response
 
 
 @app.on_event("startup")
@@ -186,5 +199,7 @@ async def on_startup():
 def on_shutdown():
     """Closing all the threads connection from pooling before shuting down the api"""
     if USE_CONNECTION_POOLING:
+        logging.debug("Shutting down connection pool")
+        database_instance.close_all_connection_pool()
         logging.debug("Shutting down connection pool")
         database_instance.close_all_connection_pool()
