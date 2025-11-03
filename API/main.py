@@ -38,6 +38,7 @@ from src.config import (
     EXPORT_PATH,
     LIMITER,
     LOG_LEVEL,
+    NEW_RELIC_LICENSE_KEY,
     SENTRY_DSN,
     SENTRY_RATE,
     SETUP_INITIAL_TABLES,
@@ -125,7 +126,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 origins = ["*"]
 
 
-newrelic.agent.initialize("newrelic.ini")
+if NEW_RELIC_LICENSE_KEY:
+    newrelic.agent.initialize("newrelic.ini")
 
 
 @app.middleware("http")
@@ -155,13 +157,15 @@ app.add_middleware(
 )
 
 
-@app.middleware("http")
-async def add_new_relic_transaction(request, call_next):
-    transaction = newrelic.agent.current_transaction()
-    if transaction:
-        transaction.name = f"{request.method} {request.url.path}"
-    response = await call_next(request)
-    return response
+if NEW_RELIC_LICENSE_KEY:
+
+    @app.middleware("http")
+    async def add_new_relic_transaction(request, call_next):
+        transaction = newrelic.agent.current_transaction()
+        if transaction:
+            transaction.name = f"{request.method} {request.url.path}"
+        response = await call_next(request)
+        return response
 
 
 @app.on_event("startup")
