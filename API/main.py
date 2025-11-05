@@ -157,15 +157,15 @@ app.add_middleware(
 )
 
 
-if NEW_RELIC_LICENSE_KEY:
+# if NEW_RELIC_LICENSE_KEY:
 
-    @app.middleware("http")
-    async def add_new_relic_transaction(request, call_next):
-        transaction = newrelic.agent.current_transaction()
-        if transaction:
-            transaction.name = f"{request.method} {request.url.path}"
-        response = await call_next(request)
-        return response
+#     @app.middleware("http")
+#     async def add_new_relic_transaction(request, call_next):
+#         transaction = newrelic.agent.current_transaction()
+#         if transaction:
+#             transaction.name = f"{request.method} {request.url.path}"
+#         response = await call_next(request)
+#         return response
 
 
 @app.on_event("startup")
