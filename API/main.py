@@ -127,7 +127,7 @@ origins = ["*"]
 
 
 if NEW_RELIC_LICENSE_KEY:
-    newrelic.agent.initialize("newrelic.ini")
+    newrelic.agent.initialize()
 
 
 @app.middleware("http")
