@@ -1,3 +1,9 @@
+## 1.5.27 (2025-11-05)
+
+### Fix
+
+- **relic**: disable relic middleware for now
+
 ## 1.5.26 (2025-11-05)
 
 ### Fix
