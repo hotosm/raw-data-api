@@ -1532,3 +1532,46 @@ def test_custom_yaml_normal_fmtm_request():
     res = response.json()
     track_link = res["track_link"]
     wait_for_task_completion(track_link)
+
+
+def test_cron_list():
+    response = client.get("/v1/cron/")
+    assert response.status_code == 200
+
+
+def test_cron_create():
+    headers = {"access-token": access_token}
+    cron_data = {
+        "hdx_upload": False,
+        "dataset": {"dataset_title": "Test Dataset"},
+        "queue": "raw_ondemand",
+        "meta": False,
+        "categories": [{"point": {"amenity": ["school"]}}],
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "schedule": "0 0 * * *",
+        "is_active": True,
+    }
+    response = client.post("/v1/cron/", json=cron_data, headers=headers)
+    assert response.status_code == 200
+    assert response.json()["create"] is True
+
+
+def test_cron_get_by_id():
+    response = client.get("/v1/cron/1")
+    assert response.status_code in [200, 404]
+
+
+def test_cron_search():
+    response = client.get("/v1/cron/search/?dataset_title=Test")
+    assert response.status_code == 200

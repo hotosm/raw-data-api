@@ -37,7 +37,20 @@ if you prefer configurations as env variables you can put them in `.env` and pas
 
 ## Run Docker 
 
-You can either use full composed docker-compose directly or you can build docker containers manually . 
+The Dockerfile now supports uv for faster dependency installation. You can either use full composed docker-compose directly or you can build docker containers manually.
+
+### Database Migrations
+
+After starting the containers, run Alembic migrations to set up database tables:
+
+```
+docker exec -it <container-name> alembic upgrade head
+```
+
+This creates the necessary tables including:
+- cron table with automatic h3 index computation via triggers
+- metrics table for download tracking
+- userroles table for access control
 
 ### Spin up the containers using docker compose
 

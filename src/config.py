@@ -34,59 +34,56 @@ def get_bool_env_var(key, default=False):
     return bool(strtobool(str(value)))
 
 
-CONFIG_FILE_PATH = "config.txt"
 USE_S3_TO_UPLOAD = False
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 
-
 config = ConfigParser()
-config.read(CONFIG_FILE_PATH)
+config_file = os.environ.get("CONFIG_FILE_PATH", "config.txt")
+if os.path.exists(config_file):
+    logging.warning(
+        f"config.txt is deprecated. Please use environment variables instead. "
+        f"Loading from {config_file} for backward compatibility."
+    )
+    config.read(config_file)
 
-
-### CELERY BLOCK ####################
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL") or config.get(
     "CELERY", "CELERY_BROKER_URL", fallback="redis://localhost:6379"
 )
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or config.get(
     "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
 )
-
-CELERY_BROKER_HEARTBEAT = os.environ.get("CELERY_BROKER_HEARTBEAT") or config.get(
-    "CELERY", "CELERY_BROKER_HEARTBEAT", fallback=120
+CELERY_BROKER_HEARTBEAT = int(
+    os.environ.get("CELERY_BROKER_HEARTBEAT")
+    or config.get("CELERY", "CELERY_BROKER_HEARTBEAT", fallback=120)
 )
-CELERY_WORKER_LOST_WAIT = os.environ.get("CELERY_WORKER_LOST_WAIT") or config.get(
-    "CELERY", "CELERY_WORKER_LOST_WAIT ", fallback=10
+CELERY_WORKER_LOST_WAIT = int(
+    os.environ.get("CELERY_WORKER_LOST_WAIT")
+    or config.get("CELERY", "CELERY_WORKER_LOST_WAIT", fallback=10)
 )
-
 WORKER_PREFETCH_MULTIPLIER = int(
     os.environ.get("WORKER_PREFETCH_MULTIPLIER")
     or config.get("CELERY", "WORKER_PREFETCH_MULTIPLIER", fallback=1)
 )
 
-### API CONFIG BLOCK #######################
-
-RATE_LIMIT_PER_MIN = os.environ.get("RATE_LIMIT_PER_MIN") or int(
-    config.get("API_CONFIG", "RATE_LIMIT_PER_MIN", fallback=20)
+RATE_LIMIT_PER_MIN = int(
+    os.environ.get("RATE_LIMIT_PER_MIN")
+    or config.get("API_CONFIG", "RATE_LIMIT_PER_MIN", fallback=20)
 )
-
 RATE_LIMITER_STORAGE_URI = os.environ.get("RATE_LIMITER_STORAGE_URI") or config.get(
     "API_CONFIG", "RATE_LIMITER_STORAGE_URI", fallback="redis://localhost:6379"
 )
-
-EXPORT_MAX_AREA_SQKM = os.environ.get("EXPORT_MAX_AREA_SQKM") or int(
-    config.get("API_CONFIG", "EXPORT_MAX_AREA_SQKM", fallback=100000)
+EXPORT_MAX_AREA_SQKM = int(
+    os.environ.get("EXPORT_MAX_AREA_SQKM")
+    or config.get("API_CONFIG", "EXPORT_MAX_AREA_SQKM", fallback=100000)
 )
-
-
-INDEX_THRESHOLD = os.environ.get("INDEX_THRESHOLD") or int(
-    config.get("API_CONFIG", "INDEX_THRESHOLD", fallback=5000)
+INDEX_THRESHOLD = int(
+    os.environ.get("INDEX_THRESHOLD")
+    or config.get("API_CONFIG", "INDEX_THRESHOLD", fallback=5000)
 )
-
-MAX_WORKERS = os.environ.get("MAX_WORKERS") or config.get(
-    "API_CONFIG", "MAX_WORKERS", fallback=os.cpu_count()
+MAX_WORKERS = int(
+    os.environ.get("MAX_WORKERS")
+    or config.get("API_CONFIG", "MAX_WORKERS", fallback=os.cpu_count() or 4)
 )
-
-# get log level from config
 LOG_LEVEL = os.environ.get("LOG_LEVEL") or config.get(
     "API_CONFIG", "LOG_LEVEL", fallback="debug"
 )
@@ -224,6 +221,16 @@ ONDEMAND_QUEUE_NAME = os.environ.get("ONDEMAND_QUEUE_NAME") or config.get(
 )
 
 # Polygon statistics which will deliver the stats of approx buildings/ roads in the area
+ENABLE_POLYGON_STATISTICS_ENDPOINTS = get_bool_env_var(
+    "ENABLE_POLYGON_STATISTICS_ENDPOINTS",
+    config.getboolean(
+        "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
+    ),
+)
+
+POLYGON_STATISTICS_API_URL = os.environ.get(
+    "POLYGON_STATISTICS_API_URL"
+) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_URL", fallback=None)
 
 # task limit
 

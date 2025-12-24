@@ -25,7 +25,7 @@ async def create_cron(
     request: Request,
     cron_data: dict,
     user_data: AuthUser = Depends(staff_required),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     return cron_service.create_cron(cron_data, db)
 
@@ -34,16 +34,13 @@ async def create_cron(
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def read_cron_list(
-    request: Request,
-    skip: int = 0,
-    limit: int = 10,
-    db: Session = Depends(get_db)
+    request: Request, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
     filters = {}
     for key, values in request.query_params.items():
         if key not in ["skip", "limit"]:
             filters[key] = values
-    
+
     return cron_service.get_cron_list(skip, limit, filters, db)
 
 
@@ -52,10 +49,12 @@ async def read_cron_list(
 @version(1)
 async def search_cron(
     request: Request,
-    dataset_title: str = Query(..., description="The title of the dataset to search for."),
+    dataset_title: str = Query(
+        ..., description="The title of the dataset to search for."
+    ),
     skip: int = Query(0, description="Number of entries to skip."),
     limit: int = Query(10, description="Maximum number of entries to retrieve."),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     return cron_service.search_cron_by_dataset_title(dataset_title, skip, limit, db)
 
@@ -75,7 +74,7 @@ async def update_cron(
     cron_id: int,
     cron_data: dict,
     user_data: AuthUser = Depends(staff_required),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     return cron_service.update_cron(cron_id, cron_data, db)
 
@@ -88,7 +87,7 @@ async def patch_cron(
     cron_id: int,
     cron_data: Dict,
     user_data: AuthUser = Depends(staff_required),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     return cron_service.patch_cron(cron_id, cron_data, db)
 
@@ -100,6 +99,6 @@ async def delete_cron(
     request: Request,
     cron_id: int,
     user_data: AuthUser = Depends(admin_required),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     return cron_service.delete_cron(cron_id, db)

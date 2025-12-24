@@ -17,8 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-"""[Router Responsible for Raw data API ]
-"""
+"""[Router Responsible for Raw data API ]"""
 # Standard library imports
 import json
 from typing import AsyncGenerator

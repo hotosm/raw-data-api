@@ -48,8 +48,9 @@ class Database:
     def connect(self):
         try:
             self.conn = (
-                connect(**self.db_params) if self.db_params else
-                connect(
+                connect(**self.db_params)
+                if self.db_params
+                else connect(
                     host=os.environ["PGHOST"],
                     port=os.environ["PGPORT"],
                     user=os.environ["PGUSER"],
@@ -66,7 +67,7 @@ class Database:
     def execute(self, query):
         if not self.conn or not query:
             raise ValueError("Query is null or database is not connected")
-        
+
         try:
             self.cur.execute(query)
             self.conn.commit()
@@ -128,13 +129,17 @@ class H3Updater:
             start_batch_date, _ = self.get_timestamp_range(table)
         if end_batch_date is None:
             _, end_batch_date = self.get_timestamp_range(table)
-        
+
         if not isinstance(batch_frequency, BatchFrequency):
             raise TypeError("Invalid batch frequency")
 
-        logging.info(f"H3 update for {table}.{h3_col} from {start_batch_date} to {end_batch_date}")
+        logging.info(
+            f"H3 update for {table}.{h3_col} from {start_batch_date} to {end_batch_date}"
+        )
 
-        loop_count = self._calculate_loop_count(start_batch_date, end_batch_date, batch_frequency)
+        loop_count = self._calculate_loop_count(
+            start_batch_date, end_batch_date, batch_frequency
+        )
         looping_date = start_batch_date
 
         with tqdm(total=loop_count, desc=f"Updating {table}:{h3_col}") as pbar:
@@ -156,7 +161,11 @@ class H3Updater:
         logging.info(f"Finished H3 update for {table}.{h3_col}")
 
     def _calculate_loop_count(self, start_date, end_date, frequency):
-        if frequency in [BatchFrequency.WEEKLY, BatchFrequency.MONTHLY, BatchFrequency.HOURLY]:
+        if frequency in [
+            BatchFrequency.WEEKLY,
+            BatchFrequency.MONTHLY,
+            BatchFrequency.HOURLY,
+        ]:
             count = 0
             temp_date = start_date
             while temp_date >= end_date:
@@ -167,55 +176,65 @@ class H3Updater:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Update H3 column from geometry centroids")
+    parser = argparse.ArgumentParser(
+        description="Update H3 column from geometry centroids"
+    )
     parser.add_argument(
-        "-start", "--start",
+        "-start",
+        "--start",
         type=lambda s: datetime.datetime.strptime(s, "%Y-%m-%d"),
         default=None,
         help="Start date for update (default: max timestamp in table)",
     )
     parser.add_argument(
-        "-end", "--end",
+        "-end",
+        "--end",
         type=lambda s: datetime.datetime.strptime(s, "%Y-%m-%d"),
         default=None,
         help="End date for update (default: min timestamp in table)",
     )
     parser.add_argument(
-        "-f", "--frequency",
+        "-f",
+        "--frequency",
         type=BatchFrequency,
         choices=list(BatchFrequency),
         default=BatchFrequency.DAILY,
         help="Batch frequency (default: DAILY)",
     )
     parser.add_argument(
-        "-table", "--table",
+        "-table",
+        "--table",
         default="ways_poly",
         help="Target table name (default: ways_poly)",
     )
     parser.add_argument(
-        "-geom", "--geom",
+        "-geom",
+        "--geom",
         default="geom",
         help="Geometry column name (default: geom)",
     )
     parser.add_argument(
-        "-h3", "--h3",
+        "-h3",
+        "--h3",
         default="h3",
         help="H3 column name to update (default: h3)",
     )
     parser.add_argument(
-        "-res", "--resolution",
+        "-res",
+        "--resolution",
         type=int,
         default=6,
         help="H3 resolution (default: 6)",
     )
     parser.add_argument(
-        "-i", "--init",
+        "-i",
+        "--init",
         action="store_true",
         help="Initial setup of the table (default: False)",
     )
 
     args = parser.parse_args()
-    
+
     try:
         updater = H3Updater()
         updater.batch_update(

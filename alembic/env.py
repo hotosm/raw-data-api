@@ -16,9 +16,11 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
+
 def get_url():
     db_params = get_db_connection_params()
     return f"postgresql://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['dbname']}"
+
 
 def run_migrations_offline() -> None:
     url = get_url()
@@ -32,23 +34,32 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+
 def include_object(object, name, type_, reflected, compare_to):
     excluded_tables = {
-        'nodes', 'ways_line', 'ways_poly', 'relations',
-        'raw_osm_nodes', 'raw_osm_ways', 'raw_osm_rels', 'raw_osm_users',
-        'raw_osm_replication_status', 'osm2pgsql_properties',
-        'spatial_ref_sys', 
+        "nodes",
+        "ways_line",
+        "ways_poly",
+        "relations",
+        "raw_osm_nodes",
+        "raw_osm_ways",
+        "raw_osm_rels",
+        "raw_osm_users",
+        "raw_osm_replication_status",
+        "osm2pgsql_properties",
+        "spatial_ref_sys",
     }
-    
+
     if type_ == "table" and name in excluded_tables:
         return False
-    
+
     return True
+
 
 def run_migrations_online() -> None:
     configuration = config.get_section(config.config_ini_section)
     configuration["sqlalchemy.url"] = get_url()
-    
+
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
@@ -57,14 +68,15 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, 
+            connection=connection,
             target_metadata=target_metadata,
             include_object=include_object,
-            include_schemas=True
+            include_schemas=True,
         )
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

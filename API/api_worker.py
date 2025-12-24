@@ -350,6 +350,3 @@ def remove_file(path: str) -> None:
         shutil.rmtree(path)
     except OSError as ex:
         logging.error("Error: %s - %s.", ex.filename, ex.strerror)
-
-
-from API.scheduler import check_scheduled_jobs
