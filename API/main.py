@@ -20,6 +20,8 @@
 import time
 
 # Third party imports
+import newrelic.agent
+import psycopg2
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -35,6 +37,7 @@ from src.config import (
     EXPORT_PATH,
     LIMITER,
     LOG_LEVEL,
+    NEW_RELIC_LICENSE_KEY,
     SENTRY_DSN,
     SENTRY_RATE,
     USE_S3_TO_UPLOAD,
@@ -113,6 +116,10 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 origins = ["*"]
 
 
+if NEW_RELIC_LICENSE_KEY:
+    newrelic.agent.initialize()
+
+
 @app.middleware("http")
 async def add_process_time_header(request, call_next):
     start_time = time.time()
@@ -129,3 +136,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# if NEW_RELIC_LICENSE_KEY:
+
+#     @app.middleware("http")
+#     async def add_new_relic_transaction(request, call_next):
+#         transaction = newrelic.agent.current_transaction()
+#         if transaction:
+#             transaction.name = f"{request.method} {request.url.path}"
+#         response = await call_next(request)
+#         return response

@@ -1,3 +1,22 @@
+## 1.5.27 (2025-11-05)
+
+### Fix
+
+- **relic**: disable relic middleware for now
+
+## 1.5.26 (2025-11-05)
+
+### Fix
+
+- **relic**: remove ini depends
+
+## 1.5.25 (2025-11-03)
+
+### Fix
+
+- **relic**: fixes newrelic conf
+- **field_update**: update query to include country filter and adjust default values
+
 ## 1.5.24 (2025-05-14)
 
 ### Fix

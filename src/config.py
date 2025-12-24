@@ -101,6 +101,11 @@ def not_raises(func, *args, **kwargs):
         return False
 
 
+NEW_RELIC_LICENSE_KEY = os.environ.get("NEW_RELIC_LICENSE_KEY") or config.get(
+    "API_CONFIG", "NEW_RELIC_LICENSE_KEY ", fallback=None
+)
+
+
 ####################
 
 # EXPORT_UPLOAD CONFIG BLOCK
