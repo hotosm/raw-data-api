@@ -48,7 +48,7 @@ jobs:
         run: uv sync --group backend
 
       - name: Start Loading
-        run: python backend/raw_backend --insert --fq m
+        run: uv run raw_backend --insert --fq m
 
       - name: Install gdal
         run: |
