@@ -1,20 +1,22 @@
+# Standard library imports
 from datetime import datetime
 from enum import Enum as PyEnum
 
+# Third party imports
 from croniter import croniter
 from geoalchemy2 import Geometry
 from sqlalchemy import (
+    ARRAY,
+    DDL,
+    Boolean,
     Column,
+    Date,
+    DateTime,
+    Enum,
+    Index,
     Integer,
     String,
-    Boolean,
-    DateTime,
-    ARRAY,
-    Date,
-    Index,
-    DDL,
     event,
-    Enum,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
@@ -69,6 +71,7 @@ class CronJob(Base):
 
     @validates("schedule")
     def validate_schedule(self, key, value):
+        """Validate cron expression format."""
         if value and not croniter.is_valid(value):
             raise ValueError(f"Invalid cron expression: {value}")
         return value

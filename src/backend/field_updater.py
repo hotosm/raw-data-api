@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Standard library imports
 import argparse
 import datetime
 import logging
@@ -7,8 +8,9 @@ import os
 import sys
 from enum import Enum
 
+# Third party imports
 from dateutil.relativedelta import relativedelta
-from psycopg2 import connect, OperationalError
+from psycopg2 import OperationalError, connect
 from psycopg2.extras import DictCursor
 from tqdm import tqdm
 
@@ -46,6 +48,7 @@ class Database:
         self.cur = None
 
     def connect(self):
+        """Establish database connection."""
         try:
             self.conn = (
                 connect(**self.db_params)
@@ -65,6 +68,7 @@ class Database:
             raise err
 
     def execute(self, query):
+        """Execute SQL query."""
         if not self.conn or not query:
             raise ValueError("Query is null or database is not connected")
 
@@ -79,6 +83,7 @@ class Database:
             raise err
 
     def close(self):
+        """Close database connection and cursor."""
         if self.conn and self.cur:
             self.cur.close()
             self.conn.close()
@@ -90,12 +95,14 @@ class H3Updater:
         self.con, self.cur = self.database.connect()
 
     def get_timestamp_range(self, table):
+        """Get minimum and maximum timestamps from table."""
         query = f'SELECT min("timestamp") as minimum, max("timestamp") as maximum FROM {table};'
         record = self.database.execute(query)
         logging.debug(f"Min: {record[0][0]}, Max: {record[0][1]}")
         return record[0][1], record[0][0]
 
     def update_h3(self, start, end, table, geom_col, h3_col, resolution, init):
+        """Update H3 index for records within date range."""
         init_filter = "" if init else f"AND {h3_col} IS NULL"
         query = f"""
         WITH updated_rows AS (
@@ -125,6 +132,7 @@ class H3Updater:
         resolution,
         init=False,
     ):
+        """Update H3 index in batches over date range."""
         if start_batch_date is None:
             start_batch_date, _ = self.get_timestamp_range(table)
         if end_batch_date is None:

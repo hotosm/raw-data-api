@@ -439,6 +439,7 @@ class RawData:
 
     @staticmethod
     def close_con(con):
+        """Close database connection."""
         if con:
             con.close()
 
