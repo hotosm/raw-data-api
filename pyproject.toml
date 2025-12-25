@@ -5,6 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "raw-data-api"
 version = "1.5.27"
+requires-python = ">=3.12"
 description = "Set of high-performant APIs for transforming and exporting OpenStreetMap (OSM) data in different GIS file formats."
 readme = "README.md"
 authors = [
@@ -37,6 +38,7 @@ dependencies = [
     "osm-login-python>=2.0.0",
     "psutil>=7.1.0",
     "psycopg2>=2.9.10",
+    "python-dotenv>=1.0.0",
     "python-slugify>=8.0.4",
     "pyyaml>=6.0.3",
     "redis>=6.4.0",

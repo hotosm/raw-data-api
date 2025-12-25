@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Standard library imports
 import argparse
 import datetime
 import os
@@ -8,13 +9,24 @@ import sys
 import time
 from multiprocessing import Pool
 from os.path import exists
+from pathlib import Path
 from urllib.parse import urlparse
 
+# Third party imports
 import requests
+from dotenv import load_dotenv
+
+from ..__version__ import __version__
+
+env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+if env_path.exists():
+    load_dotenv(env_path, override=False)
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="OSM data import using osm2pgsql")
+    parser = argparse.ArgumentParser(
+        description=f"OSM data import using osm2pgsql (v{__version__})"
+    )
     parser.add_argument(
         "--source", type=str, nargs="+", help="Data source link or file path"
     )

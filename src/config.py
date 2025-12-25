@@ -220,17 +220,17 @@ ONDEMAND_QUEUE_NAME = os.environ.get("ONDEMAND_QUEUE_NAME") or config.get(
     "API_CONFIG", "ONDEMAND_QUEUE_NAME", fallback="raw_ondemand"
 )
 
-# Polygon statistics which will deliver the stats of approx buildings/ roads in the area
-ENABLE_POLYGON_STATISTICS_ENDPOINTS = get_bool_env_var(
-    "ENABLE_POLYGON_STATISTICS_ENDPOINTS",
-    config.getboolean(
-        "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
-    ),
-)
+# # Polygon statistics which will deliver the stats of approx buildings/ roads in the area
+# ENABLE_POLYGON_STATISTICS_ENDPOINTS = get_bool_env_var(
+#     "ENABLE_POLYGON_STATISTICS_ENDPOINTS",
+#     config.getboolean(
+#         "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
+#     ),
+# )
 
-POLYGON_STATISTICS_API_URL = os.environ.get(
-    "POLYGON_STATISTICS_API_URL"
-) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_URL", fallback=None)
+# POLYGON_STATISTICS_API_URL = os.environ.get(
+#     "POLYGON_STATISTICS_API_URL"
+# ) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_URL", fallback=None)
 
 # task limit
 

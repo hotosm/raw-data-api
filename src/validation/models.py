@@ -27,10 +27,9 @@ from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
 
 # Reader imports
-from src.config import (
+from src.config import (  # ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ALLOW_BIND_ZIP_FILTER,
     ENABLE_HDX_EXPORTS,
-    ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     ENABLE_TILES,
 )
 
@@ -162,11 +161,11 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
         default=False,
         description="Include user metadata on exports , Only available to logged in users",
     )
-    if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
-        include_stats: Optional[bool] = Field(
-            default=False,
-            description="Includes detailed stats about the polygon passed such as buildings count , road count along with summary about data completeness in the area",
-        )
+    # if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
+    #     include_stats: Optional[bool] = Field(
+    #         default=False,
+    #         description="Includes detailed stats about the polygon passed such as buildings count , road count along with summary about data completeness in the area",
+    #     )
     filters: Optional[Filters] = Field(
         default=None,
         example={

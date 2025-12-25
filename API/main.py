@@ -20,7 +20,6 @@
 import time
 
 # Third party imports
-import newrelic.agent
 import psycopg2
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,6 +29,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 # Reader imports
+from src.__version__ import __version__
 from src.config import (
     ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
@@ -80,6 +80,13 @@ if LOG_LEVEL.lower() == "debug":
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 app = FastAPI(title="Raw Data API ", swagger_ui_parameters={"syntaxHighlight": False})
+
+
+@app.get("/health", include_in_schema=False)
+async def health():
+    return {"status": "healthy", "version": __version__}
+
+
 app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
@@ -97,7 +104,7 @@ if USE_S3_TO_UPLOAD:
 app.openapi = {
     "info": {
         "title": "Raw Data API",
-        "version": "1.0",
+        "version": __version__,
     },
     "security": [{"OAuth2PasswordBearer": []}],
 }
@@ -105,6 +112,19 @@ app.openapi = {
 app = VersionedFastAPI(
     app, enable_latest=False, version_format="{major}", prefix_format="/v{major}"
 )
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return {
+        "name": "Raw Data API",
+        "version": __version__,
+        "docs": "/v1/docs",
+        "health": "/v1/health/",
+        "status": "/v1/status/",
+        "workers": "/v1/tasks/inspect/",
+    }
+
 
 if USE_S3_TO_UPLOAD is False:
     # only mount the disk if config is set to disk
@@ -117,6 +137,9 @@ origins = ["*"]
 
 
 if NEW_RELIC_LICENSE_KEY:
+    # Third party imports
+    import newrelic.agent
+
     newrelic.agent.initialize()
 
 

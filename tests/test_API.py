@@ -3,6 +3,7 @@ import os
 import time
 
 # Third party imports
+import pytest
 from fastapi.testclient import TestClient
 
 # Reader imports
@@ -54,6 +55,7 @@ def test_login_url():
     assert response.status_code == 200
 
 
+@pytest.mark.skipif(not access_token, reason="ACCESS_TOKEN not set")
 def test_login_auth_me():
     headers = {"access-token": access_token}
     response = client.get("/v1/auth/me/", headers=headers)
