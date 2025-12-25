@@ -56,14 +56,7 @@ jobs:
       - name: Install PostgreSQL H3 extensions
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake postgresql-server-dev-14 git
-          cd /tmp
-          git clone https://github.com/zachasme/h3-pg.git
-          cd h3-pg
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build
-          sudo cmake --install build
-          export PGPASSWORD='admin';
+          sudo apt-get install -y build-essential cmake postgresql-14-h3 
           psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS postgis;"
           psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3;"
           psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3_postgis;"
