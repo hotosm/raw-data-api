@@ -22,6 +22,7 @@
 import logging
 import os
 from configparser import ConfigParser
+
 from distutils.util import strtobool
 
 # Third party imports
@@ -30,6 +31,7 @@ from slowapi.util import get_remote_address
 
 
 def get_bool_env_var(key, default=False):
+    """Get boolean environment variable value."""
     value = os.environ.get(key, default)
     return bool(strtobool(str(value)))
 

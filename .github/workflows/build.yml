@@ -4,11 +4,11 @@ on:
     paths-ignore:
       - "infra/**"
     branches:
-      - master
+      - stage
       - develop
   pull_request:
     branches:
-      - master
+      - stage
       - develop
 
 jobs:
@@ -50,7 +50,7 @@ jobs:
       - name: Create H3 extensions
         run: |
           psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3;"
-          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3_postgis;"
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3_postgis CASCADE;"
 
       - name: Install python requirements for load
         run: uv sync --group backend

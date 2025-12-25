@@ -98,11 +98,13 @@ def parse_arguments():
 
 
 def is_local_file(url):
+    """Check if URL points to a local file."""
     url_parsed = urlparse(url)
     return url_parsed.scheme in ("file", "") and exists(url_parsed.path)
 
 
 def run_command(cmd, timeout=None):
+    """Execute command and raise error on failure."""
     try:
         subprocess.check_output(cmd, env=os.environ, timeout=timeout)
     except subprocess.CalledProcessError as ex:
@@ -111,6 +113,7 @@ def run_command(cmd, timeout=None):
 
 
 def run_command_no_fail(cmd, timeout=None):
+    """Execute command and ignore failures."""
     try:
         subprocess.check_output(cmd, env=os.environ, timeout=timeout)
     except subprocess.CalledProcessError as ex:
@@ -118,11 +121,13 @@ def run_command_no_fail(cmd, timeout=None):
 
 
 def run_parallel_commands(cmds):
+    """Execute multiple commands in parallel."""
     with Pool(processes=len(cmds)) as pool:
         pool.map(run_command, cmds)
 
 
 def download_file(download_dir, source_path):
+    """Download file from URL to directory."""
     filename = os.path.basename(source_path)
     target_path = os.path.join(download_dir, filename)
 
@@ -142,11 +147,13 @@ def download_file(download_dir, source_path):
 
 
 def get_resource_path(relative_path):
+    """Get absolute path to resource file."""
     base_dir = os.path.dirname(__file__)
     return os.path.join(base_dir, relative_path)
 
 
 def run_psql_query(query, dbname="postgres", host=None, port=None, user=None):
+    """Execute PostgreSQL query using psql."""
     cmd = ["psql", "-h", host, "-p", port, "-U", user, "-d", dbname, "-tAc", query]
     try:
         result = subprocess.check_output(cmd, env=os.environ, stderr=subprocess.DEVNULL)
@@ -156,6 +163,7 @@ def run_psql_query(query, dbname="postgres", host=None, port=None, user=None):
 
 
 def create_database(dbname, host, port, user):
+    """Create PostgreSQL database if it doesn't exist."""
     cmd = [
         "psql",
         "-h",
@@ -173,6 +181,7 @@ def create_database(dbname, host, port, user):
 
 
 def enable_extension(extension, dbname, host, port, user, cascade=False):
+    """Enable PostgreSQL extension in database."""
     cascade_sql = " CASCADE" if cascade else ""
     cmd = [
         "psql",
@@ -191,6 +200,7 @@ def enable_extension(extension, dbname, host, port, user, cascade=False):
 
 
 def setup_database_prerequisites(dbname, host, port, user):
+    """Set up database with required extensions."""
     if (
         run_psql_query(
             f"SELECT 1 FROM pg_database WHERE datname='{dbname}'",

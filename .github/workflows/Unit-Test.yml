@@ -4,11 +4,11 @@ on:
     paths-ignore:
       - "infra/**"
     branches:
-      - master
+      - stage
       - develop
   pull_request:
     branches:
-      - master
+      - stage
       - develop
 
 jobs:
@@ -60,7 +60,7 @@ jobs:
         run: |
           psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS postgis;"
           psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3;"
-          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3_postgis;"
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3_postgis CASCADE;"
 
       - name: Install osm2pgsql for data loading
         run: sudo apt-get install -y osm2pgsql
