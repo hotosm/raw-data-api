@@ -41,11 +41,29 @@ git clone https://github.com/hotosm/raw-data-api.git
 cd raw-data-api
 ```
 
-- Install the python dependencies
+- Install the python dependencies using uv (recommended) or pip
 
+Using uv (fast and modern):
+```
+pip install uv
+uv pip install -e .
+```
+
+Or using traditional pip:
 ```
 pip install -r requirements.txt
+pip install -e .
 ```
+
+### Database Setup with Alembic
+
+After installing dependencies, set up the database tables using Alembic migrations:
+
+```
+alembic upgrade head
+```
+
+This will create the necessary tables including the cron table with automatic h3 index computation.
 
 ### Optional : For Tiles Output
 If you opt for tiles output and have ```ENABLE_TILES : True``` in env variable . Make sure you install [Tippecanoe] (https://github.com/felt/tippecanoe)

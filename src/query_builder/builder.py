@@ -47,6 +47,20 @@ information.
 """
 
 
+def escape_sql_string(value):
+    """
+    Escape string values for use in PostgreSQL SQL queries.
+    Note: This is a basic defense layer. Parameterized queries should be used where possible.
+    For JSONB operations, PostgreSQL's type system provides additional protection.
+    """
+    if value is None:
+        return None
+    value = str(value)
+    value = value.replace("\\", "\\\\")
+    value = value.replace("'", "''")
+    return value
+
+
 def get_grid_id_query(geometry_dump):
     base_query = f"""select
                         b.poly_id
@@ -55,20 +69,6 @@ def get_grid_id_query(geometry_dump):
                     where
                         ST_Intersects(ST_GEOMFROMGEOJSON('{geometry_dump}') ,
                         b.geom)"""
-    return base_query
-
-
-def get_country_id_query(geom_dump):
-    base_query = f"""select
-                        b.cid::int as fid
-                    from
-                        countries b
-                    where
-                        ST_Intersects(ST_GEOMFROMGEOJSON('{geom_dump}') ,
-                        b.geometry)
-                    order by ST_Area(ST_Intersection(b.geometry,ST_MakeValid(ST_GEOMFROMGEOJSON('{geom_dump}')))) desc
-
-                    """
     return base_query
 
 
@@ -97,26 +97,28 @@ def get_query_as_geojson(query_list, ogr_export=None):
     return final_query
 
 
-def create_geom_filter(geom, geom_lookup_by="ST_intersects"):
-    """generates geometry intersection filter - Rawdata extraction"""
+def create_geom_filter(geom, geom_lookup_by="ST_intersects", use_h3_index=True):
+    """generates geometry intersection filter with optional H3 pre-filtering"""
     geometry_dump = dumps(loads(geom.model_dump_json()))
-    # return f"""{geom_lookup_by}(geom,ST_Buffer((select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{geometry_dump}')))),0.005))"""
+
+    if use_h3_index:
+        h3_filter = f"""h3 = ANY(ARRAY(SELECT h3_polygon_to_cells(ST_GEOMFROMGEOJSON('{geometry_dump}'), 6))) AND """
+        return f"""{h3_filter}{geom_lookup_by}(geom,(select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{geometry_dump}')))))"""
+
     return f"""{geom_lookup_by}(geom,(select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{geometry_dump}')))))"""
 
 
 def format_file_name_str(input_str):
-    # Fixme I need to check every possible special character that can comeup on osm tags
-    input_str = re.sub("\s+", "_", input_str)  # putting _ in every space  # noqa
-    input_str = re.sub(":", "_", input_str)  # putting _ in every : value
-    input_str = re.sub("-", "_", input_str)  # putting _ in every - value
+    input_str = re.sub(r"\s+", "_", input_str)
+    input_str = re.sub(":", "_", input_str)
+    input_str = re.sub("-", "_", input_str)
 
     return input_str
 
 
 def remove_spaces(input_str):
-    # Fixme I need to check every possible special character that can comeup on osm tags
-    input_str = re.sub("\s+", "_", input_str)  # putting _ in every space # noqa
-    input_str = re.sub(":", "_", input_str)  # putting _ in every : value
+    input_str = re.sub(r"\s+", "_", input_str)
+    input_str = re.sub(":", "_", input_str)
     return input_str
 
 
@@ -157,11 +159,13 @@ def create_column_filter(
                     splitted_cl = cl.split(",")
                 for cl in splitted_cl:
                     if cl != "":
+                        cl_stripped = cl.strip()
+                        cl_escaped = escape_sql_string(cl_stripped)
                         filter_col.append(
-                            f"""tags ->> '{cl.strip()}' as {remove_spaces(cl.strip())}"""
+                            f"""tags ->> '{cl_escaped}' as {remove_spaces(cl_stripped)}"""
                         )
                         if create_schema:
-                            schema[remove_spaces(cl.strip())] = "str"
+                            schema[remove_spaces(cl_stripped)] = "str"
         if output_type == "csv":  # if it is csv geom logic is different
             filter_col.append("ST_X(ST_Centroid(geom)) as longitude")
             filter_col.append("ST_Y(ST_Centroid(geom)) as latitude")
@@ -179,19 +183,22 @@ def create_column_filter(
 
 
 def create_tag_sql_logic(key, value, filter_list):
+    key_escaped = escape_sql_string(key.strip())
     if len(value) > 1:
         v_l = []
         for lil in value:
-            v_l.append(f""" '{lil.strip()}' """)
+            v_l.append(f""" '{escape_sql_string(lil.strip())}' """)
         v_l_join = ", ".join(v_l)
         value_tuple = f"""({v_l_join})"""
 
-        k = f""" '{key.strip()}' """
+        k = f""" '{key_escaped}' """
         filter_list.append("""tags ->> """ + k + """IN """ + value_tuple + """""")
     elif len(value) == 1:
-        filter_list.append(f"""tags ->> '{key.strip()}' = '{value[0].strip()}'""")
+        filter_list.append(
+            f"""tags ->> '{key_escaped}' = '{escape_sql_string(value[0].strip())}'"""
+        )
     else:
-        filter_list.append(f"""tags ? '{key.strip()}'""")
+        filter_list.append(f"""tags ? '{key_escaped}'""")
     return filter_list
 
 
@@ -199,7 +206,7 @@ def generate_tag_filter_query(filter, join_by=" OR ", plain_query_filter=False):
     final_filter = []
     if plain_query_filter:
         for item in filter:
-            key = item["key"]
+            key = escape_sql_string(item["key"].strip())
             value = item["value"]
             if len(value) == 1 and value[0] == "*":
                 value = []
@@ -208,14 +215,13 @@ def generate_tag_filter_query(filter, join_by=" OR ", plain_query_filter=False):
                 pre = """ tags @> '{"""
                 post = """ }'"""
                 for v in value:
-                    sub_append.append(
-                        f"""{pre} "{key.strip()}" : "{v.strip()}" {post}"""
-                    )
+                    v_escaped = escape_sql_string(v.strip())
+                    sub_append.append(f"""{pre} "{key}" : "{v_escaped}" {post}""")
                 sub_append_join = " OR ".join(sub_append)
 
                 final_filter.append(f"({sub_append_join})")
             else:
-                final_filter.append(f"""tags ? '{key.strip()}'""")
+                final_filter.append(f"""tags ? '{key}'""")
         tag_filter = join_by.join(final_filter)
         return tag_filter
 
@@ -241,12 +247,21 @@ def generate_tag_filter_query(filter, join_by=" OR ", plain_query_filter=False):
         return tag_filter
 
 
+def build_geometry_query(
+    table, select_condition, geom_filter, tag_filter=None, extra_filter=None
+):
+    """Helper to build query for a geometry table with filters"""
+    query = f"""select {select_condition} from {table} where {geom_filter}"""
+    if tag_filter:
+        query += f""" and ({tag_filter})"""
+    if extra_filter:
+        query += f""" and ({extra_filter})"""
+    return query
+
+
 def extract_geometry_type_query(
     params,
     ogr_export=False,
-    g_id=None,
-    c_id=None,
-    country_export=False,
 ):
     """used for specifically focused on export tool , this will generate separate queries for line point and polygon can be used on other datatype support - Rawdata extraction"""
     include_user_metadata = params.include_user_metadata
@@ -325,26 +340,22 @@ def extract_geometry_type_query(
                     create_schema=True,
                     include_user_metadata=include_user_metadata,
                 )
-            where_clause_for_nodes = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "nodes"
+
+            attribute_filter = (
+                generate_tag_filter_query(point_tag_filter)
+                if point_tag_filter
+                else attribute_filter
             )
-
-            query_point = f"""select
-                        {select_condition}
-                        from
-                            nodes
-                        where
-                            {where_clause_for_nodes}"""
-            if point_tag_filter:
-                attribute_filter = generate_tag_filter_query(point_tag_filter)
-            if attribute_filter:
-                query_point += f""" and ({attribute_filter})"""
+            query_point = build_geometry_query(
+                "nodes",
+                select_condition,
+                generate_where_clause(geom_filter),
+                attribute_filter,
+            )
             point_schema = schema
-
             query_point = get_query_as_geojson([query_point], ogr_export=ogr_export)
 
         if type == SupportedGeometryFilters.LINE.value:
-            query_line_list = []
             if line_attribute_filter:
                 select_condition, schema = create_column_filter(
                     use_centroid=params.centroid,
@@ -353,39 +364,31 @@ def extract_geometry_type_query(
                     create_schema=True,
                     include_user_metadata=include_user_metadata,
                 )
-            where_clause_for_line = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "ways_line"
+
+            attribute_filter = (
+                generate_tag_filter_query(line_tag_filter)
+                if line_tag_filter
+                else attribute_filter
+            )
+            where_clause = generate_where_clause(geom_filter)
+
+            query_ways_line = build_geometry_query(
+                "ways_line", select_condition, where_clause, attribute_filter
+            )
+            query_relations_line = build_geometry_query(
+                "relations",
+                select_condition,
+                where_clause,
+                attribute_filter,
+                "geometrytype(geom)='MULTILINESTRING'",
             )
 
-            query_ways_line = f"""select
-                {select_condition}
-                from
-                    ways_line
-                where
-                    {where_clause_for_line}"""
-            where_clause_for_rel = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "relations"
+            query_line = get_query_as_geojson(
+                [query_ways_line, query_relations_line], ogr_export=ogr_export
             )
-
-            query_relations_line = f"""select
-                {select_condition}
-                from
-                    relations
-                where
-                    {where_clause_for_rel}"""
-            if line_tag_filter:
-                attribute_filter = generate_tag_filter_query(line_tag_filter)
-            if attribute_filter:
-                query_ways_line += f""" and ({attribute_filter})"""
-                query_relations_line += f""" and ({attribute_filter})"""
-            query_relations_line += """ and (geometrytype(geom)='MULTILINESTRING')"""
-            query_line_list.append(query_ways_line)
-            query_line_list.append(query_relations_line)
-            query_line = get_query_as_geojson(query_line_list, ogr_export=ogr_export)
             line_schema = schema
 
         if type == SupportedGeometryFilters.POLYGON.value:
-            query_poly_list = []
             if poly_attribute_filter:
                 select_condition, schema = create_column_filter(
                     use_centroid=params.centroid,
@@ -395,35 +398,27 @@ def extract_geometry_type_query(
                     include_user_metadata=include_user_metadata,
                 )
 
-            where_clause_for_poly = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "ways_poly"
+            attribute_filter = (
+                generate_tag_filter_query(poly_tag_filter)
+                if poly_tag_filter
+                else attribute_filter
+            )
+            where_clause = generate_where_clause(geom_filter)
+
+            query_ways_poly = build_geometry_query(
+                "ways_poly", select_condition, where_clause, attribute_filter
+            )
+            query_relations_poly = build_geometry_query(
+                "relations",
+                select_condition,
+                where_clause,
+                attribute_filter,
+                "geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON'",
             )
 
-            query_ways_poly = f"""select
-                {select_condition}
-                from
-                    ways_poly
-                where
-                    {where_clause_for_poly}"""
-            where_clause_for_relations = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "relations"
+            query_poly = get_query_as_geojson(
+                [query_ways_poly, query_relations_poly], ogr_export=ogr_export
             )
-
-            query_relations_poly = f"""select
-                {select_condition}
-                from
-                    relations
-                where
-                    {where_clause_for_relations}"""
-            if poly_tag_filter:
-                attribute_filter = generate_tag_filter_query(poly_tag_filter)
-            if attribute_filter:
-                query_ways_poly += f""" and ({attribute_filter})"""
-                query_relations_poly += f""" and ({attribute_filter})"""
-            query_relations_poly += """ and (geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON')"""
-            query_poly_list.append(query_ways_poly)
-            query_poly_list.append(query_relations_poly)
-            query_poly = get_query_as_geojson(query_poly_list, ogr_export=ogr_export)
             poly_schema = schema
     return query_point, query_line, query_poly, point_schema, line_schema, poly_schema
 
@@ -479,46 +474,13 @@ def extract_attributes_tags(filters):
     )
 
 
-def generate_where_clause_indexes_case(
-    geom_filter, g_id, c_id, country_export, table_name="ways_poly"
-):
-    where_clause = geom_filter
-    if g_id:
-        if (
-            table_name == "ways_poly"
-        ):  # currently grid index is only available for ways_poly
-            column_name = "grid"
-            grid_filter_base = [f"""{column_name} = {ind[0]}""" for ind in g_id]
-            grid_filter = " OR ".join(grid_filter_base)
-            where_clause = f"({grid_filter}) and ({geom_filter})"
-    if c_id:
-        c_id = ",".join(str(num) for num in c_id)
-        # if table_name == "ways_poly" or table_name == "nodes":
-        #     where_clause += f" and (country IN ({c_id}))"
-        # else:
-        where_clause += f" and (country @> ARRAY[{c_id}])"
-    if (
-        country_export
-    ):  # ignore the geometry take geom from the db itself by using precalculated field
-        if c_id:
-            # if table_name == "ways_poly" or table_name == "nodes":
-            #     where_clause = f"country IN ({c_id})"
-            # else:
-            where_clause = f"country @> ARRAY[{c_id}]"
-    return where_clause
-
-
-def get_country_geojson(c_id):
-    query = f"SELECT ST_AsGeoJSON(geometry) as geom from countries where id={c_id}"
-    return query
+def generate_where_clause(geom_filter):
+    return geom_filter
 
 
 def raw_currentdata_extraction_query(
     params,
-    g_id=None,
-    c_id=None,
     ogr_export=False,
-    country_export=False,
 ):
     """Default function to support current snapshot extraction with all of the feature that export_tool_api has"""
     include_user_metadata = params.include_user_metadata
@@ -662,9 +624,7 @@ def raw_currentdata_extraction_query(
     if SupportedGeometryFilters.ALLGEOM.value in params.geometry_type:
         params.geometry_type = ["point", "line", "polygon"]
     if SupportedGeometryFilters.POINT.value in params.geometry_type:
-        where_clause_for_nodes = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, country_export, "nodes"
-        )
+        where_clause_for_nodes = generate_where_clause(geom_filter)
 
         query_point = f"""select
                     {point_select_condition}
@@ -677,9 +637,7 @@ def raw_currentdata_extraction_query(
         base_query.append(query_point)
 
     if SupportedGeometryFilters.LINE.value in params.geometry_type:
-        where_clause_for_line = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, country_export, "ways_line"
-        )
+        where_clause_for_line = generate_where_clause(geom_filter)
 
         query_ways_line = f"""select
             {line_select_condition}
@@ -696,9 +654,7 @@ def raw_currentdata_extraction_query(
                 use_geomtype_in_relation = False
 
         if use_geomtype_in_relation:
-            where_clause_for_rel = generate_where_clause_indexes_case(
-                geom_filter, g_id, c_id, country_export, "relations"
-            )
+            where_clause_for_rel = generate_where_clause(geom_filter)
 
             query_relations_line = f"""select
                 {line_select_condition}
@@ -712,9 +668,7 @@ def raw_currentdata_extraction_query(
             base_query.append(query_relations_line)
 
     if SupportedGeometryFilters.POLYGON.value in params.geometry_type:
-        where_clause_for_poly = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, country_export, "ways_poly"
-        )
+        where_clause_for_poly = generate_where_clause(geom_filter)
 
         query_ways_poly = f"""select
             {poly_select_condition}
@@ -725,9 +679,7 @@ def raw_currentdata_extraction_query(
         if poly_tag:
             query_ways_poly += f""" and ({poly_tag})"""
         base_query.append(query_ways_poly)
-        where_clause_for_relations = generate_where_clause_indexes_case(
-            geom_filter, g_id, c_id, country_export, "relations"
-        )
+        where_clause_for_relations = generate_where_clause(geom_filter)
         query_relations_poly = f"""select
             {poly_select_condition}
             from
@@ -757,7 +709,7 @@ def raw_currentdata_extraction_query(
 
 
 def check_last_updated_rawdata():
-    query = """select importdate as last_updated from planet_osm_replication_status"""
+    query = """select importdate as last_updated from raw_osm_replication_status"""
     return query
 
 
@@ -873,26 +825,6 @@ def generate_polygon_stats_graphql_query(geojson_feature):
     return query
 
 
-def get_country_from_iso(iso3):
-    """
-    Generate a SQL query to retrieve country information based on ISO3 code.
-
-    Args:
-    - iso3 (str): ISO3 Country Code.
-
-    Returns:
-    str: SQL query to fetch country information.
-    """
-    query = f"""SELECT
-                    b.cid::int as fid, b.dataset->>'dataset_title' as dataset_title, b.dataset->>'dataset_prefix' as dataset_prefix,  b.dataset->>'dataset_locations' as locations
-                FROM
-                    cron b
-                WHERE
-                    LOWER(iso3) = '{iso3}'
-                """
-    return query
-
-
 def convert_tags_pattern_to_postgres(query_string):
     pattern = r"tags\['(.*?)'\]"
 
@@ -906,7 +838,6 @@ def convert_tags_pattern_to_postgres(query_string):
 def postgres2duckdb_query(
     base_table_name,
     table,
-    cid=None,
     geometry=None,
     single_category_where=None,
     enable_users_detail=False,
@@ -932,11 +863,7 @@ def postgres2duckdb_query(
         select_query = """osm_id, osm_type, uid, "user", version, changeset, timestamp, tags, ST_AsBinary(geom) as geom"""
         create_select_duck_db = """osm_id, osm_type, uid, "user", version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geom) as GEOMETRY) AS geom"""
 
-    row_filter_condition = (
-        f"""(country @> ARRAY [{cid}])"""
-        if cid
-        else f"""ST_Intersects(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326))),4326)))"""
-    )
+    row_filter_condition = f"""ST_Intersects(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326))),4326)))"""
 
     postgres_query = f"""select {select_query} from (select * , tableoid::regclass as osm_type from {table} where {row_filter_condition}) as sub_query"""
     if single_category_where:
@@ -1020,27 +947,6 @@ def extract_features_custom_exports(
                 from_q=table,
                 where_q=where_query,
                 geom=geometry,
-                cid=cid,
             )
         base_query.append(query)
     return " UNION ALL ".join(base_query)
-
-
-def get_country_geom_from_iso(iso3):
-    """
-    Generate a SQL query to retrieve country geometry based on ISO3 code.
-
-    Args:
-    - iso3 (str): ISO3 Country Code.
-
-    Returns:
-    str: SQL query to fetch country geometry.
-    """
-    query = f"""SELECT
-                    ST_AsGeoJSON(geometry) as geom
-                FROM
-                    countries b
-                WHERE
-                    LOWER(iso3) = '{iso3}'
-                """
-    return query

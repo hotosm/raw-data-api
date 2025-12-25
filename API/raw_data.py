@@ -17,8 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-"""[Router Responsible for Raw data API ]
-"""
+"""[Router Responsible for Raw data API ]"""
 # Standard library imports
 import json
 from typing import AsyncGenerator
@@ -542,20 +541,6 @@ async def get_osm_current_snapshot_as_plain_geojson(
         yield b"]}"
 
     return StreamingResponse(generate_geojson(), media_type="application/geo+json")
-
-
-@router.get("/countries/")
-@version(1)
-def get_countries(q: str = ""):
-    result = RawData().get_countries_list(q)
-    return result
-
-
-@router.get("/countries/{cid}/")
-@version(1)
-def get_specific_country(cid: int):
-    result = RawData().get_country(cid)
-    return result
 
 
 @router.get("/osm_id/")

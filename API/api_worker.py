@@ -15,11 +15,10 @@ import zipfly
 from celery import Celery
 
 # Reader imports
-from src.app import CustomExport, PolygonStats, RawData, S3FileTransfer
-from src.config import ALLOW_BIND_ZIP_FILTER, CELERY_BROKER_HEARTBEAT
-from src.config import CELERY_BROKER_URL as celery_broker_uri
-from src.config import CELERY_RESULT_BACKEND as celery_backend
+from src.app import CustomExport, RawData, S3FileTransfer
 from src.config import (
+    ALLOW_BIND_ZIP_FILTER,
+    CELERY_BROKER_HEARTBEAT,
     CELERY_WORKER_LOST_WAIT,
     DEFAULT_HARD_TASK_LIMIT,
     DEFAULT_README_TEXT,
@@ -29,9 +28,11 @@ from src.config import (
     EXPORT_PATH,
     HDX_HARD_TASK_LIMIT,
     HDX_SOFT_TASK_LIMIT,
+    WORKER_PREFETCH_MULTIPLIER,
 )
+from src.config import CELERY_BROKER_URL as celery_broker_uri
+from src.config import CELERY_RESULT_BACKEND as celery_backend
 from src.config import USE_S3_TO_UPLOAD as use_s3_to_upload
-from src.config import WORKER_PREFETCH_MULTIPLIER
 from src.config import logger as logging
 from src.query_builder.builder import format_file_name_str
 from src.validation.models import (
@@ -231,14 +232,14 @@ def process_raw_data(self, params, user=None):
         ).extract_current_data(file_parts)
         inside_file_size = 0
         polygon_stats = None
-        if "include_stats" in params.dict():
-            if params.include_stats:
-                feature = {
-                    "type": "Feature",
-                    "geometry": json.loads(params.geometry.model_dump_json()),
-                    "properties": {},
-                }
-                polygon_stats = PolygonStats(feature).get_summary_stats()
+        # if "include_stats" in params.dict():
+        #     if params.include_stats:
+        #         feature = {
+        #             "type": "Feature",
+        #             "geometry": json.loads(params.geometry.model_dump_json()),
+        #             "properties": {},
+        #         }
+        #         # polygon_stats = PolygonStats(feature).get_summary_stats()
         if bind_zip:
             upload_file_path, inside_file_size = zip_binding(
                 working_dir=working_dir,

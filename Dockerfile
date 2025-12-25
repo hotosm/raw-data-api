@@ -1,13 +1,13 @@
-# Base image with GDAL and Python
-ARG GDAL_VERSION=3.9.0
-FROM ghcr.io/osgeo/gdal:ubuntu-small-$GDAL_VERSION as base
+# Base image with GDAL and Python 3.12+
+ARG GDAL_VERSION=3.12.0
+ARG PYTHON_VERSION=3.12
+FROM ghcr.io/osgeo/gdal:ubuntu-small-$GDAL_VERSION AS base
 
 ARG MAINTAINER=sysadmin@hotosm.org
 
-# Install libs
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python3-pip python3-venv build-essential libpq-dev python3-dev && \
+    python3-pip python3-venv build-essential libpq-dev python3-dev curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -17,19 +17,18 @@ ENV PATH="/home/appuser/venv/bin:$PATH"
 RUN python3 -m venv /home/appuser/venv && \
     /home/appuser/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel
 
-COPY requirements.txt requirements.lock
-RUN /home/appuser/venv/bin/pip install --no-cache-dir -r requirements.lock
-
-
-# Copy application files
-COPY README.md setup.py pyproject.toml /home/appuser/
-COPY API/ /home/appuser/API/
+COPY pyproject.toml uv.lock LICENSE README.md /home/appuser/
 COPY src/ /home/appuser/src/
+RUN /home/appuser/venv/bin/pip install --no-cache-dir uv && \
+    /home/appuser/venv/bin/uv sync --frozen
+
+COPY API/ /home/appuser/API/
+COPY alembic/ /home/appuser/alembic/
+COPY alembic.ini /home/appuser/
 
 RUN /home/appuser/venv/bin/pip install --no-cache-dir .
 
-# Final image
-FROM ghcr.io/osgeo/gdal:ubuntu-small-$GDAL_VERSION
+FROM ghcr.io/osgeo/gdal:ubuntu-small-$GDAL_VERSION AS final
 
 WORKDIR /home/appuser
 RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appuser && \

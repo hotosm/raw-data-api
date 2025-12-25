@@ -20,7 +20,6 @@
 import time
 
 # Third party imports
-import newrelic.agent
 import psycopg2
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,24 +29,20 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 # Reader imports
+from src.__version__ import __version__
 from src.config import (
     ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
     ENABLE_METRICS_APIS,
-    ENABLE_POLYGON_STATISTICS_ENDPOINTS,
     EXPORT_PATH,
     LIMITER,
     LOG_LEVEL,
     NEW_RELIC_LICENSE_KEY,
     SENTRY_DSN,
     SENTRY_RATE,
-    SETUP_INITIAL_TABLES,
-    USE_CONNECTION_POOLING,
     USE_S3_TO_UPLOAD,
-    get_db_connection_params,
 )
 from src.config import logger as logging
-from src.db_session import database_instance
 
 from .auth.routers import router as auth_router
 from .custom_exports import router as custom_exports_router
@@ -56,9 +51,6 @@ from .tasks import router as tasks_router
 
 if USE_S3_TO_UPLOAD:
     from .s3 import router as s3_router
-
-if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
-    from .stats import router as stats_router
 
 if ENABLE_METRICS_APIS:
     from .download_metrics import router as metrics_router
@@ -88,14 +80,19 @@ if LOG_LEVEL.lower() == "debug":
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 app = FastAPI(title="Raw Data API ", swagger_ui_parameters={"syntaxHighlight": False})
+
+
+@app.get("/health", include_in_schema=False)
+async def health():
+    return {"status": "healthy", "version": __version__}
+
+
 app.include_router(auth_router)
 app.include_router(raw_data_router)
 app.include_router(tasks_router)
 
 if ENABLE_CUSTOM_EXPORTS:
     app.include_router(custom_exports_router)
-if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
-    app.include_router(stats_router)
 if ENABLE_METRICS_APIS:
     app.include_router(metrics_router)
 if ENABLE_HDX_EXPORTS:
@@ -107,7 +104,7 @@ if USE_S3_TO_UPLOAD:
 app.openapi = {
     "info": {
         "title": "Raw Data API",
-        "version": "1.0",
+        "version": __version__,
     },
     "security": [{"OAuth2PasswordBearer": []}],
 }
@@ -115,6 +112,19 @@ app.openapi = {
 app = VersionedFastAPI(
     app, enable_latest=False, version_format="{major}", prefix_format="/v{major}"
 )
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return {
+        "name": "Raw Data API",
+        "version": __version__,
+        "docs": "/v1/docs",
+        "health": "/v1/health/",
+        "status": "/v1/status/",
+        "workers": "/v1/tasks/inspect/",
+    }
+
 
 if USE_S3_TO_UPLOAD is False:
     # only mount the disk if config is set to disk
@@ -127,20 +137,14 @@ origins = ["*"]
 
 
 if NEW_RELIC_LICENSE_KEY:
+    # Third party imports
+    import newrelic.agent
+
     newrelic.agent.initialize()
 
 
 @app.middleware("http")
 async def add_process_time_header(request, call_next):
-    """Times request and knows response time and pass it to header in every request
-
-    Args:
-        request (_type_): _description_
-        call_next (_type_): _description_
-
-    Returns:
-        header with process time
-    """
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
@@ -156,7 +160,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # if NEW_RELIC_LICENSE_KEY:
 
 #     @app.middleware("http")
@@ -166,44 +169,3 @@ app.add_middleware(
 #             transaction.name = f"{request.method} {request.url.path}"
 #         response = await call_next(request)
 #         return response
-
-
-@app.on_event("startup")
-async def on_startup():
-    """Fires up 3 idle conenction with threaded connection pooling before starting the API
-
-    Raises:
-        e: if connection is rejected to database
-    """
-    try:
-        if SETUP_INITIAL_TABLES:
-            sql_file_path = os.path.join(
-                os.path.realpath(os.path.dirname(__file__)), "data/tables.sql"
-            )
-            with open(sql_file_path, "r", encoding="UTF-8") as sql_file:
-                create_tables_sql = sql_file.read()
-            conn = psycopg2.connect(**get_db_connection_params())
-            cursor = conn.cursor()
-            # Execute SQL statements
-            cursor.execute(create_tables_sql)
-            conn.commit()
-
-            # Close the cursor and connection
-            cursor.close()
-            conn.close()
-
-        if USE_CONNECTION_POOLING:
-            database_instance.connect()
-    except Exception as e:
-        logging.error(e)
-        raise e
-
-
-@app.on_event("shutdown")
-def on_shutdown():
-    """Closing all the threads connection from pooling before shuting down the api"""
-    if USE_CONNECTION_POOLING:
-        logging.debug("Shutting down connection pool")
-        database_instance.close_all_connection_pool()
-        logging.debug("Shutting down connection pool")
-        database_instance.close_all_connection_pool()

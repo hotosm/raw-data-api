@@ -21,27 +21,29 @@
 
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS h3;
+CREATE EXTENSION IF NOT EXISTS h3_postgis;
+
+ALTER TABLE nodes
+ADD COLUMN h3 h3index NULL;
+
+ALTER TABLE ways_line
+ADD COLUMN h3 h3index NULL;
+
+ALTER TABLE ways_poly
+ADD COLUMN h3 h3index NULL;
+
+ALTER TABLE relations
+ADD COLUMN h3 h3index NULL;
 
 ALTER TABLE nodes
 ADD CONSTRAINT nodes_pk PRIMARY KEY  (osm_id);
 
-ALTER TABLE nodes
-ALTER COLUMN country SET DEFAULT '{0}';
-
 ALTER TABLE ways_line
 ADD CONSTRAINT ways_line_pk PRIMARY KEY  (osm_id);
 
-ALTER TABLE ways_line
-ALTER COLUMN country SET DEFAULT '{0}';
-
 ALTER TABLE ways_poly
 ADD CONSTRAINT ways_poly_pk PRIMARY KEY  (osm_id);
-
-ALTER TABLE ways_poly
-ALTER COLUMN country SET DEFAULT '{0}';
-
-ALTER TABLE relations
-ALTER COLUMN country SET DEFAULT '{0}';
 
 ALTER TABLE relations
 ADD CONSTRAINT relations_pk PRIMARY KEY (osm_id);

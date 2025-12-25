@@ -1,4 +1,3 @@
-
 -- # Copyright (C) 2021 Humanitarian OpenStreetmap Team
 
 -- # This program is free software: you can redistribute it and/or modify
@@ -39,8 +38,6 @@ tables.nodes = osm2pgsql.define_table{
         { column = 'timestamp', sql_type = 'timestamp' },
         { column = 'tags', type = 'jsonb' },
         { column = 'geom', type = 'point', projection = srid },
-        { column = 'country', sql_type= 'int[]', create_only = true },
-        
     }
 
 }
@@ -56,10 +53,7 @@ tables.ways_line = osm2pgsql.define_table{
         { column = 'changeset', type = 'int' },
         { column = 'timestamp', sql_type = 'timestamp' },
         { column = 'tags', type = 'jsonb' },
-        { column = 'refs', type= 'text', sql_type = 'bigint[]'},
         { column = 'geom', type = 'linestring', projection = srid },
-        { column = 'country', sql_type= 'int[]', create_only = true },
-
     }
 
 }
@@ -76,10 +70,7 @@ tables.ways_poly = osm2pgsql.define_table{
         { column = 'timestamp', sql_type = 'timestamp' },
     -- This will store tags as jsonb type  
         { column = 'tags', type = 'jsonb' },
-        { column = 'refs', type= 'text', sql_type = 'bigint[]'},
         { column = 'geom', type = 'polygon', projection = srid },
-        { column = 'grid', type = 'int', create_only = true },
-        { column = 'country', sql_type= 'int[]', create_only = true },
     }
 
 }
@@ -90,25 +81,19 @@ tables.rels = osm2pgsql.define_table{
 
     ids = {type='relation', id_column = 'osm_id' },
     columns = {
-
         { column = 'uid', type = 'int' },
         { column = 'user', type = 'text' },
         { column = 'version', type = 'int' },
         { column = 'changeset', type = 'int' },
         { column = 'timestamp', sql_type = 'timestamp' },
         { column = 'tags', type = 'jsonb' },
-        { column = 'refs', type = 'jsonb'},
         { column = 'geom', type = 'geometry', projection = srid },
-        { column = 'country',sql_type= 'int[]', create_only = true },
-        
     }
 }
 
 -- Returns true if there are no tags left.
 function clean_tags(tags)
     tags.odbl = nil
-    -- tags.created_by = nil
-    tags['source:ref'] = nil
     return next(tags) == nil
 end
 
@@ -118,14 +103,14 @@ function osm2pgsql.process_node(object)
         return
     end
 
-    tables.nodes:add_row({
+    tables.nodes:insert({
         uid = object.uid,
         user = object.user,
         version = object.version,
         changeset = object.changeset,
         timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
         tags = object.tags,
-        geom = { create = 'point' }
+        geom = object:as_point()
     })
 end
 
@@ -135,28 +120,24 @@ function osm2pgsql.process_way(object)
     end
  
     if object.is_closed and #object.nodes>3 then
-        tables.ways_poly:add_row({
+        tables.ways_poly:insert({
             uid = object.uid,
             user = object.user,
             version = object.version,
             changeset = object.changeset,
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
             tags = object.tags,
-            refs = '{' .. table.concat(object.nodes, ',') .. '}',
-            geom = { create = 'area' },
-            
+            geom = object:as_polygon()
         })
     else
-        tables.ways_line:add_row({
+        tables.ways_line:insert({
             uid = object.uid,
             user = object.user,
             version = object.version,
             changeset = object.changeset,
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
             tags = object.tags,
-            refs = '{' .. table.concat(object.nodes, ',') .. '}',
-            geom = { create = 'line' },
-            
+            geom = object:as_linestring()
         })
     end
 end
@@ -166,28 +147,24 @@ function osm2pgsql.process_relation(object)
         return
     end
     if object.tags.type == 'multipolygon' or object.tags.type == 'boundary' then
-        tables.rels:add_row({
+        tables.rels:insert({
             uid = object.uid,
             user = object.user,
             version = object.version,
             changeset = object.changeset,
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
             tags = object.tags,
-            geom = { create = 'area' },
-            refs = object.members
-
+            geom = object:as_multipolygon()
         })
     else
-        tables.rels:add_row({
+        tables.rels:insert({
             uid = object.uid,
             user = object.user,
             version = object.version,
             changeset = object.changeset,
             timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ', object.timestamp),
             tags = object.tags,
-            geom= { create = 'line' },
-            refs = object.members
-
+            geom= object:as_multilinestring()
         })
     end
 end

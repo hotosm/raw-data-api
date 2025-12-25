@@ -3,8 +3,7 @@
 # Copyright (C) 2021 Humanitarian OpenStreetmap Team
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
+# it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -35,59 +34,56 @@ def get_bool_env_var(key, default=False):
     return bool(strtobool(str(value)))
 
 
-CONFIG_FILE_PATH = "config.txt"
 USE_S3_TO_UPLOAD = False
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME = None, None, None
 
-
 config = ConfigParser()
-config.read(CONFIG_FILE_PATH)
+config_file = os.environ.get("CONFIG_FILE_PATH", "config.txt")
+if os.path.exists(config_file):
+    logging.warning(
+        f"config.txt is deprecated. Please use environment variables instead. "
+        f"Loading from {config_file} for backward compatibility."
+    )
+    config.read(config_file)
 
-
-### CELERY BLOCK ####################
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL") or config.get(
     "CELERY", "CELERY_BROKER_URL", fallback="redis://localhost:6379"
 )
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or config.get(
     "CELERY", "CELERY_RESULT_BACKEND", fallback="redis://localhost:6379"
 )
-
-CELERY_BROKER_HEARTBEAT = os.environ.get("CELERY_BROKER_HEARTBEAT") or config.get(
-    "CELERY", "CELERY_BROKER_HEARTBEAT", fallback=120
+CELERY_BROKER_HEARTBEAT = int(
+    os.environ.get("CELERY_BROKER_HEARTBEAT")
+    or config.get("CELERY", "CELERY_BROKER_HEARTBEAT", fallback=120)
 )
-CELERY_WORKER_LOST_WAIT = os.environ.get("CELERY_WORKER_LOST_WAIT") or config.get(
-    "CELERY", "CELERY_WORKER_LOST_WAIT ", fallback=10
+CELERY_WORKER_LOST_WAIT = int(
+    os.environ.get("CELERY_WORKER_LOST_WAIT")
+    or config.get("CELERY", "CELERY_WORKER_LOST_WAIT", fallback=10)
 )
-
 WORKER_PREFETCH_MULTIPLIER = int(
     os.environ.get("WORKER_PREFETCH_MULTIPLIER")
     or config.get("CELERY", "WORKER_PREFETCH_MULTIPLIER", fallback=1)
 )
 
-### API CONFIG BLOCK #######################
-
-RATE_LIMIT_PER_MIN = os.environ.get("RATE_LIMIT_PER_MIN") or int(
-    config.get("API_CONFIG", "RATE_LIMIT_PER_MIN", fallback=20)
+RATE_LIMIT_PER_MIN = int(
+    os.environ.get("RATE_LIMIT_PER_MIN")
+    or config.get("API_CONFIG", "RATE_LIMIT_PER_MIN", fallback=20)
 )
-
 RATE_LIMITER_STORAGE_URI = os.environ.get("RATE_LIMITER_STORAGE_URI") or config.get(
     "API_CONFIG", "RATE_LIMITER_STORAGE_URI", fallback="redis://localhost:6379"
 )
-
-EXPORT_MAX_AREA_SQKM = os.environ.get("EXPORT_MAX_AREA_SQKM") or int(
-    config.get("API_CONFIG", "EXPORT_MAX_AREA_SQKM", fallback=100000)
+EXPORT_MAX_AREA_SQKM = int(
+    os.environ.get("EXPORT_MAX_AREA_SQKM")
+    or config.get("API_CONFIG", "EXPORT_MAX_AREA_SQKM", fallback=100000)
 )
-
-
-INDEX_THRESHOLD = os.environ.get("INDEX_THRESHOLD") or int(
-    config.get("API_CONFIG", "INDEX_THRESHOLD", fallback=5000)
+INDEX_THRESHOLD = int(
+    os.environ.get("INDEX_THRESHOLD")
+    or config.get("API_CONFIG", "INDEX_THRESHOLD", fallback=5000)
 )
-
-MAX_WORKERS = os.environ.get("MAX_WORKERS") or config.get(
-    "API_CONFIG", "MAX_WORKERS", fallback=os.cpu_count()
+MAX_WORKERS = int(
+    os.environ.get("MAX_WORKERS")
+    or config.get("API_CONFIG", "MAX_WORKERS", fallback=os.cpu_count() or 4)
 )
-
-# get log level from config
 LOG_LEVEL = os.environ.get("LOG_LEVEL") or config.get(
     "API_CONFIG", "LOG_LEVEL", fallback="debug"
 )
@@ -197,12 +193,6 @@ ALLOW_BIND_ZIP_FILTER = get_bool_env_var(
     config.getboolean("API_CONFIG", "ALLOW_BIND_ZIP_FILTER", fallback=False),
 )
 
-SETUP_INITIAL_TABLES = get_bool_env_var(
-    "SETUP_INITIAL_TABLES",
-    config.getboolean("API_CONFIG", "SETUP_INITIAL_TABLES", fallback=False),
-)
-
-
 ENABLE_SOZIP = get_bool_env_var(
     "ENABLE_SOZIP",
     config.getboolean("API_CONFIG", "ENABLE_SOZIP", fallback=False),
@@ -211,13 +201,6 @@ ENABLE_SOZIP = get_bool_env_var(
 ENABLE_TILES = get_bool_env_var(
     "ENABLE_TILES", config.getboolean("API_CONFIG", "ENABLE_TILES", fallback=False)
 )
-
-# check either to use connection pooling or not
-USE_CONNECTION_POOLING = get_bool_env_var(
-    "USE_CONNECTION_POOLING",
-    config.getboolean("API_CONFIG", "USE_CONNECTION_POOLING", fallback=False),
-)
-
 
 ENABLE_OLD_EXPORTS_CLEANUP = get_bool_env_var(
     "ENABLE_OLD_EXPORTS_CLEANUP",
@@ -237,21 +220,17 @@ ONDEMAND_QUEUE_NAME = os.environ.get("ONDEMAND_QUEUE_NAME") or config.get(
     "API_CONFIG", "ONDEMAND_QUEUE_NAME", fallback="raw_ondemand"
 )
 
-# Polygon statistics which will deliver the stats of approx buildings/ roads in the area
+# # Polygon statistics which will deliver the stats of approx buildings/ roads in the area
+# ENABLE_POLYGON_STATISTICS_ENDPOINTS = get_bool_env_var(
+#     "ENABLE_POLYGON_STATISTICS_ENDPOINTS",
+#     config.getboolean(
+#         "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
+#     ),
+# )
 
-ENABLE_POLYGON_STATISTICS_ENDPOINTS = get_bool_env_var(
-    "ENABLE_POLYGON_STATISTICS_ENDPOINTS",
-    config.getboolean(
-        "API_CONFIG", "ENABLE_POLYGON_STATISTICS_ENDPOINTS", fallback=False
-    ),
-)
-POLYGON_STATISTICS_API_URL = os.environ.get("POLYGON_STATISTICS_API_URL") or config.get(
-    "API_CONFIG", "POLYGON_STATISTICS_API_URL", fallback=None
-)
-
-POLYGON_STATISTICS_API_RATE_LIMIT = os.environ.get(
-    "POLYGON_STATISTICS_API_RATE_LIMIT"
-) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_RATE_LIMIT", fallback=5)
+# POLYGON_STATISTICS_API_URL = os.environ.get(
+#     "POLYGON_STATISTICS_API_URL"
+# ) or config.get("API_CONFIG", "POLYGON_STATISTICS_API_URL", fallback=None)
 
 # task limit
 

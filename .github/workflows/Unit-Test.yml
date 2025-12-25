@@ -16,7 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgis/postgis:14-3.3
+        image: ghcr.io/hotosm/postgis-h3:latest
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
         env:
           POSTGRES_PASSWORD: admin
           POSTGRES_DB: raw
@@ -46,18 +49,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v1
         with:
-          python-version: 3.11
+          python-version: 3.12
+      - name: Install uv
+        run: pip install uv
 
-      - name: Insert sample db data
+      - name: Create H3 extensions
         run: |
-          export PGPASSWORD='admin';
-          psql -U postgres -h localhost -p 5434 raw  < tests/fixtures/pokhara.sql
-          psql -U postgres -h localhost -p 5434 raw  < backend/sql/countries.sql
-          psql -U postgres -h localhost -p 5434 raw  < API/data/tables.sql
-          psql -U postgres -h localhost -p 5434 raw  < API/data/cron.sql
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3;"
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3_postgis;"
+
+      - name: Install osm2pgsql for data loading
+        run: sudo apt-get install -y osm2pgsql
+
+      - name: Run Alembic migrations
+        run: |
+          uv sync --group backend
+          uv run alembic upgrade head
+
+      - name: Insert sample test data
+        run: uv run raw-backend --insert --fq m
 
       - name: Install gdal
         run: sudo apt-get update && sudo apt-get -y install gdal-bin python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
@@ -71,20 +85,14 @@ jobs:
           sudo apt-get install redis
           redis-cli ping
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          python setup.py install
-
       - name: Launch ondemand Worker
         run: |
-          celery --app API.api_worker worker --loglevel=INFO --queues='raw_ondemand' &
+          uv run celery --app API.api_worker worker --loglevel=INFO --queues='raw_ondemand' &
 
       - name: Launch daemon Worker
         run: |
-          celery --app API.api_worker worker --loglevel=INFO --queues='raw_daemon' &
+          uv run celery --app API.api_worker worker --loglevel=INFO --queues='raw_daemon' &
 
       - name: Run Tests
         run: |
-          python -m pytest -v -s
+          uv run pytest -v -s

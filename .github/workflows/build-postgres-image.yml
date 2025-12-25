@@ -1,0 +1,34 @@
+name: Build PostgreSQL with H3 Image
+
+on:
+  push:
+    branches:
+      - develop
+      - stage
+    paths:
+      - 'Dockerfile.postgish3'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.postgish3
+          push: true
+          tags: ghcr.io/hotosm/postgis-h3:latest
