@@ -44,6 +44,12 @@ jobs:
       - name: check version
         run: osm2pgsql --version
 
+      - name: Install PostgreSQL H3 extensions
+        run: |
+          sudo apt-get install -y postgresql-14-postgis-3 postgresql-14-h3
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3;"
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3_postgis;"
+
       - name: Install python requirements for load
         run: uv sync --group backend
 

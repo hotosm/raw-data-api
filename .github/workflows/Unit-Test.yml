@@ -74,18 +74,16 @@ jobs:
           redis-cli ping
 
       - name: Install Dependencies
-        run: |
-          uv sync
-          uv run python setup.py install
+        run: uv sync
 
       - name: Launch ondemand Worker
         run: |
-          celery --app API.api_worker worker --loglevel=INFO --queues='raw_ondemand' &
+          uv run celery --app API.api_worker worker --loglevel=INFO --queues='raw_ondemand' &
 
       - name: Launch daemon Worker
         run: |
-          celery --app API.api_worker worker --loglevel=INFO --queues='raw_daemon' &
+          uv run celery --app API.api_worker worker --loglevel=INFO --queues='raw_daemon' &
 
       - name: Run Tests
         run: |
-          python -m pytest -v -s
+          uv run pytest -v -s
