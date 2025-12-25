@@ -67,7 +67,7 @@ jobs:
 
       - name: Run Alembic migrations
         run: |
-          uv sync --group backend
+          uv sync --group backend --group tests
           uv run alembic upgrade head
 
       - name: Insert sample test data
