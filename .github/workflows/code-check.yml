@@ -4,11 +4,11 @@ on:
     paths-ignore:
       - "infra/**"
     branches:
-      - master
+      - stage
       - develop
   pull_request:
     branches:
-      - master
+      - stage
       - develop
   workflow_dispatch:
 jobs:

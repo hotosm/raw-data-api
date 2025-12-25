@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-      - master
+      - stage
     paths:
       - 'Dockerfile.postgish3'
   workflow_dispatch:
