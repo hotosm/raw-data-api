@@ -3,12 +3,12 @@ name: Docker Image CI
 on:
   push:
     branches:
-      - master
+      - stage
       - develop
 
   pull_request:
     branches:
-      - master
+      - stage
       - develop
 jobs:
   build:

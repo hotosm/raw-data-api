@@ -4,11 +4,11 @@ on:
     paths-ignore:
       - "infra/**"
     branches:
-      - master
+      - stage
       - develop
   pull_request:
     branches:
-      - master
+      - stage
       - develop
 
 jobs:
@@ -24,7 +24,10 @@ jobs:
 
     services:
       postgres:
-        image: postgis/postgis:14-3.3
+        image: ghcr.io/hotosm/postgis-h3:latest
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
         env:
           POSTGRES_PASSWORD: admin
           POSTGRES_DB: raw
@@ -33,20 +36,27 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v1
         with:
-          python-version: 3.11
+          python-version: 3.12
+      - name: Install uv
+        run: pip install uv
       - name: Install necessary dependecies for rawdata loading
         run: sudo apt-get update && sudo apt-get install osm2pgsql
       - name: check version
         run: osm2pgsql --version
 
+      - name: Create H3 extensions
+        run: |
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3;"
+          psql -U postgres -h localhost -p 5434 -d raw -c "CREATE EXTENSION IF NOT EXISTS h3_postgis CASCADE;"
+
       - name: Install python requirements for load
-        run: pip install -r backend/requirements.txt
+        run: uv sync --group backend
 
       - name: Start Loading
-        run: python backend/raw_backend --insert --fq m
+        run: uv run raw-backend --insert --fq m
 
       - name: Install gdal
         run: |
@@ -62,10 +72,7 @@ jobs:
           redis-cli ping
 
       - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
+        run: uv sync
 
       - name: Run uvicorn server
         run: |

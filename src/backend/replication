@@ -17,11 +17,12 @@ in the database. Subsequent runs download newly available data and apply
 it to the database.
 See the help of the 'init' and 'update' command for more information on
 how to use %(prog)s.
-QUICK Commands to start : 
-python replication init 
+QUICK Commands to start :
+python replication init
 python replication update -s raw.lua
 """
 
+# Standard library imports
 import datetime as dt
 import json
 import logging
@@ -35,6 +36,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
 from textwrap import dedent
 
+# Third party imports
 import pytz
 
 missing_modules = []
@@ -42,10 +44,7 @@ missing_modules = []
 try:
     import psycopg2 as psycopg
 except ImportError:
-    try:
-        import psycopg
-    except ImportError:
-        missing_modules.append("psycopg2")
+    missing_modules.append("psycopg2")
 
 try:
     from osmium import WriteHandler
@@ -145,9 +144,7 @@ def setup_replication_state(conn, table, base_url, seq, date):
                        (url TEXT,
                         sequence INTEGER,
                         importdate TIMESTAMP WITH TIME ZONE)
-                    """.format(
-                table
-            )
+                    """.format(table)
         )
         cur.execute(
             'INSERT INTO "{}" VALUES(%s, %s, %s)'.format(table), (base_url, seq, date)
@@ -209,16 +206,16 @@ def status(conn, args):
         cur.execute("SELECT * FROM pg_tables where tablename = %s", (args.table,))
         if cur.rowcount < 1:
             results["status"] = 1
-            results[
-                "error"
-            ] = "Cannot find replication status table. Run 'osm2pgsql-replication init' first."
+            results["error"] = (
+                "Cannot find replication status table. Run 'osm2pgsql-replication init' first."
+            )
         else:
             cur.execute('SELECT * FROM "{}"'.format(args.table))
             if cur.rowcount != 1:
                 results["status"] = 2
-                results[
-                    "error"
-                ] = "Updates not set up correctly. Run 'osm2pgsql-updates init' first."
+                results["error"] = (
+                    "Updates not set up correctly. Run 'osm2pgsql-updates init' first."
+                )
             else:
                 base_url, db_seq, db_ts = cur.fetchone()
                 db_ts = db_ts.astimezone(dt.timezone.utc)
@@ -233,10 +230,10 @@ def status(conn, args):
                 if state_info is None:
                     # PyOsmium was unable to download the state information
                     results["status"] = 3
-                    results[
-                        "error"
-                    ] = "Unable to download the state information from {}".format(
-                        base_url
+                    results["error"] = (
+                        "Unable to download the state information from {}".format(
+                            base_url
+                        )
                     )
                 else:
                     results["status"] = 0
@@ -304,7 +301,7 @@ def init(conn, args):
     Use the command '%(prog)s --osm-file <filename>' for this.
     If the file has no replication information or you don't have the initial
     import file anymore then replication can be set up according to
-    the data found in the database. It checks the planet_osm_way table for the
+    the data found in the database. It checks the raw_osm_way table for the
     newest way in the database and then queries the OSM API when the way was
     created. The date is used as the start date for replication. In this mode
     the minutely diffs from the OSM servers are used as a source. You can change
@@ -487,39 +484,35 @@ def update(conn, args):
                 nextstate.timestamp,
                 dt.datetime.now(dt.timezone.utc) - nextstate.timestamp,
             )
-            if not args.skip_cupdate:
+            if not args.skip_h3update:
                 start_time = time.time()
-                LOG.debug("Starting Country update")
-                update_country(
+                LOG.debug("Starting H3 spatial index update")
+                update_h3(
                     conn,
-                    grid_timestamp,
                     "nodes",
-                    args.country if args.country else None,
-                    args.boundary if args.boundary else None,
+                    boundary=args.boundary if args.boundary else None,
                 )
-                update_country(
+
+                update_h3(
                     conn,
-                    grid_timestamp,
                     "ways_poly",
-                    args.country if args.country else None,
-                    args.boundary if args.boundary else None,
+                    boundary=args.boundary if args.boundary else None,
                 )
-                update_country(
+
+                update_h3(
                     conn,
-                    grid_timestamp,
                     "ways_line",
-                    args.country if args.country else None,
-                    args.boundary if args.boundary else None,
+                    boundary=args.boundary if args.boundary else None,
                 )
-                update_country(
+
+                update_h3(
                     conn,
-                    grid_timestamp,
                     "relations",
-                    args.country if args.country else None,
-                    args.boundary if args.boundary else None,
+                    boundary=args.boundary if args.boundary else None,
                 )
+
                 LOG.info(
-                    f"Updating field  took {round(time.time()-start_time)}s overall."
+                    f"Updating field  took {round(time.time() - start_time)}s overall."
                 )
                 grid_timestamp = nextstate.timestamp
         if args.once:
@@ -528,69 +521,9 @@ def update(conn, args):
     return 0
 
 
-def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
-    """Updates country column in table , It intersects it's newly inserted data's geometry to the boundaries loaded to underpass and populates info , in order to use multicolumn indexes with geometry"""
+def update_h3(conn, table_name, h3_col="h3", resolution=6, boundary=None):
+    """Updates h3 column in table , It intersects it's newly inserted data's geometry to the boundaries loaded to underpass and populates info , in order to use multicolumn indexes with geometry"""
     # array value 1000 means rest of the world
-    with conn.cursor() as cur:
-        update_query = f"""WITH t1 AS (SELECT osm_id, ST_Centroid(geom) AS geom FROM {table_name} WHERE "timestamp" >= '{timestamp}'), t2 AS (SELECT t1.osm_id,     
-        CASE 
-            WHEN COUNT(cg.cid) = 0 THEN ARRAY[1000]::integer[]
-            ELSE array_agg(COALESCE(cg.cid, 1000))
-        END AS aa_fids 
-        FROM t1 LEFT JOIN countries cg ON ST_Intersects(t1.geom, cg.geometry) GROUP BY t1.osm_id) UPDATE {table_name} uw SET country = t2.aa_fids FROM t2 WHERE t2.osm_id = uw.osm_id;"""
-
-        cur.execute(update_query)
-    conn.commit()
-    LOG.info(f"""Country {table_name} Complete >= {timestamp} : {cur.statusmessage} """)
-    if c_id:
-        # delete data outside country
-        with conn.cursor() as cur:
-            delete_query = f"""delete from 
-            {table_name} 
-            where
-                "timestamp" >= '{timestamp}'
-                and (NOT country && ARRAY{c_id}  or country is null or (NOT ST_IsValid(geom)) )
-                """
-
-            if table_name == "ways_line" or table_name == "ways_poly":
-                delete_query = f"""WITH deleted_table_entries AS (
-                    DELETE FROM {table_name}
-                    WHERE "timestamp" >= '{timestamp}'
-                    AND (NOT country && ARRAY{c_id} OR country IS NULL OR (NOT ST_IsValid(geom)))
-                    RETURNING osm_id
-                ), deleted_node_entries AS (
-                    DELETE FROM planet_osm_ways
-                    WHERE id IN (SELECT osm_id FROM deleted_table_entries)
-                    RETURNING nodes
-                )
-                DELETE FROM planet_osm_nodes
-                WHERE id IN (SELECT unnest(nodes) FROM deleted_node_entries);"""
-
-            if table_name == "nodes":
-                delete_query = f"""WITH deleted_table_entries AS (
-                    DELETE FROM {table_name}
-                    WHERE "timestamp" >= '{timestamp}'
-                    AND (NOT country && ARRAY{c_id} OR country IS NULL OR (NOT ST_IsValid(geom)))
-                    RETURNING osm_id
-                )
-                DELETE FROM planet_osm_nodes
-                WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
-
-            if table_name == "relations":
-                delete_query = f"""WITH deleted_table_entries AS (
-                    DELETE FROM {table_name}
-                    WHERE "timestamp" >= '{timestamp}'
-                    AND (NOT country && ARRAY{c_id} OR country IS NULL OR (NOT ST_IsValid(geom)))
-                    RETURNING osm_id
-                )
-                DELETE FROM planet_osm_rels
-                WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
-            cur.execute(delete_query)
-            LOG.info(
-                f"""Cleanup {table_name} Complete >= {timestamp} : {cur.statusmessage} """
-            )
-
-        conn.commit()
 
     if boundary:
         # delete data outside boundary
@@ -598,46 +531,109 @@ def update_country(conn, timestamp, table_name, c_id=None, boundary=None):
             delete_query = f"""DELETE FROM 
                 {table_name} 
                 WHERE
-                    "timestamp" >= '{timestamp}'
+                    {h3_col} IS NULL
                     AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))"""
 
             if table_name == "ways_line" or table_name == "ways_poly":
                 delete_query = f"""WITH deleted_table_entries AS (
                     DELETE FROM {table_name}
-                    WHERE "timestamp" >= '{timestamp}'
+                    {h3_col} IS NULL
                     AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
                     RETURNING osm_id
                 ), deleted_node_entries AS (
-                    DELETE FROM planet_osm_ways
+                    DELETE FROM raw_osm_ways
                     WHERE id IN (SELECT osm_id FROM deleted_table_entries)
                     RETURNING nodes
                 )
-                DELETE FROM planet_osm_nodes
+                DELETE FROM raw_osm_nodes
                 WHERE id IN (SELECT unnest(nodes) FROM deleted_node_entries);"""
 
             if table_name == "nodes":
                 delete_query = f"""WITH deleted_table_entries AS (
                     DELETE FROM {table_name}
-                    WHERE "timestamp" >= '{timestamp}'
+                    {h3_col} IS NULL
                     AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
                     RETURNING osm_id
                 )
-                DELETE FROM planet_osm_nodes
+                DELETE FROM raw_osm_nodes
                 WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
 
             if table_name == "relations":
                 delete_query = f"""WITH deleted_table_entries AS (
                     DELETE FROM {table_name}
-                    WHERE "timestamp" >= '{timestamp}'
+                    {h3_col} IS NULL
                     AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
                     RETURNING osm_id
                 )
-                DELETE FROM planet_osm_rels
+                DELETE FROM raw_osm_rels
                 WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
             cur.execute(delete_query)
-            LOG.info(
-                f"""Cleanup {table_name} Complete >= {timestamp} : {cur.statusmessage} """
-            )
+            LOG.info(f"""Cleanup {table_name} : {cur.statusmessage} """)
+
+        conn.commit()
+
+    with conn.cursor() as cur:
+        update_query = f"""WITH updated_rows AS (
+            SELECT
+                osm_id,
+                h3_lat_lng_to_cell(ST_Centroid(geom), {resolution}) AS new_h3
+            FROM {table_name}
+            WHERE 
+                {h3_col} IS NULL
+        )
+        UPDATE {table_name} AS t
+        SET {h3_col} = u.new_h3
+        FROM updated_rows u
+        WHERE t.osm_id = u.osm_id;
+        """
+
+        cur.execute(update_query)
+    conn.commit()
+    LOG.info(f"""H3 index {table_name} : {cur.statusmessage} """)
+    if boundary:
+        # delete data outside boundary
+        with conn.cursor() as cur:
+            delete_query = f"""DELETE FROM 
+                {table_name} 
+                WHERE
+                    {h3_col} IS NULL
+                    AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))"""
+
+            if table_name == "ways_line" or table_name == "ways_poly":
+                delete_query = f"""WITH deleted_table_entries AS (
+                    DELETE FROM {table_name}
+                    {h3_col} IS NULL
+                    AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
+                    RETURNING osm_id
+                ), deleted_node_entries AS (
+                    DELETE FROM raw_osm_ways
+                    WHERE id IN (SELECT osm_id FROM deleted_table_entries)
+                    RETURNING nodes
+                )
+                DELETE FROM raw_osm_nodes
+                WHERE id IN (SELECT unnest(nodes) FROM deleted_node_entries);"""
+
+            if table_name == "nodes":
+                delete_query = f"""WITH deleted_table_entries AS (
+                    DELETE FROM {table_name}
+                    {h3_col} IS NULL
+                    AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
+                    RETURNING osm_id
+                )
+                DELETE FROM raw_osm_nodes
+                WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
+
+            if table_name == "relations":
+                delete_query = f"""WITH deleted_table_entries AS (
+                    DELETE FROM {table_name}
+                    {h3_col} IS NULL
+                    AND (NOT ST_Intersects(geom, {boundary}) OR (NOT ST_IsValid(geom)))
+                    RETURNING osm_id
+                )
+                DELETE FROM raw_osm_rels
+                WHERE id IN (SELECT osm_id FROM deleted_table_entries);"""
+            cur.execute(delete_query)
+            LOG.info(f"""Cleanup {table_name} : {cur.statusmessage} """)
 
         conn.commit()
 
@@ -700,8 +696,8 @@ def get_parser():
         "-p",
         "--prefix",
         metavar="PREFIX",
-        default="planet_osm",
-        help="Prefix for table names (default 'planet_osm')",
+        default="raw_osm",
+        help="Prefix for table names (default 'raw_osm')",
     )
     group.add_argument(
         "-s", "--style", metavar="STYLE", help="Raw Data Style Lua Script location"
@@ -771,9 +767,9 @@ def get_parser():
         help="Run updates only once, even when more data is available.",
     )
     cmd.add_argument(
-        "--skip_cupdate",
+        "--skip_h3update",
         action="store_true",
-        help="Skips country update during replication",
+        help="Skips h3 update during replication",
     )
     cmd.add_argument(
         "--post-processing",
@@ -784,12 +780,6 @@ def get_parser():
         "--boundary",
         type=str,
         help="Boundary geojson to filter on replication",
-    )
-    cmd.add_argument(
-        "--country",
-        nargs="+",
-        type=int,
-        help="Country id to filter on replication",
     )
     cmd.add_argument(
         "--flat_nodes",

@@ -3,3 +3,12 @@
 infra
 docs
 tests
+.env
+.env.*
+*.pyc
+__pycache__
+.pytest_cache
+*.log
+exports/
+.vscode
+.idea

@@ -48,6 +48,72 @@
 | | Improvements in data exports using h3 index research |
 | | Raw Data Backend Upgrade |
 
+## Quickstart
+
+Get up and running quickly:
+
+### Prerequisites
+- Python 3.10+
+- PostgreSQL with PostGIS extension
+- Redis
+- uv package manager
+
+### 1. Database Setup
+Ensure your PostgreSQL database is running with PostGIS extension:
+```bash
+psql -U admin -d raw
+CREATE EXTENSION IF NOT EXISTS postgis;
+```
+
+### 2. Configure Environment
+Create a `.env` file in the project root with your database credentials:
+```bash
+PGHOST=localhost
+PGUSER=admin
+PGPASSWORD=admin
+PGDATABASE=raw
+PGPORT=5432
+
+CELERY_BROKER_URL=redis://localhost:6379
+CELERY_RESULT_BACKEND=redis://localhost:6379
+RATE_LIMITER_STORAGE_URI=redis://localhost:6379
+```
+
+Note: The .env file is for local development. In production, set these as system environment variables which will take precedence.
+
+### 3. Install Dependencies
+```bash
+uv sync --group backend
+```
+
+### 4. Run Database Migrations
+Create the necessary database tables:
+```bash
+uv run alembic upgrade head
+```
+
+### 5. Import Sample OSM Data to Database
+The backend will automatically load credentials from your .env file:
+```bash
+uv run raw-backend --insert
+```
+
+This imports the sample OSM data from src/backend/sample_data/pokhara_all.osm.pbf
+
+### 6. Start the API
+```bash
+uv run uvicorn API.main:app --reload
+```
+
+The API will be available at http://localhost:8000
+
+### 7. Test the API
+```bash
+curl http://localhost:8000/
+
+curl http://localhost:8000/docs
+```
+
 ## Installation
 
 Raw Data API consists of two elements:

@@ -29,13 +29,29 @@ async def process_custom_requests(
     user: AuthUser = Depends(staff_required),
     params: DynamicCategoriesModel = Body(
         ...,
-        description="Input parameters including ISO3 country code and dynamic categories.",
+        description="Input parameters including geometry and dynamic categories.",
         openapi_examples={
-            "normal_iso": {
-                "summary": "Example: Road extraction using iso3",
+            "normal_geometry": {
+                "summary": "Example: Road extraction using geometry",
                 "description": "Query to extract road in Nepal",
                 "value": {
-                    "iso3": "NPL",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [80.0, 26.0],
+                                [88.0, 26.0],
+                                [88.0, 31.0],
+                                [80.0, 31.0],
+                                [80.0, 26.0],
+                            ]
+                        ],
+                    },
+                    "dataset": {
+                        "dataset_prefix": "hotosm_npl",
+                        "dataset_title": "Nepal",
+                        "dataset_locations": ["npl"],
+                    },
                     "categories": [
                         {
                             "Roads": {
@@ -52,11 +68,27 @@ async def process_custom_requests(
                     ],
                 },
             },
-            "normal_iso_non_upload": {
-                "summary": "Example: Road extraction using iso3 on raw data api only",
+            "normal_geometry_non_upload": {
+                "summary": "Example: Road extraction using geometry on raw data api only",
                 "description": "Query to extract road in Nepal, without uploading to hdx",
                 "value": {
-                    "iso3": "NPL",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [80.0, 26.0],
+                                [88.0, 26.0],
+                                [88.0, 31.0],
+                                [80.0, 31.0],
+                                [80.0, 26.0],
+                            ]
+                        ],
+                    },
+                    "dataset": {
+                        "dataset_prefix": "hotosm_npl",
+                        "dataset_title": "Nepal",
+                        "dataset_locations": ["npl"],
+                    },
                     "hdx_upload": False,
                     "categories": [
                         {
@@ -74,11 +106,27 @@ async def process_custom_requests(
                     ],
                 },
             },
-            "normal_iso_multiple_format": {
-                "summary": "Example: Road extraction using iso3 Multiple format",
+            "normal_geometry_multiple_format": {
+                "summary": "Example: Road extraction using geometry Multiple format",
                 "description": "Query to extract road in Nepal Multiple format",
                 "value": {
-                    "iso3": "NPL",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [80.0, 26.0],
+                                [88.0, 26.0],
+                                [88.0, 31.0],
+                                [80.0, 31.0],
+                                [80.0, 26.0],
+                            ]
+                        ],
+                    },
+                    "dataset": {
+                        "dataset_prefix": "hotosm_npl",
+                        "dataset_title": "Nepal",
+                        "dataset_locations": ["npl"],
+                    },
                     "categories": [
                         {
                             "Roads": {
@@ -227,9 +275,25 @@ async def process_custom_requests(
             },
             "fullset": {
                 "summary": "Full HDX Dataset default",
-                "description": "Full yaml conversion for dataset with iso3 example",
+                "description": "Full yaml conversion for dataset with geometry example",
                 "value": {
-                    "iso3": "MLI",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [-12.0, 10.0],
+                                [5.0, 10.0],
+                                [5.0, 25.0],
+                                [-12.0, 25.0],
+                                [-12.0, 10.0],
+                            ]
+                        ],
+                    },
+                    "dataset": {
+                        "dataset_prefix": "hotosm_mli",
+                        "dataset_title": "Mali",
+                        "dataset_locations": ["mli"],
+                    },
                     "hdx_upload": True,
                     "meta": True,
                     "categories": [
@@ -511,9 +575,25 @@ async def process_custom_requests(
             },
             "fullset_multiple_formats": {
                 "summary": "Full HDX Dataset default Multiple formats",
-                "description": "Full yaml conversion for dataset with iso3 example with multiple formats",
+                "description": "Full yaml conversion for dataset with geometry example with multiple formats",
                 "value": {
-                    "iso3": "NPL",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [80.0, 26.0],
+                                [88.0, 26.0],
+                                [88.0, 31.0],
+                                [80.0, 31.0],
+                                [80.0, 26.0],
+                            ]
+                        ],
+                    },
+                    "dataset": {
+                        "dataset_prefix": "hotosm_npl",
+                        "dataset_title": "Nepal",
+                        "dataset_locations": ["npl"],
+                    },
                     "hdx_upload": True,
                     "meta": True,
                     "categories": [
@@ -801,7 +881,7 @@ async def process_custom_requests(
 
     Args:
         request: FastAPI Request object.
-        params (DynamicCategoriesModel): Input parameters including ISO3 country code and dynamic categories.
+        params (DynamicCategoriesModel): Input parameters including geometry and dynamic categories.
 
     Returns:
         dict: Result message.
