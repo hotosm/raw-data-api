@@ -100,11 +100,11 @@ def get_query_as_geojson(query_list, ogr_export=None):
 def create_geom_filter(geom, geom_lookup_by="ST_intersects", use_h3_index=True):
     """generates geometry intersection filter with optional H3 pre-filtering"""
     geometry_dump = dumps(loads(geom.model_dump_json()))
-    
+
     if use_h3_index:
         h3_filter = f"""h3 = ANY(ARRAY(SELECT h3_polygon_to_cells(ST_GEOMFROMGEOJSON('{geometry_dump}'), 6))) AND """
         return f"""{h3_filter}{geom_lookup_by}(geom,(select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{geometry_dump}')))))"""
-    
+
     return f"""{geom_lookup_by}(geom,(select ST_Union(ST_makeValid(ST_GEOMFROMGEOJSON('{geometry_dump}')))))"""
 
 
@@ -247,7 +247,9 @@ def generate_tag_filter_query(filter, join_by=" OR ", plain_query_filter=False):
         return tag_filter
 
 
-def build_geometry_query(table, select_condition, geom_filter, tag_filter=None, extra_filter=None):
+def build_geometry_query(
+    table, select_condition, geom_filter, tag_filter=None, extra_filter=None
+):
     """Helper to build query for a geometry table with filters"""
     query = f"""select {select_condition} from {table} where {geom_filter}"""
     if tag_filter:
@@ -338,9 +340,18 @@ def extract_geometry_type_query(
                     create_schema=True,
                     include_user_metadata=include_user_metadata,
                 )
-            
-            attribute_filter = generate_tag_filter_query(point_tag_filter) if point_tag_filter else attribute_filter
-            query_point = build_geometry_query("nodes", select_condition, generate_where_clause(geom_filter), attribute_filter)
+
+            attribute_filter = (
+                generate_tag_filter_query(point_tag_filter)
+                if point_tag_filter
+                else attribute_filter
+            )
+            query_point = build_geometry_query(
+                "nodes",
+                select_condition,
+                generate_where_clause(geom_filter),
+                attribute_filter,
+            )
             point_schema = schema
             query_point = get_query_as_geojson([query_point], ogr_export=ogr_export)
 
@@ -353,14 +364,28 @@ def extract_geometry_type_query(
                     create_schema=True,
                     include_user_metadata=include_user_metadata,
                 )
-            
-            attribute_filter = generate_tag_filter_query(line_tag_filter) if line_tag_filter else attribute_filter
+
+            attribute_filter = (
+                generate_tag_filter_query(line_tag_filter)
+                if line_tag_filter
+                else attribute_filter
+            )
             where_clause = generate_where_clause(geom_filter)
-            
-            query_ways_line = build_geometry_query("ways_line", select_condition, where_clause, attribute_filter)
-            query_relations_line = build_geometry_query("relations", select_condition, where_clause, attribute_filter, "geometrytype(geom)='MULTILINESTRING'")
-            
-            query_line = get_query_as_geojson([query_ways_line, query_relations_line], ogr_export=ogr_export)
+
+            query_ways_line = build_geometry_query(
+                "ways_line", select_condition, where_clause, attribute_filter
+            )
+            query_relations_line = build_geometry_query(
+                "relations",
+                select_condition,
+                where_clause,
+                attribute_filter,
+                "geometrytype(geom)='MULTILINESTRING'",
+            )
+
+            query_line = get_query_as_geojson(
+                [query_ways_line, query_relations_line], ogr_export=ogr_export
+            )
             line_schema = schema
 
         if type == SupportedGeometryFilters.POLYGON.value:
@@ -372,14 +397,28 @@ def extract_geometry_type_query(
                     create_schema=True,
                     include_user_metadata=include_user_metadata,
                 )
-            
-            attribute_filter = generate_tag_filter_query(poly_tag_filter) if poly_tag_filter else attribute_filter
+
+            attribute_filter = (
+                generate_tag_filter_query(poly_tag_filter)
+                if poly_tag_filter
+                else attribute_filter
+            )
             where_clause = generate_where_clause(geom_filter)
-            
-            query_ways_poly = build_geometry_query("ways_poly", select_condition, where_clause, attribute_filter)
-            query_relations_poly = build_geometry_query("relations", select_condition, where_clause, attribute_filter, "geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON'")
-            
-            query_poly = get_query_as_geojson([query_ways_poly, query_relations_poly], ogr_export=ogr_export)
+
+            query_ways_poly = build_geometry_query(
+                "ways_poly", select_condition, where_clause, attribute_filter
+            )
+            query_relations_poly = build_geometry_query(
+                "relations",
+                select_condition,
+                where_clause,
+                attribute_filter,
+                "geometrytype(geom)='POLYGON' or geometrytype(geom)='MULTIPOLYGON'",
+            )
+
+            query_poly = get_query_as_geojson(
+                [query_ways_poly, query_relations_poly], ogr_export=ogr_export
+            )
             poly_schema = schema
     return query_point, query_line, query_poly, point_schema, line_schema, poly_schema
 
