@@ -37,9 +37,9 @@ def callback(request: Request):
     Returns:
     - access_token (string)
     """
-    access_token = osm_auth.callback(str(request.url))
+    callback_data = osm_auth.callback(str(request.url))
 
-    return access_token
+    return {"access_token": callback_data["user_data"]}
 
 
 @router.get("/me/", response_model=AuthUser)

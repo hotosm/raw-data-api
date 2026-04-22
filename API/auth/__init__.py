@@ -33,7 +33,7 @@ def get_user_from_db(osm_id: int):
 
 def get_osm_auth_user(access_token):
     try:
-        user = AuthUser(**osm_auth.deserialize_access_token(access_token))
+        user = AuthUser(**osm_auth.deserialize_data(access_token))
     except Exception as ex:
         raise HTTPException(
             status_code=403, detail=[{"msg": "OSM Authentication failed"}]

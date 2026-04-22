@@ -8,7 +8,7 @@ geojson==3.1.0
 
 ## Testing 
 pytest==7.4.3
-httpx==0.26.0 
+httpx==0.28.1
 
 ## Used for new relic monitoring
 newrelic==11.0.1
@@ -22,7 +22,7 @@ fastapi-versioning==0.10.0
 redis==5.0.3
 celery==5.3.6
 slowapi==0.1.8
-osm-login-python==1.0.2
+osm-login-python==2.1.4
 humanize==4.9.0
 python-slugify==8.0.1
 geomet==1.1.0
