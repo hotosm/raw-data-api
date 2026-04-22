@@ -1,3 +1,11 @@
+## v1.5.28 (2026-04-22)
+
+### Fix
+
+- **bump**: fastapi
+- **bump**: httpx version to inline with hdxpythonapi
+- **auth**: fix the login issue , upgrade underneath lib
+
 ## 1.5.27 (2025-11-05)
 
 ### Fix
