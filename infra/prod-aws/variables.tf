@@ -32,7 +32,8 @@ variable "default_tags" {
   type        = map(string)
 
   default = {
-    project        = "raw-data-services"
+    project        = "map-data-access"
+    tool           = "raw-data-services"
     maintainer     = "kshitij.sharma@hotosm.org"
     documentation  = "https://docs.hotosm.org"
     cost_center    = "raw-data-services"
