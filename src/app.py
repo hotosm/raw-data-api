@@ -682,7 +682,7 @@ class RawData:
         """
         geometry_dump = dumps(dict(geom))
         # generating geometry area in sqkm
-        geom_area = area(json_loads(geom.json())) * 1e-6
+        geom_area = area(json_loads(geom.model_dump_json())) * 1e-6
         country_export = False
         g_id = None
         countries = []
@@ -1434,7 +1434,9 @@ class CustomExport:
         readme_content += DEFAULT_README_TEXT
         zf.writestr("Readme.txt", readme_content)
         if self.params.geometry:
-            zf.writestr("clipping_boundary.geojson", self.params.geometry.json())
+            zf.writestr(
+                "clipping_boundary.geojson", self.params.geometry.model_dump_json()
+            )
         zf.close()
         shutil.rmtree(working_dir)
         return zip_path

@@ -935,7 +935,7 @@ def postgres2duckdb_query(
     row_filter_condition = (
         f"""(country @> ARRAY [{cid}])"""
         if cid
-        else f"""ST_Intersects(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326))),4326)))"""
+        else f"""ST_Intersects(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.model_dump_json()),decimals=6)}',4326))),4326)))"""
     )
 
     postgres_query = f"""select {select_query} from (select * , tableoid::regclass as osm_type from {table} where {row_filter_condition}) as sub_query"""
@@ -1012,7 +1012,7 @@ def extract_features_custom_exports(
         where_query = map_tables[feature_type]["where"][table]
         if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
             if geometry:
-                where_query += f" and (ST_Intersects(geom,ST_GeomFromGeoJSON('{geometry.json()}')))"
+                where_query += f" and (ST_Intersects(geom,ST_GeomFromGeoJSON('{geometry.model_dump_json()}')))"
             query = f"""select {select_query} from {f"{base_table_name}_{table}"} where {where_query}"""
         else:
             query = extract_custom_features_from_postgres(
