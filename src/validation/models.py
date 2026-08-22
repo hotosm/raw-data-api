@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Union
 # Third party imports
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from pydantic import BaseModel as PydanticModel
-from pydantic import Field, validator
+from pydantic import Field, field_validator, validator
 
 # Reader imports
 from src.config import (
@@ -120,7 +120,8 @@ class Filters(BaseModel):
 
 
 class GeometryValidatorMixin:
-    @validator("geometry")
+    @field_validator("geometry")
+    @classmethod
     def validate_geometry(cls, value):
         """Validates geometry"""
         if value:
