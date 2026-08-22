@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Union
 # Third party imports
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from pydantic import BaseModel as PydanticModel
-from pydantic import Field, validator
+from pydantic import ConfigDict, Field, validator
 
 # Reader imports
 from src.config import (
@@ -256,13 +256,14 @@ class SnapshotResponse(BaseModel):
     task_id: str
     track_link: str
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
                 "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
             }
         }
+    )
 
 
 class SnapshotTaskResult(BaseModel):
@@ -279,8 +280,8 @@ class SnapshotTaskResponse(BaseModel):
     status: str
     result: SnapshotTaskResult
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
                 "status": "SUCCESS",
@@ -294,13 +295,15 @@ class SnapshotTaskResponse(BaseModel):
                 },
             }
         }
+    )
 
 
 class StatusResponse(BaseModel):
     last_updated: str
 
-    class Config:
-        json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+    )
 
 
 class StatsRequestParams(BaseModel, GeometryValidatorMixin):
