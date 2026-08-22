@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Union
 # Third party imports
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from pydantic import BaseModel as PydanticModel
-from pydantic import Field, validator
+from pydantic import ConfigDict, Field, validator
 
 # Reader imports
 from src.config import (
@@ -46,11 +46,12 @@ def to_camel(string: str) -> str:
 
 
 class BaseModel(PydanticModel):
-    class Config:
-        alias_generator = to_camel
-        populate_by_name = True
-        use_enum_values = True
-        # extra = "forbid"
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        use_enum_values=True,
+        # extra="forbid"
+    )
 
 
 class RawDataOutputType(Enum):
