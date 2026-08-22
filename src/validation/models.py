@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Union
 # Third party imports
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from pydantic import BaseModel as PydanticModel
-from pydantic import Field, validator
+from pydantic import Field, field_validator, validator
 
 # Reader imports
 from src.config import (
@@ -203,7 +203,8 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
         },
     )
 
-    @validator("geometry_type", allow_reuse=True)
+    @field_validator("geometry_type")
+    @classmethod
     def return_unique_value(cls, value):
         """return unique list"""
         if value:
@@ -368,7 +369,8 @@ class HDXModel(BaseModel):
         example="Sample notes to append",
     )
 
-    @validator("tags")
+    @field_validator("tags")
+    @classmethod
     def validate_tags(cls, value):
         """Validates tags if they are allowed from hdx allowed approved tags
 
@@ -427,7 +429,8 @@ class CategoryModel(BaseModel):
         example=["gpkg", "geojson"],
     )
 
-    @validator("types")
+    @field_validator("types")
+    @classmethod
     def validate_types(cls, value):
         """validates geom types
 
@@ -448,7 +451,8 @@ class CategoryModel(BaseModel):
                 )
         return value
 
-    @validator("formats")
+    @field_validator("formats")
+    @classmethod
     def validate_export_types(cls, value):
         """Validates export types if they are supported
 
@@ -554,7 +558,8 @@ class DatasetConfig(BaseModel):
         example="[{'url': 'https://something.org/datasetviz.html'}]",
     )
 
-    @validator("update_frequency")
+    @field_validator("update_frequency")
+    @classmethod
     def validate_frequency(cls, value):
         """Validates frequency
 
