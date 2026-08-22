@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Union
 # Third party imports
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from pydantic import BaseModel as PydanticModel
-from pydantic import Field, validator
+from pydantic import Field, field_validator, validator
 
 # Reader imports
 from src.config import (
@@ -232,11 +232,12 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
     if ALLOW_BIND_ZIP_FILTER:
         bind_zip: Optional[bool] = True
 
-        @validator("bind_zip", allow_reuse=True)
-        def check_bind_option(cls, value, values):
+        @field_validator("bind_zip")
+        @classmethod
+        def check_bind_option(cls, value, info):
             """Checks if cloud optimized output format or geoJSON is selected along with bind to zip file"""
             if value is False:
-                if values.get("output_type") not in (
+                if info.data.get("output_type") not in (
                     (
                         [
                             RawDataOutputType.GEOJSON.value,
@@ -315,6 +316,7 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         Union[Polygon, MultiPolygon, Feature, FeatureCollection]
     ] = Field(
         default=None,
+        validate_default=True,
         example={
             "type": "Polygon",
             "coordinates": [
@@ -329,12 +331,13 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         },
     )
 
-    @validator("geometry", pre=True, always=True)
-    def set_geometry_or_iso3(cls, value, values):
+    @field_validator("geometry", mode="before")
+    @classmethod
+    def set_geometry_or_iso3(cls, value, info):
         """Either geometry or iso3 should be supplied."""
-        if value is not None and values.get("iso3") is not None:
+        if value is not None and info.data.get("iso3") is not None:
             raise ValueError("Only one of geometry or iso3 should be supplied.")
-        if value is None and values.get("iso3") is None:
+        if value is None and info.data.get("iso3") is None:
             raise ValueError("Either geometry or iso3 should be supplied.")
         return value
 
@@ -656,6 +659,7 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         Union[Polygon, MultiPolygon, Feature, FeatureCollection]
     ] = Field(
         default=None,
+        validate_default=True,
         example={
             "type": "Polygon",
             "coordinates": [
@@ -670,24 +674,25 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         },
     )
 
-    @validator("geometry", pre=True, always=True)
-    def set_geometry_or_iso3(cls, value, values):
+    @field_validator("geometry", mode="before")
+    @classmethod
+    def set_geometry_or_iso3(cls, value, info):
         """Either geometry or iso3 should be supplied."""
-        if value is not None and values.get("iso3") is not None:
+        if value is not None and info.data.get("iso3") is not None:
             raise ValueError("Only one of geometry or iso3 should be supplied.")
-        if value is None and values.get("iso3") is None:
+        if value is None and info.data.get("iso3") is None:
             raise ValueError("Either geometry or iso3 should be supplied.")
         if value is not None:
-            dataset = values.get("dataset")
-            if values.get("hdx_upload"):
-                for category in values.get("categories"):
+            dataset = info.data.get("dataset")
+            if info.data.get("hdx_upload"):
+                for category in info.data.get("categories"):
                     category_name, category_data = list(category.items())[0]
                     if category_data.hdx is None:
                         raise ValueError(f"HDX is missing for category {category}")
 
-            if dataset is None and values.get("hdx_upload"):
+            if dataset is None and info.data.get("hdx_upload"):
                 raise ValueError("Dataset config should be supplied for custom polygon")
-            if values.get("hdx_upload"):
+            if info.data.get("hdx_upload"):
                 for item in dataset:
                     if item is None:
                         raise ValueError(f"Missing, Dataset config : {item}")
