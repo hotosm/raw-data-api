@@ -25,6 +25,8 @@ from typing import Dict, List, Optional, Union
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
+from shapely.geometry import mapping, shape
+from shapely.ops import unary_union
 
 # Reader imports
 from src.config import (
@@ -136,11 +138,20 @@ class GeometryValidatorMixin:
                         raise ValueError(
                             f"Feature Collection can't have {feature.type} , should be polygon/multipolygon"
                         )
-                if len(value.features) > 1:
-                    raise ValueError(
-                        "Feature collection with multiple features is not supported yet"
-                    )
-                return value.features[0].geometry
+                if len(value.features) == 1:
+                    return value.features[0].geometry
+                # Multiple Polygon/MultiPolygon features: merge into a single
+                # Polygon via their convex hull, so callers don't have to
+                # pre-extract/merge geometries themselves. Note this can
+                # enclose a larger area than the union of the input features
+                # (e.g. features far apart from each other), it's a
+                # deliberate simplification rather than exact per-feature
+                # extract generation.
+                shapes = [
+                    shape(feature.geometry.model_dump()) for feature in value.features
+                ]
+                merged_hull = unary_union(shapes).convex_hull
+                return Polygon(**mapping(merged_hull))
         return value
 
 
