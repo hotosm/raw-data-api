@@ -17,6 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains validation models for application"""
+
 # Standard library imports
 from enum import Enum
 from typing import Dict, List, Optional, Union
@@ -118,11 +119,7 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
                     RawDataOutputType.GEOJSON.value,
                     RawDataOutputType.FLATGEOBUF.value,
                     RawDataOutputType.GEOPARQUET.value,
-                    *(
-                        [RawDataOutputType.PMTILES.value]
-                        if ENABLE_TILES
-                        else []
-                    ),
+                    *([RawDataOutputType.PMTILES.value] if ENABLE_TILES else []),
                 ]:
                     raise ValueError(
                         "Only Cloud Optimized format and GeoJSON is supported for streaming"
@@ -192,26 +189,33 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         max_length=3,
         example="NPL",
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @model_validator(mode="after")
     def validate_geometry_or_iso3_required(self):
+        """Ensure exactly one of geometry or iso3 is supplied, not both or neither.
+
+        Raises
+        ------
+        ValueError
+            If both geometry and iso3 are supplied, or if neither is supplied.
+        """
         _validate_geometry_or_iso3(self.geometry, self.iso3)
         return self
 
@@ -496,22 +500,22 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         default=False,
         description="Add transliterations. Available for GeoJSON exports only.",
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @field_validator("geometry")
@@ -536,6 +540,13 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
 
     @model_validator(mode="after")
     def validate_geometry_or_iso3_required(self):
+        """Ensure exactly one of geometry or iso3 is supplied, not both or neither.
+
+        Raises
+        ------
+        ValueError
+            If both geometry and iso3 are supplied, or if neither is supplied.
+        """
         _validate_geometry_or_iso3(self.geometry, self.iso3)
         return self
 
