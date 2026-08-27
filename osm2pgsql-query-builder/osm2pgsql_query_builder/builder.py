@@ -236,9 +236,7 @@ def parse_filters(filters):
     )
 
 
-def build_where_clause(
-    geom_filter, g_id, c_id, country_export, table_name="ways_poly"
-):
+def build_where_clause(geom_filter, g_id, c_id, country_export, table_name="ways_poly"):
     """Build a WHERE clause with optional grid/country index filters."""
     where_clause = geom_filter
     if g_id:

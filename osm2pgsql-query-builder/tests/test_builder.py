@@ -30,7 +30,6 @@ from osm2pgsql_query_builder.models import (
     TagsFilter,
 )
 
-
 # Use SnapshotQueryParams directly as the test params model
 QueryParams = SnapshotQueryParams
 
