@@ -1,0 +1,21 @@
+[project]
+name = "osm2pgsql-query-builder"
+version = "0.1.0"
+description = "SQL query builder for osm2pgsql-format PostgreSQL databases"
+license = "GPL-3.0-only"
+requires-python = ">=3.10"
+dependencies = [
+    "geojson-pydantic>=1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.3",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
