@@ -1,3 +1,11 @@
+from .postpass_module import (
+    POSTPASS_TABLE_MAP,
+    BboxFilter,
+    PostPassQueryParams,
+    build_postpass_bbox_filter,
+    build_postpass_query,
+    wrap_postpass_geojson,
+)
 from .builder import (
     build_column_select,
     build_geom_filter,
@@ -53,4 +61,10 @@ __all__ = [
     "SnapshotQueryParams",
     "TagsFilter",
     "to_camel",
+    "POSTPASS_TABLE_MAP",
+    "BboxFilter",
+    "PostPassQueryParams",
+    "build_postpass_bbox_filter",
+    "build_postpass_query",
+    "wrap_postpass_geojson",
 ]
