@@ -48,7 +48,7 @@ def get_stats(
     folders: Optional[str] = Query(
         None,
         description="Comma-separated folder name(s) to filter metrics by",
-        example="ISO3,HDX",
+        examples=["ISO3,HDX"],
     ),
     include_locations: bool = Query(
         False,
@@ -111,7 +111,7 @@ def get_meta_downloads(
     key_prefixes: Optional[str] = Query(
         None,
         description="Comma-separated key prefixes to filter meta_downloads by",
-        example="ISO3/IRN/,ISO3/NPL/",
+        examples=["ISO3/IRN/,ISO3/NPL/"],
     ),
     limit: int = Query(
         100,

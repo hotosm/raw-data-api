@@ -231,7 +231,7 @@ def process_raw_data(self, params, user=None):
         ).extract_current_data(file_parts)
         inside_file_size = 0
         polygon_stats = None
-        if "include_stats" in params.dict():
+        if "include_stats" in params.model_dump():
             if params.include_stats:
                 feature = {
                     "type": "Feature",

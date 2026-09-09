@@ -17,6 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains validation models for application"""
+
 # Standard library imports
 from enum import Enum
 from typing import Dict, List, Optional, Union
@@ -24,7 +25,13 @@ from typing import Dict, List, Optional, Union
 # Third party imports
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from pydantic import BaseModel as PydanticModel
-from pydantic import Field, validator
+from pydantic import (
+    ConfigDict,
+    Field,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 # Reader imports
 from src.config import (
@@ -46,11 +53,12 @@ def to_camel(string: str) -> str:
 
 
 class BaseModel(PydanticModel):
-    class Config:
-        alias_generator = to_camel
-        populate_by_name = True
-        use_enum_values = True
-        # extra = "forbid"
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        use_enum_values=True,
+        # extra="forbid",
+    )
 
 
 class RawDataOutputType(Enum):
@@ -120,7 +128,8 @@ class Filters(BaseModel):
 
 
 class GeometryValidatorMixin:
-    @validator("geometry")
+    @field_validator("geometry")
+    @classmethod
     def validate_geometry(cls, value):
         """Validates geometry"""
         if value:
@@ -146,10 +155,10 @@ class GeometryValidatorMixin:
 
 class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
     output_type: Optional[RawDataOutputType] = Field(
-        default=RawDataOutputType.GEOJSON.value, example="geojson"
+        default=RawDataOutputType.GEOJSON.value, examples=["geojson"]
     )
     geometry_type: Optional[List[SupportedGeometryFilters]] = Field(
-        default=None, example=["point", "polygon"]
+        default=None, examples=[["point", "polygon"]]
     )
     centroid: Optional[bool] = Field(
         default=False, description="Exports centroid of features as geom"
@@ -169,10 +178,12 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
         )
     filters: Optional[Filters] = Field(
         default=None,
-        example={
-            "tags": {"all_geometry": {"join_or": {"building": []}}},
-            "attributes": {"all_geometry": ["name"]},
-        },
+        examples=[
+            {
+                "tags": {"all_geometry": {"join_or": {"building": []}}},
+                "attributes": {"all_geometry": ["name"]},
+            }
+        ],
         description="Filter for point,line,polygon/ all geometry for both select and where clause, All geometry filter means : It will apply the same filter to all the geometry type",
     )
     include_stats_html: Optional[bool] = Field(
@@ -189,21 +200,24 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
         Feature,
         FeatureCollection,
     ] = Field(
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+        examples=[
+            {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            }
+        ],
     )
 
-    @validator("geometry_type", allow_reuse=True)
+    @field_validator("geometry_type")
+    @classmethod
     def return_unique_value(cls, value):
         """return unique list"""
         if value:
@@ -219,7 +233,7 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
         max_zoom: Optional[int] = Field(
             default=None, description="Only for mbtiles"
         )  # only for if mbtiles is output
-    file_name: Optional[str] = Field(default=None, example="My test export")
+    file_name: Optional[str] = Field(default=None, examples=["My test export"])
     uuid: Optional[bool] = Field(
         default=True,
         description="Attaches uid to exports by default , Only disable this if it is recurring export",
@@ -232,11 +246,12 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
     if ALLOW_BIND_ZIP_FILTER:
         bind_zip: Optional[bool] = True
 
-        @validator("bind_zip", allow_reuse=True)
-        def check_bind_option(cls, value, values):
+        @field_validator("bind_zip")
+        @classmethod
+        def check_bind_option(cls, value, info: ValidationInfo):
             """Checks if cloud optimized output format or geoJSON is selected along with bind to zip file"""
             if value is False:
-                if values.get("output_type") not in (
+                if info.data.get("output_type") not in (
                     (
                         [
                             RawDataOutputType.GEOJSON.value,
@@ -256,13 +271,14 @@ class SnapshotResponse(BaseModel):
     task_id: str
     track_link: str
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
                 "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
             }
         }
+    )
 
 
 class SnapshotTaskResult(BaseModel):
@@ -279,8 +295,8 @@ class SnapshotTaskResponse(BaseModel):
     status: str
     result: SnapshotTaskResult
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
                 "status": "SUCCESS",
@@ -294,13 +310,15 @@ class SnapshotTaskResponse(BaseModel):
                 },
             }
         }
+    )
 
 
 class StatusResponse(BaseModel):
     last_updated: str
 
-    class Config:
-        json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+    )
 
 
 class StatsRequestParams(BaseModel, GeometryValidatorMixin):
@@ -309,34 +327,36 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         description="ISO3 Country Code.",
         min_length=3,
         max_length=3,
-        example="NPL",
+        examples=["NPL"],
     )
     geometry: Optional[
         Union[Polygon, MultiPolygon, Feature, FeatureCollection]
     ] = Field(
         default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+        examples=[
+            {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            }
+        ],
     )
 
-    @validator("geometry", pre=True, always=True)
-    def set_geometry_or_iso3(cls, value, values):
+    @model_validator(mode="after")
+    def set_geometry_or_iso3(self):
         """Either geometry or iso3 should be supplied."""
-        if value is not None and values.get("iso3") is not None:
+        if self.geometry is not None and self.iso3 is not None:
             raise ValueError("Only one of geometry or iso3 should be supplied.")
-        if value is None and values.get("iso3") is None:
+        if self.geometry is None and self.iso3 is None:
             raise ValueError("Either geometry or iso3 should be supplied.")
-        return value
+        return self
 
 
 ### HDX BLock
@@ -355,20 +375,23 @@ class HDXModel(BaseModel):
     tags: List[str] = Field(
         default=["geodata"],
         description="List of tags for the HDX model.",
-        example=["roads", "transportation", "geodata"],
+        examples=[["roads", "transportation", "geodata"]],
     )
     caveats: str = Field(
         default="OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
         description="Caveats/Warning for the Datasets.",
-        example="OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+        examples=[
+            "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive"
+        ],
     )
     notes: str = Field(
         default="",
         description="Extra notes to append in notes section of hdx datasets",
-        example="Sample notes to append",
+        examples=["Sample notes to append"],
     )
 
-    @validator("tags")
+    @field_validator("tags")
+    @classmethod
     def validate_tags(cls, value):
         """Validates tags if they are allowed from hdx allowed approved tags
 
@@ -409,25 +432,26 @@ class CategoryModel(BaseModel):
     types: List[str] = Field(
         ...,
         description="List of feature types (points, lines, polygons).",
-        example=["lines"],
+        examples=[["lines"]],
     )
     select: List[str] = Field(
         ...,
         description="List of selected fields.",
-        example=["name", "highway"],
+        examples=[["name", "highway"]],
     )
     where: str = Field(
         ...,
         description="SQL-like condition to filter features.",
-        example="highway IS NOT NULL",
+        examples=["highway IS NOT NULL"],
     )
     formats: List[str] = Field(
         ...,
         description="List of Export Formats (suffixes).",
-        example=["gpkg", "geojson"],
+        examples=[["gpkg", "geojson"]],
     )
 
-    @validator("types")
+    @field_validator("types")
+    @classmethod
     def validate_types(cls, value):
         """validates geom types
 
@@ -448,7 +472,8 @@ class CategoryModel(BaseModel):
                 )
         return value
 
-    @validator("formats")
+    @field_validator("formats")
+    @classmethod
     def validate_export_types(cls, value):
         """Validates export types if they are supported
 
@@ -516,45 +541,46 @@ class DatasetConfig(BaseModel):
     private: bool = Field(
         default=False,
         description="Make dataset private , By default False , Public is recommended",
-        example="False",
+        examples=["False"],
     )
     subnational: bool = Field(
         default=False,
         description="Make it true if dataset doesn't cover nation/country",
-        example="False",
+        examples=["False"],
     )
     update_frequency: str = Field(
         default="as needed",
         description="Update frequncy to be added on uploads",
-        example="daily",
+        examples=["daily"],
     )
     dataset_title: str = Field(
         default=None,
         description="Dataset title which appears at top of the page",
-        example="Nepal",
+        examples=["Nepal"],
     )
     dataset_prefix: str = Field(
         default=None,
         description="Dataset prefix to be appended before category name, Will be ignored if iso3 is supplied",
-        example="hotosm_npl",
+        examples=["hotosm_npl"],
     )
     dataset_locations: List[str] | None = Field(
         default=None,
         description="Valid dataset locations iso3",
-        example="['npl']",
+        examples=["['npl']"],
     )
     dataset_folder: str = Field(
         default="ISO3",
         description="Default base folder for the exports",
-        example="ISO3",
+        examples=["ISO3"],
     )
     customviz: Optional[List[dict[str, str]]] | None = Field(
         default=[],
         description="List of objects for custom visualization",
-        example="[{'url': 'https://something.org/datasetviz.html'}]",
+        examples=["[{'url': 'https://something.org/datasetviz.html'}]"],
     )
 
-    @validator("update_frequency")
+    @field_validator("update_frequency")
+    @classmethod
     def validate_frequency(cls, value):
         """Validates frequency
 
@@ -583,11 +609,13 @@ class CategoriesBase(BaseModel):
     dataset: Optional[DatasetConfig] = Field(
         default=None,
         description="Dataset Configurations for HDX Upload",
-        example={
-            "dataset_prefix": "hotosm_project_1",
-            "dataset_folder": "TM",
-            "dataset_title": "Tasking Manger Project 1",
-        },
+        examples=[
+            {
+                "dataset_prefix": "hotosm_project_1",
+                "dataset_folder": "TM",
+                "dataset_title": "Tasking Manger Project 1",
+            }
+        ],
     )
     queue: Optional[str] = Field(
         default="raw_ondemand",
@@ -600,19 +628,21 @@ class CategoriesBase(BaseModel):
     categories: List[Dict[str, CategoryModel]] = Field(
         ...,
         description="List of dynamic categories.",
-        example=[
-            {
-                "Roads": {
-                    "hdx": {
-                        "tags": ["roads", "transportation", "geodata"],
-                        "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
-                    },
-                    "types": ["lines", "polygons"],
-                    "select": ["name", "highway"],
-                    "where": "tags['highway'] IS NOT NULL",
-                    "formats": ["geojson"],
+        examples=[
+            [
+                {
+                    "Roads": {
+                        "hdx": {
+                            "tags": ["roads", "transportation", "geodata"],
+                            "caveats": "OpenStreetMap data is crowd sourced and cannot be considered to be exhaustive",
+                        },
+                        "types": ["lines", "polygons"],
+                        "select": ["name", "highway"],
+                        "where": "tags['highway'] IS NOT NULL",
+                        "formats": ["geojson"],
+                    }
                 }
-            }
+            ]
         ],
     )
 
@@ -638,7 +668,7 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         description="ISO3 Country Code",
         min_length=3,
         max_length=3,
-        example="USA",
+        examples=["USA"],
     )
     include_stats: Optional[bool] = Field(
         default=False,
@@ -656,57 +686,55 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         Union[Polygon, MultiPolygon, Feature, FeatureCollection]
     ] = Field(
         default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+        examples=[
+            {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            }
+        ],
     )
 
-    @validator("geometry", pre=True, always=True)
-    def set_geometry_or_iso3(cls, value, values):
+    @model_validator(mode="after")
+    def set_geometry_or_iso3(self):
         """Either geometry or iso3 should be supplied."""
-        if value is not None and values.get("iso3") is not None:
+        if self.geometry is not None and self.iso3 is not None:
             raise ValueError("Only one of geometry or iso3 should be supplied.")
-        if value is None and values.get("iso3") is None:
+        if self.geometry is None and self.iso3 is None:
             raise ValueError("Either geometry or iso3 should be supplied.")
-        if value is not None:
-            dataset = values.get("dataset")
-            if values.get("hdx_upload"):
-                for category in values.get("categories"):
-                    category_name, category_data = list(category.items())[0]
-                    if category_data.hdx is None:
-                        raise ValueError(f"HDX is missing for category {category}")
+        if self.geometry is not None and self.hdx_upload:
+            for category in self.categories:
+                category_name, category_data = list(category.items())[0]
+                if category_data.hdx is None:
+                    raise ValueError(f"HDX is missing for category {category}")
 
-            if dataset is None and values.get("hdx_upload"):
+            if self.dataset is None:
                 raise ValueError("Dataset config should be supplied for custom polygon")
-            if values.get("hdx_upload"):
-                for item in dataset:
-                    if item is None:
-                        raise ValueError(f"Missing, Dataset config : {item}")
-        return value
+        return self
 
 
 class CustomRequestsYaml(CategoriesBase):
     geometry: Union[Polygon, MultiPolygon, Feature, FeatureCollection] = Field(
         default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+        examples=[
+            {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            }
+        ],
     )
