@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Union
 # Third party imports
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from pydantic import BaseModel as PydanticModel
-from pydantic import Field, validator
+from pydantic import ConfigDict, Field, field_validator
 
 # Reader imports
 from src.config import (
@@ -46,11 +46,12 @@ def to_camel(string: str) -> str:
 
 
 class BaseModel(PydanticModel):
-    class Config:
-        alias_generator = to_camel
-        populate_by_name = True
-        use_enum_values = True
-        # extra = "forbid"
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        use_enum_values=True,
+        # extra="forbid"
+    )
 
 
 class RawDataOutputType(Enum):
@@ -120,7 +121,8 @@ class Filters(BaseModel):
 
 
 class GeometryValidatorMixin:
-    @validator("geometry")
+    @field_validator("geometry")
+    @classmethod
     def validate_geometry(cls, value):
         """Validates geometry"""
         if value:
@@ -203,7 +205,8 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
         },
     )
 
-    @validator("geometry_type", allow_reuse=True)
+    @field_validator("geometry_type")
+    @classmethod
     def return_unique_value(cls, value):
         """return unique list"""
         if value:
@@ -232,11 +235,12 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
     if ALLOW_BIND_ZIP_FILTER:
         bind_zip: Optional[bool] = True
 
-        @validator("bind_zip", allow_reuse=True)
-        def check_bind_option(cls, value, values):
+        @field_validator("bind_zip")
+        @classmethod
+        def check_bind_option(cls, value, info):
             """Checks if cloud optimized output format or geoJSON is selected along with bind to zip file"""
             if value is False:
-                if values.get("output_type") not in (
+                if info.data.get("output_type") not in (
                     (
                         [
                             RawDataOutputType.GEOJSON.value,
@@ -256,13 +260,14 @@ class SnapshotResponse(BaseModel):
     task_id: str
     track_link: str
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
                 "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
             }
         }
+    )
 
 
 class SnapshotTaskResult(BaseModel):
@@ -279,8 +284,8 @@ class SnapshotTaskResponse(BaseModel):
     status: str
     result: SnapshotTaskResult
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
                 "status": "SUCCESS",
@@ -294,13 +299,15 @@ class SnapshotTaskResponse(BaseModel):
                 },
             }
         }
+    )
 
 
 class StatusResponse(BaseModel):
     last_updated: str
 
-    class Config:
-        json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
+    )
 
 
 class StatsRequestParams(BaseModel, GeometryValidatorMixin):
@@ -315,6 +322,7 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         Union[Polygon, MultiPolygon, Feature, FeatureCollection]
     ] = Field(
         default=None,
+        validate_default=True,
         example={
             "type": "Polygon",
             "coordinates": [
@@ -329,12 +337,13 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         },
     )
 
-    @validator("geometry", pre=True, always=True)
-    def set_geometry_or_iso3(cls, value, values):
+    @field_validator("geometry", mode="before")
+    @classmethod
+    def set_geometry_or_iso3(cls, value, info):
         """Either geometry or iso3 should be supplied."""
-        if value is not None and values.get("iso3") is not None:
+        if value is not None and info.data.get("iso3") is not None:
             raise ValueError("Only one of geometry or iso3 should be supplied.")
-        if value is None and values.get("iso3") is None:
+        if value is None and info.data.get("iso3") is None:
             raise ValueError("Either geometry or iso3 should be supplied.")
         return value
 
@@ -368,7 +377,8 @@ class HDXModel(BaseModel):
         example="Sample notes to append",
     )
 
-    @validator("tags")
+    @field_validator("tags")
+    @classmethod
     def validate_tags(cls, value):
         """Validates tags if they are allowed from hdx allowed approved tags
 
@@ -427,7 +437,8 @@ class CategoryModel(BaseModel):
         example=["gpkg", "geojson"],
     )
 
-    @validator("types")
+    @field_validator("types")
+    @classmethod
     def validate_types(cls, value):
         """validates geom types
 
@@ -448,7 +459,8 @@ class CategoryModel(BaseModel):
                 )
         return value
 
-    @validator("formats")
+    @field_validator("formats")
+    @classmethod
     def validate_export_types(cls, value):
         """Validates export types if they are supported
 
@@ -554,7 +566,8 @@ class DatasetConfig(BaseModel):
         example="[{'url': 'https://something.org/datasetviz.html'}]",
     )
 
-    @validator("update_frequency")
+    @field_validator("update_frequency")
+    @classmethod
     def validate_frequency(cls, value):
         """Validates frequency
 
@@ -656,6 +669,7 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         Union[Polygon, MultiPolygon, Feature, FeatureCollection]
     ] = Field(
         default=None,
+        validate_default=True,
         example={
             "type": "Polygon",
             "coordinates": [
@@ -670,24 +684,25 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
         },
     )
 
-    @validator("geometry", pre=True, always=True)
-    def set_geometry_or_iso3(cls, value, values):
+    @field_validator("geometry", mode="before")
+    @classmethod
+    def set_geometry_or_iso3(cls, value, info):
         """Either geometry or iso3 should be supplied."""
-        if value is not None and values.get("iso3") is not None:
+        if value is not None and info.data.get("iso3") is not None:
             raise ValueError("Only one of geometry or iso3 should be supplied.")
-        if value is None and values.get("iso3") is None:
+        if value is None and info.data.get("iso3") is None:
             raise ValueError("Either geometry or iso3 should be supplied.")
         if value is not None:
-            dataset = values.get("dataset")
-            if values.get("hdx_upload"):
-                for category in values.get("categories"):
+            dataset = info.data.get("dataset")
+            if info.data.get("hdx_upload"):
+                for category in info.data.get("categories"):
                     category_name, category_data = list(category.items())[0]
                     if category_data.hdx is None:
                         raise ValueError(f"HDX is missing for category {category}")
 
-            if dataset is None and values.get("hdx_upload"):
+            if dataset is None and info.data.get("hdx_upload"):
                 raise ValueError("Dataset config should be supplied for custom polygon")
-            if values.get("hdx_upload"):
+            if info.data.get("hdx_upload"):
                 for item in dataset:
                     if item is None:
                         raise ValueError(f"Missing, Dataset config : {item}")
