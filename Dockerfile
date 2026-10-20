@@ -22,11 +22,13 @@ RUN /home/appuser/venv/bin/pip install --no-cache-dir -r requirements.lock
 
 
 # Copy application files
+COPY osm2pgsql-query-builder/ /home/appuser/osm2pgsql-query-builder/
 COPY README.md setup.py pyproject.toml /home/appuser/
 COPY API/ /home/appuser/API/
 COPY src/ /home/appuser/src/
 
-RUN /home/appuser/venv/bin/pip install --no-cache-dir .
+RUN /home/appuser/venv/bin/pip install --no-cache-dir ./osm2pgsql-query-builder && \
+    /home/appuser/venv/bin/pip install --no-cache-dir .
 
 # Final image
 FROM ghcr.io/osgeo/gdal:ubuntu-small-$GDAL_VERSION
