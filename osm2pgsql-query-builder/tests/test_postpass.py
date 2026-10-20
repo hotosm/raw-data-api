@@ -200,9 +200,7 @@ def test_query_with_all_geometry_filter():
         bbox=NAIROBI_BBOX,
         geometry_type=["point"],
         filters={
-            "tags": {
-                "all_geometry": {"join_or": {"amenity": ["school", "hospital"]}}
-            }
+            "tags": {"all_geometry": {"join_or": {"amenity": ["school", "hospital"]}}}
         },
     )
     sql = build_postpass_query(params)
@@ -215,9 +213,7 @@ def test_query_single_value_tag():
     params = PostPassQueryParams(
         bbox=NAIROBI_BBOX,
         geometry_type=["line"],
-        filters={
-            "tags": {"all_geometry": {"join_or": {"highway": ["primary"]}}}
-        },
+        filters={"tags": {"all_geometry": {"join_or": {"highway": ["primary"]}}}},
     )
     sql = build_postpass_query(params)
     assert "highway" in sql
@@ -303,6 +299,7 @@ def test_top_level_import():
         PostPassQueryParams,
         build_postpass_query,
     )
+
     assert BboxFilter is not None
     assert PostPassQueryParams is not None
     assert callable(build_postpass_query)

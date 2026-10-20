@@ -233,9 +233,7 @@ def postgres2duckdb_query(
 
     postgres_query = f"""select {select_query} from (select * , tableoid::regclass as osm_type from {table} where {row_filter_condition}) as sub_query"""
     if single_category_where:
-        postgres_query += (
-            f" where {convert_tags_to_postgres(single_category_where)}"
-        )
+        postgres_query += f" where {convert_tags_to_postgres(single_category_where)}"
 
     duck_db_create = f"""CREATE TABLE {base_table_name}_{table} AS SELECT {create_select_duck_db} FROM postgres_query("postgres_db", "{postgres_query}") """
 
