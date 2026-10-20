@@ -89,13 +89,9 @@ class BboxFilter(BaseModel):
     @model_validator(mode="after")
     def validate_bounds(self) -> "BboxFilter":
         if self.minx >= self.maxx:
-            raise ValueError(
-                f"minx ({self.minx}) must be less than maxx ({self.maxx})"
-            )
+            raise ValueError(f"minx ({self.minx}) must be less than maxx ({self.maxx})")
         if self.miny >= self.maxy:
-            raise ValueError(
-                f"miny ({self.miny}) must be less than maxy ({self.maxy})"
-            )
+            raise ValueError(f"miny ({self.miny}) must be less than maxy ({self.maxy})")
         return self
 
 
@@ -182,8 +178,8 @@ class PostPassQueryParams(BaseModel):
     @field_validator("geometry")
     @classmethod
     def _extract_polygon(
-            cls,
-            value: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]],
+        cls,
+        value: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]],
     ) -> Optional[Union[Polygon, MultiPolygon]]:
         """Unwrap Feature / FeatureCollection, enforce Polygon/MultiPolygon."""
         if value is None:
@@ -197,9 +193,7 @@ class PostPassQueryParams(BaseModel):
             return value.geometry
         if value.type == "FeatureCollection":
             if len(value.features) != 1:
-                raise ValueError(
-                    "FeatureCollection must contain exactly one feature"
-                )
+                raise ValueError("FeatureCollection must contain exactly one feature")
             geom = value.features[0].geometry
             if geom.type not in ("Polygon", "MultiPolygon"):
                 raise ValueError(
@@ -211,7 +205,9 @@ class PostPassQueryParams(BaseModel):
 
     @field_validator("geometry_type")
     @classmethod
-    def _validate_geometry_types(cls, value: Optional[List[str]]) -> Optional[List[str]]:
+    def _validate_geometry_types(
+        cls, value: Optional[List[str]]
+    ) -> Optional[List[str]]:
         if value is None:
             return value
         invalid = [g for g in value if g not in POSTPASS_TABLE_MAP]
@@ -257,9 +253,7 @@ class PostPassQueryParams(BaseModel):
 
         xs = [p[0] for p in points]
         ys = [p[1] for p in points]
-        return BboxFilter(
-            minx=min(xs), miny=min(ys), maxx=max(xs), maxy=max(ys)
-        )
+        return BboxFilter(minx=min(xs), miny=min(ys), maxx=max(xs), maxy=max(ys))
 
     def get_tables(self) -> list[str]:
         """Return the PostPass table names to query."""
@@ -297,8 +291,8 @@ def build_postpass_bbox_filter(bbox: BboxFilter) -> str:
 
 
 def build_postpass_query(
-        params: PostPassQueryParams,
-        attributes: Optional[List[str]] = None,
+    params: PostPassQueryParams,
+    attributes: Optional[List[str]] = None,
 ) -> str:
     """Build SQL SELECT statements for PostPass tables.
 
@@ -331,6 +325,7 @@ def build_postpass_query(
     # --- SELECT clause ---
     if attributes:
         from .builder import sanitize_column_name
+
         col_parts = ["osm_id"]
         for attr in attributes:
             col_parts.append(
@@ -365,12 +360,16 @@ def build_postpass_query(
         # and geometry-specific filters where they match.
         # Build a simple combined filter for all tables (PostPass has no
         # per-geometry per-table differentiation in its schema).
-        all_filters = [f for f in [
-            master_tag_filter,
-            point_tag_filter,
-            line_tag_filter,
-            poly_tag_filter,
-        ] if f]
+        all_filters = [
+            f
+            for f in [
+                master_tag_filter,
+                point_tag_filter,
+                line_tag_filter,
+                poly_tag_filter,
+            ]
+            if f
+        ]
         if all_filters:
             built = [build_tag_filter(f) for f in all_filters if f]
             built = [b for b in built if b]
@@ -385,9 +384,7 @@ def build_postpass_query(
         where_parts.append(bbox_clause)
 
         where_sql = " AND ".join(where_parts)
-        sub_queries.append(
-            f"SELECT {select_sql} FROM {table} WHERE {where_sql}"
-        )
+        sub_queries.append(f"SELECT {select_sql} FROM {table} WHERE {where_sql}")
 
     return "\nUNION ALL\n".join(sub_queries)
 
@@ -421,5 +418,3 @@ def build_postpass_query(
 #         ")\n"
 #         f"FROM (\n{inner}\n) AS sub"
 #     )
-
-
